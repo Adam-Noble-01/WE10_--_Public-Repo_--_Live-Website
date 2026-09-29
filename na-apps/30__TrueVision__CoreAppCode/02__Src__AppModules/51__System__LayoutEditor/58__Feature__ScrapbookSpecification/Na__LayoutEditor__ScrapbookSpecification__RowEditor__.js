@@ -59,6 +59,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.1.0
+// - The local file is now looked at before Enter writes it (the
+//   specification's lockstep, TrueVision3D v2.162.0). A write held because an
+//   agent or a hand edit changed the file says so, beside the question that
+//   asks which copy to keep - instead of "not written".
+//
 // 22-Sep-2026 - Version 1.0.0
 // - Initial implementation (TrueVision3D v2.144.0).
 //
@@ -397,6 +403,7 @@
         Na__LeSpec__WriteLocalCopy().then((result) => {
             if (result.ok) Na__LeScrapSpecEd__Toast(L('EditSavedLocal', '{code} saved to the local specification file. Save Sheets sends it to the cloud.', { code : code }), false);
             else if (result.skipped) Na__LeScrapSpecEd__Toast(L('EditSavedBrowser', '{code} saved in this browser. Save Sheets sends it to the cloud.', { code : code }), false);
+            else if (result.held) Na__LeScrapSpecEd__Toast(L('EditLocalHeld', '{code} is saved in this browser, but the specification file on disk was changed outside the app, so it was not written over. Choose which copy to keep.', { code : code }), true);
             else Na__LeScrapSpecEd__Toast(L('EditLocalFailed', '{code} is saved in this browser, but the local specification file was not written ({error}). Save Sheets writes it and sends it to the cloud.', { code : code, error : result.error || 'unknown' }), true);
         });
         return { ok : true, changed : true };

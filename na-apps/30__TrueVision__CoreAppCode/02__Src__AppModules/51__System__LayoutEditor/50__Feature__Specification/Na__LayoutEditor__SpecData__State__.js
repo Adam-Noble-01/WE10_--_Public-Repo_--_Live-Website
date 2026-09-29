@@ -49,6 +49,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.2.0
+// - The lockstep with the local file (Na__LayoutEditor__SpecData__Lockstep__):
+//   FileJson and FileIso (what the local TrueVision__DrawingNotes__.json held
+//   when this app last read or wrote it, and when it last changed), LiveIso
+//   (when the app's copy last changed), Conflict (the open question when the
+//   two are out of step) and LocalSaving (a write of the local file in
+//   flight), each with its setter, and DISCARDED_PREFIX, where the copy an
+//   answer did not keep is put aside in this browser.
+//
 // 22-Sep-2026 - Version 1.1.0
 // - LOCATE_EVENT: a request to show a note in the drawing editor's own
 //   Specification tab (the left column), scrolled to and pulsing. Raised by
@@ -85,6 +94,7 @@
     const Na__LeSpec__GOTO_EVENT    = 'na-layouteditor-spec-goto';      // <-- detail { sheetId, leaderId } : show a sheet with a bubble selected
     const Na__LeSpec__LOCATE_EVENT  = 'na-layouteditor-spec-locate';    // <-- detail { noteId, leaderId } : show a note in the drawing's own Specification tab, scrolled to and pulsing
     const Na__LeSpec__DRAFT_PREFIX  = 'Na__LayoutEditor__SpecDraft__';
+    const Na__LeSpec__DISCARDED_PREFIX = 'Na__LayoutEditor__SpecDiscarded__';  // <-- The copy a lockstep answer did not keep, one per project
     const Na__LeSpec__VERSION       = 1;
     const Na__LeSpec__STATUS_IDLE    = 'idle';      // <-- Not asked for yet
     const Na__LeSpec__STATUS_LOADING = 'loading';
@@ -127,6 +137,15 @@
     let Na__LeSpec__ShowToast   = null;
     // ------------------------------------------------------------
 
+    // MODULE VARIABLES | The Lockstep With the Local File (Na__LayoutEditor__SpecData__Lockstep__)
+    // ------------------------------------------------------------
+    let Na__LeSpec__FileJson    = null;     // <-- The local file's content as this app last read or wrote it; null when not known
+    let Na__LeSpec__FileIso     = '';       // <-- When the local file last changed, as the server reports it
+    let Na__LeSpec__LiveIso     = '';       // <-- When the app's copy last changed
+    let Na__LeSpec__Conflict    = null;     // <-- The open lockstep question, when the app's copy and the file disagree
+    let Na__LeSpec__LocalSaving = false;    // <-- A write of the local file is in flight
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -156,6 +175,11 @@
     function Na__LeSpec__SetIdFloor(value)     { Na__LeSpec__IdFloor     = value; }
     function Na__LeSpec__SetEditable(value)    { Na__LeSpec__Editable    = value; }
     function Na__LeSpec__SetShowToast(value)   { Na__LeSpec__ShowToast   = value; }
+    function Na__LeSpec__SetFileJson(value)    { Na__LeSpec__FileJson    = value; }
+    function Na__LeSpec__SetFileIso(value)     { Na__LeSpec__FileIso     = value; }
+    function Na__LeSpec__SetLiveIso(value)     { Na__LeSpec__LiveIso     = value; }
+    function Na__LeSpec__SetConflict(value)    { Na__LeSpec__Conflict    = value; }
+    function Na__LeSpec__SetLocalSaving(value) { Na__LeSpec__LocalSaving = value; }
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -240,6 +264,7 @@
         Na__LeSpec__GOTO_EVENT,
         Na__LeSpec__LOCATE_EVENT,
         Na__LeSpec__DRAFT_PREFIX,
+        Na__LeSpec__DISCARDED_PREFIX,
         Na__LeSpec__VERSION,
         Na__LeSpec__STATUS_IDLE,
         Na__LeSpec__STATUS_LOADING,
@@ -272,6 +297,11 @@
         Na__LeSpec__IdFloor,
         Na__LeSpec__Editable,
         Na__LeSpec__ShowToast,
+        Na__LeSpec__FileJson,
+        Na__LeSpec__FileIso,
+        Na__LeSpec__LiveIso,
+        Na__LeSpec__Conflict,
+        Na__LeSpec__LocalSaving,
         Na__LeSpec__SetDoc,
         Na__LeSpec__SetIndex,
         Na__LeSpec__SetStatus,
@@ -288,6 +318,11 @@
         Na__LeSpec__SetIdFloor,
         Na__LeSpec__SetEditable,
         Na__LeSpec__SetShowToast,
+        Na__LeSpec__SetFileJson,
+        Na__LeSpec__SetFileIso,
+        Na__LeSpec__SetLiveIso,
+        Na__LeSpec__SetConflict,
+        Na__LeSpec__SetLocalSaving,
         Na__LeSpec__Dispatch,
         Na__LeSpec__Toast,
         Na__LeSpec__CleanPrefix,

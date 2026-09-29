@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<!--=========================================================================
+NOBLE ARCHITECTURE - DOCUMENT SHARE LINK RESOLVER
+=============================================================================
+
+FILE        :  index.html
+DIRECTORY   :  ./s/
+NAMESPACE   :  Na__ShareResolver
+MODULE      :  Document Share Link Resolver
+AUTHOR      :  Adam Noble - Noble Architecture
+PURPOSE     :  Turn a shared document link into the project's TrueVision address, opened on that document
+CREATED     :  29-Sep-2026
+
+       - - - - - -  ! ! !  CRITICAL NOTE  ! ! !  - - - - - - -
+- SHARED LINKS POINT HERE. THIS FOLDER MUST NEVER BE MOVED, RENAMED OR REMOVED.
+- A link sent in an email, a WhatsApp message or a planning portal is kept
+  for years. It carries  https://www.noble-architecture.com/s/?RB05&open=Sheet_004
+  and nothing else, so this page is the only thing standing between that
+  message and the document.
+
+DESCRIPTION:
+- Every Share button in TrueVision - a drawing (beside its PDF button in the
+  web viewer and the editor), the Project Specification, the Document
+  Register and each Design Statement, in their Read views - hands out
+      /s/?<project code>&open=<document key>
+  and this page sends the reader on to
+      /na-apps/30__TrueVision__CoreAppCode/Index.html
+          ?project=..&project-folder=..&year=..&open=<document key>
+  where the app opens that document's read view (Na__LayoutEditor__Share__Open__).
+- THE SIBLING OF q/, AND IT READS q/'s INDEX. The printed QR codes are
+  resolved by q/index.html from q/index.json, which the ProjectVision build
+  script writes for every project on every build. A shared link names a
+  project exactly as a printed code does, so it is looked up in the same
+  file: one index, kept in step by one script. If it cannot be read, the
+  ProjectVision master index is asked instead, as q/ does.
+- THE LINK CARRIES NO FOLDER, NO YEAR AND NO APP PATH - only the project's
+  code and the document's key - so renaming a project folder, moving the app
+  or changing how a job is filed changes none of it. What the key OPENS is
+  decided by the app, from the share link record written when the project was
+  published (06__Layout__PublishedDocuments/PublishedDocuments__ShareLinks__.json)
+  and then from its own rules. This page only passes the key through.
+- THE TRUEVISION ADDRESS LIVES IN TWO PLACES: the constant below and its twin
+  in q/index.html. If the app is ever moved, change BOTH - every printed code
+  and every shared link is re-pointed in that one edit each.
+- A KEY IS NEVER TRUSTED: it is passed through only if it is made of the
+  characters a key can be made of, and it is only ever written into the
+  address, never into the page.
+- No frameworks, no assets, no app boot: it has to open in a second on a
+  phone that has never seen this system.
+
+ALSO ANSWERED:  ?p=RB05&open=..   ?project=RB05&open=..   ?RB05&d=.. / doc=..
+                ?RB05&Sheet_004 (the key as a second bare token)
+                ?RB05 on its own opens the project's 3D model, as q/ does.
+A form that has ever been handed out must go on being answered here.
+
+=============================================================================
+-->
+
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>Opening the document | Noble Architecture</title>
+    <meta name="description" content="A document shared from a Noble Architecture project. It opens read-only, on a phone, tablet or computer." />
+
+    <!-- THE PREVIEW A MESSAGING APP DRAWS FOR THE LINK. The same for every
+         document: this page is static, so it cannot name the drawing - the
+         person sending it does that in their message. -->
+    <meta property="og:site_name"   content="Noble Architecture" />
+    <meta property="og:type"        content="website" />
+    <meta property="og:title"       content="Noble Architecture | Project Document" />
+    <meta property="og:description" content="A drawing, specification or statement shared from a Noble Architecture project. Opens read-only on any device." />
+    <meta property="og:image"       content="https://www.noble-architecture.com/assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets/NA03_42_-_PNG_-_Profile-Logo_-_h512px.png" />
+    <meta name="twitter:card"       content="summary" />
+
+    <link rel="icon" type="image/svg+xml" href="https://www.noble-architecture.com/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_01_-_NA_Favicon_-_SVG-h50mm.svg">
+
+    <style>
+        :root {
+            --Color_Primary    : #555041;
+            --Color_Secondary  : #86847d;
+            --Color_Background : #f5f5f5;
+        }
+        html, body { height: 100%; margin: 0; }
+        body {
+            display: flex; align-items: center; justify-content: center;
+            background: var(--Color_Background); color: var(--Color_Primary);
+            font: 400 16px/1.5 'Open Sans', 'Segoe UI', Helvetica, Arial, sans-serif;
+            text-align: center; padding: 24px; box-sizing: border-box;
+        }
+        main   { max-width: 28em; }
+        h1     { font-size: 1.05em; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin: 0 0 0.6em; }
+        p      { margin: 0 0 1em; color: var(--Color_Secondary); }
+        a      { color: var(--Color_Primary); }
+        .code  { font-weight: 600; color: var(--Color_Primary); }
+    </style>
+</head>
+
+
+<body>
+    <main>
+        <h1>Noble Architecture</h1>
+        <p id="naShareStatus" role="status" aria-live="polite">Opening the document&hellip;</p>
+        <noscript><p>This link needs JavaScript to open the document. Please enable it and open the link again, or visit <a href="https://www.noble-architecture.com/">noble-architecture.com</a>.</p></noscript>
+    </main>
+
+
+    <script>
+    // =========================================================================
+    // REGION | Document Share Link Resolver
+    // =========================================================================
+    (function () {
+        'use strict';
+
+        // MODULE CONSTANTS | Where Things Are, Relative to This Page
+        // ------------------------------------------------------------
+        // Relative on purpose: the same page resolves on the live site, on a
+        // local static server and on any future host without being edited.
+        var NA_SHARE_TARGET_APP   = '../na-apps/30__TrueVision__CoreAppCode/Index.html';      // <-- THE TrueVision address; its twin is NA_QR_TARGET_APP in q/index.html - change both together
+        var NA_SHARE_INDEX_URL    = '../q/index.json';                                       // <-- The QR resolver's index: written by ProjectVision__BuildScript__.py on every build
+        var NA_SHARE_MASTER_INDEX = '../na-apps/05__ProjectVision__CoreAppCode/05__AppData/ProjectVision__MasterProjectIndex__Core__.json';   // <-- Asked only when index.json cannot answer
+        var NA_SHARE_HOME_URL     = 'https://www.noble-architecture.com/';
+        var NA_SHARE_OPEN_PARAM   = 'open';                                                  // <-- What the app reads (Na__LayoutEditor__Share__Config__.json, Link__OpenParam)
+        var NA_SHARE_KEY_PARAMS   = [ 'open', 'd', 'doc', 'document' ];                      // <-- Every name a key has been, or might be, sent under
+        var NA_SHARE_CODE_PATTERN = /^[A-Za-z0-9]{2,12}$/;                                  // <-- Wider than q/'s two letters and two digits: a code only has to be FOUND in the index
+        var NA_SHARE_KEY_PATTERN  = /^[A-Za-z0-9][A-Za-z0-9_.\-]{0,63}$/;                   // <-- Na__LeShareLink__KEY_PATTERN: what a document key may be made of
+        // ------------------------------------------------------------
+
+
+        // HELPER FUNCTION | Say Something on the Page
+        // ------------------------------------------------------------
+        // Built from text nodes, never markup: the code shown comes off the
+        // address bar, and an address is something a stranger can write.
+        // ------------------------------------------------------------
+        function Na__ShareResolver__Say(before, code, after, withHomeLink) {
+            var status = document.getElementById('naShareStatus');
+            if (!status) return;
+            while (status.firstChild) status.removeChild(status.firstChild);
+            status.appendChild(document.createTextNode(before));
+            if (code) {
+                var mark = document.createElement('span');
+                mark.className = 'code';
+                mark.appendChild(document.createTextNode(code));
+                status.appendChild(mark);
+            }
+            status.appendChild(document.createTextNode(after || ''));
+            if (withHomeLink) {
+                var link = document.createElement('a');
+                link.href = NA_SHARE_HOME_URL;
+                link.appendChild(document.createTextNode('noble-architecture.com'));
+                status.appendChild(document.createTextNode(' '));
+                status.appendChild(link);
+            }
+        }
+        // ------------------------------------------------------------
+
+
+        // HELPER FUNCTION | The Query's Tokens, Decoded, Each as { name, value, bare }
+        // ------------------------------------------------------------
+        function Na__ShareResolver__Tokens() {
+            var search = (window.location.search || '').replace(/^\?/, '');
+            var out = [];
+            if (search === '') return out;
+            var parts = search.split('&');
+            for (var i = 0; i < parts.length; i++) {
+                if (parts[i] === '') continue;
+                var at    = parts[i].indexOf('=');
+                var name  = at === -1 ? parts[i] : parts[i].slice(0, at);
+                var value = at === -1 ? '' : parts[i].slice(at + 1);
+                try { name = decodeURIComponent(name.replace(/\+/g, ' ')); value = decodeURIComponent(value.replace(/\+/g, ' ')); }
+                catch (error) { continue; }                                          // <-- A mangled token is skipped, never guessed at
+                out.push({ name : name.trim(), value : value.trim(), bare : at === -1 || value === '' });
+            }
+            return out;
+        }
+        // ------------------------------------------------------------
+
+
+        // HELPER FUNCTION | Read the Project Code Off the Address
+        // ------------------------------------------------------------
+        // ?RB05 is what a Share button hands out: the first token, bare, as a
+        // printed QR code carries it. p= and project= and #RB05 are answered too.
+        // ------------------------------------------------------------
+        function Na__ShareResolver__ReadCode(tokens) {
+            var candidates = [];
+            if (tokens.length && tokens[0].bare) candidates.push(tokens[0].name);
+            for (var i = 0; i < tokens.length; i++) {
+                if (tokens[i].name === 'p' || tokens[i].name === 'project') candidates.push(tokens[i].value);
+            }
+            candidates.push((window.location.hash || '').replace(/^#/, ''));
+            for (var j = 0; j < candidates.length; j++) {
+                var value = String(candidates[j] || '').trim();
+                if (NA_SHARE_CODE_PATTERN.test(value)) return value.toUpperCase();
+            }
+            return '';
+        }
+        // ------------------------------------------------------------
+
+
+        // HELPER FUNCTION | Read the Document Key Off the Address ('' when none)
+        // ------------------------------------------------------------
+        // A named key first (open=, then its other names); else a second bare
+        // token, which is what is left when an app or a person strips "open=".
+        // ------------------------------------------------------------
+        function Na__ShareResolver__ReadKey(tokens) {
+            for (var n = 0; n < NA_SHARE_KEY_PARAMS.length; n++) {
+                for (var i = 0; i < tokens.length; i++) {
+                    if (tokens[i].name === NA_SHARE_KEY_PARAMS[n] && NA_SHARE_KEY_PATTERN.test(tokens[i].value)) return tokens[i].value;
+                }
+            }
+            for (var k = 1; k < tokens.length; k++) {
+                if (tokens[k].bare && NA_SHARE_KEY_PATTERN.test(tokens[k].name)) return tokens[k].name;
+            }
+            return '';
+        }
+        // ------------------------------------------------------------
+
+
+        // HELPER FUNCTION | Fetch One Index and Pull a Project's Entry Out of It
+        // ------------------------------------------------------------
+        // Both indexes keep their projects under "projects", keyed by code, with
+        // projectFolder and projectYear on each. Resolves null for "not there".
+        // ------------------------------------------------------------
+        function Na__ShareResolver__Lookup(indexUrl, code) {
+            return fetch(indexUrl, { cache : 'no-store' }).then(function (response) {
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                return response.json();
+            }).then(function (index) {
+                var entry = index && index.projects ? index.projects[code] : null;
+                if (!entry || !entry.projectFolder || !entry.projectYear) return null;
+                return { folder : String(entry.projectFolder), year : String(entry.projectYear) };
+            });
+        }
+        // ------------------------------------------------------------
+
+
+        // FUNCTION | The Project's Address, Opened on the Document
+        // ------------------------------------------------------------
+        function Na__ShareResolver__Target(code, entry, key) {
+            return NA_SHARE_TARGET_APP +
+                '?project='        + encodeURIComponent(code) +
+                '&project-folder=' + encodeURIComponent(entry.folder) +
+                '&year='           + encodeURIComponent(entry.year) +
+                (key ? '&' + NA_SHARE_OPEN_PARAM + '=' + encodeURIComponent(key) : '');
+        }
+        // ------------------------------------------------------------
+
+
+        // FUNCTION | Resolve the Address This Page Was Opened With
+        // ------------------------------------------------------------
+        function Na__ShareResolver__Run() {
+            var tokens = Na__ShareResolver__Tokens();
+            var code   = Na__ShareResolver__ReadCode(tokens);
+            var key    = Na__ShareResolver__ReadKey(tokens);
+            if (!code) {
+                Na__ShareResolver__Say('This link does not name a project. Please check the link you were sent, or visit', '', '', true);
+                return;
+            }
+
+            Na__ShareResolver__Lookup(NA_SHARE_INDEX_URL, code)
+                .catch(function () { return null; })                            // <-- An unreadable index is the same as an empty one: ask the other
+                .then(function (entry) { return entry || Na__ShareResolver__Lookup(NA_SHARE_MASTER_INDEX, code).catch(function () { return null; }); })
+                .then(function (entry) {
+                    if (entry) { window.location.replace(Na__ShareResolver__Target(code, entry, key)); return; }   // <-- replace, so Back leaves rather than bouncing through here again
+                    Na__ShareResolver__Say('We could not find project ', code,
+                                           '. It may not be published yet. Please try again shortly, or visit', true);
+                });
+        }
+        // ------------------------------------------------------------
+
+        // Exposed for the test harness only (80__Testing__PrototypeEnvironment/Na__Test__ShareLinks__.test.mjs)
+        window.Na__ShareResolver = { Tokens : Na__ShareResolver__Tokens, ReadCode : Na__ShareResolver__ReadCode, ReadKey : Na__ShareResolver__ReadKey, Target : Na__ShareResolver__Target };
+
+        Na__ShareResolver__Run();
+    })();
+    // endregion ===============================================================
+    </script>
+</body>
+</html>

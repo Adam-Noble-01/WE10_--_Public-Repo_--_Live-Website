@@ -24,8 +24,9 @@
 // INTEGRATION:
 // - Imports the State and Document units, the config state and the project
 //   code. Imported by the Editing unit (ScheduleDraft), the Transport unit
-//   (ScheduleDraft, ClearDraft, RestoreDraft) and
-//   Na__LayoutEditor__SpecData__.js (FlushDraft).
+//   (ScheduleDraft, ClearDraft), the Lockstep unit (ReadDraft, WriteDraft,
+//   ClearDraft, RestoreDraft) and Na__LayoutEditor__SpecData__.js
+//   (FlushDraft).
 //
 // -----------------------------------------------------------------------------
 //
@@ -40,6 +41,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.1.0
+// - ReadDraft and WriteDraft are exported for the lockstep with the local file
+//   (Na__LayoutEditor__SpecData__Lockstep__): where the lockstep is on, a draft
+//   that differs from the file is ASKED about on load instead of put back
+//   (RestoreDraft is then not called), and the app's copy goes to the draft
+//   the moment the file is found to have moved, so an unanswered question
+//   survives the tab being closed.
+//
 // 15-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__SpecData__.js; the code moved verbatim.
 //
@@ -186,6 +195,8 @@
     // MODULE EXPORTS | Specification Data Browser Draft
     // ------------------------------------------------------------
     export {
+        Na__LeSpec__ReadDraft,
+        Na__LeSpec__WriteDraft,
         Na__LeSpec__ClearDraft,
         Na__LeSpec__ScheduleDraft,
         Na__LeSpec__FlushDraft,

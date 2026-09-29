@@ -59,8 +59,10 @@
 
     const BASE = '../02__Src__AppModules/51__System__LayoutEditor/52__Feature__StatementWriter/';
     const { Na__LeStmtFig__Read, Na__LeStmtFig__Justify, Na__LeStmtFig__Uncrop, Na__LeStmtFig__BuildCrop,
-            Na__LeStmtFig__Dress }
+            Na__LeStmtFig__Dress, Na__LeStmtFig__SetDress }
         = await import(BASE + '04__Ui__Editor/Na__LayoutEditor__Statement__Editor__Figure__.js');
+    const { Na__LeStmtRnd__FigureZoom }
+        = await import(BASE + '02__Core__Markdown/Na__LayoutEditor__Statement__Md__Render__.js');
     const { Na__LeStmtMd__Tokenise, Na__LeStmtMd__Join }
         = await import(BASE + '02__Core__Markdown/Na__LayoutEditor__Statement__Md__Tokenise__.js');
 
@@ -218,6 +220,61 @@
     ok('gains a style attribute', /style="/.test(bareRight), bareRight);
     check('and reads back as right', Na__LeStmtFig__Read(bareRight).Justify, 'right');
     ok('and keeps its src', bareRight.includes('src="./a/b.png"'), bareRight);
+
+    // ---------------------------------------- frame and shadow switches (2026-09-29)
+    // EACH HALF OF THE FRAME SWITCHES ON ITS OWN, and a switch is a class, not
+    // an inline declaration: the stylesheet still owns what a frame looks like.
+    say('Switching the frame and the shadow off and on');
+
+    const CENTRED = '<img class="na-figure" src="./a/b.png" style="zoom: 30%; display: block; margin-left: auto; margin-right: auto;" />';
+    const plainState = Na__LeStmtFig__Read(CENTRED);
+    ok('a classed figure reads as framed and shadowed', plainState.Frame && plainState.Shadow, JSON.stringify(plainState));
+
+    const noFrame = Na__LeStmtFig__SetDress(CENTRED, 'frame', false);
+    say('  ' + noFrame);
+    check('frame off wears the no-frame class', /class="na-figure na-figure--no-frame"/.test(noFrame) ? 'yes' : noFrame, 'yes');
+    ok('and reads back as unframed but still shadowed', !Na__LeStmtFig__Read(noFrame).Frame && Na__LeStmtFig__Read(noFrame).Shadow);
+    check('and nothing else in the markup moved', noFrame.replace(' na-figure--no-frame', ''), CENTRED);
+
+    const noShadow = Na__LeStmtFig__SetDress(CENTRED, 'shadow', false);
+    ok('shadow off wears the no-shadow class and keeps the frame',
+       /na-figure--no-shadow/.test(noShadow) && Na__LeStmtFig__Read(noShadow).Frame && !Na__LeStmtFig__Read(noShadow).Shadow, noShadow);
+
+    const neither = Na__LeStmtFig__SetDress(noFrame, 'shadow', false);
+    say('  ' + neither);
+    ok('both off leaves a plain picture with no figure classes', !/class=/.test(neither), neither);
+    const again = Na__LeStmtFig__SetDress(Na__LeStmtFig__SetDress(neither, 'frame', true), 'shadow', true);
+    check('and both back on gives the figure back exactly', again, CENTRED);
+
+    const logo = '<img src="./logo.png" style="width:75mm; margin-left: -3mm; " />';
+    const logoFramed = Na__LeStmtFig__SetDress(logo, 'frame', true);
+    say('  ' + logoFramed);
+    ok('framing a plain picture adds the frame WITHOUT a shadow',
+       /class="na-figure na-figure--no-shadow"/.test(logoFramed) && !Na__LeStmtFig__Read(logoFramed).Shadow, logoFramed);
+
+    const legacyOff = Na__LeStmtFig__SetDress(FIGURE, 'frame', false);
+    ok('frame off on an old inline-styled figure takes the inline border away',
+       !/border\s*:/.test(legacyOff) && /box-shadow\s*:/.test(legacyOff) && !Na__LeStmtFig__Read(legacyOff).Frame, legacyOff);
+
+    const offCrop = Na__LeStmtFig__BuildCrop('./a/b.png', rect, shown, Na__LeStmtFig__Dress(noShadow), 'centre');
+    ok('a crop carries the switch out onto the frame', /^<div class="na-figure na-figure--no-shadow"/.test(offCrop), offCrop);
+    const offBack = Na__LeStmtFig__Uncrop(offCrop, 'centre');
+    ok('and the uncrop carries it back in', /^<img class="na-figure na-figure--no-shadow"/.test(offBack.trim()), offBack);
+
+    // ------------------------------------------------ the frame under a zoom
+    // ZOOM SCALES A BORDER. The renderer tells each framed figure its zoom so
+    // the stylesheet can divide it back out; the markdown never carries it.
+    say('A framed figure is told its zoom');
+    const told = Na__LeStmtRnd__FigureZoom(CENTRED);
+    say('  ' + told);
+    ok('a framed figure at zoom 30% carries --na-figure-zoom: 0.3', /--na-figure-zoom:\s*0\.3;/.test(told), told);
+    check('and nothing else changed', told.replace(' --na-figure-zoom: 0.3;', ''), CENTRED);
+    check('a picture without the class is left alone', Na__LeStmtRnd__FigureZoom(logo), logo);
+    check('a figure at zoom 100% is left alone',
+          Na__LeStmtRnd__FigureZoom('<img class="na-figure" src="x" style="zoom: 100%;" />'), '<img class="na-figure" src="x" style="zoom: 100%;" />');
+    ok('a resized crop frame is told its zoom, its picture is not',
+       /^<div class="na-figure"[^>]*--na-figure-zoom: 0\.8;/.test(Na__LeStmtRnd__FigureZoom(classedCrop.replace('zoom: 100%', 'zoom: 80%')))
+       && !/<img[^>]*--na-figure-zoom/.test(Na__LeStmtRnd__FigureZoom(classedCrop.replace('zoom: 100%', 'zoom: 80%'))));
 
     say(failed === 0 ? 'ALL CHECKS PASSED' : failed + ' CHECK(S) FAILED', failed === 0 ? 'pass' : 'fail');
     document.title = failed === 0 ? 'FIGURE OK' : 'FIGURE FAILED (' + failed + ')';

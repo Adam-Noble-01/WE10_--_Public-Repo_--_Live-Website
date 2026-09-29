@@ -524,6 +524,10 @@
         "LayoutEditor__Specification__HistorySteps": 50,
         "LayoutEditor__Specification__LoadTimeoutMs": 12000,
         "LayoutEditor__Specification__ConfirmCloudOverwrite": true,
+        "LayoutEditor__Specification__LockstepEnabled": true,
+        "LayoutEditor__Specification__LockstepPollMs": 3000,
+        "LayoutEditor__Specification__AutoSaveLocalMs": 4000,
+        "LayoutEditor__Specification__LockstepNote": "Keeps the specification in the app and its local file (FileName) in step, as the Statement Writer does with a statement's markdown. Agents and hand edits change the local file directly, so on localhost the app looks at it on load, every LockstepPollMs while the drawing editor is open, when the window gets the focus back, and immediately before every write - the autosave, Enter in the drawing's Specification tab, Save Sheets and Sync. If the file no longer holds what the app last read or wrote, nothing is written and the app asks which copy to keep - its own (kept in this browser as a JSON draft) or the file - showing when each last changed and which notes differ. The copy not chosen is kept in this browser (Na__LayoutEditor__SpecDiscarded__<code>). What is in the app is written to the file AutoSaveLocalMs after the editing pauses (0 turns that off), so an agent always starts from what is on screen; R2 is still written only by Save Sheets and Sync. Whether the copies agree is decided by their content, not by each note's stamp; the times only explain. Set LockstepEnabled false to go back to the last save winning (the autosave to the file stops with it).",
         "LayoutEditor__Specification__StarterGroupsNote": "The groups Add standard groups creates on a project with no specification. IsGeneral marks a group of general notes: they are listed on every sheet's notes margin, after the notes that sheet's bubbles link to.",
         "LayoutEditor__Specification__StarterGroups": [
             { "Prefix": "GN", "Title": "General Notes", "IsGeneral": true },

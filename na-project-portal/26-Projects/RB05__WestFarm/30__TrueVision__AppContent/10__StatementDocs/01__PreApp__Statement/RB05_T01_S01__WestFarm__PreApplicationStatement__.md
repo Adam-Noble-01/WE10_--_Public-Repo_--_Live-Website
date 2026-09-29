@@ -1,36 +1,53 @@
-<img src="https://www.noble-architecture.com/assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets/NA03_01_-_PNG_-_NA_Company_Logo_-_w2048_x_h500px.png" style="width:75mm; margin-left: -3mm; " />
+<div class="na-le-stmt-std-marker" data-na-standard-section="DocumentHeader">
+Title: Pre-Application Design Statement
+Applicant: Mr Samuel Stoffel and Miss Rachael Baum
+Site Address:
+    West Beacon Farm
+    Deans Lane
+    Woodhouse Eaves
+    Loughborough
+    Leicestershire
+    LE12 8TE
+Local Planning Authority: Charnwood Borough Council  -  Parish of Woodhouse
+Prepared By: Mr Adam Noble of Noble Architecture on behalf of Mr Stoffel and Miss Baum
+Document Version: Revision A  -  25ⁿᵈ September 2026
+</div>
 
-## Pre-Application Design Statement
+<div style=" /* | - - - - - - - - - - - -->|  Horizontal Page Divider Line   |<-- - - - - - - - - - - - - - - - -|  */ 
+    text-align           :     center;    
+    padding-top          :    05.00mm;    /*  <--- Space Above The Divider Line  */
+    padding-bottom       :    05.00mm;    /*  <--- Space Below The Divider Line  */
+    margin-top           :    00.00mm;    
+    margin-bottom        :    00.00mm;    
+    ">                                   
+    <div style="                         
+        width            :       100%;    
+        border-style     :      solid;    
+        border-width     :     0.01pt;    
+        border-color     :    #ebebeb;    
+        ">                               
+    </div>                                
+</div>  
 
+<div class="na-le-stmt-std-marker" data-na-standard-section="Contents">Standard Section: Table Of Contents. It is drawn from this statement's own headings by TrueVision's Statement Writer; this line is all an editor without it can show.</div>
 
+<div style=" /* | - - - - - - - - - - - -->|  Horizontal Page Divider Line   |<-- - - - - - - - - - - - - - - - -|  */ 
+    text-align           :     center;    
+    padding-top          :    05.00mm;    /*  <--- Space Above The Divider Line  */
+    padding-bottom       :    05.00mm;    /*  <--- Space Below The Divider Line  */
+    margin-top           :    00.00mm;    
+    margin-bottom        :    00.00mm;    
+    ">                                   
+    <div style="                         
+        width            :       100%;    
+        border-style     :      solid;    
+        border-width     :     0.01pt;    
+        border-color     :    #ebebeb;    
+        ">                               
+    </div>                                
+</div>  
 
-##### Applicant: 
-
-Mr Samuel Stoffel and Miss Rachael Baum
-
-
-##### Site Address:
-
-West Beacon Farm
-Deans Lane
-Woodhouse Eaves
-Loughborough
-Leicestershire
-LE12 8TE
-
-##### Local Planning Authority:
-
-Charnwood Borough Council  -  Parish of Woodhouse
-
-##### Prepared By:
-
-Mr Adam Noble of Noble Architecture on behalf of Mr Stoffel and Miss Baum
-
-
-
-##### **Document Version**
-
-Revision A   *-  22ⁿᵈ September 2026*
+<div class="na-le-stmt-std-marker" data-na-standard-section="TrueVisionHub">Standard Section: TrueVision 3D Project Hub. It is drawn with the project's live link and QR code by TrueVision's Statement Writer; this line is all an editor without it can show.</div>
 
 <div style=" /* | - - - - - - - - - - - -->|  Horizontal Page Divider Line   |<-- - - - - - - - - - - - - - - - -|  */ 
     text-align           :     center;    
@@ -50,7 +67,7 @@ Revision A   *-  22ⁿᵈ September 2026*
 
 ### 1.0 |  Introduction
 
-This Pre-Application Design Statement has been prepared by Noble Architecture on behalf of Mr Samuel Stoffel and Miss Rachael Baum. It accompanies a request for the pre-application advice of Charnwood Borough Council on the future of West Beacon Farm on Deans Lane near Woodhouse Eaves. The proposal is the demolition of the existing 1960s dwelling and its replacement with a country house of Georgian farmhouse character together with associated works to the grounds. This document supports an enquiry rather than a planning application. The scheme is at concept stage and its materials dimensions and levels will be fixed before a full application is made.
+This Pre-Application Design Statement has been prepared by Noble Architecture on behalf of Mr Samuel Stoffel and Miss Rachael Baum. It accompanies a request for the pre-application advice of Charnwood Borough Council on the future of West Beacon Farm on Deans Lane near Woodhouse Eaves. The proposal is the demolition of the existing 1960s dwelling and its replacement with a country house of Georgian farmhouse character together with associated works to the grounds. This document supports an enquiry rather than a planning application. The scheme is at concept stage and its materials dimensions and levels will be fixed before a full application is made. The site works in particular are drawn to illustrate the intended layout. Their engineering levels drainage and tree work are still to be designed by the specialists whom the applicants will appoint before a full application in the light of the council's advice.
 
 #### Purpose Of This Pre-Application Enquiry
 
@@ -60,7 +77,7 @@ This proposal raises exactly those matters. It replaces a lawful dwelling in the
 
 #### The Applicants And Their Intentions
 
-Mr Stoffel and Miss Baum purchased West Beacon Farm in September 2026 and now own the holding outright. They intend to make it their home. Their brief combines a principal house of genuine architectural quality with the working spaces their daily lives require. Both applicants run their own brands and businesses from home and they need places to work that are separate from the house. Three single storey studio buildings in the service yard will provide a home office for that work together with a private gym. One of the workspaces will contain a podcasting studio. The studio buildings replace an asbestos roofed hay barn as described at section 10.0. Guest accommodation and the utility rooms of a large household are placed in a separate coach house so that everyday life in the main house remains uncluttered.
+Mr Stoffel and Miss Baum purchased West Beacon Farm in September 2026 and now own the holding outright. They intend to make it their home. Their brief combines a principal house of genuine architectural quality with the spaces their daily lives require. The household needs a home office a home recording studio and a home gym set apart from the house itself. These are provided by the Lake House, a group of three single storey Bonni outbuildings that replaces an asbestos roofed hay barn as described at section 8.2. The Lake House is part of the residential use of the home and ancillary to the dwelling and it contains no living or sleeping accommodation. Guest accommodation and the utility rooms of a large household are placed in a separate coach house so that everyday life in the main house remains uncluttered.
 
 [TO CONFIRM: a short account of the applicants' household and of their reasons for choosing West Beacon Farm would strengthen this section. Nothing further is assumed here.]
 
@@ -68,13 +85,13 @@ Mr Stoffel and Miss Baum purchased West Beacon Farm in September 2026 and now ow
 
 The existing dwelling is to be demolished in full. In its place a two storey main house with a second floor of accommodation in the roof is proposed in the area of the existing dwelling within the developed core of the holding. The main house is linked by a painted timber orangery and a colonnade entrance to a kitchen building designed to read as a converted barn. A coach house designed to read as a converted stable range adjoins the kitchen building and closes one side of an arrival courtyard. The accommodation is drawn on drawings RB05_T01_D06 to RB05_T01_D09 and totals approximately 1,245 square metres across the main house and the ground floor of the coach house.
 
-The wider site works comprise a horseshoe carriage drive to the principal entrance and a side route through the coach house carriage arch to the service yard. They also include an outdoor swimming pool between the house and the lake together with an indicative four car timber carport against the tree line and a privacy hedge along the line of the helicopter hangar. In the service yard an asbestos roofed hay barn and a stable building are removed and three single storey studio buildings take their place. The lake the hangar and part of the existing landing strip are retained. The proposed layout is shown on drawing RB05_T01_D13 and described at section 6.2.
+The wider site works are set out in sequence at section 8.0. An asbestos roofed hay barn and the stables shed beside it are removed. On the site of the barn the Lake House provides a home office a home recording studio and a home gym for the household in three single storey Bonni outbuildings with two parking spaces. An infinity edge pool faces the lake at the foot of hedged lawn terraces that step down from the house. A horseshoe carriage drive leads to the principal entrance and joins Deans Lane at two points. The established entrance is kept and a second access is added further along the lane so that the drive has a separate way in and way out. A side route runs through the coach house carriage arch to the Lake House and the field gate beyond. A service access road bypasses the arch for the occasional larger vehicle that the arch cannot take. Four parking spaces sit against the tree line beside the helicopter hangar and a privacy hedge runs along the line of the hangar. The small pond in front of the house is relocated to a new pond of up to five times its area that is designed as habitat and to receive the surface water of the drives. The lake the hangar and part of the existing landing strip are retained. The proposed layout is shown on drawing RB05_T01_D13.
 
 #### Commitment To A Considered Replacement
 
-The design ethos is restraint of character rather than modesty of accommodation. The applicants have deliberately sought a faithful Georgian farmhouse rather than a stately home. Formal architecture is concentrated on the principal block alone. The kitchen building and the coach house are handled as the plainer agricultural buildings of a farmstead. The whole group is gathered within the part of the holding that is already built upon and the woodland belts lake and mature planting that contain it are retained as the framework for the scheme. The principal block is some fourteen metres shorter across the site than the long low range it replaces. It is built in coursed natural stone with cut ashlar dressings beneath natural stone slate roofs. The result replaces a dwelling of piecemeal character with a composed building of lasting quality in a documented local material tradition.
+The design ethos is restraint of character rather than modesty of accommodation. The applicants have deliberately sought a faithful Georgian farmhouse rather than a stately home. Formal architecture is concentrated on the principal block alone. The kitchen building and the coach house are handled as the plainer agricultural buildings of a farmstead. The whole group is gathered within the part of the holding that is already built upon and the woodland belts and lake that contain it are retained as the framework for the scheme. The woodland that the scheme does clear in front of the house is set out openly at section 8.5. The principal block is some fourteen metres shorter across the site than the long low range it replaces. It is built in coursed natural stone with cut ashlar dressings beneath natural stone slate roofs. The result replaces a dwelling of piecemeal character with a composed building of lasting quality in a documented local material tradition.
 
-The statement proceeds as follows. Section 2.0 introduces the scheme through two concept visualisations. Sections 3.0 to 5.0 examine the holding the existing dwelling and the site constraints. Section 6.0 sets out the design strategy and section 7.0 takes the architecture apart elevation by elevation. Landscape ecology access and servicing follow at sections 8.0 and 9.0. Section 10.0 makes the case for replacing the hay barn in the service yard with the new studio buildings. The planning policy context is set out at section 11.0. Section 12.0 identifies the matters on which the council's advice is sought and section 13.0 concludes. Throughout the design process we have sought to identify every material consideration at the outset and to state openly where further survey or design work is still required.
+The statement proceeds as follows. Section 2.0 introduces the scheme through two concept visualisations. Sections 3.0 to 5.0 examine the holding the existing dwelling and the site constraints. Section 6.0 sets out the design strategy for the house and section 7.0 takes its architecture apart elevation by elevation. Section 8.0 then takes the other proposed works in turn. It begins with the replacement of the hay barn by the Lake House and moves on to the infinity edge pool and the hedged lawn terraces before the driveway and the alterations to the front pond. Landscape ecology access and servicing follow at sections 9.0 and 10.0. The planning policy context is set out at section 11.0. Section 12.0 identifies the matters on which the council's advice is sought and section 13.0 concludes. Throughout the design process we have sought to identify every material consideration at the outset and to state openly where further survey or design work is still required.
 
 <div style=" /* | - - - - - - - - - - - -->|  Horizontal Page Divider Line   |<-- - - - - - - - - - - - - - - - -|  */ 
     text-align           :     center;    
@@ -98,17 +115,19 @@ The proposal is the demolition of the existing 1960s dwelling and the erection o
 
 The two visualisations below show the scheme as it will be seen from the arrival courtyard and from the garden. Everything that follows in this statement is in service of what these two images show.
 
-![RB03_T01_V10__FrontFascade__SouthElevation__28-Aug-2026__](https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/05__Layout__DrawingDocs__Images/RB05_T01_D01/RB03_T01_V10__FrontFascade__SouthElevation__28-Aug-2026__f305e28510.webp)
+<figure class="na-figure-block" style="margin-left: auto; margin-right: auto;">
+<img class="na-figure" src="https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/05__Layout__DrawingDocs__Images/RB05_T01_D01/RB03_T01_V10__FrontFascade__SouthElevation__28-Aug-2026__f305e28510.webp" style="zoom: 30%; display: block; margin-left: auto; margin-right: auto;" />
+<figcaption class="na-figure-title"><strong>Fig 2.1  -</strong>  Concept Visualisation  -  The South East Entrance Front Of The Proposed Replacement Dwelling</figcaption>
+</figure>
 
-**Fig 2.1  -**  Concept Visualisation  -  The South East Entrance Front Of The Proposed Replacement Dwelling
 
 
+<figure class="na-figure-block" style="margin-left: auto; margin-right: auto;">
+<img class="na-figure" src="https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/05__Layout__DrawingDocs__Images/RB05_T01_D01/RB03_T01_V11__RearCgi__NorthElevation__29-Aug-2026__0a982a8998.webp" style="zoom: 30%; display: block; margin-left: auto; margin-right: auto;" />
+<figcaption class="na-figure-title"><strong>Fig 2.2  -</strong>  Concept Visualisation  -  The North West Garden Front With The Orangery Link And The Kitchen Building Beyond</figcaption>
+</figure>
 
-![RB03_T01_V11__RearCgi__NorthElevation__29-Aug-2026__](https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/05__Layout__DrawingDocs__Images/RB05_T01_D01/RB03_T01_V11__RearCgi__NorthElevation__29-Aug-2026__0a982a8998.webp)
-
-**Fig 2.2  -**  Concept Visualisation  -  The North West Garden Front With The Orangery Link And The Kitchen Building Beyond
-
-The application site the existing dwelling and the site constraints are examined at sections 3.0 to 5.0. The design strategy follows at section 6.0 and the scheme is then taken apart elevation by elevation at section 7.0.
+The application site the existing dwelling and the site constraints are examined at sections 3.0 to 5.0. The design strategy for the house follows at section 6.0 and its architecture is then taken apart elevation by elevation at section 7.0. The other proposed works follow in sequence at section 8.0.
 
 <div style=" /* | - - - - - - - - - - - -->|  Horizontal Page Divider Line   |<-- - - - - - - - - - - - - - - - -|  */ 
     text-align           :     center;    
@@ -138,33 +157,41 @@ The settlement pattern in this part of the Forest is not one of continuous villa
 
 Understanding this pattern matters because it is the established character against which the proposal will be judged. That character is examined in the following section.
 
-<img class="na-figure" src="./02_StatementDocs__Content__Images/02__Site__Location/Location__Far__.png" style="zoom: 25%; display: block; margin-left: auto; margin-right: auto;" />
 
-​		**Fig 3.1  -**  Site Location  -  Wider Context Within Charnwood And North Leicestershire
 
-<img class="na-figure" src="./02_StatementDocs__Content__Images/02__Site__Location/Location__Near__.png" style="zoom: 26%; display: block; margin-left: auto; margin-right: auto;" />
-
-​		**Fig 3.2  -**  Site Location  -  Local Context To Woodhouse Eaves And Deans Lane
+<figure class="na-figure-block" style="margin-left: auto; margin-right: auto;">
+<img class="na-figure" src="./02__DocImages/02__Site__Location/Location__Near__.png" style="zoom: 26%; display: block; margin-left: auto; margin-right: auto;" />
+<figcaption class="na-figure-title"><strong>Fig 3.1  -</strong>  Site Location  -  Local Context To Woodhouse Eaves And Deans Lane</figcaption>
+</figure>
 
 #### 3.2 |  The Established Pattern Of Large Houses In The Locality
 
 This part of Charnwood Forest has been characterised by large individual houses standing in substantial private grounds for the better part of two centuries. That character is documented rather than asserted and it is drawn directly from the council's own records and from the current property market in the village.
 
-The historic examples surround the site. Beaumanor Hall at Woodhouse is a Grade II* listed country house built between 1842 and 1848 by the architect William Railton in a Jacobean style and constructed in stone. Before 1939 its estate extended to some 6,500 acres of which around 350 acres formed the park. The Brand at Brand Hill in Woodhouse Eaves is a Grade II listed house of 1875 by Alfred Waterhouse and the council's own listed building record describes it as being built of granite and slate rubble stone with stone plinth cornice and dressings beneath a Swithland slate roof. Swithland Hall a short distance to the south east is a neoclassical country house of the same century by James Pennethorne again in granite and slate rubble with Swithland slate roofs. These are not distant comparators. They are the immediate architectural company that West Beacon Farm keeps.
+The historic examples surround the site. Beaumanor Hall at Woodhouse is a Grade II\* listed country house built between 1842 and 1848 by the architect William Railton in a Jacobean style and constructed in stone. Before 1939 its estate extended to some 6,500 acres of which around 350 acres formed the park. The Brand at Brand Hill in Woodhouse Eaves is a Grade II listed house of 1875 by Alfred Waterhouse and the council's own listed building record describes it as being built of granite and slate rubble stone with stone plinth cornice and dressings beneath a Swithland slate roof. Swithland Hall a short distance to the south east is a neoclassical country house of the same century by James Pennethorne again in granite and slate rubble with Swithland slate roofs. These examples are the immediate architectural company that West Beacon Farm keeps so should be used as a precedent.
 
-Crucially this is not a closed historic tradition. Hillview House on Benscliffe Road at Newtown Linford is a stone built country house of over 13,000 square feet standing in approximately 28 acres in the same Charnwood Forest landscape. It was built in the early 2000s in a frankly traditional Voysey and Arts and Crafts idiom rather than in a contemporary style. It was most recently marketed at £7,000,000 and is now sold subject to contract. It is the closest available analogue to this proposal and it demonstrates beyond argument that a large new house designed in a historic architectural language is an established and accepted part of this landscape within living memory.
+Crucially this is not a closed historic tradition. Hillview House on Benscliffe Road at Newtown Linford is a stone built country house of over 13,000 square feet standing in approximately 28 acres in the same Charnwood Forest landscape. It was built in the early 2000s in a frankly traditional Voysey and Arts and Crafts idiom. It was most recently marketed at £7,000,000 and is now sold subject to contract. It is the closest available analogue to this proposal and it demonstrates beyond argument that a large new house designed in a historic architectural language is an established and accepted part of this landscape within living memory.
 
-The village itself supports the same reading. Maplewell Farm at Woodhouse Eaves is currently marketed at offers over £3,000,000 standing in approximately 11 acres at the end of a long private drive. A separate period house on Maplewell Road is marketed at £3,250,000 and is approached by a private driveway of some 150 metres. A further house at Church Hill is marketed at £1,950,000 on 2.47 acres. The housing stock of this locality is therefore substantial houses on substantial plots approached by private drives which is precisely the form of development proposed.
+The village itself supports the same reading. Maplewell Farm at Woodhouse Eaves is currently marketed at offers over £3,000,000 standing in approximately 11 acres at the end of a long private drive. A separate period house Maplehurst on Maplewell Road dating from 1865 was most recently marketed at a guide price of £3,250,000 and is now sold subject to contract. It is approached by a private driveway of some 150 metres. A further house at Church Hill is marketed at £1,950,000 on 2.47 acres. The housing stock of this locality is therefore substantial houses on substantial plots approached by private drives which is precisely the form of development proposed.
 
 It is important to be clear about how this evidence is used. The applicants do not advance property values as a planning consideration and they are not material to the determination of this proposal. The evidence is set out because it establishes the character and appearance of the locality which is material and because it demonstrates that a large well designed house in a traditional idiom set in its own grounds is the established pattern here rather than an exception to it.
 
 There is a further point that follows from the same evidence. The prevailing historic material palette in this locality is granite and slate rubble walling with cut stone dressings beneath Swithland slate roofs. That is the council's own description of the listed buildings nearest to the site. The stone walling cut ashlar dressings and stone slate roof proposed at section 7.0 therefore sit within a documented local tradition rather than being imported from elsewhere.
 
-[TO CONFIRM: the market figures above are taken from agent marketing material available in September 2026 and are current as at that date. Screen captures should be taken for the appendix before submission. Distances from the application site to each named property to be measured on the OS data.]
+The distances from the application site to each of these houses are set out below. They are measured on the Ordnance Survey National Grid from the existing dwelling at West Beacon Farm and Figure 3.2 shows the same houses on a location plan. The market details are those shown on the selling agents' published listings on 29 September 2026 and a screen capture of each listing is held on the project file.
 
-[TO CONFIRM: image required  -  a location plan marking the named comparator houses against the application site would carry this section far more effectively than the prose alone.]
+<figure class="na-figure-block" style="margin-left: auto; margin-right: auto;">
+<img class="na-figure" src="./02__DocImages/02__Site__Location/Location__NamedHouses__.png" style="zoom: 19%; display: block; margin-left: auto; margin-right: auto;" />
+<figcaption class="na-figure-title"><strong>Fig 3.2  -</strong>  Location Plan  -  The Named Houses In Relation To The Application Site</figcaption>
+</figure>
 
-[TO CONFIRM: application P/23/0512/2 at Black Birds Nest, Deans Lane, Woodhouse Eaves went to the Charnwood Plans Committee on 19 October 2023 as item 5a. The property carries the postcode LE12 8TE, which is the same postcode unit as the application site, so this is the nearest comparable decision on record. The committee report is document s12672 on the Charnwood moderngov site. It has not been read and nothing from it is relied upon in this statement. The officer report, the decision notice and the approved plans are to be obtained from the Charnwood public access record and this section and section 5.1 updated once they have been read in full.]
+The council has already applied this reading of the locality on Deans Lane itself. Black Birds Nest stands on the same lane about 1.2 kilometres east of the application site and shares its postcode. Under P/23/0512/2 the council granted permission on 23 October 2023 following a resolution of its Plans Committee on 19 October 2023. The permission allows the demolition of a two storey farmhouse together with an indoor manege stables a garage kennels and a swimming pool. In their place it approves a single replacement house with a footprint of 517 square metres over two storeys and a lower ground floor set into the slope of the site. The farmhouse it replaces has a footprint of 152.7 square metres so the new house covers more than three times the ground of the old.
+
+The officer's report to the committee bears directly on this proposal. At paragraph 9.1.7 it records that large detached dwellings set within extensive plots "are typical features found within the Charnwood Forest landscape" and it notes the applicant's evidence of several such houses nearby in a variety of architectural styles and materials. The same paragraph finds that stone walls with red brick detailing beneath a slate roof would reflect the local vernacular and help the house to assimilate into the landscape. The report accepted openly that the new house was much larger than the one it replaced and that this conflicted with the size criterion of the replacement dwelling policy then in force. It found that conflict outweighed by the overall enhancement of the site and its landscape setting. By the report's own figures the demolitions reduced the combined footprint of the buildings on the site from 987.9 to 868.2 square metres and drew a widely spread group into a more compact form of high design quality. The committee resolved to grant permission on that basis.
+
+The permission has since been implemented. On 31 July 2026 the council granted a further permission P/26/0228/2 under section 73 to revise the design of the house. That decision was taken under the Charnwood Local Plan 2021-37 and it records that works began on site within the three year period. The officer found that a plinth of stone excavated from the site would help to root the house in its landscape and that the development accorded with the adopted Development Plan in terms of its principle.
+
+The applicants do not present Black Birds Nest as a binding precedent. It was determined in 2023 under the replacement dwelling policy of the former local plan which the Charnwood Local Plan 2021-37 has since superseded and every proposal must be judged on its own merits. Its value lies in two things. It is the council's own assessment of the character of Deans Lane made less than three years ago. It also shows the weight the council gave to design quality and to the consolidation of scattered buildings when a replacement house was much larger than the one it replaced. Those are the considerations this proposal raises and they are addressed at sections 3.3 and 6.7.
 
 <div style="
     text-align      : center;
@@ -185,7 +212,7 @@ There is a further point that follows from the same evidence. The prevailing his
 
 In addition to the dwelling itself the holding contains a considerable group of established ancillary buildings. The marketing floor plans prepared for the recent sale identify a helicopter hangar of approximately 182 square metres and a principal workshop and outbuilding range of approximately 236 square metres. They also show a triple garage and storage building together with stores stabling and farm buildings. Across the buildings shown the same plans give a gross internal area of approximately 965 square metres of which the existing dwelling accounts for approximately 456 square metres.
 
-The holding is also laid out with the infrastructure of an established estate. Internal roads connect the entrance from Deans Lane with the house the hangar and the stable group. A paved helicopter landing strip runs from the hangar towards the house. Internal fencing divides the garden from the lake. Figure 3.3 and the existing site plan RB05_T01_D12 show this arrangement.
+The holding is also laid out with the infrastructure of an established estate. Internal roads connect the entrance from Deans Lane with the house the hangar the hay barn and the stables shed. A paved helicopter landing strip runs from the hangar towards the house. Internal fencing divides the garden from the lake. Figure 3.3 and the existing site plan RB05_T01_D12 show this arrangement.
 
 The site must therefore be approached as an already developed residential estate. The replacement dwelling is proposed within this developed core and not in the open fields that surround it. The applicants do not suggest that the extent of the existing ancillary buildings by itself justifies an equivalent amount of new building. It does establish however that the proposal places a replacement house in a part of the holding already characterised by built development rather than in undeveloped countryside.
 
@@ -193,15 +220,16 @@ The site must therefore be approached as an already developed residential estate
 
 [TO CONFIRM: the 965, 236 and 182 square metre figures are taken from the marketing floor plans and are to be verified by measured survey.]
 
-<img class="na-figure" src="./02_StatementDocs__Content__Images/02__ExistingHouse__Interior/ExistingSitePlan.jpg" style="zoom: 26%;" />
-
-​		**Fig 3.3  -**  The Application Site  -  Existing Site Plan Showing The Developed Core Lake And Adjoining Land
+<figure class="na-figure-block" style="margin-left: auto; margin-right: auto;">
+<img class="na-figure" src="./02__DocImages/02__ExistingHouse__Interior/ExistingSitePlan.jpg" style="zoom: 26%; display: block; margin-left: auto; margin-right: auto;" />
+<figcaption class="na-figure-title"><strong>Fig 3.3  -</strong>  The Application Site  -  Existing Site Plan Showing The Developed Core Lake And Adjoining Land</figcaption>
+</figure>
 
 #### 3.4 |  Access And Arrival
 
 Vehicular access is taken from Deans Lane through a gated entrance and along a private drive that runs through mature planting before reaching the house and its ancillary buildings. The access arrangements were recently the subject of planning permission P/25/0361/2 for the creation of a new access drive with hardstanding and associated works. The statutory biodiversity net gain condition and condition 3 on the design of the gates attached to that permission were discharged under P/25/1770/2 on 2 February 2026. The means of access to the holding has therefore recently been considered by the council.
 
-The proposed site plan shows the replacement dwelling served from this established entrance. The internal circulation beyond it is reorganised as described at sections 6.2 and 9.1.
+The proposed site plan keeps this established entrance and adds a second access onto Deans Lane further to the north east. The two give the horseshoe drive a separate way in and way out. The internal circulation beyond them is reorganised as described at sections 8.5 and 10.1.
 
 [TO CONFIRM: the separation between Deans Lane and the replacement dwelling to be measured from the site plan, together with a photograph from the entrance showing the degree of screening that section 3.1 describes.]
 
@@ -209,13 +237,14 @@ The proposed site plan shows the replacement dwelling served from this establish
 
 The developed core of the holding is enclosed by established landscape. Substantial woodland belts run along the western and southern parts of the holding. The Woodhouse Neighbourhood Plan environmental inventory records mature deciduous woodland in the south and west corner of West Beacon Farm which Natural England identifies as Priority Habitat Deciduous Woodland. The sales particulars report that the previous owner planted in the order of 15,000 trees across the holding. Mature specimen trees and garden planting surround the house itself.
 
-A substantial lake with a central island lies immediately to the north west of the house and forms the principal landscape feature of the estate. A small pond sits in front of the house with a watercourse running from it towards the south eastern boundary. Historic records also identify Wood Brook along the northern side of the holding.
+A substantial lake with a central island lies immediately to the north west of the house and forms the principal landscape feature of the estate. A small pond sits in front of the house with a watercourse running between it and the south eastern boundary. Historic records also identify Wood Brook along the northern side of the holding.
 
 This landscape does two things for the proposal. It contains the developed core visually as Figure 3.4 shows. It also sets the terms for the design. The replacement house is arranged to face the lake and the long view across it while the woodland belts are kept as the enclosing frame of the whole composition.
 
-<img class="na-figure" src="./02_StatementDocs__Content__Images/10__ExistingHouse__Photos/01_10__ExistingSite__AerialShot-01__.jpeg" style="zoom: 30%;" />
-
-​		**Fig 3.4  -**  The Application Site  -  Aerial View Showing The Degree Of Containment Provided By Established Woodland
+<figure class="na-figure-block" style="margin-left: auto; margin-right: auto;">
+<img class="na-figure" src="./02__DocImages/10__ExistingHouse__Photos/01_10__ExistingSite__AerialShot-01__.jpeg" style="zoom: 30%; display: block; margin-left: auto; margin-right: auto;" />
+<figcaption class="na-figure-title"><strong>Fig 3.4  -</strong>  The Application Site  -  Aerial View Showing The Degree Of Containment Provided By Established Woodland</figcaption>
+</figure>
 
 <div style=" /* | - - - - - - - - - - - -->|  Horizontal Page Divider Line   |<-- - - - - - - - - - - - - - - - -|  */ 
     text-align           :     center;    
@@ -235,17 +264,18 @@ This landscape does two things for the proposal. It contains the developed core 
 
 ### 4.0 |  The Existing Dwelling
 
-The existing dwelling is a highly individual house of the 1960s which has been altered and extended many times since. Its present appearance is the product of successive additions and technical upgrades rather than of a single architectural idea. It is a house of real interest for its association with experimental low carbon technology. It is not however a building of architectural coherence and it engages only weakly with the exceptional landscape around it.
+The existing dwelling is a highly individual house of the 1960s which has been altered and extended many times since. Its present appearance is the product of successive additions and technical upgrades rather than of a single architectural idea. It is a house of real interest for its association with experimental low carbon technology. It is not however a building of architectural coherence, and it engages only weakly with the exceptional landscape that surrounds the dwelling and site.
 
 #### 4.1 |  Architectural Character
 
-The house dates principally from the 1960s. The sales particulars record that a large glazed conservatory was added later and that an additional external wall system was built around the dwelling in approximately 2009 to improve its thermal performance. The holding was also progressively equipped with water source heating solar generation and battery storage and much of that equipment is mounted on or around the house itself.
+The house dates principally from the 1960s. A large conservatory was added later, and an additional external wall system was built around the dwelling in approximately 2009 to improve its thermal performance. The property was also progressively equipped with water source heating solar generation and battery storage and much of that equipment is mounted on or around the house itself.
 
 The external treatment reflects this history. White painted render sits alongside areas of exposed rubble stone beneath dark slate or slate effect pitched roofs. Joinery is brown stained timber and the gable features are boarded. The conservatory introduces a lightweight aluminium framed structure of an entirely different character. Individually several of these materials are appropriate to a rural setting. Collectively they lack any consistent hierarchy and the result is visually piecemeal. The architecture was plainly driven by function experimentation and energy performance rather than by the pursuit of a unified architectural language. Figure 4.1 shows the principal range.
 
-<img class="na-figure" src="./02_StatementDocs__Content__Images/10__ExistingHouse__Photos/10__ExistingHouse__Front-01.jpg" style="zoom: 30%;" />
-
-​		**Fig 4.1  -**  The Existing Dwelling  -  The Principal Range Viewed From The North East
+<figure class="na-figure-block" style="margin-left: auto; margin-right: auto;">
+<img class="na-figure" src="./02__DocImages/10__ExistingHouse__Photos/10__ExistingHouse__Front-01.jpg" style="zoom: 30%; display: block; margin-left: auto; margin-right: auto;" />
+<figcaption class="na-figure-title"><strong>Fig 4.1  -</strong>  The Existing Dwelling  -  The Principal Range Viewed From The North East</figcaption>
+</figure>
 
 #### 4.2 |  Form Massing And Accommodation
 
@@ -255,9 +285,10 @@ The marketing floor plans give approximately 456 square metres of accommodation 
 
 [TO CONFIRM: existing floor areas are taken from marketing floor plans and require a measured survey before they are relied upon in a full application.]
 
-<img class="na-figure" src="./02_StatementDocs__Content__Images/10__ExistingHouse__Photos/10__ExistingHouse__Rear-01.jpg" style="zoom: 30%;" />
-
-​		**Fig 4.2  -**  The Existing Dwelling  -  Garden Elevation Showing The Conservatory And Mounted Solar Arrays
+<figure class="na-figure-block" style="margin-left: auto; margin-right: auto;">
+<img class="na-figure" src="./02__DocImages/10__ExistingHouse__Photos/10__ExistingHouse__Rear-01.jpg" style="zoom: 30%; display: block; margin-left: auto; margin-right: auto;" />
+<figcaption class="na-figure-title"><strong>Fig 4.2  -</strong>  The Existing Dwelling  -  Garden Elevation Showing The Conservatory And Mounted Solar Arrays</figcaption>
+</figure>
 
 #### 4.3 |  Relationship With The Setting
 
@@ -265,9 +296,10 @@ There is a marked contrast between the quality of the setting and the quality of
 
 The principal opportunity presented by replacement is therefore not simply more accommodation. It is the chance to replace an ageing and fragmented composition with a resolved building that faces the lake and the landscape directly and that belongs to the architectural tradition of the Charnwood Forest estates described at section 3.2. Figure 4.3 shows the existing house within the wider developed core alongside the helicopter landing area the hangar and the lake.
 
-<img class="na-figure" src="./02_StatementDocs__Content__Images/10__ExistingHouse__Photos/10__ExistingHouse__Side.jpg" style="zoom: 30%; display: block; margin-left: auto; margin-right: auto;" />
-
-​		**Fig 4.3  -**  The Existing Estate  -  Helicopter Landing Area Hangar And Lake Within The Established Developed Core
+<figure class="na-figure-block" style="margin-left: auto; margin-right: auto;">
+<img class="na-figure" src="./02__DocImages/10__ExistingHouse__Photos/10__ExistingHouse__Side.jpg" style="zoom: 30%; display: block; margin-left: auto; margin-right: auto;" />
+<figcaption class="na-figure-title"><strong>Fig 4.3  -</strong>  The Existing Estate  -  Helicopter Landing Area Hangar And Lake Within The Established Developed Core</figcaption>
+</figure>
 
 #### 4.4 |  The Helicopter Hangar And Its Place In The Holding
 
@@ -279,7 +311,7 @@ The hangar helps explain why the site must be understood as an established group
 
 The particulars also report historic buried aviation fuel storage behind the hangar. Its current condition and relationship to any proposed groundworks require verification.
 
-The proposed site plan continues to show the hangar and retains part of the existing landing strip. The connecting road is reconfigured and a privacy hedge is introduced along the hangar line. These changes are described at section 6.2.
+The proposed site plan continues to show the hangar and retains part of the existing landing strip. The connecting road is reconfigured and a privacy hedge is introduced along the hangar line. These changes are described at section 8.5.
 
 [TO CONFIRM: the precise retained extent of the landing strip and any works to the hangar; their measured extent and planning status; documentary confirmation of the reported design award; and the location and condition of remaining fuel infrastructure. Retention of surfacing does not establish a proposal for future aviation use.]
 
@@ -307,13 +339,15 @@ The following assessment draws on the council's own published decisions the adop
 
 The residential use of the existing dwelling has recently been confirmed by the council. Certificate of existing lawful development P/25/2510/2 was granted unconditionally on 2 February 2026 for the continued use of the dwellinghouse in breach of a planning condition attached to the original permission 1643/63. The existing dwelling is therefore a lawful dwellinghouse. It is also of permanent and substantial construction having stood for some six decades and having been wrapped in a new external wall system around 2009.
 
-This matters for the policy route. Policy S5 of the National Planning Policy Framework (August 2026) allows the replacement of an existing building outside settlements where the existing building is of permanent and substantial construction and lawful in planning terms. The replacement must be for the same use and not disproportionately larger than the one it replaces. The proposal replaces a lawful dwellinghouse with a single dwellinghouse and creates no additional home. The question of proportion is addressed openly at section 6.8 and the council's view on it is sought at section 12.1.
+This matters for the policy route. Policy S5 of the National Planning Policy Framework (August 2026) allows the replacement of an existing building outside settlements where the existing building is of permanent and substantial construction and lawful in planning terms. The replacement must be for the same use and not disproportionately larger than the one it replaces. The proposal replaces a lawful dwellinghouse with a single dwellinghouse and creates no additional home. The question of proportion is addressed openly at section 6.7 and the council's view on it is sought at section 12.1.
 
 The holding has a varied wider planning history. The access permission P/25/0361/2 and the discharge of its conditions under P/25/1770/2 are described at section 3.4. The adjoining photovoltaic development is the subject of separate permissions on land outside the applicants' ownership and is described at section 5.5.
 
 [TO CONFIRM: P/25/2510/2 and P/25/1770/2 are verified against the council's published list of delegated decisions for February 2026 held in the project reference folder. The decision notices themselves, the decision date of P/25/0361/2 and the original 1643/63 permission are still to be obtained from the Charnwood public access record.]
 
-[TO CONFIRM: the planning history of Deans Lane itself is to be set out here once obtained, beginning with P/23/0512/2 at Black Birds Nest which was determined at committee on 19 October 2023.]
+Deans Lane itself has a short planning history and one decision on it bears directly on this proposal. At Black Birds Nest about 1.2 kilometres to the east full permission P/23/0512/2 was granted on 23 October 2023 following a resolution of the Plans Committee on 19 October 2023. It permits the demolition of a farmhouse an indoor manege stables a garage kennels and a swimming pool and the erection of a replacement dwelling and detached garages together with the conversion of an outbuilding to an ancillary annexe. The application was reported to the committee as a departure from the development plan because the replacement house was larger than the replacement dwelling policy then in force envisaged. The details required by its conditions were approved during 2024 under P/23/2125/2 P/24/0273/2 P/24/1446/2 and P/24/2081/2. A section 73 permission P/26/0228/2 revising the design of the house was granted on 31 July 2026 and records that works have commenced. What the decision establishes is set out at section 3.2.
+
+The other decisions on the lane are minor. Beacon Cottage Farmhouse and its barn range stand about 630 metres east north east of the application site and are listed at Grade II. There a detached garage was permitted under P/15/1429/2 in September 2015 and revised under P/16/0588/2 in May 2016. An air source heat pump was refused under P/23/1166/2 in August 2023 because its siting would harm the significance of the listed building and a revised proposal was permitted under P/24/0746/2 in July 2024. A lean to extension to a cattle shed at Bluegate was permitted under P/17/1963/2 in December 2017. A search of the council's public access record for Deans Lane found no other application for a new or replacement dwelling since 2015.
 
 #### 5.2 |  Heritage And The Historic Environment Record
 
@@ -329,21 +363,21 @@ The listed country houses of the surrounding forest are drawn on at section 3.2 
 
 The holding contains Priority Habitat deciduous woodland in its south and west corner. The neighbourhood plan environmental inventory also records the mature hedgerow boundaries the garden planting and the mature trees around the West Beacon Farm buildings and it records Daubenton's bat among the species associated with the site. The previous owner's planting has added considerably to the tree cover of the holding. The combination of woodland mature trees grassland buildings and water means that the site offers a varied range of habitats.
 
-The proposal is arranged to keep its effects on these habitats low. The replacement house sits within the developed core in the area of the existing dwelling. The woodland belts and the lake are retained. The interventions that do touch the tree lines are the new side road and carport at SP06 and SP07 together with the local adjustments at SP12. These will be tested through arboricultural assessment before their layout is fixed.
+The proposal is arranged to keep its effects on these habitats low. The replacement house sits within the developed core in the area of the existing dwelling. The woodland belts and the lake are retained. The interventions that do touch the tree lines are the new side road and parking spaces at SP06 and SP07 and the second access onto Deans Lane at SP25 together with the local adjustments at SP12. Measured against the existing site plan the scheme also clears about 1,070 square metres of woodland for the new service access road and the relocated pond and about 920 square metres within the horseshoe drive as described at section 8.5. The woodland edge is also cut back locally at SP20 around the Lake House, a group of three single storey Bonni outbuildings on the site of the hay barn. These will be tested through arboricultural assessment before their layout is fixed.
 
-The applicants anticipate commissioning a BS 5837 tree survey and arboricultural impact assessment together with a Preliminary Ecological Appraisal. Given the existing buildings the woodland and the lake a bat survey of the dwelling proposed for demolition is expected. Policy ENV 4 of the Woodhouse Neighbourhood Plan and Policies EV6 and EV7 of the Charnwood Local Plan set the tests these surveys will address and the work is described further at section 8.2.
+The applicants anticipate commissioning a BS 5837 tree survey and arboricultural impact assessment together with a Preliminary Ecological Appraisal. Given the existing buildings the woodland and the lake a bat survey of the dwelling proposed for demolition is expected. Policy ENV 4 of the Woodhouse Neighbourhood Plan and Policies EV6 and EV7 of the Charnwood Local Plan set the tests these surveys will address and the work is described further at section 9.2.
 
 [TO CONFIRM: presence or absence of Tree Preservation Orders affecting the site, from the Charnwood TPO register. Whether the West Beacon Farm inventory site is mapped as a site of natural environment significance at Figures 13 and 13.1 of the neighbourhood plan.]
 
 #### 5.4 |  Flood Risk Drainage And Ground Conditions
 
-The replacement dwelling sits within the developed core on ground that falls from the house towards the lake. The holding contains the lake a small pond in front of the house and watercourses including Wood Brook. The Environment Agency flood zone for the footprint of the replacement dwelling is still to be confirmed and is recorded below as an outstanding check. Surface water will be managed through sustainable drainage in line with Policy CC2 of the Charnwood Local Plan and Policy H6 of the neighbourhood plan.
+The replacement dwelling sits within the developed core on ground that falls from the house towards the lake. The holding contains the lake a small pond in front of the house and watercourses including Wood Brook. The Environment Agency flood zone for the footprint of the replacement dwelling and of the pool and garden terraces is still to be confirmed and is recorded below as an outstanding check. Surface water will be managed through sustainable drainage in line with Policy CC2 of the Charnwood Local Plan and Policy H6 of the neighbourhood plan.
 
 Foul drainage is currently served by a private septic tank. Its location capacity and discharge arrangements will be established and a treatment system designed to current standards for the replacement dwelling as part of a full application.
 
 Two ground condition matters are identified at the outset. The sales particulars report a buried 30,000 litre aviation fuel tank behind the helicopter hangar and an oil tank associated with the garage and storage building. Neither lies beneath the replacement dwelling on the information currently held. Both will nevertheless be screened through a proportionate contaminated land assessment where the proposed works come near them.
 
-[TO CONFIRM: flood zone from the Environment Agency flood map for planning, with a map capture for this section.]
+[TO CONFIRM: flood zone for the replacement dwelling and for the pool and garden terraces from the Environment Agency flood map for planning, with a map capture for this section, and the surface water flood extent at the relocated pond and the low point of the drives, since Policy F4(2) of the Framework asks for a site-specific flood risk assessment where the Flood Map for Planning shows land at risk of flooding from any source.]
 
 #### 5.5 |  Adjoining Land And The Solar Development
 
@@ -351,9 +385,8 @@ The historic West Beacon Farm holding was larger than the land that now accompan
 
 The proposal lies wholly within the applicants' own land. The solar development and its parcel are outside the application site and are unaffected by the scheme. The large photovoltaic array visible on the site plans is therefore not part of the proposal and it is not relied upon anywhere in this statement as part of the built development of the holding.
 
-[TO CONFIRM: the ownership boundary between the applicants' title and the solar parcel, from the Land Registry title plans.]
+\[TO CONFIRM: image required  -  constraints and flood map captures for this section.\]
 
-[TO CONFIRM: image required  -  constraints and flood map captures for this section.]
 
 <div style=" /* | - - - - - - - - - - - -->|  Horizontal Page Divider Line   |<-- - - - - - - - - - - - - - - - -|  */ 
     text-align           :     center;    
@@ -373,85 +406,26 @@ The proposal lies wholly within the applicants' own land. The solar development 
 
 ### 6.0 |  Design Strategy
 
+This section and section 7.0 describe the replacement house. The other proposed works on the holding are set out in sequence at section 8.0.
+
 #### 6.1 |  Design Principles
 
 The brief was for a convincing and faithful Georgian farmhouse. The model is the principal house of a substantial agricultural estate of the kind that might once have been the seat of a manor or a parish rather than the country seat of an aristocratic family. That distinction governed every decision that followed. A stately home announces itself through sheer extent and elaboration. A farmhouse of standing is well built and correctly proportioned and it keeps its ornament to the places that matter.
 
 The design was refined through several iterations in which ornament was added and then removed until the balance was right. The principal elevations were set out to classical proportion and the detail was disciplined by a single order a single walling stone and a single pattern of glazing. Just as importantly the accommodation was not allowed to accumulate into one large block. It was distributed instead into a group of buildings of descending status which is how a real farmstead grows over time.
 
-#### 6.2 |  The Proposed Site Plan And Arrival Sequence
-
-The comparison between the existing site plan RB05_T01_D12 and the proposed site plan RB05_T01_D13 explains the wider purpose of the scheme. The present layout connects the house with the stable group and helicopter hangar through a series of internal roads and paved spaces. The landing strip forms a strong linear feature beside the house. Internal fencing divides the ground between the dwelling and lake. These features reflect the way the holding has developed over time but do not establish a clear relationship between the principal entrance and the garden.
-
-The proposed layout gives each part of the site a more distinct role. The horseshoe drive provides the formal arrival. A side route through the coach house serves the service yard and its new studio buildings. Covered parking is set against the tree line away from the immediate entrance front. Behind the house the garden descends to a new swimming pool and then towards the existing lake. The result is an arrangement in which movement and outdoor use support the architecture of the replacement house.
-
-#### The Horseshoe Carriage Drive  -  SP02
-
-The proposed horseshoe drive turns towards the principal south east entrance and curves away again around a landscaped centre. This is an appropriate companion to the balanced Georgian elevation. The approach gives the central doorway a clear destination and presents the entrance front as a complete composition.
-
-The improvement is practical as well as architectural. Arrival and departure can be organised around a continuous curve while the central landscape prevents the frontage reading as one broad parking apron. The final geometry will be tested for the vehicles that need to use it. The merit at this stage lies in the clearer relationship between the route and the entrance rather than an unverified claim about traffic capacity or highway safety.
-
-#### The Coach House And Service Yard Access  -  SP03
-
-A new side access roadway passes through the coach house carriage arch and continues around to the service yard. The yard holds the three new studio buildings described at section 10.0 and the retained field gate at its head. This route gives the studio buildings a direct connection to the house and makes the carriage arch a working part of the site plan.
-
-Everyday access to the studio buildings is therefore given its own legible route. The principal entrance retains its formal role while the coach house connects the arrival space to the useful buildings beyond. The arrangement reinforces the character of a country house with a working yard and it keeps the household's places of work and exercise within easy reach of the house.
-
-#### The Landing Strip And Side Road  -  SP05 And SP06
-
-Part of the existing landing strip is to remain. The connecting road is reconfigured to meet the new horseshoe arrangement rather than retaining the existing circulation unchanged. This selective approach allows usable hard surfacing to be incorporated into the revised layout while giving the principal approach a form appropriate to the replacement house.
-
-Between the hangar and the approach from Deans Lane a new side road passes through the tree line to serve the carport. This places additional parking off the direct entrance drive. The precise length of retained landing strip and the areas of removed or new surfacing remain to be identified. The proposal is not presented as a demonstrated reduction in total hardstanding until those areas have been measured.
-
-#### The Four-Car Timber Carport  -  SP07
-
-The applicants are considering a single storey carport for four cars against the tree line. The intended form is an open timber frame with substantial oak members under consideration. The sides remain open beneath a solid roof with a covering to match the house. Its detailed design is still to be agreed.
-
-This is a more discreet location for covered parking than the immediate entrance front. Cars can be accommodated beside the tree line while the horseshoe remains principally an arrival space. An open frame also allows the structure to read as a cart shed within the ancillary group. Matching the roof covering would connect it to the house without repeating the formal stone architecture of the principal elevation.
-
-The tree line provides the setting for the structure but its screening cannot be treated as justification for unspecified clearance. The carport footprint and side road will be developed together with the assessment of retained trees and their roots. The objective is a subordinate parking structure fitted into the edge of the developed area.
-
-#### The Pool And Falling Garden Levels  -  SP08 And SP09
-
-A new outdoor swimming pool is proposed behind the house between the rear elevation and the lake. Steps descend from the house towards the pool in response to the fall of the land. The change in level is therefore part of the garden sequence rather than something concealed by the site plan.
-
-This arrangement gives the rear rooms a direct relationship with a usable garden terrace and the wider landscape beyond. The pool occupies an intermediate position between the house and lake. The descent through the garden allows those spaces to have distinct levels while remaining visually connected. It provides a more purposeful setting for the garden elevation than the present division by internal fencing.
-
-Finished levels and the extent of any retaining work will be resolved through the detailed landscape design. The steps shown do not establish step-free access. An alternative accessible route and the treatment of pool edges remain matters to address as the design develops.
-
-#### The Privacy Hedge And Landscape Changes  -  SP10 To SP13
-
-A new privacy hedge is proposed along the hangar line. It will define the edge of the domestic garden and provide a planted separation from the hangar area. The intention is to soften that division through vegetation. Its eventual screening effect will depend on the chosen species and maintained height as well as the establishment of the planting.
-
-The internal fences identified for removal include the sports fence between the house and lake. Their removal opens the relationship between the rear garden and the water and allows the pool terrace to form part of one connected landscape. This proposal concerns internal divisions rather than the external boundaries of the holding.
-
-The treatment of the small pond in front of the house remains open for discussion with the applicant. Removal has been considered and relocation further towards the woodland is another possibility to investigate. Its connection to the watercourse has not yet been established. The proposed plan therefore does not settle the pond works. Any option will need to respond to the existing water system and the ecological and tree implications of its location. This small pond is distinct from the main lake which remains part of the landscape setting.
-
-The tree lines are adjusted locally to accommodate the revised layout. These changes should be expressed as individual retention and removal decisions supported by arboricultural assessment. The new route through the tree line makes that assessment particularly relevant. The scheme should preserve the enclosing landscape structure while resolving the specific interventions needed for access and parking.
-
-[TO CONFIRM: the full proposed site plan is to show the retained landing-strip extent, fence removals, the agreed front-pond treatment, privacy-hedge alignment and individual tree proposals. Drive connections to Deans Lane, vehicle tracking, carriage arch clearances, surfacing, drainage and carport dimensions remain to be coordinated. Pool and terrace levels, retaining edges, step-free access and plant location are to be developed. Hedge species, planting size, spacing and maintained height remain to be selected. Turbine symbols are to be added at verified existing positions; the supplied markup is not a measured location survey.]
-
-#### The Service Yard And The Studio Buildings  -  SP04 And SP14 To SP18
-
-The hay barn and the stable building in the service yard are removed. Three single storey studio buildings by Bonni Outbuildings take their place and are joined by a small glazed corner link. Units 1 and 2 provide home office workspaces for the applicants' own businesses and one of them contains the podcasting studio. Unit 3 is the private gym. The buildings stand on drilled auger piles rather than on a concrete slab and the field gate at the head of the yard is reached on a straight run. Five marked parking spaces serve the studio buildings and none of them stands in front of the track to the gate. The case for this change is set out in full at section 10.0.
-
-#### Why The Revised Layout Is Better
-
-The improvement lies in the relationship between the parts. The front drive addresses the Georgian entrance. Parking sits to one side against the tree line. The coach house leads through to a service yard where an asbestos roofed barn gives way to three low studio buildings. Behind the house the pool and steps make use of the falling ground while removal of internal fencing reconnects the garden with the lake. The privacy hedge provides a planted edge to the hangar area.
-
-These are specific benefits of the arrangement rather than a general claim that more development improves the site. They give the existing landscape and the service yard a clearer role in the life of the replacement house. The detailed design still needs to resolve the tree interventions and water relationships on which the success of that arrangement depends.
-
-#### 6.3 |  The Composition Of The Group
+#### 6.2 |  The Composition Of The Group
 
 The group has four parts. The main house is the principal block and carries all of the formal architecture. A kitchen building designed to read as a tastefully converted barn stands at its north eastern end with plain stone walls outside and exposed roof timbers within. The two are joined by a painted timber orangery on the garden side and by the single storey colonnade entrance on the courtyard side. Beyond the kitchen building a coach house designed to read as a converted stable range runs south east to close one side of the arrival courtyard. A small timber lean to store sits in the angle between the kitchen building and the coach house.
 
 This arrangement is the single most important decision in the scheme. Had the guest accommodation the service rooms and the kitchen been placed inside the main house its footprint and its roof would have grown considerably and it would have begun to read as a mansion. Distributing that accommodation into lower buildings keeps the principal block compact at 23,270 by 18,100 millimetres. It also lets each subsidiary building step down in height as it moves away from the house. The ridges of the kitchen building and the coach house sit at between approximately 6.4 and 6.7 metres against approximately 10.6 metres at the crown of the main house. The group therefore presents as a farmstead that has been added to over generations. Figure 6.1 shows how the parts read together.
 
-<img class="na-figure" src="./02_StatementDocs__Content__Images/22__Proposed__3dBirdsEye/RB05__22__Birdseye-04__6144x4096.png" style="zoom: 30%;" />
+<figure class="na-figure-block" style="margin-left: auto; margin-right: auto;">
+<img class="na-figure" src="./02__DocImages/22__Proposed__3dBirdsEye/RB05__22__Birdseye-04__6144x4096.png" style="zoom: 30%; display: block; margin-left: auto; margin-right: auto;" />
+<figcaption class="na-figure-title"><strong>Fig 6.1  -</strong>  The Proposed Composition  -  Main House Linked Kitchen Building And Coach House</figcaption>
+</figure>
 
-​		**Fig 6.1  -**  The Proposed Composition  -  Main House Linked Kitchen Building And Coach House
-
-#### 6.4 |  The Ground Floor Plan
+#### 6.3 |  The Ground Floor Plan
 
 The ground floor is organised on a single spine. The Grand Gallery runs across the centre of the principal block from the Loggia Atrium at its south western end to the Colonnade Atrium at its north eastern end. Every principal room opens off that spine. The arrangement is the ordinary logic of a Georgian house of this size where circulation is a room in its own right rather than a corridor tacked on afterwards.
 
@@ -463,15 +437,17 @@ The Garden Room is the hinge of the plan. It occupies the orangery link and it s
 
 The consequence of this arrangement is that the formal architecture the family accommodation and the service accommodation each occupy their own part of the plan and each has its own entrance and its own aspect. Nothing about the house requires the household to pass through the formal rooms to reach the kitchen.
 
-<img class="na-figure" src="./02_StatementDocs__Content__Images/30__Analysis__Footprint/30__Footprint__ProposedAgainstExisting__MARKUP__.png" style="zoom: 24%;" />
-
-​		**Fig 6.2  -**  Footprint Comparison  -  The Proposed Group In Green Against The Existing Dwelling Marked In Red
+<figure class="na-figure-block" style="margin-left: auto; margin-right: auto;">
+<img class="na-figure" src="./02__DocImages/30__Analysis__Footprint/30__Footprint__ProposedAgainstExisting__MARKUP__.png" style="zoom: 24%; display: block; margin-left: auto; margin-right: auto;" />
+<figcaption class="na-figure-title"><strong>Fig 6.2  -</strong>  Footprint Comparison  -  The Proposed Group In Green Against The Existing Dwelling Marked In Red</figcaption>
+</figure>
 
 [TO CONFIRM: Fig 6.2 is a working markup. A measured overlay of the two footprints is to replace it before submission.]
 
-<img class="na-figure" src="./02_StatementDocs__Content__Images/30__Analysis__Footprint/31__Footprint__ExistingDwelling__OsDimensions__.png" style="zoom: 24%;" />
-
-​		**Fig 6.3  -**  The Existing Dwelling  -  Footprint And Principal Dimensions Taken From Ordnance Survey Data
+<figure class="na-figure-block" style="margin-left: auto; margin-right: auto;">
+<img class="na-figure" src="./02__DocImages/30__Analysis__Footprint/31__Footprint__ExistingDwelling__OsDimensions__.png" style="zoom: 24%; display: block; margin-left: auto; margin-right: auto;" />
+<figcaption class="na-figure-title"><strong>Fig 6.3  -</strong>  The Existing Dwelling  -  Footprint And Principal Dimensions Taken From Ordnance Survey Data</figcaption>
+</figure>
 
 #### The Footprint Compared With The Existing Dwelling
 
@@ -525,7 +501,7 @@ The ground floor of the proposal extends to 549.86 square metres across the prin
     "></div>
 </div>
 
-#### 6.5 |  The Upper Floors And The Coach House
+#### 6.4 |  The Upper Floors And The Coach House
 
 The first floor of the main house extends to 330.39 square metres on drawing RB05_T01_D07. The master suite occupies the north eastern end with its bedroom dressing room ensuite and a small suite atrium and the Master Bedroom opens onto the colonnade balcony described at section 7.4. Two further bedrooms each with an ensuite and wardrobe and a family bathroom occupy the remainder of the floor. At the centre the Grand Stairwell rises as a void through the first and second floors beneath the ridge lantern so that daylight reaches the Grand Atrium below.
 
@@ -533,23 +509,23 @@ The second floor lies entirely within the roof and extends to 174.48 square metr
 
 The ground floor of the coach house extends to 190.54 square metres on drawing RB05_T01_D09. It contains the working rooms of the household in a boot room a back kitchen a laundry room and a store room. Guest accommodation is placed in the roof above and reached by the external stair noted at ES08. The service rooms that would otherwise have enlarged the main house therefore sit in a building that reads as a converted stable.
 
-[TO CONFIRM: the upper floor of the coach house is not yet drawn. Its layout and floor area are to be added so that the schedule at section 6.8 is complete.]
+[TO CONFIRM: the upper floor of the coach house is not yet drawn. Its layout and floor area are to be added so that the schedule at section 6.7 is complete.]
 
-#### 6.6 |  Alternatives Considered
+#### 6.5 |  Alternatives Considered
 
-Three alternatives were considered and discounted at concept stage. The first was a single larger house containing all of the accommodation under one roof. It was rejected because the footprint and roof it required would have tipped the building from farmhouse into mansion and would have spread further across the developed core. The distributed group described at section 6.3 was adopted instead.
+Three alternatives were considered and discounted at concept stage. The first was a single larger house containing all of the accommodation under one roof. It was rejected because the footprint and roof it required would have tipped the building from farmhouse into mansion and would have spread further across the developed core. The distributed group described at section 6.2 was adopted instead.
 
 The second was a fully glazed contemporary winter garden as the link between the house and the kitchen building. It was tested and it detracted from the group. It also failed to make a convincing junction between two buildings of traditional character. The painted timber orangery that replaced it achieves the same connection within the period language of the rest of the scheme.
 
 The third was a conventional pitched roof to the main house. A full hipped roof over a plan of this depth would have raised the ridge. A crown roof was adopted in its place with a flat lead deck at the crown within pitched surrounds. It lowers the ridge within the landscape setting while the pitched surrounds keep the roof reading as a hipped roof from the ground. It has been chosen deliberately to reduce the height of the building.
 
-#### 6.7 |  Scale And Massing
+#### 6.6 |  Scale And Massing
 
 The main house is two storeys with a second floor contained within the roof. Its eaves sit at approximately 7.2 metres above ground floor level and the moulded eaves cornice rises to approximately 7.6 metres. The crown of the roof sits at approximately 10.6 metres with a low hipped glazed lantern set astride it at the centre of the house. The second floor is lit by hipped dormers set well up the roof slopes so that they read as dormers within the roof rather than as an additional storey.
 
 The crown roof is the key massing decision. It holds the ridge down while the hipped roof planes rising from the eaves keep the familiar silhouette of a Georgian house from every viewpoint at ground level. The subsidiary buildings then step down from the main house. The single storey colonnade entrance rises to approximately 4.2 metres. The ridges of the kitchen building and the coach house sit at between approximately 6.4 and 6.7 metres and the eaves of the coach house at approximately 2.8 metres. Only the cupola on the coach house ridge rises higher at approximately 8.4 metres to the top of its weathervane.
 
-The whole group sits within the developed core of the holding and is framed by the woodland belts to the south and west. The footprint comparison is made at section 6.4 and is not repeated here. Figure 6.1 and the bird's eye views on drawing RB05_T01_D10 show the resulting roofscape.
+The whole group sits within the developed core of the holding and is framed by the woodland belts to the south and west. The footprint comparison is made at section 6.3 and is not repeated here. Figure 6.1 and the bird's eye views on drawing RB05_T01_D10 show the resulting roofscape.
 
 [TO CONFIRM: the height of the surrounding tree canopy relative to the 10.6 metre crown has not been measured. A section through the site or a canopy height taken from the photogrammetric survey would substantiate the containment argument. The visibility of the group from the Beacon Hill summit viewpoint identified under Policy ENV 8 of the neighbourhood plan is also to be tested.]
 
@@ -568,7 +544,7 @@ The whole group sits within the developed core of the holding and is framed by t
     "></div>
 </div>
 
-#### 6.8 |  Existing And Proposed Schedule
+#### 6.7 |  Existing And Proposed Schedule
 
 | <span style="display:inline-block; width:35mm; white-space:nowrap;">Measure</span> | <span style="display:inline-block; width:45mm; white-space:nowrap;">Existing Dwelling</span> | Proposed Replacement                                         |
 | :----------------------------------------------------------- | :----------------------------------------------------------- | :----------------------------------------------------------- |
@@ -644,9 +620,10 @@ Cut ashlar quoins define every external angle and tie the composition together a
 
 To the left of the entrance front the loggia of the south west elevation returns at the corner and is visible in oblique views from the drive. To the right the elevation steps down to the single storey colonnade entrance which leads through to the kitchen building and on to the coach house archway. This stepping down of eaves and ridge heights from the principal block to the subsidiary buildings is fundamental to the intent. It establishes the hierarchy of a farmstead where the house is plainly the house and everything else defers to it.
 
-<img class="na-figure" src="./02_StatementDocs__Content__Images/20__Proposed__3dExterior/RB05__01__South-Facade-Front-Facing__6144x4096.png" style="zoom: 30%;" />
-
-​		**Fig 7.1  -**  Proposed South East Elevation  -  House Front Fascade Addressing The Arrival Courtyard
+<figure class="na-figure-block" style="margin-left: auto; margin-right: auto;">
+<img class="na-figure" src="./02__DocImages/20__Proposed__3dExterior/RB05__01__South-Facade-Front-Facing__6144x4096.png" style="zoom: 30%; display: block; margin-left: auto; margin-right: auto;" />
+<figcaption class="na-figure-title"><strong>Fig 7.1  -</strong>  Proposed South East Elevation  -  House Front Fascade Addressing The Arrival Courtyard</figcaption>
+</figure>
 
 <div style="
     text-align      : center;
@@ -698,9 +675,10 @@ Crucially the loggia is recessed into the wall plane rather than applied to the 
 
 The wall above the loggia returns flush and is lit by regularly spaced sashes. Larger windows flank the arcade at both levels and three hipped dormers sit above within the roof slope. The space behind the arcade is the Loggia Atrium which opens directly onto the terrace and the gardens on this side. Further along the same side the kitchen building opens to the garden through three pairs of painted timber French doors with moulded cornice heads beneath its apex rooflights. Figure 7.2 shows the loggia front.
 
-<img class="na-figure" src="./02_StatementDocs__Content__Images/20__Proposed__3dExterior/RB05__02__West-Facade-Side-Facing__6144x4096.png" style="zoom: 30%;" />
-
-​		**Fig 7.2  -**  Proposed South West Elevation  -  House Loggia Side Fascade With The Recessed Three Arch Loggia
+<figure class="na-figure-block" style="margin-left: auto; margin-right: auto;">
+<img class="na-figure" src="./02__DocImages/20__Proposed__3dExterior/RB05__02__West-Facade-Side-Facing__6144x4096.png" style="zoom: 30%; display: block; margin-left: auto; margin-right: auto;" />
+<figcaption class="na-figure-title"><strong>Fig 7.2  -</strong>  Proposed South West Elevation  -  House Loggia Side Fascade With The Recessed Three Arch Loggia</figcaption>
+</figure>
 
 <div style="
     text-align      : center;
@@ -727,9 +705,10 @@ The entrance is flanked by canted bay windows at ground floor level. These are e
 
 Beyond the bays this elevation steps down into the orangery link and then into the kitchen building. The result is a long and gently descending garden front rather than a single monolithic wall of stone. This is a considered response to the openness of the landscape on this side of the house where the building is seen against the lake and the far horizon. Figure 7.3 shows this garden front.
 
-<img class="na-figure" src="./02_StatementDocs__Content__Images/20__Proposed__3dExterior/RB05__03__North-Facade-Rear-Facing__6144x4096.png" style="zoom: 30%;" />
-
-​		**Fig 7.3  -**  Proposed North West Elevation  -  House Rear Fascade Facing The Lake And The Open Landscape
+<figure class="na-figure-block" style="margin-left: auto; margin-right: auto;">
+<img class="na-figure" src="./02__DocImages/20__Proposed__3dExterior/RB05__03__North-Facade-Rear-Facing__6144x4096.png" style="zoom: 30%; display: block; margin-left: auto; margin-right: auto;" />
+<figcaption class="na-figure-title"><strong>Fig 7.3  -</strong>  Proposed North West Elevation  -  House Rear Fascade Facing The Lake And The Open Landscape</figcaption>
+</figure>
 
 <div style="
     text-align      : center;
@@ -769,7 +748,7 @@ The link between the kitchen building and the house is an orangery of the type b
 
 #### 7.8 |  The Lean To Store
 
-A small lean to store is set into the angle where the kitchen building meets the coach house range. It houses garden furniture out of season and the equipment associated with the pool and the grounds. It is the plainest structure in the group and it is meant to be.
+A small lean to store is set into the angle where the kitchen building meets the coach house range. It houses garden furniture out of season and the equipment associated with the pool and the grounds. The location of the plant for the pool described at section 8.3 is still to be settled as note SP08 records. It is the plainest structure in the group and it is meant to be.
 
 The store is single storey beneath a simple mono pitched roof which runs down from the adjoining eaves. Its walls are clad in weathered oak shiplap boarding laid horizontally and left untreated to silver naturally rather than built in stone. The doors are vertically boarded and strapped. Alongside the enclosed store an open bay is carried on exposed timber posts with curved braces in the manner of a cart shed. Nothing about it is dressed or ornamented and no classical element appears on it anywhere.
 
@@ -808,9 +787,10 @@ An external staircase rises against the range to serve the accommodation within 
 
 The carriage arch is not decorative. It carries the pedestrian and service route through from the courtyard on the south east side and it is the point at which the coach house joins the group. The ground floor of the range contains the boot room back kitchen laundry and store room of the household and guest accommodation is placed within the roof above. This is precisely how the scheme avoids inflating the principal house. Accommodation that would otherwise have added mass to the main block has instead been distributed into a building that looks like a farm building because it does the work of one. Figure 7.4 shows the range with its carriage arch and cupola.
 
-<img class="na-figure" src="./02_StatementDocs__Content__Images/20__Proposed__3dExterior/RB05__05__West-Facade-Coach-House__6144x4096.png" style="zoom: 30%;" />
-
-​		**Fig 7.4  -**  Proposed North East Elevation  -  Coach House Rear Fascade With Central Carriage Arch Oculus And Cupola
+<figure class="na-figure-block" style="margin-left: auto; margin-right: auto;">
+<img class="na-figure" src="./02__DocImages/20__Proposed__3dExterior/RB05__05__West-Facade-Coach-House__6144x4096.png" style="zoom: 30%; display: block; margin-left: auto; margin-right: auto;" />
+<figcaption class="na-figure-title"><strong>Fig 7.4  -</strong>  Proposed North East Elevation  -  Coach House Rear Fascade With Central Carriage Arch Oculus And Cupola</figcaption>
+</figure>
 
 <div style="
     text-align      : center;
@@ -849,7 +829,7 @@ The carriage arch is not decorative. It carries the pedestrian and service route
 | **Coach House External Stair** | Not applicable | [TO CONFIRM: indicative only at this stage, construction and finish not settled, stone or metal] |
 | **Chimneys** | Rendered and stone stacks | Natural stone stacks with moulded caps. |
 | **Rainwater Goods** | Lead and metalwork detailing | [TO CONFIRM: cast iron or cast aluminium, and colour] |
-| **Hard Landscaping** | Tarmac and gravel drives and paved terraces | Gravel carriage drive to the courtyard with stone paved terraces to the garden elevations. [TO CONFIRM] |
+| **Hard Landscaping** | Tarmac and gravel drives and paved terraces | Gravel carriage drive to the courtyard with stone paved terraces to the garden elevations. Paved pool surround on two levels, landings and garden steps. [TO CONFIRM: paving and surfacing materials] |
 
 <div style="
     text-align      : center;
@@ -870,13 +850,15 @@ The carriage arch is not decorative. It carries the pedestrian and service route
 
 Figures 7.5 and 7.6 set the building to be replaced against the proposed replacement and both are seen from above.
 
-<img class="na-figure" src="./02_StatementDocs__Content__Images/10__ExistingHouse__Photos/10__ExistingHouse__Front-04.jpg" style="zoom: 30%; display: block; margin-left: auto; margin-right: auto;" />
+<figure class="na-figure-block" style="margin-left: auto; margin-right: auto;">
+<img class="na-figure" src="./02__DocImages/10__ExistingHouse__Photos/10__ExistingHouse__Front-04.jpg" style="zoom: 30%; display: block; margin-left: auto; margin-right: auto;" />
+<figcaption class="na-figure-title"><strong>Fig 7.5  -</strong>  Existing Dwelling  -  The Building To Be Replaced</figcaption>
+</figure>
 
-​		**Fig 7.5  -**  Existing Dwelling  -  The Building To Be Replaced
-
-<img class="na-figure" src="./02_StatementDocs__Content__Images/22__Proposed__3dBirdsEye/RB05__19__Birdseye-01__6144x4096.png" style="zoom: 30%;" />
-
-​		**Fig 7.6  -**  Proposed Replacement Dwelling  -  Roof Form Dormers And Massing Of The Principal House
+<figure class="na-figure-block" style="margin-left: auto; margin-right: auto;">
+<img class="na-figure" src="./02__DocImages/22__Proposed__3dBirdsEye/RB05__19__Birdseye-01__6144x4096.png" style="zoom: 30%; display: block; margin-left: auto; margin-right: auto;" />
+<figcaption class="na-figure-title"><strong>Fig 7.6  -</strong>  Proposed Replacement Dwelling  -  Roof Form Dormers And Massing Of The Principal House</figcaption>
+</figure>
 
 <div style=" /* | - - - - - - - - - - - -->|  Horizontal Page Divider Line   |<-- - - - - - - - - - - - - - - - -|  */ 
     text-align           :     center;    
@@ -894,29 +876,427 @@ Figures 7.5 and 7.6 set the building to be replaced against the proposed replace
     </div>                                
 </div>  
 
-### 8.0 |  Landscape Ecology And Sustainability
+### 8.0 |  Other Proposed Works
 
-#### 8.1 |  Landscape Strategy And Visual Containment
+Sections 6.0 and 7.0 describe the house. This section gathers every other proposed work on the holding in one place so that each can be read whole and in sequence.
 
-The proposed landscape strategy gives the entrance and rear garden different roles. The horseshoe drive and recessed parking serve arrival while the pool terrace and retained lake form the principal garden sequence. Removal of the internal sports fence opens that relationship. A new privacy hedge along the hangar line provides a planted division to the side.
+#### 8.1 |  The Proposed Site Plan
 
-The design retains the broader woodland setting as its organising framework while proposing local adjustments to tree lines. The side road and carport require those adjustments to be examined in detail. The site plan should distinguish retained trees from individual removals and show replacement planting where proposed. The aerial images establish the wooded character of the holding but do not demonstrate the absence of landscape effects.
+The comparison between the existing site plan RB05_T01_D12 and the proposed site plan RB05_T01_D13 explains the wider purpose of the scheme. The present layout connects the house with the hay barn the stables shed and the helicopter hangar through a series of internal roads and paved spaces. The landing strip forms a strong linear feature beside the house. Internal fencing divides the ground between the dwelling and lake. These features reflect the way the holding has developed over time but do not establish a clear relationship between the principal entrance and the garden.
 
-The main lake remains. The small front pond may be retained, removed or relocated towards the woodland following discussion with the applicant. Its connection to the watercourse needs to be established before an option is selected. Pond works and new surfacing need to be coordinated with ecological advice and the treatment of connected water and drainage. The detailed layout and reasons for it are set out at section 6.2 and recorded in site notes SP08 to SP13.
+The proposed layout gives each part of the site a more distinct role. A side route through the coach house serves the Lake House and the field gate beyond it. Behind the house the garden descends to a new swimming pool and then towards the existing lake. The horseshoe drive provides the formal arrival. Everyday parking is set against the tree line away from the immediate entrance front and a second access onto Deans Lane gives the drive a separate way in and way out. The result is an arrangement in which movement and outdoor use support the architecture of the replacement house.
 
-#### 8.2 |  Trees And Ecology
+Section 8.2 sets out the replacement of the hay barn and the stables shed with the Lake House. Section 8.3 describes the infinity edge pool and section 8.4 the hedged lawn terraces that step down to it from the house together with the removal of the internal fences. Section 8.5 covers the driveway and the two accesses from Deans Lane together with the parking beside the hangar the landing strip the privacy hedge the woodland clearance and the new service access road. Section 8.6 sets out the relocation of the small pond in front of the house and the drainage of the drives and section 8.7 draws the parts together.
 
-The applicants intend to commission the arboricultural and ecological work early so that its findings shape the layout rather than follow it. A BS 5837 tree survey will record the trees around the developed core and along the tree lines affected by the side road and carport. An arboricultural impact assessment will then identify the individual retention and removal decisions that sections 6.2 and 8.1 anticipate together with root protection and replacement planting. Policy EV7 of the Charnwood Local Plan expects any removed non woodland tree to be replaced by at least three new trees. Policy ENV 4 of the Woodhouse Neighbourhood Plan expects replacement indigenous planting wherever the loss of trees is unavoidable. The detailed landscape proposals will be prepared to meet both.
+<div style="
+    text-align      : center;
+    padding-top     : 04.00mm;
+    padding-bottom  : 01.00mm;
+    margin-top      : 00.00mm;
+    margin-bottom   : 00.00mm;
+">
+    <div style="
+        width            : 92%;
+        margin           : 0 auto;
+        border-top       : 0.25px solid #f3f3f3;
+        height           : 0;
+    "></div>
+</div>
 
-A Preliminary Ecological Appraisal will cover the woodland the lake the ponds the grassland and the buildings. Bat activity is already recorded in the neighbourhood plan evidence and the dwelling the hay barn and the stable building proposed for demolition are expected to require bat survey work. Some of that work is seasonal. Early instruction therefore protects the programme and the applicants would welcome confirmation at this stage of the scope the council expects. The replacement will incorporate the features for priority species that Policy N2 of the Framework describes including integrated swift bricks together with the bat and bird boxes encouraged by Policy H6 of the neighbourhood plan. External lighting will follow the Bat Conservation Trust guidance that the same policy cites.
+#### 8.2 |  The Hay Barn And The Lake House  -  SP04 And SP14 To SP20
 
-#### 8.3 |  Biodiversity Net Gain
+Close to the northern boundary of the site stands an old steel framed hay barn roofed throughout in asbestos cement sheeting. A smaller stables shed stands beside it. The proposal removes both. On the site of the barn it places the Lake House, a group of three single storey Bonni outbuildings ancillary to the dwelling. Together they provide a home office a home recording studio and a home gym for the household. The name describes a setting that faces the lake and nothing more. The Lake House is not a dwelling and it contains no living or sleeping accommodation. This section sets out why the barn must go and why the Lake House is a clear improvement on it.
 
-The statutory biodiversity net gain position for a full application will depend on the extent of the red line and on whether any exemption applies. Policy EV6 of the Charnwood Local Plan seeks 10% biodiversity net gain and asks for an ecological survey including a biodiversity impact assessment. Policy N2 of the Framework cautions decision makers against giving weight to gains beyond the statutory framework including for development that is exempt. The red line will be fixed with that in mind and a biodiversity metric assessment will be provided wherever the statutory requirement applies. The substantial areas of woodland grassland and water within the applicants' ownership offer considerable scope to deliver any required gain on site.
+Figure 8.1 sets the scene. The barn at SE02 fills the left of the view with its broad weathered roof and its lean tos gathered around it against the edge of the woodland. The smaller stables shed at SE03 stands to one side and is half hidden by trees.
 
-[TO CONFIRM: the statutory biodiversity net gain thresholds and exemptions in force at the date of the full application, to be confirmed once the red line is fixed.]
+<figure class="na-figure-block" style="margin-left: auto; margin-right: auto;">
+<img class="na-figure" src="./02__DocImages/40__Outbuildings__HayBarnReplacement/40__Existing__HayBarnAndStablesShed__AerialView__MARKUP__.webp" style="zoom: 30%; display: block; margin-left: auto; margin-right: auto;" />
+<figcaption class="na-figure-title"><strong>Fig 8.1  -</strong>  The Existing Hay Barn And Stables Shed  -  Aerial View Of The Asbestos Roofed Barn SE02 And The Stables Shed SE03</figcaption>
+</figure>
 
-#### 8.4 |  Energy And Existing Renewable Infrastructure
+#### The Existing Hay Barn
+
+The hay barn is a steel framed structure with a lean to along one side and a second lean to across one end. The main barn measures 8,570 by 12,540 millimetres and the building extends to 16,440 millimetres in length once its end lean to is included. Measured on the site plan model the barn and its lean tos cover approximately 197 square metres. The roofs of the main barn and of both lean tos are clad in asbestos cement sheeting and that sheeting is weathered throughout.
+
+Figure 8.2 is an excerpt of the existing site plan drawing RB05_T01_D12. It shows the barn at SE02 and the stables shed at SE03 outlined in red dashed line as buildings to be removed. The stables shed is removed as well and its site returns to grassland except where the access roadway crosses it. The barn stands hard against the belt of woodland that runs between it and the lake. The full drawing RB05_T01_D12 accompanies this statement and should be read for the wider context of the holding.
+
+<figure class="na-figure-block" style="margin-left: auto; margin-right: auto;">
+<img class="na-figure" src="./02__DocImages/40__Outbuildings__HayBarnReplacement/41__Existing__SitePlanExcerpt__D12__HayBarnAndStablesShed__.webp" style="zoom: 28%; display: block; margin-left: auto; margin-right: auto;" />
+<figcaption class="na-figure-title"><strong>Fig 8.2  -</strong>  Existing Site Plan  -  Excerpt From Drawing RB05_T01_D12 Showing The Hay Barn SE02 And The Stables Shed SE03</figcaption>
+</figure>
+
+[TO CONFIRM: what the green shipping container and the tall white cylindrical vessel with a cowl on top, both beside the barn inside the SE02 box of Figure 8.1, are and whether they are removed or relocated - Adam Noble. Once known, one clause to be added here and to note SE02.]
+
+#### Why The Barn Must Go
+
+The barn is a building of pure utility and it looks it. Its broad pitched roof reads as one heavy mass with lean tos to one side and one end. The result is an ad hoc agglomeration rather than a composed building. Figure 8.1 shows the roof sheeting darkened and mossed with age above walls of weathered timber boarding and open bays stacked with firewood. Nothing about its form its materials or its appearance answers the quality of the replacement dwelling or of the landscape in which it stands.
+
+Keeping the barn was examined in earnest. Early design work by the applicants and Noble Architecture set out to adapt the barn and to infill its steel frame with the rooms the household needs. The exercise was abandoned. The barn is a steel framed structure and it is very tall. Fitting rooms of a comfortable domestic scale inside a frame of that height and span proved impractical at every turn. Whatever was built inside it the tall utilitarian outline of the barn and its broad roof would have remained in the landscape. Above all a conversion would have had to deal with the asbestos cement roof. Keeping that roof would have left the household beneath it. Stripping it and re-sheeting the frame would still have left the same tall steel frame and its lean tos on a footprint of about 197 square metres where the buildings of the Lake House cover 144.
+
+[TO CONFIRM: whether the early design work on converting the barn can be appended as evidence - Adam Noble.]
+
+Removal is therefore fundamental to the scheme rather than incidental to it. It is the only answer that deals with the form the height and the hazard of the barn together. It exchanges a structure put up purely for storage for a group of buildings made with real care.
+
+#### The Asbestos And Its Controlled Removal
+
+The Health and Safety Executive is clear that asbestos becomes a risk to health only when its fibres are released into the air and breathed in. Its guidance treats asbestos cement as one of the lower risk materials because the fibres are bound within the cement. It is equally clear that asbestos cement which is significantly damaged is more likely to release fibres. Where asbestos is in poor condition or is likely to be damaged in the normal use of a building the Executive advises that it should be sealed enclosed or removed. [Sources: Health and Safety Executive, Asbestos FAQs](https://www.hse.gov.uk/asbestos/faq.htm) [Non-Licensed Work](https://www.hse.gov.uk/asbestos/licensing/non-licensed-work.htm) and [Notifiable Non-Licensed Work.](https://www.hse.gov.uk/asbestos/licensing/notifiable-non-licensed-work.htm)
+
+Read candidly the same guidance says that asbestos in good condition and not in a position where it is likely to be damaged should be left in place and monitored. Weathering alone does not change that because aged sheeting still holds most of its fibres bound in the cement. The concern is damage and at the barn that is not a remote prospect. Its sheeting is weathered and mossed today and it will only continue to age. The barn stands hard against the woodland edge and open to the weather. Figure 8.1 shows bare branches spread across the roof of the lean to in the foreground and what appear to be broken or missing sheets along its lower edge. A storm or a falling limb that smashed or broke further sheets would risk releasing fibres into the air around it. The refurbishment and demolition survey will record the condition of every sheet. Sealing or enclosing roofs of this extent would do no more than defer the problem and it would keep the barn. Removal under controlled conditions ends the risk for good.
+
+Policy P3 of the National Planning Policy Framework (August 2026) asks whether development is appropriate for its location taking into account the likely effects of pollution on health. It expressly includes effects that are the product of pre-existing conditions and it asks for the sensitivity of the intended occupiers and users to be considered. A home office and gym used every day by the household beneath an asbestos cement roof would sit uneasily with that policy. Removing the asbestos from the site answers it directly.
+
+The barn will be taken down in a controlled sequence. An asbestos refurbishment and demolition survey will be carried out before any work begins. The sheeting will be removed by a specialist asbestos contractor licensed where the survey requires it and taken off site for disposal as hazardous waste before the steel frame is dismantled. The ground will then be cleared so that the site of the Lake House is left clean and safe. Policy P2 of the Framework expects a site to be suitable for its proposed use taking account of any risk of contamination. Where such risks arise it places the responsibility for securing a safe development with the developer and landowner and the applicants accept that responsibility in full.
+
+#### The Lake House And The Choice Of Bonni
+
+The Lake House is made up of three Bonni Large+ outbuildings. They are made by Bonni Outbuildings which is based in Oxfordshire. Each measures 9,800 by 4,900 millimetres on plan and Bonni gives its overall height as 4,500 millimetres at most. The plus sign matters. Bonni also makes a Bonni Large of the same depth and height that is only 7.4 metres wide. The 9.8 metre width is what identifies the Large+ proposed here. Each building has a dual pitched roof ridged along its length so that its long sides have low eaves and the roof falls away from the ridge on both sides. The walls and the roof are clad in painted corrugated steel. Corrugated sheet is the everyday material of the farm building and the Lake House therefore speaks the agricultural vernacular of the holding rather than the language of a suburban garden room. The colour is to be chosen from the Bonni palette before a full application as note SP04 records.
+
+Bonni was chosen for the character of its buildings and for the way they are made. The company describes itself as a maker of timeless outbuildings. Each building is timber framed and made using traditional methods and natural materials. Each is designed and built drawing on Passivhaus principles and its floors walls and roof are insulated with breathable layers that keep it cool in summer and warm in winter. The same insulation works as soundproofing and it can be increased where a room calls for more which suits a home recording studio well. The timber is FSC certified and comes from the family timber business of one of the founders just three miles away. It is kiln dried and vacuum pressure treated. The doors are handmade double glazed hardwood casements. Steel is chosen for the roofs and walls because it can be recycled and reused in full. Paints and timber treatments are water based or powder coated and suppliers are sought within a ten mile radius. Each is designed to sit comfortably within a garden without the disruption of a conventional build and without concrete in the ground as explained below under Temporary In Its Footing. [Sources: Bonni](https://www.bonnioutbuildings.com/) together with [About](https://www.bonnioutbuildings.com/about) [FAQs](https://www.bonnioutbuildings.com/faqs) [Planet Protection](https://www.bonnioutbuildings.com/planet-protection) and [Bonni Large.](https://www.bonnioutbuildings.com/large)
+
+Bonni was not chosen on cost. A standard modular cabin or a new steel shed would have been a cheaper way to provide the same floor space. The applicants sought the company out because its buildings are beautiful and because it brings genuine craftsmanship to what is so often an austere and utilitarian building type. That choice is a deliberate investment in the appearance of this part of the holding and in the setting of the new house. We would invite the case officer to review the Bonni Large+ at [bonnioutbuildings.com/large](https://www.bonnioutbuildings.com/large) before forming a view.
+
+#### The Finish And Aesthetic Intended
+
+Figure 8.3 is Bonni's own photograph of one of its buildings clad in painted corrugated steel. It shows the finish and the aesthetic intended for the Lake House. It is presented honestly. The building in the photograph is the smaller Bonni Large. The Large+ proposed here is the same design lengthened to 9.8 metres with the addition of a large round window in its gable. The photograph is offered for the exterior finish alone. The fittings and furnishings of this example including its outdoor shower and the furniture seen through its open doors are not part of the proposal.
+
+<figure class="na-figure-block" style="margin-left: auto; margin-right: auto;">
+<img class="na-figure" src="./02__DocImages/40__Outbuildings__HayBarnReplacement/42__Bonni__BonniLarge__PaintedCorrugatedFinish__.webp" style="zoom: 30%; display: block; margin-left: auto; margin-right: auto;" />
+<figcaption class="na-figure-title"><strong>Fig 8.3  -</strong>  The Finish And Aesthetic Intended  -  A Bonni Large In Painted Corrugated Steel. Image Courtesy Of Bonni Outbuildings</figcaption>
+</figure>
+
+The photograph repays a close reading because it shows why a building of this kind sits so well among trees. The silhouette is the simplest barn form of plain walls beneath a pitched roof. Deep green walls sit beneath a paler grey green roof so the building recedes into the foliage rather than standing out from it. The corrugated sheet is finished crisply at the verges and the eaves without bulky fascias or bargeboards. The painted hardwood casement doors are finished in the same green. Small crafted details such as the brass door furniture and the brass wall lantern reward a closer look. A slim timber deck lifts the building just clear of the ground and it sits directly on the lawn among the trees with no hard landscaping around it. In the proposal a narrow gravel strip runs round the buildings and their decks.
+
+Set against the barn the contrast holds point by point. The barn is a heavy utilitarian mass with lean tos gathered round it where the Bonni is a single clean form. The sheeting of the barn is weathered and mossed where the Bonni carries a deliberate and restrained colour scheme. The barn shows open bays stacked with firewood where the Bonni has crafted doors and careful detail. The barn was put up for storage and was never meant to be looked at. The Bonni is made to be looked at and to belong among trees.
+
+The colour itself will be chosen from the Bonni palette before a full application and the applicants would welcome the council's view on it. The principle the photograph demonstrates is a restrained scheme of deep green walls beneath a quieter roof chosen to sit back into the woodland.
+
+#### The Layout Of The Lake House
+
+Figure 8.4 is an excerpt of the proposed site plan drawing RB05_T01_D13. The full drawing RB05_T01_D13 accompanies this statement and should be read alongside it. The three buildings are drawn in red on the site of the barn. The north and south units lie with their long sides running east to west and they stand 9.8 metres apart. The middle unit runs north to south between them and closes that gap. It is set towards the east so that the group forms a letter I on plan with an open court on its west side facing the lake. The group measures 9.8 by 19.6 metres overall and it sits on the same axis as the barn it replaces.
+
+Three raised timber decks complete the group as note SP15 records. The first fills the west court between the units at 3,900 by 9,800 millimetres and faces the lake. The second projects 3,000 millimetres to the west of the south unit and also faces the lake. The third projects 3,000 millimetres to the north of the north unit. Each deck descends to the ground by about three steps on its outer edges. The height of the decks and the number of steps will be fixed once a topographical survey has established the levels before a full application.
+
+The Lake House is joined by a 1,200 millimetre gravel path from its middle unit to the access roadway that runs through the site from the coach house to the field gate as note SP03 records. Its two parking spaces lie just to the south and open directly onto the same roadway. A new hedge wraps the parking on its south and west sides and new tree planting to the north shelters the group. These are described below under Parking And Access To The Field Gate and Shelter Planting And Firebreak.
+
+<figure class="na-figure-block" style="margin-left: auto; margin-right: auto;">
+<img class="na-figure" src="./02__DocImages/40__Outbuildings__HayBarnReplacement/43__Proposed__SitePlanExcerpt__D13__LakeHouse__.webp" style="zoom: 28%; display: block; margin-left: auto; margin-right: auto;" />
+<figcaption class="na-figure-title"><strong>Fig 8.4  -</strong>  Proposed Site Plan  -  Excerpt From Drawing RB05_T01_D13 Showing The Lake House With Its Decks Parking And New Planting</figcaption>
+</figure>
+
+[TO CONFIRM: the note bubbles in Fig 8.4 predate the final drawing notes and are not relied on in this section. Once Adam Noble has re-placed the bubbles on drawing RB05_T01_D13 the excerpt is to be re-exported by Noble Architecture without the app's Measurements panel and with no bubble cut by the frame, and the red dashed lines it shows explained in this section. Fig 8.2 is to be re-cropped at the same time to remove the part bubble at its top left.]
+
+#### A Home Office Not Business Premises
+
+The use of the Lake House should be stated plainly. It is a home office a home recording studio and a home gym for the household who live at West Beacon Farm. In the simplest terms it is a home office away from the house. The kind of call or meeting that would normally be taken in a home study can instead be taken near the lake in a quiet setting away from the family rooms. The recording studio is kept clear of the everyday noise of a busy household and the gym has a space of its own.
+
+The Lake House is part of the residential use of the dwelling within Use Class C3 and it is ancillary to the dwelling as note SP18 records. It introduces no separate use. It is not business premises and no commercial use is brought onto the holding. Nor is it a dwelling. It contains no living or sleeping accommodation. Bonni's own product page suggests uses for its larger buildings that include living accommodation. None of those uses is proposed here.
+
+[TO CONFIRM: the planning history and lawful use of the hay barn, the stables shed and the ground around them, and the extent of the dwelling's curtilage; and the walking distance from the Lake House to the house - Noble Architecture from the Charnwood public access record and drawing RB05_T01_D13.]
+
+[TO CONFIRM: why the three uses need three buildings of this size; whether any WC, shower or kitchenette is proposed within the Lake House and if so how foul water is drained; and how power and data reach the buildings - Adam Noble with the applicants. Once known, to be stated plainly in this section without assigning uses to particular buildings.]
+
+#### Temporary In Its Footing
+
+The Lake House is built to last but it meets the ground with the footing of a temporary structure. Each building stands on auger piles in the form of Bonni's own ground screws. Bonni's specialist team carries out a soil test to set their number and size and their positions will follow the design of Bonni and of a structural engineer. There is no concrete slab no strip footing and no other permanent foundation. Bonni sizes the screws to hold the building for the long term yet they can be withdrawn. Bonni's own approach avoids concrete entirely and sets its buildings on small stilts so that rainwater runs off into the soil beneath. [Sources: Bonni, Preparing For Your Bonni](https://www.bonnioutbuildings.com/preparing-for-your-bonni) and [FAQs.](https://www.bonnioutbuildings.com/faqs)
+
+For the buildings themselves excavation is confined to the screws. Their positions can be set out around the roots of retained trees in a way that a slab would never allow and they will be fixed with the applicants' arboriculturist where they fall within root protection areas as note SP14 records. Should the buildings ever be removed they can be lifted away and the screws withdrawn. The ground then returns to grass with nothing cast into it.
+
+Bonni describes each of its buildings as a permanent building made to stand the test of time and the Lake House is intended to be exactly that. Policy DS4 of the Charnwood Local Plan asks for development to be built to last and the Lake House will be. It is permanent in its quality and in its construction. It has no permanent foundation in the land. A building made to last on a footing that can be withdrawn with very little trace is precisely the right answer for a sensitive countryside setting. Permission is sought for the Lake House as a permanent building. Its reversible footing is offered as a benefit to the land and not as a reason to limit the permission in time. [Source: Bonni, About.](https://www.bonnioutbuildings.com/about)
+
+#### A Lower And Lighter Building
+
+The comparison with the barn is straightforward. The barn and its lean tos cover approximately 197 square metres. The three buildings of the Lake House cover 144 square metres. The built footprint therefore falls by almost 53 square metres which is more than a quarter. Two thirds of the Lake House stands on the barn's own footprint and 98% of it stands on the barn or on the hardstanding around it. Only one corner of the north unit of less than three square metres stands on ground that is woodland today.
+
+The three decks are open timber platforms and they are counted separately. Together they add approximately 72 square metres. With its decks the group covers approximately 216 square metres which is about 19 square metres more than the barn. The decks are raised platforms with no walls and no roof and 94% of their area stands on the barn or its hardstanding. Their height above the ground and any guarding they need will be fixed with the levels.
+
+The change in height and bulk is more telling still. The barn is a very tall steel framed structure. Each building of the Lake House is single storey and Bonni gives its overall height to the ridge as no more than 4,500 millimetres. Its long sides have low eaves beneath a roof that falls away from the ridge. The three buildings meet one another as a single I shaped group 19.6 metres long. That is about three metres longer than the barn but the group is only 9.8 metres across where the barn and its side lean to are about 13 metres. Where the barn presents one broad mass the Lake House is three simple forms around a decked court. They will read as garden buildings of quality among the trees rather than as an agricultural shed.
+
+[TO CONFIRM: the ridge height of the existing hay barn is to be measured by Noble Architecture on site or taken from the photogrammetric survey so that the reduction in height can be stated in figures. The eaves height of the Bonni Large+ is not published and is to be obtained by Noble Architecture from Bonni Outbuildings. The floor level of each building above existing ground, and so the height of each ridge above the ground, is to be set by Noble Architecture once the ground screw heights and the topographical survey are known; the decks are drawn with three 250 millimetre steps.]
+
+#### Parking And Access To The Field Gate
+
+Two parking spaces are provided on a gravel pad just south of the Lake House. Both open directly onto the access roadway. They are sufficient for the household and the occasional visitor as note SP17 records.
+
+The field gate on the site boundary beyond the Lake House is retained together with the track to it. Today the route to the gate passes between the barn and the stables shed as Figure 8.1 shows. The proposal keeps that access and makes it simpler. The access roadway runs past the east side of the Lake House as a straight vehicle route to the gate and nothing is parked in front of it as note SP16 records.
+
+#### Shelter Planting And Firebreak
+
+The planting around the Lake House does two jobs. New trees are planted to the north of the group up to the site boundary as a shelter belt that breaks the weather. Those trees and the retained woodland are held back about five metres from the north and west walls. Between the buildings and the trees runs a 900 millimetre gravel strip and beyond it a band of grass. That margin is intended to act as a firebreak. Elsewhere the trees come closer. The retained woodland comes to about 3.5 metres from the south west corner and the small area of new planting south west of the parking to about 3.2 metres from the south wall. The open timber decks reach to about 2.2 metres from the nearest trees at their outer edges. The clearances are stated here as drawn and they will be reviewed as the technical design develops.
+
+To form that margin the woodland edge is cut back locally where it runs into the hardstanding around the barn. Approximately 59 square metres of woodland is removed around the group and most of it becomes grass. The new planting to the north and south west extends to approximately 74 square metres on ground that is hardstanding today. Tree cover around the group therefore rises by about 15 square metres. Individual tree removals will be settled by the arboriculturist the applicants appoint as section 9.2 describes and as note SP20 records.
+
+[TO CONFIRM: why the group cannot sit clear of the woodland edge so that the cut to the north west is avoided - Adam Noble.]
+
+A new hedge about 19.8 metres long runs along the south and west sides of the parking. A small area of new trees south west of the parking links that hedge to the existing woodland so that the parking sits within planting rather than in the open as note SP19 records. Species planting sizes and spacing will be set by the applicants' landscape architect before a full application.
+
+#### Ecology Lighting And Amenity
+
+The barn and the stables shed will be included in the Preliminary Ecological Appraisal and bat survey described at section 9.2 before either is taken down. Bats are already recorded in the neighbourhood plan evidence for the site and older farm buildings can offer roosting and nesting opportunities. Demolition and the cutting back of the woodland edge will follow the timing and mitigation that the survey work recommends. External lighting to the Lake House will follow the same Bat Conservation Trust guidance as the replacement dwelling. A small pond of about 11 square metres lies in the woodland about eight metres west north west of the group. It is retained and the appraisal will cover it.
+
+The Lake House stands within the applicants' own land and it is single storey. For the reasons given for the replacement dwelling at section 10.4 it raises no question of overlooking or overshadowing for any neighbouring home. The insulation described above under The Lake House And The Choice Of Bonni also works as soundproofing and it helps to keep the sound of the recording studio and the gym within the buildings.
+
+#### A Clear Net Benefit To The Site
+
+Taken together the change is a clear improvement to the site. A tall steel barn roofed throughout in asbestos cement gives way to three low buildings of genuine craftsmanship in painted corrugated steel. The built footprint falls by more than a quarter. The asbestos is removed from the site under controlled conditions and the risk it presents is ended for good. The new buildings stand on ground screws with no concrete in the ground and they can be lifted away with the land returned to grass. The route to the field gate stays straight and clear and the two parking spaces are screened by a new hedge. Tree cover around the group increases. The Lake House serves the household as a home office a home recording studio and a home gym and it brings neither business premises nor a new dwelling onto the holding.
+
+Policy C1 of the Charnwood Local Plan supports small scale new built development in the countryside where there would not be significant adverse environmental effects. Here the environmental effects are on balance positive. The Lake House respects the character of the area in its scale massing and height and in the quality of its construction as Policy DS4 requires. It takes up corrugated sheet as the working material of the farm building and makes it well as Policy DP3 of the Framework asks when it looks for development to respond to its context. It also takes a discordant structure out of a landscape that Policy EV1 seeks to protect. We respectfully submit that the replacement of the hay barn with the Lake House is a genuine planning benefit that weighs firmly in favour of the scheme as a whole.
+
+<div style="
+    text-align      : center;
+    padding-top     : 04.00mm;
+    padding-bottom  : 01.00mm;
+    margin-top      : 00.00mm;
+    margin-bottom   : 00.00mm;
+">
+    <div style="
+        width            : 92%;
+        margin           : 0 auto;
+        border-top       : 0.25px solid #f3f3f3;
+        height           : 0;
+    "></div>
+</div>
+
+#### 8.3 |  The Infinity Edge Pool  -  SP08
+
+Figure 8.5 is an excerpt of the proposed site plan drawing RB05_T01_D13 which should be read in full. It shows the pool together with the hedged lawn terraces above it which are described at section 8.4.
+
+At the foot of the terraces and centred on the axis of the house the pool is a plain rectangle of 15,000 by 6,000 millimetres in a paved surround as note SP08 records. Its long north west side is an infinity edge facing the lake so that from the house and the terraces the water is intended to appear to run on into the lake. Whether that effect is achieved will depend on the levels between the pool and the lake which the applicants' topographical survey will establish. Below that edge the paving steps down to a lower terrace of 12,600 by 5,000 millimetres reached by three steps at each end. The surround is therefore on two levels. The pool and both levels of its surround lie on the lake side of the internal fence that at present divides the garden from the lake and that is removed under note SP13. The lower terrace looks out through a 15,000 millimetre opening in the hedge on the lake side that is exactly the length of the pool and frames the water. A small watercourse drawn on RB05_T01_D13 joins the south east shore of the lake and its upper end stops about 3 metres beyond the lower terrace in line with that opening. It is the blue line at the top of Figure 8.5.
+
+<figure class="na-figure-block" style="margin-left: auto; margin-right: auto;">
+<img class="na-figure" src="./02__DocImages/25__Proposed__GardenTerracesAndPool/25__Proposed__SitePlanExcerpt__D13__TerracesAndPool__.png" style="zoom: 85%; display: block; margin-left: auto; margin-right: auto;" />
+<figcaption class="na-figure-title"><strong>Fig 8.5  -</strong>  Proposed Site Plan  -  Excerpt From Drawing RB05_T01_D13 Showing The Central Steps Descending Through The Hedged Lawn Terraces To The Infinity Edge Pool</figcaption>
+</figure>
+
+The overflow detail of the infinity edge the retaining edges of the pool terrace the finishes and the plant location are specialist matters still to be designed. The applicants will appoint a pool specialist and the engineers needed to design them before a full application. The holding has no mains drainage. The drainage of the lawns and paving and the discharge of pool water close to the lake will therefore be set out in the drainage and foul water strategy anticipated at section 12.4 as note SP08 records. Any lighting of the pool and the terraces will follow the Bat Conservation Trust guidance described at section 9.2.
+
+[TO CONFIRM: the SP08 and SP09 bubbles in Fig 8.5 predate the final drawing notes and both point at the steps, and SP21 is not yet bubbled on any sheet. Neither the caption nor sections 8.3 and 8.4 rely on them. Once Adam Noble has re-placed the bubbles on drawing RB05_T01_D13 the excerpt is to be re-exported by Noble Architecture at a larger size so that it prints as sharply as the other figures.]
+
+[TO CONFIRM: what the watercourse beyond the lower terrace is and where it rises, including whether it is one of the two short watercourses that the Ordnance Survey mapping at Figure 3.3 shows issuing at the south east shore of the lake, and whether the pool terrace and the lower terrace affect it - Noble Architecture with the topographical survey, the drainage strategy and the Preliminary Ecological Appraisal.]
+
+[TO CONFIRM: whether the land between the internal fence and the lake, on which the pool and its lower terrace are proposed, lies within the residential curtilage of the dwelling and, if not, whether its change of use to residential use should form part of the full application - Noble Architecture from the planning history and the Land Registry title.]
+
+<div style="
+    text-align      : center;
+    padding-top     : 04.00mm;
+    padding-bottom  : 01.00mm;
+    margin-top      : 00.00mm;
+    margin-bottom   : 00.00mm;
+">
+    <div style="
+        width            : 92%;
+        margin           : 0 auto;
+        border-top       : 0.25px solid #f3f3f3;
+        height           : 0;
+    "></div>
+</div>
+
+#### 8.4 |  The Hedged Lawn Terraces  -  SP09 SP13 And SP21
+
+The ground behind the house falls towards the lake. The scheme meets that fall as the English country house has long met falling ground. A sequence of hedged lawn terraces steps down on the central axis of the house. These are formal grass terraces. Each lawn is intended to be level and a clipped hedge runs across the garden along each of the three falls down to the level of the pool terrace. The garden is formal but it is not elaborate. As drawn it is composed only of grass and clipped hedge with paving and water. That economy carries the restraint of the house into its setting.
+
+There are three terraces as note SP21 records in the Project Specification RB05_SPEC. Side hedges enclose a garden about 31 metres wide and about 31 metres deep. Clipped blocks mark the steps and the corners. Central steps 4,000 millimetres wide descend in three flights with two paved landings as note SP09 records. Each flight begins at a hedge line so that hedge and steps mark the same change of level. The grey dashed lines crossing the garden in Figure 8.5 are internal fences removed under note SP13.
+
+The internal fences identified for removal include the sports fence between the house and lake. Their removal opens the relationship between the rear garden and the water and allows the pool terrace to form part of one connected landscape. This proposal concerns internal divisions rather than the external boundaries of the holding.
+
+The terraced garden is good planning as well as good garden design. The terraces divide the fall between the house and the pool into three smaller falls rather than gathering it at a single edge. No retaining walls are drawn. Each of those falls is marked by a clipped hedge. Where a fall is formed as a grass bank at the hedge line the terraces will read from below principally as planting rather than as built structure. The pool terrace is different. It is a level paved platform and at the infinity edge it steps down to the lower terrace so that its lake side is a built edge seen through the opening in the hedge. The formal geometry belongs with a Georgian house and carries the axis of the house down to the water. It also gives the household three usable lawns of about 107 to 134 square metres each as drawn between the hedges.
+
+Policy DP3 of the Framework asks development to respond to the features of its site and names planting among the means of creating a strong sense of place. Policy EV1 of the Charnwood Local Plan seeks to protect landscape character and to reinforce sense of place. A garden that steps down with its own fall and takes its structure from clipped hedges responds to both. How the garden and the pool terrace are seen from the lake and from the wider landscape will be tested in the proportionate landscape and visual appraisal anticipated at section 12.4. That appraisal will also assess their effect on landscape character.
+
+The levels are not yet known. The contours on the drawing carry no heights and the finished levels will follow the topographical survey that the applicants will commission as section 12.4 anticipates. The size of each fall and the extent of cut and fill will be known only then. How each fall is formed is still to be decided whether as a grass bank or a low wall at the hedge line and how much of each lawn is level will depend on that choice. Neither the garden steps nor the lower terrace provides step-free access. An accessible route to the lawn terraces and the pool surround is still to be designed with the levels as note SP09 records.
+
+<div style="
+    text-align      : center;
+    padding-top     : 04.00mm;
+    padding-bottom  : 01.00mm;
+    margin-top      : 00.00mm;
+    margin-bottom   : 00.00mm;
+">
+    <div style="
+        width            : 92%;
+        margin           : 0 auto;
+        border-top       : 0.25px solid #f3f3f3;
+        height           : 0;
+    "></div>
+</div>
+
+#### 8.5 |  The Driveway And Access  -  SP02 SP03 SP05 To SP07 SP10 SP12 SP22 SP24 And SP25
+
+The replacement dwelling is served from two accesses on Deans Lane. The established entrance described at section 3.4 is kept and a second access is added further along the lane to the north east. Beyond them the drive the side roads the parking and their planted edges are reorganised as set out below.
+
+#### The Horseshoe Carriage Drive  -  SP02
+
+The proposed horseshoe drive turns towards the principal south east entrance and curves away again around a landscaped centre. This is an appropriate companion to the balanced Georgian elevation. The approach gives the central doorway a clear destination and presents the entrance front as a complete composition.
+
+The improvement is practical as well as architectural. Arrival and departure can be organised around a continuous curve while the central landscape prevents the frontage reading as one broad parking apron. The turning circles radii splays and arcs drawn at this stage are illustrative only. They show the intended form of the drive and not the functional geometry it will need. The applicants will appoint a civil engineer to design the alignment widths and vehicle tracking before a full application. The merit at this stage lies in the clearer relationship between the route and the entrance rather than an unverified claim about traffic capacity or highway safety.
+
+#### Two Accesses From Deans Lane  -  SE13 SP24 And SP25
+
+The holding has a single vehicular access today. Every vehicle enters and leaves through the gated entrance on Deans Lane described at section 3.4 as note SE13 records on the existing site plan RB05_T01_D12.
+
+The horseshoe drive needs a way in and a way out. The proposal therefore keeps the original entrance at SP24 and adds a second access onto Deans Lane at SP25. The new access lies further along the lane to the north east where the east arm of the horseshoe drive meets it. Figure 8.6 shows the two. One gate serves as the way in and the other as the way out so that arriving and departing vehicles are kept apart. Both gates are automatic and linked to the security and access control system of the holding.
+
+The second access is a new opening onto the lane and it is presented as such. Its visibility splays and the detailed design of both accesses will be coordinated with the local highway authority at the full application stage in line with the council's advice. The new access passes through the belt of trees along the lane frontage. The aim is to keep the gap in that belt as narrow as the highway requirements allow so that the screening described at section 3.1 is maintained. The applicants would welcome the officer's advice on the information the highway authority is likely to need as section 12.4 records.
+
+<figure class="na-figure-block" style="margin-left: auto; margin-right: auto;">
+<img class="na-figure" src="./02__DocImages/26__Proposed__SiteAccess/26__Proposed__SitePlanExcerpt__D13__DeansLaneAccesses__.png" style="zoom: 28%; display: block; margin-left: auto; margin-right: auto;" />
+<figcaption class="na-figure-title"><strong>Fig 8.6  -</strong>  Proposed Site Plan  -  Excerpt From Drawing RB05_T01_D13 Showing The Original Access SP24 And The New Access SP25 On Deans Lane</figcaption>
+</figure>
+
+[TO CONFIRM: Fig 8.6 is a placeholder. Adam Noble to replace it with an excerpt of drawing RB05_T01_D13 once the bubbles SP24 and SP25 are placed, saved over the same file name.]
+
+#### The Coach House And The Lake House Access Route  -  SP03
+
+A new side access roadway passes through the coach house carriage arch and continues to the Lake House and to the retained field gate on the site boundary beyond it. The gravel path and the two parking spaces that serve the Lake House from the roadway are described at section 8.2. This route gives the Lake House a direct connection to the house and makes the carriage arch a working part of the site plan. The service access road described below joins it beyond the arch as note SP03 records.
+
+Everyday access to the Lake House is therefore given a legible route from the courtyard of the house. The principal entrance retains its formal role while the coach house connects the arrival space to the useful buildings beyond. The arrangement reinforces the character of a country house with its ancillary buildings gathered beyond the courtyard and it keeps the household's home office and gym within easy reach of the house. The clearances through the carriage arch will be confirmed by the applicants' civil engineer before a full application.
+
+#### The Landing Strip And Side Road  -  SP05 And SP06
+
+Part of the existing landing strip is to remain. The connecting road is reconfigured to meet the new horseshoe arrangement rather than retaining the existing circulation unchanged. This selective approach allows usable hard surfacing to be incorporated into the revised layout while giving the principal approach a form appropriate to the replacement house.
+
+Between the hangar and the approach from the original entrance a new side road passes through the tree line to serve four parking spaces. This places additional parking off the direct entrance drive. The precise length of retained landing strip and the areas of removed or new surfacing will be measured from the applicants' topographical survey before a full application. The proposal is not presented as a demonstrated reduction in total hardstanding until those areas have been measured.
+
+#### Parking Beside The Hangar  -  SP07
+
+Four open parking spaces are set against the tree line at the end of the side road. They give the household designated parking away from the entrance front so that cars are not always gathered in front of the house. They also give overspill parking for guests and for visitors to the hangar. The horseshoe therefore remains principally an arrival space.
+
+No carport or other structure is proposed here. The applicants were interested at first in a timber carport. They have chosen instead to keep the number of outbuildings in the proposal to a manageable level and not to complicate the scheme. The spaces are therefore open parking. The area may be considered for a carport at some point in the future but no structure forms part of this enquiry or of the full application that will follow it.
+
+The spaces sit at the edge of the tree line and that screening is not treated as justification for unspecified clearance. The spaces and the side road will be set out with the arboriculturist's assessment of the retained trees and their roots. Their surface and layout will be designed by the applicants' civil engineer before a full application.
+
+#### The Privacy Hedge And The Woodland Clearance  -  SP10 And SP12
+
+A new privacy hedge is proposed along the hangar line. It will define the edge of the domestic garden and provide a planted separation from the hangar area. The intention is to soften that division through vegetation. Its eventual screening effect will depend on the chosen species and maintained height as well as the establishment of the planting. Its alignment species and maintained height will be set by the applicants' landscape architect before a full application.
+
+The revised layout also clears woodland and it is right to say so plainly. Measured against the existing site plan RB05_T01_D12 the service access road described below and the pocket of ground it leaves beside the horseshoe drive where the relocated pond of section 8.6 is placed clear about 1,070 square metres of woodland. The road and its verge take about 340 square metres of that and the pond about 110 square metres and the rest is laid to lawn around the pond. A further area of about 920 square metres of woodland within the horseshoe drive is laid to lawn. The tree lines around the two accesses and the parking are adjusted locally. The applicants will appoint an arboriculturist to assess the trees and to identify which are to be removed together with the protection of those retained and the replacement planting as section 9.2 describes. The aim throughout is to keep as many trees as possible. Above all the woodland along the Deans Lane frontage is to be kept because it screens the house from the lane and gives it its privacy as sections 3.1 and 3.5 describe. The scheme should preserve that enclosing landscape structure while resolving the specific interventions needed for access parking and the pond.
+
+[TO CONFIRM: why most of the woodland within the horseshoe drive and around the relocated pond is laid to lawn rather than retained or replanted, so that the case under Policy ENV 4 of the neighbourhood plan can be made - Adam Noble.]
+
+[TO CONFIRM: the woodland lost against RB05_T01_D12, re-measured by cause from the Existing and Proposed site plan exports before issue. Measured on 29 September 2026 the comparison in front of the house gives about 2,590 square metres of woodland lost in all. Besides the two areas above, about 590 square metres lies under the horseshoe drive and its forecourt, the grass beside them and a corner of the coach house as they were drawn before the service access road was added, and this section does not yet describe it. The 920 square metres within the horseshoe drive leaves out about 60 square metres there that is existing hard standing on RB05_T01_D12. Also whether the woodland now drawn in the strip by the south entrance, about 630 square metres left blank on RB05_T01_D12, is new planting or existing woodland not yet drawn - Adam Noble.]
+
+#### The Service Access Road  -  SP22
+
+The carriage arch of the coach house at CE02 is designed to take cars and high roofed long wheelbase vans but not lorries. The internal roads of the holding reach the hay barn today (section 3.3) and occasional deliveries and larger vehicles for the field and the grounds will still need a way through. The Lake House itself arrives as three pre-made Bonni units that must be brought to the site of the barn by lorry. A service access road therefore bypasses the arch as note SP22 records. It is an occasional service route for the household and its land and it brings no new use onto the holding.
+
+The road is 4,000 millimetres wide like the drive it leaves and the route it joins. It leaves the east arm of the horseshoe drive and sweeps north around the east of the coach house for about 63 metres to join the Lake House route of SP03 about 19 metres beyond the arch. Larger vehicles therefore reach the field gate and the site of the Lake House without entering the courtyard.
+
+The road is cut entirely through woodland. Together with the pocket of ground it leaves beside the horseshoe drive where the relocated pond of section 8.6 is placed it accounts for the clearance of about 1,070 square metres of woodland set out above. Its alignment will be designed by the applicants' civil engineer and each tree removal settled by their arboriculturist as section 9.2 describes together with root protection and replacement planting. Where it crosses the line of the existing watercourse a clear span will be explored first and the crossing is in every case subject to the consent of Leicestershire County Council as section 8.6 explains. The surface and edging of the road will be designed with it before a full application.
+
+[TO CONFIRM: which larger vehicles come onto the holding and roughly how often, so that the need for a permanent road through woodland can be weighed under Policy ENV 4 of the neighbourhood plan, and the clear height and width of the carriage arch from RB05_T01_D05, which note CE02 does not record - Adam Noble.]
+
+<div style="
+    text-align      : center;
+    padding-top     : 04.00mm;
+    padding-bottom  : 01.00mm;
+    margin-top      : 00.00mm;
+    margin-bottom   : 00.00mm;
+">
+    <div style="
+        width            : 92%;
+        margin           : 0 auto;
+        border-top       : 0.25px solid #f3f3f3;
+        height           : 0;
+    "></div>
+</div>
+
+#### 8.6 |  The Pond Alterations  -  SE10 SP11 And SP23
+
+A small pond of about 22 square metres lies in front of the kitchen building about 16 metres forward of the front wall of the main house. The pond as it stands today is described at section 3.5 and it is distinct from the main lake at SE07. The proposal relocates it to a new pond of up to about 111 square metres which at its fullest is five times its area.
+
+#### Why The Existing Pond Cannot Stay
+
+The pond lies on the ground that becomes the forecourt of the horseshoe drive at SP02 and the forecourt paving covers the whole of it. Its loss is a direct consequence of the layout and it is stated as such. Policy N2 of the National Planning Policy Framework (August 2026) treats compensation as the last resort after avoidance and mitigation. The old pond is only about 2.7 metres from the wall of the new coach house on the forecourt where the route through the carriage arch begins. It cannot stay there and so the new pond is offered as that compensation.
+
+[TO CONFIRM: why the forecourt cannot be shaped around the pond so that it is kept in place, which is the avoidance step that Policy N2 asks to be shown before compensation, and whether the forecourt would be revisited if the survey finds a spring rising in the pond - Adam Noble.]
+
+#### Following The Water
+
+A watercourse runs between the pond and the south eastern boundary but whether a spring or that watercourse feeds it and which way its water flows cannot be known without survey. No work will be done to the pond or to the woodland around it until its water has been surveyed. Any spring or watercourse found feeding it will be carried on to the new pond in an open channel wherever that is practicable. A pipe will be used only where Leicestershire County Council agrees that there is no practicable alternative. Any culvert in an ordinary watercourse needs the County Council's written consent under section 23 of the Land Drainage Act 1991 and its published policy is opposed in general to culverting. Policy F8 of the Framework likewise resists enclosing an existing watercourse without compelling reasons.
+
+As drawn the upper part of the existing watercourse is also realigned. About 39 metres of it from the old pond to the bend where it turns towards the boundary is taken out and a new channel of about 17 metres carries the overflow of the new pond back into its retained lower length. If the survey finds it to be an ordinary watercourse that realignment is likely to need the County Council's consent and its policy says that a diversion is likely to require a substantial ecological and geomorphological assessment. It will be designed with the County Council on that basis.
+
+The service access road of section 8.5 has to cross the line of that watercourse on its way round the coach house and the new channel passes beneath it for about 4 metres. The crossing is needed only so that the road can pass. The County Council's policy asks for a clear span with the bed and banks left open to be explored before any culvert and that is where the design will start. Where a culvert proves unavoidable the policy accepts short lengths for access purposes if the length is kept to a minimum and the hydraulic and environmental design is assessed with mitigating enhancements to the surroundings. Any culvert here will meet those terms and it will need the same consent.
+
+#### A Larger Pond Between The Drives
+
+The new pond at SP11 lies about 21 metres east of the old one in the pocket of ground that the service access road leaves beside the horseshoe drive. It is about 21 metres long and 7.5 metres across at its widest and it is set in lawn. The pocket is woodland today and the road and the pond clear it as section 8.5 sets out. Once the road is cut it is an island of about 740 square metres with hard surfacing on every side and the pond makes it a feature of the approach rather than a remnant between two drives.
+
+The pond is drawn at its fullest extent. That is the area it reaches when it holds the storm water gathered from the drives and the higher parts of the site. It will not always be that size. Its level will vary and in drier spells the pond may fall back to about half that area. An overflow connects it to the wider surface water drainage of the site as described below.
+
+[TO CONFIRM: figure of the relocated pond - excerpt of drawing RB05_T01_D13 to be supplied by Adam Noble.]
+
+The pond is also intended as the low point of the drives and the first place their surface water collects after the source control on the drives themselves as note SP23 records. Water from the drives passes through silt control to the pond. As drawn the pond overflows at a controlled rate to the retained lower channel of the existing watercourse which runs to the south eastern boundary of the site beside the lane. That outfall depends on the survey showing that the channel falls away from the pond and where it runs beyond the boundary and the drainage design will confirm it. The levels are not yet known and the low point is a design intention that the topographical survey must confirm. The drainage will follow the national standards for sustainable drainage that Policy F8 cites. Their hierarchy puts collection for use first and infiltration to the ground second ahead of discharge to a surface water body. The holding already harvests rainwater (section 9.4) and infiltration will be tested before any discharge from the pond is designed. A permanently wet pond is not counted as intercepting the first 5 millimetres of rainfall and so the drives will manage their own first rainfall for example through permeable construction. The standards also prefer attenuation at several points and further attenuation will be considered with the drainage design and its management and maintenance plan. The treatment ahead of the pond will be set by a water quality risk assessment under the same standards.
+
+#### Drainage And Habitat Together
+
+The pond is designed as habitat as well as drainage with planted margins and native planting that will be managed for the long term. That is the multifunctional benefit for water quality biodiversity and amenity that Policy F8 seeks and the nature-based solution that Policy N2 describes. Policy CC1 of the Charnwood Local Plan encourages integrated water management early in site planning and natural flood management through new habitats including wetlands. Paragraph 8.49 of the Local Plan in the supporting text to Policy EV6 names sustainable drainage systems which benefit wildlife among the ways of providing net gains in biodiversity. The pond is also consistent with the aims of Policy CC2. Policy ENV 9 of the Woodhouse Neighbourhood Plan states that new retention pools will be strongly supported. No net gain is claimed for it. The statutory metric will record the old pond and the woodland cleared for the new one as losses (section 9.3).
+
+The new pond will be made and planted before the old one is filled and the old pond will be protected through the building works until then.
+
+The pond is therefore not simply built over. Its water is followed and it is replaced first by a larger pond that at its fullest is five times its size.
+
+<div style="
+    text-align      : center;
+    padding-top     : 04.00mm;
+    padding-bottom  : 01.00mm;
+    margin-top      : 00.00mm;
+    margin-bottom   : 00.00mm;
+">
+    <div style="
+        width            : 92%;
+        margin           : 0 auto;
+        border-top       : 0.25px solid #f3f3f3;
+        height           : 0;
+    "></div>
+</div>
+
+#### 8.7 |  Why The Revised Layout Is Better
+
+The improvement lies in the relationship between the parts. The coach house leads through to the Lake House where three low Bonni outbuildings take the place of an asbestos roofed barn. Behind the house the hedged lawn terraces and the infinity edge pool make use of the falling ground while removal of internal fencing reconnects the garden with the lake. The front drive addresses the Georgian entrance. A service access road keeps larger vehicles out of the courtyard and the pocket of ground it leaves beside the drive holds a new pond of up to five times the size of the old one. Two accesses on Deans Lane give the drive a separate way in and way out. Parking sits to one side against the tree line. The privacy hedge provides a planted edge to the hangar area.
+
+These are specific benefits of the arrangement rather than a general claim that more development improves the site. They give the existing landscape and the site of the old hay barn a clearer role in the life of the replacement house. The detailed design still needs to resolve the tree interventions and water relationships on which the success of that arrangement depends.
+
+[TO CONFIRM: the full proposed site plan is to show the retained landing-strip extent, fence removals, the levels and bank profiles of the relocated pond, privacy-hedge alignment and individual tree proposals. Drive connections to Deans Lane, vehicle tracking, carriage arch clearances, surfacing including the surface and edging of the service access road, drainage and the layout of the parking beside the hangar remain to be coordinated. The levels of the lawn terraces and of the two-level pool surround, how each fall between the terraces is formed, the treatment of the sides of each flight of the central steps where it runs about 1,585 millimetres past its hedge onto the lawn below, the retaining edges of the pool terrace, the overflow detail of the infinity edge, the pool finishes, step-free access and plant location are to be developed once the topographical survey is available. The earthworks for the lawn terraces and the pool terrace and the disposal of any spoil, the drainage of the lawns and paving, the discharge of pool water close to the lake on a holding with no mains drainage, and the lighting of the pool and terraces are to be set out before a full application. Whether the three contours drawn across the garden on RB05_T01_D13 show existing or proposed ground is to be confirmed by Adam Noble; they cross the garden just below the first hedge and across the middle of the second and third lawns rather than at the hedge lines. Hedge species, planting size, spacing and maintained height remain to be selected for the privacy hedge and for the terrace hedges, together with the form and height of the clipped blocks at the steps and corners. Turbine symbols are to be added at verified existing positions; the supplied markup is not a measured location survey.]
+
+<div style=" /* | - - - - - - - - - - - -->|  Horizontal Page Divider Line   |<-- - - - - - - - - - - - - - - - -|  */ 
+    text-align           :     center;    
+    padding-top          :    05.00mm;    /*  <--- Space Above The Divider Line  */
+    padding-bottom       :    05.00mm;    /*  <--- Space Below The Divider Line  */
+    margin-top           :    00.00mm;    
+    margin-bottom        :    00.00mm;    
+    ">                                   
+    <div style="                         
+        width            :       100%;    
+        border-style     :      solid;    
+        border-width     :     0.01pt;    
+        border-color     :    #ebebeb;    
+        ">                               
+    </div>                                
+</div>  
+
+### 9.0 |  Landscape Ecology And Sustainability
+
+#### 9.1 |  Landscape Strategy And Visual Containment
+
+The proposed landscape strategy gives the entrance and rear garden different roles. The horseshoe drive and recessed parking serve arrival while the pool terrace and retained lake form the principal garden sequence. Removal of the internal sports fence opens that relationship. Three hedged lawn terraces step down to the pool with the fall of the ground. All of these works are described in sequence at section 8.0 together with the privacy hedge along the hangar line and the new planting around the Lake House.
+
+The design retains the broader woodland setting as its organising framework while proposing local adjustments to tree lines. It also clears woodland for the service access road and the relocated pond and within the horseshoe drive as section 8.5 describes. The side road the parking spaces the second access and the service access road require those changes to be examined in detail. The site plan should distinguish retained trees from individual removals and show replacement planting where proposed. The aerial images establish the wooded character of the holding but do not demonstrate the absence of landscape effects.
+
+The main lake remains. The small front pond is relocated to a new pond of up to five times its area whose margins and planting are designed as habitat as section 8.6 describes. The landscape layout and the reasons for it are recorded in site notes SP08 to SP13 together with SP19 to SP23.
+
+#### 9.2 |  Trees And Ecology
+
+The applicants intend to commission the arboricultural and ecological work early so that its findings shape the layout rather than follow it. A BS 5837 tree survey will record the trees around the developed core and along the tree lines affected by the side road the parking spaces and the second access and around the Lake House. It will also cover the woodland to be cleared for the service access road and the relocated pond and within the horseshoe drive. An arboricultural impact assessment will then identify the individual retention and removal decisions that sections 8.5 and 9.1 anticipate together with root protection and replacement planting. Policy EV7 of the Charnwood Local Plan expects any removed non woodland tree to be replaced by at least three new trees. Policy ENV 4 of the Woodhouse Neighbourhood Plan expects replacement indigenous planting wherever the loss of trees is unavoidable. The detailed landscape proposals will be prepared to meet both. The aim throughout is to retain as many trees as possible and in particular the woodland along the Deans Lane frontage that screens the house.
+
+A Preliminary Ecological Appraisal will cover the woodland the lake the ponds the grassland and the buildings. Bat activity is already recorded in the neighbourhood plan evidence and the dwelling the hay barn and the stables shed proposed for demolition are expected to require bat survey work. Some of that work is seasonal. Early instruction therefore protects the programme and the applicants would welcome confirmation at this stage of the scope the council expects. The replacement will incorporate the features for priority species that Policy N2 of the Framework describes including integrated swift bricks together with the bat and bird boxes encouraged by Policy H6 of the neighbourhood plan. External lighting will follow the Bat Conservation Trust guidance that the same policy cites. The woodland clearance at SP12 will follow the timing and mitigation that the survey work recommends in the same way as the cutting back of the woodland edge around the Lake House (section 8.2).
+
+#### 9.3 |  Biodiversity Net Gain
+
+Statutory biodiversity net gain is expected to apply to a full application. Government guidance last updated on 6 August 2026 exempts development whose red line encloses 0.2 hectares or less and development that affects less than 25 square metres of habitat. Neither exemption applies where priority habitat on the site is affected. The exemption for self-build and custom build development no longer applies to applications made from that date. The works proposed here cover considerably more than 0.2 hectares and they include the loss of the small front pond and of woodland. The applicants therefore expect to provide a biodiversity metric assessment with a full application and the position will be checked again when it is made. Policy EV6 of the Charnwood Local Plan seeks 10% biodiversity net gain and asks for an ecological survey including a biodiversity impact assessment. Policy N2 of the Framework cautions decision makers against giving weight to gains beyond the statutory framework including for development that is exempt.
+
+The metric will record the old pond and the woodland cleared for the service access road and the relocated pond and within the horseshoe drive as losses. Whether any of that woodland or the old pond is priority habitat will be established by the Preliminary Ecological Appraisal and it will govern how their loss must be replaced. At its fullest the new pond at SP11 is five times the area of the old one and its margins and planting are designed as habitat as section 8.6 describes. Government guidance recognises that habitat delivered through sustainable drainage may count towards net gain. The new pond is designed to contribute to the gain that the full application must demonstrate. How much it contributes will depend on whether its planted margins meet a habitat type of higher value than a drainage feature. No figure is claimed until the metric has been run on the findings of the appraisal. The substantial areas of woodland grassland and water within the applicants' ownership offer considerable scope to deliver any further gain on site.
+
+#### 9.4 |  Energy And Existing Renewable Infrastructure
 
 West Beacon Farm has a long association with renewable and low carbon technology. The existing dwelling is heated by a water source heat pump that draws on the lake. The sales particulars describe two sets of solar panels of approximately 12 kilowatts feeding approximately 200 kilowatt hours of battery storage. Water is drawn from a private borehole supplemented by rainwater harvesting. This infrastructure is an important part of the history of the holding.
 
@@ -940,123 +1320,31 @@ The replacement offers the opportunity to carry that legacy forward in a more co
     </div>                                
 </div>  
 
-### 9.0 |  Access Servicing And Amenity
+### 10.0 |  Access Servicing And Amenity
 
-#### 9.1 |  Vehicular Access And Parking
+#### 10.1 |  Vehicular Access And Parking
 
-The revised access arrangement comprises the horseshoe carriage drive at the principal entrance and a side roadway through the coach house to the service yard and its studio buildings. A further side road between the hangar and the approach from Deans Lane serves the proposed four-car timber carport. Part of the existing landing strip is retained and its connecting road is reconfigured into the new arrangement.
+The holding keeps its established entrance on Deans Lane and gains a second access further along the lane to the north east. The two give the horseshoe drive a separate way in and way out and each is closed by an automatic gate linked to the security and access control system of the holding. The revised internal arrangement comprises the horseshoe carriage drive at the principal entrance and a side roadway through the coach house to the Lake House and to the field gate beyond. A service access road 4,000 millimetres wide leaves the east arm of the horseshoe drive and joins that roadway beyond the carriage arch. The occasional delivery or larger vehicle that the arch cannot take therefore reaches the field gate and the site of the Lake House without passing through the courtyard. A further side road between the hangar and the approach from the original entrance serves four open parking spaces for the household and its visitors. Part of the existing landing strip is retained and its connecting road is reconfigured into the new arrangement. The benefit is a clearer separation of formal arrival from everyday parking and from the route to the Lake House and the field gate. Each of these works is described at section 8.5 and the two parking spaces beside the Lake House at section 8.2.
 
-The benefit is a clearer separation of formal arrival from covered parking and access to the ancillary accommodation. Parking is placed against the tree line off the direct entrance drive. The route through the coach house gives the gym and the workspaces a direct connection without requiring passage through the main dwelling. The service yard gains five marked parking spaces for the studio buildings and continues as a straight run to the retained field gate as described at section 10.6.
+The second access is a new opening onto Deans Lane. Its visibility splays and the detailed design of both accesses will be coordinated with the local highway authority at the full application stage in line with the council's advice as section 12.4 records. No finding on highway conditions is assumed at this stage.
 
-The carport remains indicative. Its four-car capacity is the brief rather than a verified bay layout. The coordinated drawings will demonstrate bay sizes and turning movements together with clearances through the carriage arch. The relationship with the highway entrance also remains to be confirmed. No new highway opening or finding of unchanged highway conditions is assumed from the internal site markup.
-
-#### 9.2 |  Inclusive Access
+#### 10.2 |  Inclusive Access
 
 The main house is generously planned. The Grand Gallery runs across the centre of the plan as a broad spine and every principal room opens directly off it. The formal entrance on the south east front is approached over a short flight of stone steps. The everyday entrance through the Colonnade Atrium is reached from the courtyard and connects directly to the kitchen building and through the carriage arch to the coach house. All of the accommodation that the household uses every day lies on the ground floor.
 
-The steps from the house down to the pool follow the fall of the ground towards the lake. They do not by themselves provide step free access and an alternative accessible route to the pool terrace will be developed with the detailed landscape design as noted at SP09. The principal staircase is indicative at this stage as noted at GF02. The detailed design will meet the access requirements of the Building Regulations.
+The central garden steps and the lower terrace beneath the infinity edge described at sections 8.3 and 8.4 do not provide step-free access. An accessible route to the lawn terraces and the pool surround is still to be designed and it will be developed with the levels and the detailed landscape design as noted at SP09. The principal staircase is indicative at this stage as noted at GF02. The detailed design will meet the access requirements of the Building Regulations.
 
 [TO CONFIRM: a level threshold at the colonnade entrance, and whether provision for a future lift is to be safeguarded within the plan.]
 
-#### 9.3 |  Drainage Water And Utilities
+#### 10.3 |  Drainage Water And Utilities
 
-The holding has neither mains water nor mains drainage. The sales particulars record a mains electricity supply only with a three phase connection. Water is drawn from a private borehole with rainwater harvesting and treated on site and foul drainage is to a private septic tank. The replacement dwelling is proposed to be served from the same private infrastructure upgraded as necessary for a house of its size. A new foul treatment system will be designed to current standards once the capacity and discharge arrangements of the existing system are established. Surface water will be managed through sustainable drainage within the grounds as described at section 5.4.
+The holding has neither mains water nor mains drainage. The sales particulars record a mains electricity supply only with a three phase connection. Water is drawn from a private borehole with rainwater harvesting and treated on site and foul drainage is to a private septic tank. The replacement dwelling is proposed to be served from the same private infrastructure upgraded as necessary for a house of its size. A new foul treatment system will be designed to current standards once the capacity and discharge arrangements of the existing system are established. Surface water will be managed through sustainable drainage within the grounds as described at section 5.4. The relocated pond at SP11 is intended as the first collecting point of that system at what the design intends to be the low point of the drives subject to the topographical survey. Silt control will sit ahead of it and as drawn it will overflow at a controlled rate to the retained lower channel of the existing watercourse as note SP23 records. The system will be designed to the national standards for sustainable drainage with source control on the drives and a management and maintenance plan as section 8.6 explains.
 
-#### 9.4 |  Neighbouring Amenity
+#### 10.4 |  Neighbouring Amenity
 
 The replacement dwelling stands within the applicants' own land and is enclosed by their own woodland belts. There is no other dwelling within the holding. The house faces its own courtyard to the south east and its own garden and lake to the north west. It has no relationship with any neighbouring window or garden that could give rise to overlooking overshadowing or an overbearing effect. The balcony over the colonnade looks across the applicants' own courtyard. The proposal therefore protects the amenity of people who live nearby as Policy DS4 of the Charnwood Local Plan requires.
 
-[TO CONFIRM: the nearest neighbouring dwelling beyond the holding and its distance from the replacement dwelling, measured on the location plan RB05_T01_D14.]
-
-<div style=" /* | - - - - - - - - - - - -->|  Horizontal Page Divider Line   |<-- - - - - - - - - - - - - - - - -|  */ 
-    text-align           :     center;    
-    padding-top          :    05.00mm;    /*  <--- Space Above The Divider Line  */
-    padding-bottom       :    05.00mm;    /*  <--- Space Below The Divider Line  */
-    margin-top           :    00.00mm;    
-    margin-bottom        :    00.00mm;    
-    ">                                   
-    <div style="                         
-        width            :       100%;    
-        border-style     :      solid;    
-        border-width     :     0.01pt;    
-        border-color     :    #ebebeb;    
-        ">                               
-    </div>                                
-</div>  
-
-### 10.0 |  Replacement Of The Hay Barn With Studio Buildings
-
-The service yard beyond the coach house is dominated today by an old steel framed hay barn. Every roof on it is clad in asbestos sheeting. The proposal removes the barn and its lean tos entirely and replaces them with three single storey studio buildings made by Bonni Outbuildings. Two of the buildings are workspaces for the applicants' own businesses and one of them contains the podcasting studio described at section 1.0. The third is a private gym. This section sets out why the barn must go and why its replacement is a clear improvement to the site.
-
-#### 10.1 |  The Existing Hay Barn
-
-The hay barn is a steel framed structure with a lean to along one side and a second lean to across one end. The main barn measures 8,570 by 12,540 millimetres and the building extends to 16,440 millimetres in length once its end lean to is included. Measured on the site plan model it covers approximately 197 square metres of the yard. The roofs of the main barn and of both lean tos are clad in asbestos sheeting.
-
-It is by some distance the largest structure in the yard. Its broad roof planes read as a single utilitarian mass from within the surrounding landscape and its weathered sheeting has none of the quality that the rest of the holding is now to receive. Figure 10.1 shows the barn in its setting today with the field gate at the head of the yard and the open field beyond. The stable building beside it is also removed as drawing RB05_T01_D12 shows.
-
-<img class="na-figure" src="./02_StatementDocs__Content__Images/40__Outbuildings__HayBarnReplacement/40__Existing__HayBarnAndServiceYard__AerialView__.jpg" style="zoom: 30%; display: block; margin-left: auto; margin-right: auto;" />
-
-​		**Fig 10.1  -**  The Existing Service Yard  -  The Asbestos Roofed Hay Barn And Its Lean Tos With The Field Gate At The Head Of The Yard
-
-#### 10.2 |  Why The Barn Cannot Be Kept
-
-Keeping the barn was examined in earnest. Early design work by the applicants and Noble Architecture set out to redesign the barn from within and to infill its steel frame with the workspaces and the gym. The exercise was abandoned. The barn is a steel framed structure and it is very tall. Fitting rooms of a comfortable domestic scale inside a frame of that height and span proved impractical at every turn. Whatever was built inside it the tall utilitarian outline of the barn and its broad roof would have remained in the landscape.
-
-The asbestos settled the matter. Any reuse would mean either working beneath the asbestos roofs or disturbing them to adapt the building. The applicants are not prepared to have asbestos anywhere near their family their work or their daily lives. The removal of the barn is therefore fundamental to the scheme rather than incidental to it. Replacing it with the sympathetic Bonni buildings is by far the better answer because it deals with the hazard the height and the appearance of the barn together.
-
-Policy P3 of the National Planning Policy Framework (August 2026) asks whether development is appropriate for its location taking into account the likely effects of pollution on health. It expressly includes effects that are the product of pre-existing conditions and it asks for the sensitivity of the intended occupiers and users to be considered. The applicants' place of work and exercise beneath asbestos roofs would sit uneasily with that policy. Removing the asbestos from the site answers it directly.
-
-The barn will be taken down in a controlled sequence. An asbestos refurbishment and demolition survey will be carried out before any work begins. The sheeting will be removed by a specialist asbestos contractor and taken off site for disposal as hazardous waste before the steel frame is dismantled. The yard will then be cleared so that the ground beneath the new buildings is left clean and safe. Policy P2 of the Framework expects a site to be suitable for its proposed use taking account of any risk of contamination. Where such risks arise it places the responsibility for securing a safe development with the developer and landowner and the applicants accept that responsibility in full.
-
-#### 10.3 |  The Bonni Studio Buildings
-
-The replacement buildings are made by Bonni Outbuildings. Bonni builds timber framed buildings using traditional methods and natural materials. Each one is designed on Passivhaus principles as a small house and is insulated through its floor walls and roof so that it can be used throughout the year. The company's insulation doubles as sound insulation and it can be increased for a room that needs it which suits the podcasting studio exactly. Its standard buildings are offered in raw oak or painted timber cladding or in corrugated cladding beneath a corrugated steel roof and they are fitted with handmade hardwood casement doors. They are designed to sit comfortably within a garden. [Sources: Bonni](https://www.bonnioutbuildings.com/) together with [About Us](https://www.bonnioutbuildings.com/about) [FAQs](https://www.bonnioutbuildings.com/faqs) and [Bonni Large.](https://www.bonnioutbuildings.com/large)
-
-Three modules are proposed. Each measures 9,000 by 5,000 millimetres externally and gives approximately 41 square metres of floor space inside. Units 1 and 2 stand end to end along the side of the yard nearest the lake. Unit 3 is turned at right angles to them and faces away from the other two so that the three buildings form a compact L shaped group. A small glazed corner link of 2,500 by 2,500 millimetres joins Unit 3 to Unit 2. Units 1 and 2 are the applicants' home office workspaces and one of them contains the podcasting studio. Unit 3 is the private gym. Figure 10.2 shows an example of the manufacturer's standard product.
-
-<img class="na-figure" src="./02_StatementDocs__Content__Images/40__Outbuildings__HayBarnReplacement/41__Bonni__StandardProduct__BonniLarge__.jpg" style="zoom: 45%; display: block; margin-left: auto; margin-right: auto;" />
-
-​		**Fig 10.2  -**  Bonni Outbuildings  -  The Bonni Large Shown As An Example Of The Manufacturer's Standard Product. Image Courtesy Of Bonni Outbuildings
-
-Bonni was not chosen on cost. A standard modular cabin or a new steel shed would have been a cheaper way to provide the same floor space. The applicants sought the company out precisely because its buildings are beautiful and because it brings genuine craftsmanship to what is so often an austere and utilitarian building type. That choice is a deliberate investment in the appearance of the yard and in the setting of the new house. We would warmly invite the case officer to review the company's published work at [bonnioutbuildings.com](https://www.bonnioutbuildings.com/) before forming a view.
-
-The cladding the roof covering and the colour of the three buildings are still to be selected from the Bonni range. The applicants would welcome the council's view on the finish and they are content for it to be agreed by condition.
-
-[TO CONFIRM: drawing RB05_T01_D13 labels Unit 3 as an office. It is to be relabelled as the gym and Units 1 and 2 as workspaces so that the drawing and this statement agree.]
-
-#### 10.4 |  A Home Office Not Business Premises
-
-The use of the studio buildings should be stated plainly. They are a home office and a home gym. Both applicants run their own brands and businesses from home as a great many people now do. The studio buildings simply give that home working a place of its own away from the family rooms of the main house and they keep the podcasting studio clear of the everyday noise of a busy household.
-
-They are not business premises. No separate business unit is created and no commercial use is brought onto the holding. The buildings are used by the applicants themselves and visitors are occasional such as a colleague calling in for a meeting or a recording. Home working of this kind is part of the ordinary residential use of a family home. The studio buildings therefore remain ancillary to the lawful residential use of West Beacon Farm and they introduce no new use to the holding. The applicants are content for that ancillary use to be secured by condition.
-
-#### 10.5 |  A Lower Lighter And More Considerate Building
-
-The comparison with the barn is straightforward. The barn and its lean tos cover approximately 197 square metres of the yard. The three studio buildings and their link together cover approximately 141 square metres. The built footprint is therefore reduced by more than a quarter before any other benefit is counted.
-
-The change in height and bulk is more telling still. A tall barn with broad asbestos roof planes gives way to three single storey buildings of domestic scale. Where the barn presents one uniform mass the studio buildings are three small and carefully proportioned forms that turn the corner of the yard as a group. They will read as garden buildings of quality rather than as an agricultural shed. The barn is visible from within the landscape and its replacement by lower and more harmonious buildings is therefore a direct and lasting improvement to that landscape.
-
-[TO CONFIRM: the ridge and eaves heights of the existing hay barn and of the three studio buildings are to be measured on site and taken from the Bonni drawings so that the reduction in height can be stated in figures.]
-
-The buildings are also exceptionally light on the land. Each stands on drilled auger piles rather than on a concrete slab or strip footings and Bonni's own approach avoids concrete bases entirely. Excavation is confined to the pile positions themselves. Those positions can be set out around the roots of the retained trees at the edge of the yard in a way that a slab would never allow and the arboricultural assessment described at section 8.2 will fix them. Should the buildings ever be removed the ground beneath them could be restored with very little trace. [Source: Bonni, FAQs.](https://www.bonnioutbuildings.com/faqs)
-
-#### 10.6 |  Parking And Access To The Field Gate
-
-A field gate at the head of the yard gives onto the field beyond and the track to it is an established route. Reaching the gate today means threading a way between the barn its lean tos and the stable building as Figure 10.1 shows. The proposed layout on drawing RB05_T01_D13 keeps that access and makes it far simpler. The studio buildings are set along the side of the yard nearest the lake so that the track becomes a straight and clear run to the gate.
-
-The yard has no defined parking today. The proposal lays out five marked parking spaces for the studio buildings. Three stand in front of the gym in the angle of the L shaped group and two overspill spaces sit at the access end of the yard. That is ample for the applicants themselves and for a colleague who calls in. None of the five spaces stands in front of the track to the field gate. The track stays clear along its whole length and access for vehicles to the field is retained and made easier than it is today.
-
-#### 10.7 |  Ecology Lighting And Amenity
-
-The barn and the stable building will be included in the Preliminary Ecological Appraisal and bat survey described at section 8.2 before either is taken down. Bats are already recorded in the neighbourhood plan evidence for the site and older farm buildings can offer roosting and nesting opportunities. Demolition will follow the timing and mitigation that the survey work recommends. External lighting to the studio buildings will follow the same Bat Conservation Trust guidance as the replacement dwelling.
-
-The studio buildings stand within the applicants' own land and they are single storey. For the reasons given for the replacement dwelling at section 9.4 they raise no question of overlooking or overshadowing for any neighbouring home.
-
-#### 10.8 |  A Clear Net Benefit To The Site
-
-Taken together the change in the service yard is a clear improvement on every count. A tall steel barn roofed entirely in asbestos is replaced by three low timber buildings of genuine craftsmanship. The built footprint falls by more than a quarter. The asbestos is removed from the site under controlled conditions and the risk it presents is ended for good. The new buildings sit on piles rather than on a slab and they touch the ground lightly. The route to the field gate becomes a straight and simple run and five marked parking spaces give the yard defined parking clear of it. The buildings serve the household as a home office and a gym and they bring no business premises onto the holding.
-
-Policy C1 of the Charnwood Local Plan supports small scale new built development in the countryside where there would not be significant adverse environmental effects. Here the environmental effects are positive. The studio buildings respect the character of the holding in their scale massing and height and in the quality of their construction as Policy DS4 requires. They respond to their context as Policy DP3 of the Framework asks and they take a discordant structure out of a landscape that Policy EV1 seeks to protect. We respectfully submit that the replacement of the hay barn is a genuine planning benefit that weighs firmly in favour of the scheme as a whole.
+[TO CONFIRM: the nearest neighbouring dwelling beyond the holding and its distance from the replacement dwelling and from the Lake House, measured on the location plan RB05_T01_D14.]
 
 <div style=" /* | - - - - - - - - - - - -->|  Horizontal Page Divider Line   |<-- - - - - - - - - - - - - - - - -|  */ 
     text-align           :     center;    
@@ -1076,31 +1364,464 @@ Policy C1 of the Charnwood Local Plan supports small scale new built development
 
 ### 11.0 |  Planning Policy Context
 
-Section 38(6) of the Planning and Compulsory Purchase Act 2004 requires applications to be determined in accordance with the development plan unless material considerations indicate otherwise. For this site the development plan comprises the Charnwood Local Plan 2021-37 adopted in January 2026 and the made Woodhouse Parish Neighbourhood Plan 2020-2036. The National Planning Policy Framework published in August 2026 is a material consideration of considerable weight. The site lies outside the Limits to Development of Woodhouse Eaves and Policy H3 of the neighbourhood plan therefore treats it as open countryside. The policies most relevant to the proposal are set out below with a summary of how the scheme responds to each. Every policy cited has been checked against the copy held in the project reference folder.
+Section 38(6) of the Planning and Compulsory Purchase Act 2004 requires applications to be determined in accordance with the development plan unless material considerations indicate otherwise. For this site the development plan comprises the Charnwood Local Plan 2021-37 adopted in January 2026 and the made Woodhouse Parish Neighbourhood Plan 2020-2036. The National Planning Policy Framework published in August 2026 is a material consideration of considerable weight. The site lies outside the Limits to Development of Woodhouse Eaves and Policy H3 of the neighbourhood plan therefore treats it as open countryside.
 
-| <span style="display:inline-block; width:35mm; white-space:nowrap;">Policy Reference</span> | <span style="display:inline-block; width:55mm; white-space:nowrap;">Policy Provision</span> | How The Proposal Responds                                    |
-| :----------------------------------------------------------- | :----------------------------------------------------------- | :----------------------------------------------------------- |
-| **Policy C1: Countryside, Charnwood Local Plan 2021-37** | Manages development in the Countryside to protect its largely undeveloped character and its intrinsic character and beauty, supporting small scale new built development where there would not be significant adverse environmental effects. Sets separate circumstances for new isolated homes. | The proposal replaces an existing lawful dwelling and creates no additional home. It is contained within the developed core of an established estate rather than open land. Its environmental effects are to be tested through the tree, ecology, heritage and landscape work described at sections 5.0 and 8.0. Advice on how the council applies C1 to a replacement dwelling is sought at section 12.1. The three studio buildings are small scale new built development that replaces a larger asbestos roofed barn in the service yard (section 10.0). They are a home office and a gym ancillary to the dwelling and not business premises (section 10.4). |
-| **Policy DS4: High Quality Design, Charnwood Local Plan 2021-37** | Requires new development to respect and enhance the character of the area having regard to scale, density, massing, height, landscape, layout, materials, access and heritage assets, to protect the amenity of neighbours, and to be built to last. Independent design review may be required for sensitive proposals. | A disciplined Georgian farmhouse composition in natural stone and stone slate, set out to classical proportion (section 7.0). Massing steps down through subsidiary buildings and the crown roof lowers the ridge (section 6.7). No neighbouring amenity is affected (section 9.4). The council's view on design review is sought at section 12.4. The studio buildings are single storey and cover less ground than the barn they replace (section 10.5). Five marked parking spaces serve them clear of the track to the field gate (section 10.6). |
-| **Policy EV1: Landscape, Charnwood Local Plan 2021-37** | Requires new development to protect landscape character and to reinforce sense of place and local distinctiveness. | The group sits within the developed core and retains the woodland belts and the lake that contain it. Its materials follow the documented palette of the Charnwood Forest estates (section 3.2). Landscape and visual effects will be assessed proportionately. Removal of the hay barn takes a large utilitarian roof out of the landscape (section 10.5). |
-| **Policy EV4: Charnwood Forest and the National Forest, Charnwood Local Plan 2021-37** | Protects and enhances the Charnwood Forest Regional Park, supporting development that protects and enhances its biodiversity and provides tree planting in accordance with the National Forest Planting Guidelines. | Woodland is retained and replacement and additional planting will follow the National Forest Planting Guidelines. [TO CONFIRM: whether the site lies within the Regional Park boundary on the Policies Map] |
-| **Policy EV6: Conserving and Enhancing Biodiversity and Geodiversity, Charnwood Local Plan 2021-37** | Seeks 10% biodiversity net gain, supports development that protects priority habitats and irreplaceable habitats including trees and ancient woodland, and requires an ecological survey. | The Priority Habitat woodland lies outside the area of the replacement house and is retained. A Preliminary Ecological Appraisal and bat survey will accompany a full application and the net gain position is set out at section 8.3. |
-| **Policy EV7: Tree Planting and Retention, Charnwood Local Plan 2021-37** | Supports development that retains existing trees where appropriate and replaces any removed non-woodland tree with at least three new trees. | A BS 5837 survey and arboricultural impact assessment will set individual retention and removal decisions, with replacement planting at the ratio the policy requires (section 8.2). |
-| **Policy EV8: Heritage, Charnwood Local Plan 2021-37** | Supports development that protects heritage assets including non-designated heritage assets, and that incorporates Charnwood's distinctive local building materials and architectural details. | A proportionate heritage statement will address MLE24039 (section 5.2). Coursed stone, ashlar dressings and stone slate follow the materials of the nearest listed houses (section 3.2). |
-| **Policy H6: Design Standards, Woodhouse Neighbourhood Plan** | Applies expressly to replacement dwellings. Requires development to enhance local distinctiveness, to show how scale, mass and layout fit the surrounding area, to avoid negative impact on wider landscape views, to use materials consistently, to minimise light pollution, to provide for wildlife and sustainable drainage, and to meet the Future Homes Standard. | A single consistent palette and roofline throughout the group (section 7.0). Bat-sensitive lighting, bat and bird boxes and swift bricks (section 8.2). Sustainable drainage (section 5.4) and the Future Homes Standard (section 8.4). The effect on wider views is to be tested. External lighting to the studio buildings follows the same bat-sensitive guidance (section 10.7). |
-| **Policy ENV 4: Biodiversity, Woodland, Trees and Hedgerows, Woodhouse Neighbourhood Plan** | For development affecting the mapped sites of natural environment significance, requires existing ecological and landscape features to be maintained and enhanced, resists loss of woodland unless the harm is demonstrably outweighed, and requires tree surveys and replacement indigenous planting. | No woodland is lost to the replacement house. Tree line adjustments for the side road and carport will be assessed individually and any loss replaced with indigenous planting (sections 5.3 and 8.2). |
-| **Policy ENV 6: Local Heritage Assets, Woodhouse Neighbourhood Plan** | Identifies listed Historic Environment Record entries, including MLE24039 West Beacon Farm, as non-designated local heritage assets whose features and settings will be protected wherever possible. | The courtyard farmstead recorded under MLE24039 was completely redeveloped by 1969. Its significance will be assessed proportionately and any surviving interest recorded (section 5.2). |
-| **Policy ENV 8: Protection of Important Views, Woodhouse Neighbourhood Plan** | Requires development to respect eighteen identified views, including the 360° panorama from the summit of Beacon Hill, with visual impact assessed by a Landscape Visual Impact Assessment where significant. | The visibility of the group from the Beacon Hill summit is to be tested and the scope of any visual assessment is sought at section 12.4. |
-| **Policy S5: Principle of Development Outside Settlements, NPPF (August 2026)** | Supports the replacement of an existing building of permanent and substantial construction that is lawful in planning terms, where the replacement is for the same use and not disproportionately larger than the one it replaces. | The existing dwelling is lawful under certificate P/25/2510/2 and the replacement is for the same use (section 5.1). Its size is set out in full at section 6.8 and the council's view on proportion is sought at section 12.1. |
-| **Policy DP3: Key Principles for Well-Designed Places, NPPF (August 2026)** | Requires development to respond to the history, character and features of its site and setting, including through materials and architectural features, and to create identity through a coherent palette of materials. | A single order, a single walling stone and a single glazing pattern throughout, drawn from the documented tradition of the forest estates (sections 3.2 and 7.1). |
-| **Policy P2: Ground Conditions, NPPF (August 2026)** | Requires sites to be suitable for their proposed use taking account of ground conditions, including contamination, and places responsibility for securing a safe development on the developer and/or landowner. | An asbestos refurbishment and demolition survey precedes demolition of the hay barn, the sheeting is removed by a specialist contractor and the yard is cleared, leaving safe ground for the studio buildings (section 10.2). |
-| **Policy P3: Living Conditions and Pollution, NPPF (August 2026)** | Requires development to be appropriate for its location, taking into account the likely effects of pollution on health and living conditions, including effects that are the product of pre-existing conditions, and the sensitivity of the intended occupiers and users. | The asbestos roofs of the hay barn are taken off the site rather than kept over a place of work and exercise, so the studio buildings are used free of that pre-existing hazard (section 10.2). |
-| **Policies HE5 and HE7: Heritage Assets, NPPF (August 2026)** | Require a proportionate assessment of significance with reference to the historic environment record, and a balanced judgement where a non-designated heritage asset would be harmed. | A heritage statement referring to MLE24039 will accompany a full application, with recording offered by condition if significance is found (section 5.2). |
-| **Policy N2: Improving the Natural Environment, NPPF (August 2026)** | Asks development to conserve and enhance established trees and hedgerows where possible and to include features for priority species, including integrated swift bricks. | The woodland belts, lake and mature planting are retained, and swift bricks and bat and bird boxes will be incorporated (sections 5.3 and 8.2). |
+The policies most relevant to the proposal are set out below document by document. For each policy its provision is summarised and the words that carry its test are quoted from the adopted text. The response of the scheme follows with a reference to the section of this statement where the evidence is set out. Every policy cited has been checked against the copy held in the project reference folder.
 
-Taken together the relevant policies do not resist the replacement of a lawful dwelling within an established estate. Nor do they resist the replacement of an asbestos roofed barn with smaller buildings of higher quality in the same service yard. They direct attention to its scale its design quality its landscape and heritage effects and its effects on trees and wildlife. This statement has addressed each of those matters as far as the concept stage allows and has identified openly the further work that each requires. The applicants consider that a well designed replacement of this character is capable of according with the development plan read as a whole. The council's view on the principal question of proportion is sought at section 12.1.
+#### 11.1 |  The Charnwood Local Plan 2021-37
 
-[TO CONFIRM: the status of the reviewed Woodhouse Neighbourhood Plan reported to be in consultation during 2026, and any change it makes to the policies above.]
+The Local Plan was adopted in January 2026 and it forms part of the development plan for the site. Nine of its policies bear directly on the proposal.
+
+#### Policy C1  -  Countryside
+
+<div style=" /* | - - - - - - - - - - - -->|  Policy Provision Panel   |<-- - - - - - - - - - - - - - - - -|  */
+    margin-top           :    03.50mm;    /*  <--- The one em a paragraph brings under its heading  */
+    margin-bottom        :    00.00mm;
+    padding              :    02.50mm 04.50mm 02.50mm 04.50mm;
+    border-left          :    00.75mm solid #555041;
+    background-color     :    #f7f6f2;
+    color                :    #555041;
+    font-size            :    09.00pt;
+    line-height          :    1.45;
+    ">
+    Manages development in the Countryside “to protect its largely undeveloped character, and its intrinsic character and beauty”. It supports “small scale new built development where there would not be significant adverse environmental effects” and sets separate circumstances for new isolated homes.
+    <div style="margin-top: 01.50mm; color: #8c8778; font-size: 07.50pt;">Charnwood Local Plan 2021-37&ensp;&middot;&ensp;Policy C1</div>
+</div>
+
+The proposal replaces an existing lawful dwelling and creates no additional home. It is contained within the developed core of an established estate rather than open land. Its environmental effects are to be tested through the tree ecology heritage and landscape work described at sections 5.0 and 9.0. Advice on how the council applies Policy C1 to a replacement dwelling is sought at section 12.1.
+
+The Lake House, a group of three single storey Bonni outbuildings, is small scale new built development that replaces a larger asbestos roofed barn on the same site (section 8.2). It is a home office a home recording studio and a home gym. It is part of the residential use of the dwelling and ancillary to it. It is neither a dwelling nor business premises (section 8.2 under A Home Office Not Business Premises).
+
+#### Policy CC1  -  Flood Risk Management
+
+<div style=" /* | - - - - - - - - - - - -->|  Policy Provision Panel   |<-- - - - - - - - - - - - - - - - -|  */
+    margin-top           :    03.50mm;    /*  <--- The one em a paragraph brings under its heading  */
+    margin-bottom        :    00.00mm;
+    padding              :    02.50mm 04.50mm 02.50mm 04.50mm;
+    border-left          :    00.75mm solid #555041;
+    background-color     :    #f7f6f2;
+    color                :    #555041;
+    font-size            :    09.00pt;
+    line-height          :    1.45;
+    ">
+    Manages flood risk by, among other means, “encouraging non-major and minor developments to incorporate sustainable drainage systems, in accordance with Policy CC2”, “encouraging an integrated water management approach is considered in the early stages of site planning” and “encouraging developments which incorporate natural flood management techniques such as the creation of new habitats, including woodlands and wetlands”. It also requires “developments on greenfield sites to cause no net increase in the rate of surface water run off” and development on brownfield sites “to secure a decrease in surface water run-off”.
+    <div style="margin-top: 01.50mm; color: #8c8778; font-size: 07.50pt;">Charnwood Local Plan 2021-37&ensp;&middot;&ensp;Policy CC1</div>
+</div>
+
+The relocated pond is intended to sit at the centre of an integrated approach to surface water set out at this early stage of site planning. It is designed as habitat as well as drainage. Surface water from the drives passes through silt control to the pond and as drawn leaves it at a controlled rate to the retained lower channel of the existing watercourse (section 8.6). That rate will be set in the drainage design to meet whichever of the run-off tests of the policy applies to each part of the new and altered surfacing. The drainage design is to be confirmed before a full application (section 12.4).
+
+#### Policy CC2  -  Sustainable Drainage Systems
+
+<div style=" /* | - - - - - - - - - - - -->|  Policy Provision Panel   |<-- - - - - - - - - - - - - - - - -|  */
+    margin-top           :    03.50mm;    /*  <--- The one em a paragraph brings under its heading  */
+    margin-bottom        :    00.00mm;
+    padding              :    02.50mm 04.50mm 02.50mm 04.50mm;
+    border-left          :    00.75mm solid #555041;
+    background-color     :    #f7f6f2;
+    color                :    #555041;
+    font-size            :    09.00pt;
+    line-height          :    1.45;
+    ">
+    Seeks to manage flood risk “in an integrated way that achieves wider benefits for communities and the environment”. Its tests for major development include sustainable drainage that provides “multifunctional benefits for amenity, recreation and wildlife, that utilise natural features, where possible”. Non-major and minor developments are expected to incorporate sustainable drainage systems “where there is potential for a cumulative impact”.
+    <div style="margin-top: 01.50mm; color: #8c8778; font-size: 07.50pt;">Charnwood Local Plan 2021-37&ensp;&middot;&ensp;Policy CC2</div>
+</div>
+
+The relocated pond is consistent with the aims of the policy in one feature that serves drainage wildlife and amenity together alongside source control on the drives (section 8.6). The tests of Policy CC2 are written for major development and whether the proposal is major development turns on the red line (section 12.6). The scheme is therefore put forward as consistent with the policy rather than as required by it.
+
+#### Policy DS4  -  High Quality Design
+
+<div style=" /* | - - - - - - - - - - - -->|  Policy Provision Panel   |<-- - - - - - - - - - - - - - - - -|  */
+    margin-top           :    03.50mm;    /*  <--- The one em a paragraph brings under its heading  */
+    margin-bottom        :    00.00mm;
+    padding              :    02.50mm 04.50mm 02.50mm 04.50mm;
+    border-left          :    00.75mm solid #555041;
+    background-color     :    #f7f6f2;
+    color                :    #555041;
+    font-size            :    09.00pt;
+    line-height          :    1.45;
+    ">
+    Requires new development to “respect and enhance the character of the area, having regard to scale, density, massing, height, landscape, layout, materials, access arrangements, and heritage assets and their setting”. It must also protect the amenity of neighbours and “be built to last”. Independent design review may be required for sensitive proposals.
+    <div style="margin-top: 01.50mm; color: #8c8778; font-size: 07.50pt;">Charnwood Local Plan 2021-37&ensp;&middot;&ensp;Policy DS4</div>
+</div>
+
+The replacement dwelling is a disciplined Georgian farmhouse composition in natural stone and stone slate set out to classical proportion (section 7.0). Its massing steps down through subsidiary buildings and the crown roof lowers the ridge (section 6.6). No neighbouring amenity is affected (section 10.4). The council's view on design review is sought at section 12.4.
+
+The buildings of the Lake House are single storey and they cover more than a quarter less ground than the barn they replace with the open decks counted separately (section 8.2 under A Lower And Lighter Building). They are built to last on ground screws that can be withdrawn (section 8.2 under Temporary In Its Footing). Their two parking spaces stand clear of the route to the field gate (section 8.2 under Parking And Access To The Field Gate).
+
+#### Policy EV1  -  Landscape
+
+<div style=" /* | - - - - - - - - - - - -->|  Policy Provision Panel   |<-- - - - - - - - - - - - - - - - -|  */
+    margin-top           :    03.50mm;    /*  <--- The one em a paragraph brings under its heading  */
+    margin-bottom        :    00.00mm;
+    padding              :    02.50mm 04.50mm 02.50mm 04.50mm;
+    border-left          :    00.75mm solid #555041;
+    background-color     :    #f7f6f2;
+    color                :    #555041;
+    font-size            :    09.00pt;
+    line-height          :    1.45;
+    ">
+    Seeks “to protect and enhance the Borough's distinctive landscape” by “requiring new development to protect landscape character and to reinforce sense of place and local distinctiveness”.
+    <div style="margin-top: 01.50mm; color: #8c8778; font-size: 07.50pt;">Charnwood Local Plan 2021-37&ensp;&middot;&ensp;Policy EV1</div>
+</div>
+
+The group sits within the developed core and it retains the woodland belts and the lake that contain it. The woodland it clears in front of the house is set out at section 8.5. Its materials follow the documented palette of the Charnwood Forest estates (section 3.2). Landscape and visual effects will be assessed proportionately. The removal of the hay barn takes a large utilitarian roof out of the landscape and the lower Lake House takes its place (section 8.2).
+
+#### Policy EV4  -  Charnwood Forest And The National Forest
+
+<div style=" /* | - - - - - - - - - - - -->|  Policy Provision Panel   |<-- - - - - - - - - - - - - - - - -|  */
+    margin-top           :    03.50mm;    /*  <--- The one em a paragraph brings under its heading  */
+    margin-bottom        :    00.00mm;
+    padding              :    02.50mm 04.50mm 02.50mm 04.50mm;
+    border-left          :    00.75mm solid #555041;
+    background-color     :    #f7f6f2;
+    color                :    #555041;
+    font-size            :    09.00pt;
+    line-height          :    1.45;
+    ">
+    Protects and enhances the Charnwood Forest Regional Park, whose boundary is defined on the Policies Map. It supports development that “protects and enhances the biodiversity of the Charnwood Forest Regional Park” and “provides tree planting within the Charnwood Forest Regional Park, in accordance with the National Forest Planting Guidelines”.
+    <div style="margin-top: 01.50mm; color: #8c8778; font-size: 07.50pt;">Charnwood Local Plan 2021-37&ensp;&middot;&ensp;Policy EV4</div>
+</div>
+
+The woodland belts are retained. The woodland cleared for the service access road and the relocated pond and within the horseshoe drive is set out at section 8.5. Replacement and additional planting will follow the National Forest Planting Guidelines.
+
+[TO CONFIRM: whether the site lies within the Regional Park boundary on the Policies Map.]
+
+#### Policy EV6  -  Conserving And Enhancing Biodiversity And Geodiversity
+
+<div style=" /* | - - - - - - - - - - - -->|  Policy Provision Panel   |<-- - - - - - - - - - - - - - - - -|  */
+    margin-top           :    03.50mm;    /*  <--- The one em a paragraph brings under its heading  */
+    margin-bottom        :    00.00mm;
+    padding              :    02.50mm 04.50mm 02.50mm 04.50mm;
+    border-left          :    00.75mm solid #555041;
+    background-color     :    #f7f6f2;
+    color                :    #555041;
+    font-size            :    09.00pt;
+    line-height          :    1.45;
+    ">
+    Seeks “10% biodiversity net gain” and supports development that “protects and enhances national and local priority habitats and species” and “irreplaceable habitats including trees, veteran trees and ancient woodland”. Proposals “should be accompanied by an ecological survey”.
+    <div style="margin-top: 01.50mm; color: #8c8778; font-size: 07.50pt;">Charnwood Local Plan 2021-37&ensp;&middot;&ensp;Policy EV6</div>
+</div>
+
+The Priority Habitat woodland mapped in the south and west corner of the holding lies outside the area of the replacement house. A Preliminary Ecological Appraisal and bat survey will accompany a full application and the net gain position is set out at section 9.3. About 59 m² of woodland edge is cut back around the Lake House (section 8.2 under Shelter Planting And Firebreak). Measured against the existing site plan about 1,070 m² of woodland is cleared for the service access road and the relocated pond and about 920 m² within the horseshoe drive is laid to lawn (section 8.5). The small front pond is surveyed before any work and replaced first by a new pond of up to five times its area whose margins are designed as habitat (section 8.6).
+
+[TO CONFIRM: whether the woodland cut back around the Lake House, cleared for the service access road and the relocated pond or laid to lawn within the horseshoe drive lies within the Priority Habitat Deciduous Woodland mapped by Natural England.]
+
+#### Policy EV7  -  Tree Planting And Retention
+
+<div style=" /* | - - - - - - - - - - - -->|  Policy Provision Panel   |<-- - - - - - - - - - - - - - - - -|  */
+    margin-top           :    03.50mm;    /*  <--- The one em a paragraph brings under its heading  */
+    margin-bottom        :    00.00mm;
+    padding              :    02.50mm 04.50mm 02.50mm 04.50mm;
+    border-left          :    00.75mm solid #555041;
+    background-color     :    #f7f6f2;
+    color                :    #555041;
+    font-size            :    09.00pt;
+    line-height          :    1.45;
+    ">
+    Supports development that “retains existing trees where appropriate” and that replaces “any removed non-woodland tree with at least three new trees”.
+    <div style="margin-top: 01.50mm; color: #8c8778; font-size: 07.50pt;">Charnwood Local Plan 2021-37&ensp;&middot;&ensp;Policy EV7</div>
+</div>
+
+A BS 5837 survey and arboricultural impact assessment will set the individual retention and removal decisions. Replacement planting will follow at the ratio the policy requires (section 9.2).
+
+#### Policy EV8  -  Heritage
+
+<div style=" /* | - - - - - - - - - - - -->|  Policy Provision Panel   |<-- - - - - - - - - - - - - - - - -|  */
+    margin-top           :    03.50mm;    /*  <--- The one em a paragraph brings under its heading  */
+    margin-bottom        :    00.00mm;
+    padding              :    02.50mm 04.50mm 02.50mm 04.50mm;
+    border-left          :    00.75mm solid #555041;
+    background-color     :    #f7f6f2;
+    color                :    #555041;
+    font-size            :    09.00pt;
+    line-height          :    1.45;
+    ">
+    Supports development that “protects and enhances heritage assets, including non-designated heritage assets, and prevents harm to their significance and setting” and that “incorporates Charnwood's distinctive local building materials and architectural details”.
+    <div style="margin-top: 01.50mm; color: #8c8778; font-size: 07.50pt;">Charnwood Local Plan 2021-37&ensp;&middot;&ensp;Policy EV8</div>
+</div>
+
+A proportionate heritage statement will address the Historic Environment Record entry MLE24039 (section 5.2). The coursed stone walling with ashlar dressings beneath stone slate roofs follows the materials of the nearest listed houses (section 3.2).
+
+<div style="
+    text-align      : center;
+    padding-top     : 04.00mm;
+    padding-bottom  : 01.00mm;
+    margin-top      : 00.00mm;
+    margin-bottom   : 00.00mm;
+">
+    <div style="
+        width            : 92%;
+        margin           : 0 auto;
+        border-top       : 0.25px solid #f3f3f3;
+        height           : 0;
+    "></div>
+</div>
+
+#### 11.2 |  The Woodhouse Parish Neighbourhood Plan 2020-2036
+
+The neighbourhood plan is made and it forms part of the development plan for the site. Five of its policies bear directly on the proposal.
+
+[TO CONFIRM: the status of the reviewed Woodhouse Neighbourhood Plan reported to be in consultation during 2026, and any change it makes to the policies below.]
+
+#### Policy H6  -  Design Standards
+
+<div style=" /* | - - - - - - - - - - - -->|  Policy Provision Panel   |<-- - - - - - - - - - - - - - - - -|  */
+    margin-top           :    03.50mm;    /*  <--- The one em a paragraph brings under its heading  */
+    margin-bottom        :    00.00mm;
+    padding              :    02.50mm 04.50mm 02.50mm 04.50mm;
+    border-left          :    00.75mm solid #555041;
+    background-color     :    #f7f6f2;
+    color                :    #555041;
+    font-size            :    09.00pt;
+    line-height          :    1.45;
+    ">
+    Applies expressly to “replacement dwellings”. Requires development to “enhance and reinforce the local distinctiveness and character of the area” and to show how its scale, mass and layout fit the surrounding area. It must not impact negatively on “any significant wider landscape views” and should take “a consistent design approach in the use of materials, fenestration and the roofline”. Light pollution is to be minimised, provision made for wildlife and sustainable drainage, and new development built to the Future Homes Standard.
+    <div style="margin-top: 01.50mm; color: #8c8778; font-size: 07.50pt;">Woodhouse Parish Neighbourhood Plan 2020-2036&ensp;&middot;&ensp;Policy H6</div>
+</div>
+
+The group shares a single consistent palette and roofline throughout (section 7.0). Bat-sensitive lighting together with bat and bird boxes and swift bricks is set out at section 9.2. Sustainable drainage is addressed at section 5.4 and the Future Homes Standard at section 9.4. The effect of the group on wider views is still to be tested.
+
+The Lake House is clad in painted corrugated steel and so takes up the corrugated sheet of the farm building rather than the stone of the house (section 8.2). Its external lighting follows the same bat-sensitive guidance (section 8.2 under Ecology Lighting And Amenity).
+
+#### Policy ENV 4  -  Biodiversity Woodland Trees And Hedgerows
+
+<div style=" /* | - - - - - - - - - - - -->|  Policy Provision Panel   |<-- - - - - - - - - - - - - - - - -|  */
+    margin-top           :    03.50mm;    /*  <--- The one em a paragraph brings under its heading  */
+    margin-bottom        :    00.00mm;
+    padding              :    02.50mm 04.50mm 02.50mm 04.50mm;
+    border-left          :    00.75mm solid #555041;
+    background-color     :    #f7f6f2;
+    color                :    #555041;
+    font-size            :    09.00pt;
+    line-height          :    1.45;
+    ">
+    Applies to development affecting the sites of natural environment significance mapped on Figures 13 and 13.1, which should protect and enhance local biodiversity. Proposals “that would damage or result in the loss of woodland will not be supported unless the environmental and ecological harm is demonstrably outweighed”. Proposals affecting trees or woodland need a survey, and any unavoidable loss is to be made good with “replacement indigenous trees or woodland”.
+    <div style="margin-top: 01.50mm; color: #8c8778; font-size: 07.50pt;">Woodhouse Parish Neighbourhood Plan 2020-2036&ensp;&middot;&ensp;Policy ENV 4</div>
+</div>
+
+No woodland is lost to the replacement house. Measured against the existing site plan about 1,070 m² of woodland is cleared for the service access road and the relocated pond and about 920 m² within the horseshoe drive is laid to lawn (section 8.5). That clearance and the tree line adjustments for the side road and the carport will be assessed tree by tree through the tree survey. Any loss will be replaced with indigenous planting and the case that the harm is outweighed will be made on that evidence (sections 5.3 and 9.2).
+
+About 59 m² of woodland edge is cut back around the Lake House and most of it is laid to grass as a firebreak. About 74 m² of new tree planting is added on former hardstanding so that tree cover around the group rises by about 15 m² (section 8.2 under Shelter Planting And Firebreak). Individual removals will be assessed with the tree survey (section 9.2).
+
+#### Policy ENV 6  -  Local Heritage Assets
+
+<div style=" /* | - - - - - - - - - - - -->|  Policy Provision Panel   |<-- - - - - - - - - - - - - - - - -|  */
+    margin-top           :    03.50mm;    /*  <--- The one em a paragraph brings under its heading  */
+    margin-bottom        :    00.00mm;
+    padding              :    02.50mm 04.50mm 02.50mm 04.50mm;
+    border-left          :    00.75mm solid #555041;
+    background-color     :    #f7f6f2;
+    color                :    #555041;
+    font-size            :    09.00pt;
+    line-height          :    1.45;
+    ">
+    Identifies listed Historic Environment Record entries as non-designated local heritage assets, among them “MLE24039 West Beacon Farm, Deans Lane”. Their “features and settings will be protected wherever possible”.
+    <div style="margin-top: 01.50mm; color: #8c8778; font-size: 07.50pt;">Woodhouse Parish Neighbourhood Plan 2020-2036&ensp;&middot;&ensp;Policy ENV 6</div>
+</div>
+
+The courtyard farmstead recorded under MLE24039 was completely redeveloped by 1969. Its significance will be assessed proportionately and any surviving interest will be recorded (section 5.2).
+
+#### Policy ENV 8  -  Protection Of Important Views
+
+<div style=" /* | - - - - - - - - - - - -->|  Policy Provision Panel   |<-- - - - - - - - - - - - - - - - -|  */
+    margin-top           :    03.50mm;    /*  <--- The one em a paragraph brings under its heading  */
+    margin-bottom        :    00.00mm;
+    padding              :    02.50mm 04.50mm 02.50mm 04.50mm;
+    border-left          :    00.75mm solid #555041;
+    background-color     :    #f7f6f2;
+    color                :    #555041;
+    font-size            :    09.00pt;
+    line-height          :    1.45;
+    ">
+    Asks new development “to respect these locally important and valued views” across eighteen identified views, the first of them the “360° panorama from the summit of Beacon Hill”. Where the effect could be significant, visual impact “should be the subject of professionally prepared Landscape Visual Impact Assessments”.
+    <div style="margin-top: 01.50mm; color: #8c8778; font-size: 07.50pt;">Woodhouse Parish Neighbourhood Plan 2020-2036&ensp;&middot;&ensp;Policy ENV 8</div>
+</div>
+
+The visibility of the group from the Beacon Hill summit is still to be tested. Advice on that visibility is sought at section 12.2 and on the scope of any visual assessment at section 12.4.
+
+#### Policy ENV 9  -  Flood Risk Resilience
+
+<div style=" /* | - - - - - - - - - - - -->|  Policy Provision Panel   |<-- - - - - - - - - - - - - - - - -|  */
+    margin-top           :    03.50mm;    /*  <--- The one em a paragraph brings under its heading  */
+    margin-bottom        :    00.00mm;
+    padding              :    02.50mm 04.50mm 02.50mm 04.50mm;
+    border-left          :    00.75mm solid #555041;
+    background-color     :    #f7f6f2;
+    color                :    #555041;
+    font-size            :    09.00pt;
+    line-height          :    1.45;
+    ">
+    Proposals to construct new or modify existing floodwater management infrastructure, among them “retention pools”, “will be strongly supported”. Within the areas shaded blue on its Figure 22, development of one or more dwellings should demonstrate among other things that “proposed SuDS infrastructure includes, where practicable, habitat creation comprising e.g. landscaping, access and egress for aquatic and terrestrial animals, and native species planting”.
+    <div style="margin-top: 01.50mm; color: #8c8778; font-size: 07.50pt;">Woodhouse Parish Neighbourhood Plan 2020-2036&ensp;&middot;&ensp;Policy ENV 9</div>
+</div>
+
+The relocated pond is a new retention pool for the surface water of the drives with a controlled overflow. It is the kind of floodwater management infrastructure that the policy strongly supports (section 8.6). Its margins and planting are designed as habitat in the way criterion (f) describes. The criteria are not presented as met until the drainage design exists (section 12.4).
+
+[TO CONFIRM: whether the site lies within the areas shaded blue on Figure 22 of the neighbourhood plan.]
+
+<div style="
+    text-align      : center;
+    padding-top     : 04.00mm;
+    padding-bottom  : 01.00mm;
+    margin-top      : 00.00mm;
+    margin-bottom   : 00.00mm;
+">
+    <div style="
+        width            : 92%;
+        margin           : 0 auto;
+        border-top       : 0.25px solid #f3f3f3;
+        height           : 0;
+    "></div>
+</div>
+
+#### 11.3 |  The National Planning Policy Framework
+
+The Framework published in August 2026 is a material consideration of considerable weight. Its policies are cited below by the code each carries in that edition with the paragraph in brackets where one applies. Eight of its policies bear directly on the proposal.
+
+#### Policy S5  -  Principle Of Development Outside Settlements
+
+<div style=" /* | - - - - - - - - - - - -->|  Policy Provision Panel   |<-- - - - - - - - - - - - - - - - -|  */
+    margin-top           :    03.50mm;    /*  <--- The one em a paragraph brings under its heading  */
+    margin-bottom        :    00.00mm;
+    padding              :    02.50mm 04.50mm 02.50mm 04.50mm;
+    border-left          :    00.75mm solid #555041;
+    background-color     :    #f7f6f2;
+    color                :    #555041;
+    font-size            :    09.00pt;
+    line-height          :    1.45;
+    ">
+    Lists the forms of development that should be approved outside settlements “unless the benefits of doing so would be substantially outweighed by any adverse effects”. Among them is the “reuse, extension, alteration or replacement of an existing building” that is “of permanent and substantial construction” and “lawful in planning terms”. A replacement building “should be for the same use and not disproportionately larger than the one it replaces”.
+    <div style="margin-top: 01.50mm; color: #8c8778; font-size: 07.50pt;">National Planning Policy Framework (August 2026)&ensp;&middot;&ensp;Policy S5(1)(c)</div>
+</div>
+
+The existing dwelling is lawful under certificate P/25/2510/2 and the replacement is for the same use (section 5.1). Its size is set out in full at section 6.7 and the council's view on proportion is sought at section 12.1.
+
+#### Policy DP3  -  Key Principles For Well-Designed Places
+
+<div style=" /* | - - - - - - - - - - - -->|  Policy Provision Panel   |<-- - - - - - - - - - - - - - - - -|  */
+    margin-top           :    03.50mm;    /*  <--- The one em a paragraph brings under its heading  */
+    margin-bottom        :    00.00mm;
+    padding              :    02.50mm 04.50mm 02.50mm 04.50mm;
+    border-left          :    00.75mm solid #555041;
+    background-color     :    #f7f6f2;
+    color                :    #555041;
+    font-size            :    09.00pt;
+    line-height          :    1.45;
+    ">
+    Asks development proposals to “respond to their context (the history, character and features of their site and its setting)”, among other means through “the use of materials and architectural features”. Under the heading of identity it looks for “a strong sense of place” created “through the use of a coherent palette of materials, design features and planting”.
+    <div style="margin-top: 01.50mm; color: #8c8778; font-size: 07.50pt;">National Planning Policy Framework (August 2026)&ensp;&middot;&ensp;Policy DP3(1) and (2)(g)</div>
+</div>
+
+The house uses a single order a single walling stone and a single glazing pattern throughout and each is drawn from the documented tradition of the forest estates (sections 3.2 and 7.1). The Lake House takes up the corrugated sheet of the farm building rather than the stone of the house (section 8.2).
+
+#### Policy P2  -  Ground Conditions
+
+<div style=" /* | - - - - - - - - - - - -->|  Policy Provision Panel   |<-- - - - - - - - - - - - - - - - -|  */
+    margin-top           :    03.50mm;    /*  <--- The one em a paragraph brings under its heading  */
+    margin-bottom        :    00.00mm;
+    padding              :    02.50mm 04.50mm 02.50mm 04.50mm;
+    border-left          :    00.75mm solid #555041;
+    background-color     :    #f7f6f2;
+    color                :    #555041;
+    font-size            :    09.00pt;
+    line-height          :    1.45;
+    ">
+    Sites should be “suitable for their proposed use” taking account of ground conditions, including contamination. Where a site is affected by contamination “responsibility for securing a safe development rests with the developer and/or landowner”.
+    <div style="margin-top: 01.50mm; color: #8c8778; font-size: 07.50pt;">National Planning Policy Framework (August 2026)&ensp;&middot;&ensp;Policy P2(1) and (4)</div>
+</div>
+
+An asbestos refurbishment and demolition survey precedes the demolition of the hay barn. The sheeting is removed by a specialist contractor and the site is cleared to leave safe ground for the Lake House (section 8.2 under The Asbestos And Its Controlled Removal).
+
+#### Policy P3  -  Living Conditions And Pollution
+
+<div style=" /* | - - - - - - - - - - - -->|  Policy Provision Panel   |<-- - - - - - - - - - - - - - - - -|  */
+    margin-top           :    03.50mm;    /*  <--- The one em a paragraph brings under its heading  */
+    margin-bottom        :    00.00mm;
+    padding              :    02.50mm 04.50mm 02.50mm 04.50mm;
+    border-left          :    00.75mm solid #555041;
+    background-color     :    #f7f6f2;
+    color                :    #555041;
+    font-size            :    09.00pt;
+    line-height          :    1.45;
+    ">
+    Asks that development proposals be “appropriate for their location” in light of the likely effects of pollution on health and living conditions, including effects that are “the product of preexisting conditions in its vicinity”. Regard is to be had to “the potential sensitivity of the site, and its intended occupiers and users”.
+    <div style="margin-top: 01.50mm; color: #8c8778; font-size: 07.50pt;">National Planning Policy Framework (August 2026)&ensp;&middot;&ensp;Policy P3(1)</div>
+</div>
+
+The asbestos cement roofs of the hay barn are taken off the site rather than kept over a home office and gym in daily use. The Lake House is therefore used free of that pre-existing hazard (section 8.2 under The Asbestos And Its Controlled Removal).
+
+#### Policy F8  -  Sustainable Drainage Systems And Watercourses
+
+<div style=" /* | - - - - - - - - - - - -->|  Policy Provision Panel   |<-- - - - - - - - - - - - - - - - -|  */
+    margin-top           :    03.50mm;    /*  <--- The one em a paragraph brings under its heading  */
+    margin-bottom        :    00.00mm;
+    padding              :    02.50mm 04.50mm 02.50mm 04.50mm;
+    border-left          :    00.75mm solid #555041;
+    background-color     :    #f7f6f2;
+    color                :    #555041;
+    font-size            :    09.00pt;
+    line-height          :    1.45;
+    ">
+    Development proposals which could affect drainage “should incorporate sustainable drainage systems to control flow rates and reduce volumes of runoff”, and these should provide “multifunctional benefits where possible, facilitating improvements in water quality, biodiversity and amenity”. They are to be designed to the National Standards for Sustainable Drainage Systems, with maintenance arrangements for the lifetime of the development. Proposals “should not enclose existing watercourses where this is not already the case, unless there are compelling reasons to do so”.
+    <div style="margin-top: 01.50mm; color: #8c8778; font-size: 07.50pt;">National Planning Policy Framework (August 2026)&ensp;&middot;&ensp;Policy F8(1), (2) and (3)</div>
+</div>
+
+The relocated pond takes the surface water of the drives through silt control and releases it at a controlled rate while its margins and planting are designed as habitat (section 8.6). It will be designed to the National Standards with a management and maintenance plan. Any spring or watercourse found feeding the old pond will be carried to the new pond in an open channel wherever practicable. A pipe will be used only where the County Council agrees there is no practicable alternative and with its consent. The upper part of the existing watercourse is realigned through the new pond with the same consent where the survey shows that it is needed. The service access road crosses the line of the watercourse only so that it can pass. A clear span with the bed and banks left open will be explored first and any culvert will be of the minimum length with the same consent (sections 8.5 and 8.6).
+
+#### Policies HE5 And HE7  -  Heritage Assets
+
+<div style=" /* | - - - - - - - - - - - -->|  Policy Provision Panel   |<-- - - - - - - - - - - - - - - - -|  */
+    margin-top           :    03.50mm;    /*  <--- The one em a paragraph brings under its heading  */
+    margin-bottom        :    00.00mm;
+    padding              :    02.50mm 04.50mm 02.50mm 04.50mm;
+    border-left          :    00.75mm solid #555041;
+    background-color     :    #f7f6f2;
+    color                :    #555041;
+    font-size            :    09.00pt;
+    line-height          :    1.45;
+    ">
+    Proposals affecting heritage assets should carry an assessment of significance “proportionate to the assets' importance”, and the “relevant historic environment record should be referred to”. Where a proposal would harm a non-designated heritage asset “a balanced judgement” is to be made “having regard to the scale of any harm or loss and the significance” of the asset.
+    <div style="margin-top: 01.50mm; color: #8c8778; font-size: 07.50pt;">National Planning Policy Framework (August 2026)&ensp;&middot;&ensp;Policies HE5(1) and HE7(2)</div>
+</div>
+
+A heritage statement referring to MLE24039 will accompany a full application with recording offered by condition if significance is found (section 5.2).
+
+#### Policy N2  -  Improving The Natural Environment
+
+<div style=" /* | - - - - - - - - - - - -->|  Policy Provision Panel   |<-- - - - - - - - - - - - - - - - -|  */
+    margin-top           :    03.50mm;    /*  <--- The one em a paragraph brings under its heading  */
+    margin-bottom        :    00.00mm;
+    padding              :    02.50mm 04.50mm 02.50mm 04.50mm;
+    border-left          :    00.75mm solid #555041;
+    background-color     :    #f7f6f2;
+    color                :    #555041;
+    font-size            :    09.00pt;
+    line-height          :    1.45;
+    ">
+    Asks development to “conserve and enhance existing natural features of visual, historic or nature conservation value (such as established trees and hedgerows) where possible” and to include features for priority species, among them “integrated nest boxes (commonly known as swift bricks)”. It looks for “nature-based solutions to secure multiple benefits”, for features that support nature to be “located and designed to minimise risk of future failure”, and for “appropriate measures” to be “in place for any necessary long-term management”. Significant harm to biodiversity that cannot be avoided or adequately mitigated must, “as a last resort”, be compensated for, or the development is to be refused.
+    <div style="margin-top: 01.50mm; color: #8c8778; font-size: 07.50pt;">National Planning Policy Framework (August 2026)&ensp;&middot;&ensp;Policy N2(1)(d) to (g) and (2)</div>
+</div>
+
+The woodland belts and the lake are retained. The woodland cleared for the service access road and the relocated pond and within the horseshoe drive is set out at section 8.5. The small front pond is replaced first by a new pond of up to five times its area (section 8.6). Swift bricks and bat and bird boxes will be incorporated (sections 5.3 and 9.2).
+
+<div style="
+    text-align      : center;
+    padding-top     : 04.00mm;
+    padding-bottom  : 01.00mm;
+    margin-top      : 00.00mm;
+    margin-bottom   : 00.00mm;
+">
+    <div style="
+        width            : 92%;
+        margin           : 0 auto;
+        border-top       : 0.25px solid #f3f3f3;
+        height           : 0;
+    "></div>
+</div>
+
+#### 11.4 |  The Policies Read Together
+
+Taken together the relevant policies do not resist the replacement of a lawful dwelling within an established estate. Nor do they resist the replacement of an asbestos roofed barn with smaller buildings of higher quality on the same site. They direct attention to its scale its design quality its landscape and heritage effects and its effects on trees and wildlife. This statement has addressed each of those matters as far as the concept stage allows and has identified openly the further work that each requires. The applicants consider that a well designed replacement of this character is capable of according with the development plan read as a whole. The council's view on the principal question of proportion is sought at section 12.1.
 
 <div style=" /* | - - - - - - - - - - - -->|  Horizontal Page Divider Line   |<-- - - - - - - - - - - - - - - - -|  */ 
     text-align           :     center;    
@@ -1128,17 +1849,23 @@ Former saved policy CT/14 on replacement dwellings has been superseded by the Ch
 
 Advice is sought in particular on how the council will judge whether the replacement is disproportionately larger than the existing dwelling. The applicants would welcome the council's view on which measures it will use among floorspace footprint volume height and visual bulk. They would also welcome its view on whether the subsidiary buildings of the group and the wider built development on the holding are relevant to that judgement.
 
+Advice is also sought on whether the council regards the land between the internal garden fence and the lake on which the pool and its lower terrace described at section 8.3 are proposed as lying within the residential curtilage of the dwelling. If it does not the applicants would welcome its view on whether a change of use of that land to residential use should form part of the full application.
+
 #### 12.2 |  Scale Massing And Landscape Impact
 
 Advice is sought on the officer's initial view of the scale and character of the replacement in this part of the Charnwood Forest landscape. The applicants would welcome comment on the crown roof and the stepped massing of the group and on the colonnade balcony described at section 7.4. They invite the officer to review the three dimensional model through the project portal before forming a view. Advice is also sought on whether the council considers the site to be visible from the Beacon Hill summit viewpoint identified under Policy ENV 8 of the neighbourhood plan.
 
 #### 12.3 |  Demolition Of The Existing Buildings
 
-Advice is sought on the council's view of the demolition of the existing dwelling in light of the Historic Environment Record entry MLE24039 and its listing under Policy ENV 6 of the neighbourhood plan. The applicants' reading is that the historic farmstead did not survive the 1960s redevelopment and that the existing dwelling is not itself of heritage significance. They would welcome confirmation of the scope of heritage assessment the council expects. The scheme as drawn retains the helicopter hangar. It removes the asbestos roofed hay barn and the stable building from the service yard as described at section 10.0. Advice is sought on whether the council regards the hangar's reported 1995 Charnwood Design Award as giving it any heritage interest.
+Advice is sought on the council's view of the demolition of the existing dwelling in light of the Historic Environment Record entry MLE24039 and its listing under Policy ENV 6 of the neighbourhood plan. The applicants' reading is that the historic farmstead did not survive the 1960s redevelopment and that the existing dwelling is not itself of heritage significance. They would welcome confirmation of the scope of heritage assessment the council expects. The scheme as drawn retains the helicopter hangar. It removes the asbestos roofed hay barn and the stables shed as described at section 8.2. Advice is sought on whether the council regards the hangar's reported 1995 Charnwood Design Award as giving it any heritage interest.
 
 #### 12.4 |  Consultees And Specialist Reports
 
-Advice is sought on which consultees the council will engage and which surveys and reports it will expect with a full application. The applicants currently anticipate a topographical survey and a measured survey of the existing dwelling. They also anticipate a BS 5837 tree survey with arboricultural impact assessment and a Preliminary Ecological Appraisal with bat survey. A heritage statement a drainage and foul water strategy and contaminated land screening around the fuel and oil storage are expected alongside a proportionate landscape and visual appraisal. An asbestos refurbishment and demolition survey of the hay barn will be carried out before it is taken down. The council's view on whether independent design review under Policy DS4 is required for a proposal of this kind would also be welcomed.
+Advice is sought on which consultees the council will engage and which surveys and reports it will expect with a full application. The applicants currently anticipate a topographical survey and a measured survey of the existing dwelling. They also anticipate a BS 5837 tree survey with arboricultural impact assessment and a Preliminary Ecological Appraisal with bat survey. A heritage statement a drainage and foul water strategy and contaminated land screening around the fuel and oil storage are expected alongside a proportionate landscape and visual appraisal. The applicants will appoint the specialists needed to prepare each of these once the council's advice on their scope is known. An asbestos refurbishment and demolition survey of the hay barn will be carried out before it is taken down. The council's view on whether independent design review under Policy DS4 is required for a proposal of this kind would also be welcomed.
+
+Advice is also sought on three works beyond the house. The first is the relocation of the small pond in front of the house to the larger pond described at section 8.6 together with the surveys and the sequence that go with it. The second is the realignment of the upper part of the existing watercourse through the new pond and its crossing beneath the service access road for which the consent of Leicestershire County Council as Lead Local Flood Authority will be sought. The third is the clearance of woodland for that road and the relocated pond and within the horseshoe drive described at section 8.5. The applicants would welcome the council's view on whether it will consult the County Council on these works and on the scope of the drainage strategy it expects with a full application.
+
+Advice is also sought on the second access onto Deans Lane described at section 8.5. The applicants would welcome the officer's view on whether the council will consult the local highway authority and on the visibility splays and other access information it will expect with a full application.
 
 #### 12.5 |  The Material Palette
 
@@ -1146,11 +1873,11 @@ Advice is sought on the proposed coursed stone walling with cut ashlar dressings
 
 #### 12.6 |  Validation Requirements
 
-Advice is sought on the documents required by the council's current local validation list for a full application of this kind. Advice is also sought on two matters that turn on the extent of the red line. The Framework defines major development for housing to include development on a site of 0.5 hectares or more. The applicants would welcome the council's view on whether a replacement dwelling on this holding would be treated as major development and on the red line it would consider appropriate. The same red line will settle the statutory biodiversity net gain position discussed at section 8.3.
+Advice is sought on the documents required by the council's current local validation list for a full application of this kind. Advice is also sought on two matters that turn on the extent of the red line. The Framework defines major development for housing to include development on a site of 0.5 hectares or more. The applicants would welcome the council's view on whether a replacement dwelling on this holding would be treated as major development and on the red line it would consider appropriate. The same red line will confirm the statutory biodiversity net gain position which section 9.3 expects to apply.
 
-#### 12.7 |  The Studio Buildings In The Service Yard
+#### 12.7 |  The Lake House On The Site Of The Hay Barn
 
-Advice is sought on the replacement of the hay barn with the three studio buildings described at section 10.0. The studio buildings are a home office and a gym for the household. They are ancillary to the lawful residential use of the holding and they are not business premises as section 10.4 explains. The applicants would welcome the council's confirmation of that position and of its view that the buildings may be assessed as small scale new built development under Policy C1 of the Charnwood Local Plan. They would also welcome the officer's view on the external finish to be selected from the Bonni range and on the five parking spaces described at section 10.6.
+Advice is sought on the replacement of the hay barn with the Lake House, a group of three single storey Bonni outbuildings described at section 8.2. The lawful use of the hay barn and of the ground around it has not yet been established. Advice is sought on whether the council regards the site of the barn as lying within the residential curtilage of the dwelling and if it does not whether a change of use of that land to residential use should form part of the full application. The Lake House is a home office a home recording studio and a home gym for the household. It is part of the residential use of the dwelling within Use Class C3 and ancillary to it. It is neither a dwelling nor business premises as explained at section 8.2 under A Home Office Not Business Premises. The applicants would welcome the council's confirmation of that position and of its view that the buildings may be assessed as small scale new built development under Policy C1 of the Charnwood Local Plan. They would also welcome the officer's view on painted corrugated steel as the material of the Lake House on the finish to be selected from the Bonni palette and on the two parking spaces described at section 8.2 under Parking And Access To The Field Gate.
 
 <div style=" /* | - - - - - - - - - - - -->|  Horizontal Page Divider Line   |<-- - - - - - - - - - - - - - - - -|  */ 
     text-align           :     center;    
@@ -1174,7 +1901,9 @@ West Beacon Farm is an established residential estate within the Charnwood Fores
 
 The proposal has been designed with deliberate restraint of character. It is a faithful Georgian farmhouse rather than a stately home. Its formal architecture is confined to the principal block. Its other accommodation is distributed into subsidiary buildings of descending status and its ridge is held down by a crown roof. It sits within the developed core on ground already built upon and it retains the lake the woodland belts and the landscape structure that contain it. It is built in coursed natural stone cut ashlar and natural stone slate which are the materials of this part of the forest.
 
-The same care has been brought to the service yard. An old steel hay barn roofed entirely in asbestos is replaced by three low timber studio buildings of real craftsmanship by Bonni Outbuildings. They serve the household as a home office and a gym and they are not business premises. They cover less ground than the barn and they stand lightly on auger piles. Five marked parking spaces are provided and the route to the field gate becomes a straight and simple run clear of all of them. The yard that results is safer and better ordered and it sits far more kindly in the landscape than the barn it replaces.
+The same care has been brought to the buildings beyond the coach house. An old steel hay barn roofed throughout in asbestos cement is replaced by the Lake House, a group of three single storey Bonni outbuildings of real craftsmanship. They serve the household as a home office a home recording studio and a home gym and they are part of the residential use of the home rather than business premises or a separate dwelling. They cover more than a quarter less ground than the barn and they stand on ground screws with no concrete in the ground. Two parking spaces are provided and the route to the field gate stays straight and clear. The result is safer and better ordered and it sits far more kindly in the landscape than the barn it replaces.
+
+The grounds are laid out in the same spirit. Behind the house the hedged lawn terraces and the infinity edge pool make use of the falling ground while the horseshoe drive addresses the Georgian entrance and parking sits to one side against the tree line. In front of the house the small pond is relocated to a new pond of up to five times its size that is made and planted before the old one is filled. Two accesses on Deans Lane give the drive a separate way in and way out.
 
 The applicants recognise that the replacement contains considerably more accommodation than the house it replaces. They have set out the figures in full and they have identified openly the surveys and assessments still to be carried out. We respectfully submit that the scheme represents a considered and well founded basis for a full application. We would be grateful for the council's advice on the matters set out at section 12.0 so that the full application can be prepared on an informed basis.
 
@@ -1201,6 +1930,8 @@ The applicants recognise that the replacement contains considerably more accommo
 ## Pre-Application Drawing Pack
 
 The drawings listed below accompany this statement. All are issued at Revision A, dated 22 September 2026, and the three-dimensional model can be explored through the QR code on each sheet. The coded notes that appear on the drawings, from IN01 to FF02, are consolidated in the Project Specification RB05_SPEC so that they can be read in one place.
+
+[TO CONFIRM: revision letters and dates at issue. Drawings RB05_T01_D01, RB05_T01_D12 and RB05_T01_D13 and the Project Specification changed on 29 September 2026 and the PDFs published on 23 September 2026 still print the superseded notes. All four are to be re-issued once Adam Noble has re-placed the bubbles on RB05_T01_D13, including the new notes SP22 and SP23 which are not yet bubbled on any sheet.]
 
 | <span style="display:inline-block; width:35mm; white-space:nowrap;">Drawing</span> | <span style="display:inline-block; width:70mm; white-space:nowrap;">Title</span> | Scale And Size |
 | :----------------------------------------------------------- | :----------------------------------------------------------- | :----------------------------------------------------------- |

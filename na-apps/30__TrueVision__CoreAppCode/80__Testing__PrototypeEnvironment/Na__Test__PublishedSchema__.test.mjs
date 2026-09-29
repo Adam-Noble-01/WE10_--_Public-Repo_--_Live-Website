@@ -28,6 +28,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.1.0
+// - Region 6A: the share link record (PublishedDocuments__ShareLinks__.json,
+//   TrueVision v2.165.0) - every drawing the index names has an entry keyed by
+//   its sheet id, the specification and the register are listed, every address
+//   is the resolver's pattern filled in, and no entry claims a publication
+//   state. The fallback's file name agrees with the document's.
+//
 // 23-Sep-2026 - Version 1.0.0
 // - Created with Phase 1 of TrueVision__PLAN__PublishingSystem__.md.
 //
@@ -529,7 +536,7 @@
     };
     const everyFile = walk(EXAMPLE);
 
-    const accounted = new Set([ setup.files.index, setup.files.readMe ]);
+    const accounted = new Set([ setup.files.index, setup.files.readMe, setup.files.shareLinks ]);
     accounted.add(setup.folders.archive + '/Archive__ReadMe__.note');
     accounted.add(setup.folders.archive + '/' + Paths.Na__PubSchema__ArchiveName('AA00_T02_D02', 'A'));
     accounted.add(setup.folders.shared + '/Hatch__Masonry__StoneRubble__7c1e05a92b.svg');
@@ -548,6 +555,54 @@
     const orphans = everyFile.filter((one) => !accounted.has(one));
     check('no file in the example is unaccounted for (' + everyFile.length + ' files)',
         orphans.length === 0, orphans.join('\n        '));
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | 6A. The Share Link Record (TrueVision v2.165.0)
+// -----------------------------------------------------------------------------
+//
+// Written by 51__System__LayoutEditor/66__Feature__DocumentSharing just before
+// the index. The example holds one, and it must name every drawing the index
+// names, by its sheet - a link keyed on a drawing number would open a different
+// drawing after a renumber - plus the two documents every project has.
+//
+// -----------------------------------------------------------------------------
+
+    section('6A. The share link record names every document, by a key that never moves');
+
+    const shareLinksPath = Paths.Na__PubSchema__ShareLinksPath();
+    check('ShareLinksPath -> ' + shareLinksPath, onDisk(shareLinksPath) && shareLinksPath === setup.folders.root + '/' + schemaJson['PublishedSchema__Files']['Files__ShareLinks']);
+
+    const shareLinks = onDisk(shareLinksPath) ? JSON.parse(readFileSync(join(CONTENT, shareLinksPath), 'utf8')) : {};
+    const shareDocs  = Array.isArray(shareLinks['ShareLinks__Documents']) ? shareLinks['ShareLinks__Documents'] : [];
+    const resolver   = shareLinks['ShareLinks__Resolver'] || {};
+    const KEY_OK     = /^[A-Za-z0-9][A-Za-z0-9_.\-]{0,63}$/;                  // <-- Na__LeShareLink__KEY_PATTERN
+
+    check('the record is version 1 and names its file', shareLinks['ShareLinks__Meta'] && shareLinks['ShareLinks__Meta']['Meta__Version'] === 1 &&
+        shareLinks['ShareLinks__Meta']['Meta__FileName'] === setup.files.shareLinks);
+    check('every drawing in the index has an entry, found by its document id',
+        documents.every((row) => shareDocs.some((entry) => entry['Share__Kind'] === 'drawing' && entry['Share__Target'] && entry['Share__Target']['Target__DocumentId'] === row['Document__Id'])),
+        documents.map((row) => row['Document__Id']).join(', '));
+    check('a drawing\'s key is its sheet id, never its number',
+        shareDocs.filter((entry) => entry['Share__Kind'] === 'drawing').every((entry) => /^Sheet_\d+$/.test(entry['Share__Key']) && entry['Share__Key'] === entry['Share__Target']['Target__SheetId']));
+    check('the published drawings\' keys are the sheets their manifests came from',
+        published.every((row) => {
+            const identity = JSON.parse(readFileSync(join(CONTENT, Paths.Na__PubSchema__ManifestPath(row['Document__Id'])), 'utf8'))['PublishedDocument__Identity'];
+            return shareDocs.some((entry) => entry['Share__Key'] === identity['Document__SourceSheetId']);
+        }));
+    check('the Project Specification and the Document Register are both listed',
+        shareDocs.some((entry) => entry['Share__Kind'] === 'specification' && entry['Share__Key'] === 'Specification') &&
+        shareDocs.some((entry) => entry['Share__Kind'] === 'register' && entry['Share__Key'] === 'Register'));
+    check('every key is one a URL carries as it is, and every key is listed once',
+        shareDocs.every((entry) => KEY_OK.test(entry['Share__Key'])) && new Set(shareDocs.map((entry) => entry['Share__Key'].toLowerCase())).size === shareDocs.length);
+    check('every address is the resolver\'s pattern filled with the project code and the key',
+        shareDocs.every((entry) => entry['Share__Url'] === resolver['Resolver__BaseUrl'] + String(resolver['Resolver__QueryPattern'] || '')
+            .split('{projectCode}').join(encodeURIComponent(shareLinks['ShareLinks__Project']['Project__Code']))
+            .split('{documentKey}').join(encodeURIComponent(entry['Share__Key']))));
+    check('the record does not claim which drawings are published (the index says that)',
+        shareDocs.every((entry) => !('Share__State' in entry) && !('Share__Published' in entry)));
 
 // endregion -------------------------------------------------------------------
 
@@ -576,6 +631,9 @@
 
     check('paths still build on the fallback',
         Fallback.Na__PubSchema__ManifestPath('AA00_T02_D02') === Paths.Na__PubSchema__ManifestPath('AA00_T02_D02'));
+
+    check('the share link record\'s name is the same on the fallback',
+        Fallback.Na__PubSchema__ShareLinksPath() === Paths.Na__PubSchema__ShareLinksPath());
 
     globalThis.fetch = realFetch;
 

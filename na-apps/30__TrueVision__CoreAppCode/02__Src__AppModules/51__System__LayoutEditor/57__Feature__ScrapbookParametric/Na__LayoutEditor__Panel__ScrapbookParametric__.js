@@ -53,6 +53,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.8.0
+// - The Site Plan Legend: registered with the others, its link module
+//   attached beside the viewport link, and the hatch library's marks handed
+//   to it as a tool (hatchTile), so its swatches draw the drawing's own
+//   glyphs. A block of its own in the settings: what it lists and from how
+//   many drawings, which site plan it reads, the title, the columns, lines
+//   on or off, the minimum width, the type and swatch sizes, and a tick box
+//   per row to take one off the legend or put it back.
+//
 // 21-Sep-2026 - Version 1.7.0
 // - A tile whose type is held by a base point - the cabinet infill's bottom
 //   left corner - hangs from that point while it is dragged in, snaps it to
@@ -183,6 +192,9 @@
         Na__LeParamInfill__RUN_UP,
         Na__LeParamInfill__CreateType
     } from './Na__LayoutEditor__ScrapbookParametric__CabinetInfill__.js';
+    import { Na__LeParamLegend__TYPE, Na__LeParamLegend__KIND_LINE, Na__LeParamLegend__CreateType } from './Na__LayoutEditor__ScrapbookParametric__SiteLegend__.js';
+    import { Na__LeParamLegendLink__Attach, Na__LeParamLegendLink__AllSitePlans, Na__LeParamLegendLink__DataFor } from './Na__LayoutEditor__ScrapbookParametric__SiteLegendLink__.js';
+    import { Na__LeHatch__Ready, Na__LeHatch__TileMarks } from '../36__System__HatchPatternTools/Na__LayoutEditor__HatchPatterns__.js';   // <-- The legend's swatches draw a pattern's own glyphs
     import { Na__QrLink__CurrentProject } from '../53__Feature__ProjectQrCode/Na__ProjectQr__ProjectLink__.js';
     import { Na__DrawData__GetProjectCode } from '../../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     import { Na__CfApi__GetLoadedProjectData } from '../../80__CloudflareIntegration/Na__CloudflareIntegration__ApiClient__.js';
@@ -237,6 +249,8 @@
     const Na__LePanelParam__QR_CONTROLS    = Object.freeze([ 'param-qr-size', 'param-qr-form', 'param-qr-width', 'param-qr-project' ]);
     const Na__LePanelParam__AREA_CONTROLS  = Object.freeze([ 'param-area-form', 'param-area-group', 'param-area-width', 'param-area-text', 'param-area-units', 'param-area-decimals', 'param-area-headings', 'param-area-total', 'param-area-swatch', 'param-area-title', 'param-area-suffix' ]);
     const Na__LePanelParam__INFILL_CONTROLS = Object.freeze([ 'param-infill-label', 'param-infill-text', 'param-infill-run', 'param-infill-fill', 'param-infill-fill-colour', 'param-infill-width', 'param-infill-height', 'param-infill-size' ]);
+    const Na__LePanelParam__LEGEND_CONTROLS = Object.freeze([ 'param-legend-source', 'param-legend-title', 'param-legend-columns', 'param-legend-lines', 'param-legend-width', 'param-legend-text', 'param-legend-swatch-w', 'param-legend-swatch-h', 'param-legend-show-all' ]);
+    const Na__LePanelParam__ALL_SITE_PLANS  = '';                               // <-- A legend reading every site plan on its sheet
     const Na__LePanelParam__LIBRARY_SHOWS = Object.freeze([ 'active', 'loaded', 'sheet-created', 'sheet-deleted', 'sheet-updated' ]);   // <-- What can alter which sheet, or which drawing type, is up
     const Na__LePanelParam__PROPS_SHOWS   = Object.freeze([ 'selection', 'active', 'loaded', 'sheet-deleted', 'sheet-updated', 'groups', 'shape', 'shapes', 'annotation', 'annotations', 'viewport', 'viewports', 'layers' ]);   // <-- What can alter the selected element, its link or its lock
     // ------------------------------------------------------------
@@ -342,6 +356,35 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Site Plan Legend's Menu Words, as the Config Words Them
+    // ------------------------------------------------------------
+    // The rows are the drawing's own layer names and need no wording; these
+    // are the columns and the switches.
+    // ------------------------------------------------------------
+    function Na__LePanelParam__LegendMenuWords() {
+        const L = Na__LeParam__Label;
+        return {
+            autoColumns : L('MenuLegendAutoColumns', 'Columns as the rows need'),
+            oneColumn : L('MenuLegendOneColumn', 'One column'),
+            columns   : L('MenuLegendColumns', '{count} columns'),
+            showLines : L('MenuLegendLines', 'Lines as well as areas'),
+            showAll   : L('MenuLegendShowAll', 'List every row')
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Hatch Pattern's Marks, for the Legend's Swatches
+    // ------------------------------------------------------------
+    // The library's own flattening of each glyph, in tile millimetres - the
+    // same lines the PDF stamps - or null for a key it has not got.
+    // ------------------------------------------------------------
+    function Na__LePanelParam__HatchTile(patternKey) {
+        return Na__LeHatch__TileMarks(patternKey);
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Wait for the Paper's Own Text Metrics, Then Refit the Sheet on Screen
     // ------------------------------------------------------------
     // The chrome measures text through jsPDF and the Open Sans cuts, and
@@ -390,15 +433,19 @@
         Na__LeParam__RegisterType(Na__LeParamQr__CreateType(() => Na__LeParam__Block('ProjectQr'), Na__LePanelParam__QrMenuWords));
         Na__LeParam__RegisterType(Na__LeParamArea__CreateType(() => Na__LeParam__Block('AreaSchedule'), Na__LePanelParam__AreaMenuWords));   // <-- The area schedule; its numbers are filled in by 59__Feature__FloorAreas
         Na__LeParam__RegisterType(Na__LeParamInfill__CreateType(() => Na__LeParam__Block('CabinetInfill'), Na__LePanelParam__InfillMenuWords));   // <-- The cabinet infill: a cross and a boxed name over a cupboard
+        Na__LeParam__RegisterType(Na__LeParamLegend__CreateType(() => Na__LeParam__Block('SiteLegend'), Na__LePanelParam__LegendMenuWords));   // <-- The site plan legend; its rows are filled in by its link module
         Na__LeParam__SetTools({                                               // <-- A type is pure; whatever it cannot reach is handed over here
             measureTextMm : (value, sizeMm, weight) => Na__LeChrome__MeasureTextMm(value, sizeMm, weight),   // <-- The chrome's own measurer, so a line breaks where it breaks on paper
             metricsReady  : () => Na__LePanelParam__MetricsReady,             // <-- Until true that measurer answers an estimate, and nothing is refit to it
             projectName   : Na__LePanelParam__ProjectName,                    // <-- Called on every build, so renaming the project rewrites the blocks that letter it
-            lineSpacing   : () => Na__LeCfg__GetTextSetup().lineSpacing       // <-- How far apart the editor draws a text record's lines, which a label broken over lines is boxed to
+            lineSpacing   : () => Na__LeCfg__GetTextSetup().lineSpacing,      // <-- How far apart the editor draws a text record's lines, which a label broken over lines is boxed to
+            hatchTile     : Na__LePanelParam__HatchTile                       // <-- A hatch pattern's glyphs, which the legend's swatches draw whole
         });
         Na__LePanelParam__AwaitMetrics();
         void Na__LeViewId__Ready();
+        void Na__LeHatch__Ready();                                            // <-- Already asked for by the mode controller; a legend's tile preview wants it too
         Na__LeParamLink__Attach();
+        Na__LeParamLegendLink__Attach();                                      // <-- Beside the viewport link: it feeds the site plan legends
         Na__LeParamGrips__Attach();
         Na__LeParamNoodle__Attach();                                          // <-- After the grips, so the socket is drawn over the noodle it starts
         window.addEventListener(Na__LeModel__CHANGED_EVENT, Na__LePanelParam__OnModelChanged);
@@ -426,6 +473,15 @@
     // ------------------------------------------------------------
     function Na__LePanelParam__DropParams(element, sheet, centreMm) {
         const params = Na__LeParam__ElementParams(element);
+        // A SITE PLAN LEGEND LANDS ALREADY LISTING WHAT THE SHEET SHOWS, so it
+        // is centred on the drop at the size it will be, rather than landing
+        // empty and growing under the pointer a moment later. Null while the
+        // site plans are still loading: it lands empty then and fills itself in.
+        if (element && element.Element__Type === Na__LeParamLegend__TYPE) {
+            const data = Na__LeParamLegendLink__DataFor(sheet, typeof params.ViewportId === 'string' ? params.ViewportId : '');
+            if (data) params.Data = data;
+            return params;
+        }
         const real   = element ? element.Element__RealSizeMm : null;
         if (!Array.isArray(real) || real.length !== 2 || !real.every((mm) => typeof mm === 'number' && Number.isFinite(mm) && mm > 0)) return params;
         const drawing = Na__LeParamLink__Nearest(sheet, centreMm, 0);
@@ -685,6 +741,36 @@
         infill.appendChild(Na__LePanels__Note(L('PropsInfillKept', 'Anything restyled inside the group - a colour, a line weight, the dashes - is kept when it is rebuilt.')));
         body.appendChild(infill);
 
+        // THE SITE PLAN LEGEND'S OWN | Shown for a legend and for nothing else.
+        // There is no control for a swatch's colour or pattern: they are the
+        // drawing's, they fill themselves in, and a box offering to change one
+        // here would be offering to make the legend and the drawing disagree.
+        // A row is taken off or put back with its tick box.
+        const legend = document.createElement('div');
+        legend.setAttribute('data-na-param', 'legend-block');
+        const legendReads = Na__LePanels__Note('');
+        legendReads.setAttribute('data-na-param', 'legend-reads');
+        legendReads.classList.add('na-le-param__reads');
+        legend.appendChild(legendReads);
+        legend.appendChild(Na__LePanels__Row(L('PropsLegendSource', 'Reads'), Na__LePanels__Select('param-legend-source', [], null)));
+        legend.appendChild(Na__LePanels__Row(L('PropsLegendTitle', 'Title'), Na__LePanels__Input('text', 'param-legend-title', { maxlength : 120, placeholder : L('PropsLegendTitleAuto', 'Legend') })));
+        legend.appendChild(Na__LePanels__Row(L('PropsLegendColumns', 'Columns'), Na__LePanels__Select('param-legend-columns', [], null)));
+        legend.appendChild(Na__LePanels__Row(L('PropsLegendLines', 'Lines as well as areas'), Na__LePanels__Input('checkbox', 'param-legend-lines'), 'na-le-row--toggle'));
+        legend.appendChild(Na__LePanels__Row(L('PropsLegendWidth', 'Width at least (mm)'), Na__LePanels__Input('number', 'param-legend-width', { min : 0, max : 420, step : 2 })));
+        legend.appendChild(Na__LePanels__Row(L('PropsLegendTextSize', 'Type size (mm)'), Na__LePanels__Input('number', 'param-legend-text', { min : 0.8, max : 12, step : 0.1 })));
+        legend.appendChild(Na__LePanels__Row(L('PropsLegendSwatchW', 'Swatch width (mm)'), Na__LePanels__Input('number', 'param-legend-swatch-w', { min : 2, max : 40, step : 0.5 })));
+        legend.appendChild(Na__LePanels__Row(L('PropsLegendSwatchH', 'Swatch height (mm)'), Na__LePanels__Input('number', 'param-legend-swatch-h', { min : 1.5, max : 30, step : 0.5 })));
+        const legendRowsNote = Na__LePanels__Note(L('PropsLegendRowsNote', 'Every wash, hatch and line the site plans show inside their frames - location plans only when the sheet has no other, since they grey all but the red line and the proposal. Untick one to leave it off the legend.'));
+        legend.appendChild(legendRowsNote);
+        const legendRows = document.createElement('div');
+        legendRows.setAttribute('data-na-param', 'legend-rows');
+        legend.appendChild(legendRows);
+        const legendBar = document.createElement('div');
+        legendBar.className = 'na-le-bar';
+        legendBar.appendChild(Na__LePanels__Button(L('PropsLegendShowAll', 'List every row'), 'param-legend-show-all', ''));
+        legend.appendChild(legendBar);
+        body.appendChild(legend);
+
         const foot = Na__LePanels__Note('');
         foot.setAttribute('data-na-param', 'foot');
         body.appendChild(foot);
@@ -719,6 +805,7 @@
         const isPortal = picked.type.type === Na__LeParamQr__TYPE;
         const isArea   = picked.type.type === Na__LeParamArea__TYPE;
         const isInfill = picked.type.type === Na__LeParamInfill__TYPE;
+        const isLegend = picked.type.type === Na__LeParamLegend__TYPE;
         const hasBar   = (typeof picked.type.hasBar === 'function') ? picked.type.hasBar(params) : true;   // <-- A type that does not say is a bar
         const linkable = Na__LeParam__IsLinkable(picked.type.type);
         part('title-block').hidden = !isTitle;
@@ -726,11 +813,13 @@
         part('qr-block').hidden    = !isPortal;
         part('area-block').hidden  = !isArea;
         part('infill-block').hidden = !isInfill;
+        part('legend-block').hidden = !isLegend;
         part('link-row').hidden    = !linkable;                                 // <-- An element that is never tied to a drawing is shown no cable to tie
         if (isTitle)  Na__LePanelParam__RefreshTitle(body, picked, usable);
         if (isPortal) Na__LePanelParam__RefreshPortal(body, picked, usable);
         if (isArea)   Na__LePanelParam__RefreshSchedule(body, picked, usable);
         if (isInfill) Na__LePanelParam__RefreshInfill(body, picked, usable);
+        if (isLegend) Na__LePanelParam__RefreshLegend(body, picked, usable);
 
         // A TYPE WITH NO SCALE HAS NOTHING BELOW THIS LINE TO REFLECT, and the
         // rows are hidden anyway. Filled in regardless, an undefined scale
@@ -1035,6 +1124,75 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Reflect a Selected Site Plan Legend
+    // ------------------------------------------------------------
+    // What it lists and from how many drawings; which site plan it reads; its
+    // look; then a tick box per row the drawings show, in the legend's own
+    // order, so a row is taken off or put back where it is read. The boxes
+    // are rebuilt only when the rows themselves change, so a refresh never
+    // takes one out from under the pointer.
+    // ------------------------------------------------------------
+    function Na__LePanelParam__RefreshLegend(body, picked, usable) {
+        const L      = Na__LeParam__Label;
+        const params = picked.params;
+        const el     = (name) => body.querySelector('[data-na-control="' + name + '"]');
+        const part   = (name) => body.querySelector('[data-na-param="' + name + '"]');
+        const data   = params.Data || { Rows : [], Sources : 0 };
+        const hidden = new Set(Array.isArray(params.Hidden) ? params.Hidden : []);
+        const shown  = (typeof picked.type.rowsOf === 'function') ? picked.type.rowsOf(params).filter((entry) => entry.kind !== 'empty').length : 0;
+        const drawings = Na__LeParamLegendLink__AllSitePlans(picked.sheet);        // <-- Location plans too: one can be chosen by hand
+
+        part('legend-reads').textContent = !drawings.length
+            ? L('PropsLegendNoSitePlan', 'This sheet has no site plan drawing for it to read.')
+            : (data.Rows.length
+                ? L('PropsLegendReads', 'Lists {shown} of the {found} washes, hatches and lines its site plans show.', { shown : shown, found : data.Rows.length })
+                : L('PropsLegendEmpty', 'Nothing to list yet: its site plans show no wash, hatch or line inside their frames, or are still loading.'));
+
+        const chosen = drawings.some((viewport) => viewport.Viewport__Id === params.ViewportId) ? params.ViewportId : Na__LePanelParam__ALL_SITE_PLANS;
+        Na__LePanels__FillSelect(el('param-legend-source'),
+            [ { value : Na__LePanelParam__ALL_SITE_PLANS, label : L('PropsLegendSourceAll', 'The sheet\'s site plans') } ]
+                .concat(drawings.map((viewport) => ({ value : viewport.Viewport__Id, label : Na__LeParamLink__ViewportName(viewport) }))),
+            chosen);
+
+        const most = (typeof picked.type.columnsMax === 'function') ? picked.type.columnsMax() : 4;
+        const counts = [ { value : 0, label : L('PropsLegendColumnsAuto', 'Automatic') } ];   // <-- Another column every dozen rows or so
+        for (let n = 1; n <= most; n++) counts.push({ value : n, label : String(n) });
+        Na__LePanels__FillSelect(el('param-legend-columns'), counts, params.Columns);
+        el('param-legend-lines').checked = params.ShowLines === true;
+
+        [ [ 'param-legend-title', params.TitleText ], [ 'param-legend-width', params.WidthMm ], [ 'param-legend-text', params.TextSizeMm ],
+          [ 'param-legend-swatch-w', params.SwatchWidthMm ], [ 'param-legend-swatch-h', params.SwatchHeightMm ] ].forEach((pair) => {
+            const input = el(pair[0]);
+            if (input && document.activeElement !== input) input.value = String(pair[1]);
+        });
+
+        // THE ROWS | One tick box each, keyed by the layer, captioned with its
+        // name - and "(line)" beside a line row, which the lines switch hides.
+        const list      = part('legend-rows');
+        const signature = data.Rows.map((row) => row.Key + ':' + row.Label + ':' + row.Kind).join('|');
+        if (list.getAttribute('data-na-signature') !== signature) {
+            list.setAttribute('data-na-signature', signature);
+            list.innerHTML = '';
+            data.Rows.forEach((row) => {
+                const box = Na__LePanels__Input('checkbox', 'param-legend-row');
+                box.setAttribute('data-na-role', row.Key);
+                const caption = row.Kind === Na__LeParamLegend__KIND_LINE ? row.Label + L('PropsLegendLineMark', ' (line)') : row.Label;
+                list.appendChild(Na__LePanels__Row(caption, box, 'na-le-row--toggle'));
+            });
+        }
+        list.querySelectorAll('[data-na-control="param-legend-row"]').forEach((box) => {
+            const key = box.getAttribute('data-na-role');
+            const row = data.Rows.find((entry) => entry.Key === key);
+            box.checked  = !hidden.has(key);
+            box.disabled = !usable || (!!row && row.Kind === Na__LeParamLegend__KIND_LINE && params.ShowLines !== true);   // <-- A line row cannot show while lines are off, whatever its box says
+        });
+
+        Na__LePanelParam__LEGEND_CONTROLS.forEach((name) => { el(name).disabled = !usable; });
+        el('param-legend-show-all').disabled = !usable || !data.Rows.some((row) => hidden.has(row.Key));
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Show the Settings Only While One Parametric Element Is Selected
     // ------------------------------------------------------------
     function Na__LePanelParam__SyncProps() {
@@ -1116,6 +1274,27 @@
         on('change', 'param-infill-width',       guarded((picked, el) => { const mm = parseFloat(el.value); if (Number.isFinite(mm) && mm > 0) Na__LeParam__Regenerate(picked.sheet, picked.groupId, { WidthMm : mm }); }));
         on('change', 'param-infill-height',      guarded((picked, el) => { const mm = parseFloat(el.value); if (Number.isFinite(mm) && mm > 0) Na__LeParam__Regenerate(picked.sheet, picked.groupId, { HeightMm : mm }); }));
         on('change', 'param-infill-size',        guarded((picked, el) => { const mm = parseFloat(el.value); if (Number.isFinite(mm) && mm > 0) Na__LeParam__Regenerate(picked.sheet, picked.groupId, { TextSizeMm : mm }); }));
+        // A LEGEND'S SOURCE changes what it lists, so the rows are read again
+        // for it in the same step - the link module's hook fills them in ahead
+        // of this rebuild's announcement.
+        on('change', 'param-legend-source',   guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { ViewportId : el.value })));
+        on('change', 'param-legend-title',    guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { TitleText : el.value })));
+        on('change', 'param-legend-columns',  guarded((picked, el) => { const n = parseInt(el.value, 10); if (Number.isFinite(n)) Na__LeParam__Regenerate(picked.sheet, picked.groupId, { Columns : n }); }));
+        on('change', 'param-legend-lines',    guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { ShowLines : el.checked })));
+        on('change', 'param-legend-width',    guarded((picked, el) => { const mm = parseFloat(el.value); if (Number.isFinite(mm) && mm >= 0) Na__LeParam__Regenerate(picked.sheet, picked.groupId, { WidthMm : mm }); }));
+        on('change', 'param-legend-text',     guarded((picked, el) => { const mm = parseFloat(el.value); if (Number.isFinite(mm) && mm > 0) Na__LeParam__Regenerate(picked.sheet, picked.groupId, { TextSizeMm : mm }); }));
+        on('change', 'param-legend-swatch-w', guarded((picked, el) => { const mm = parseFloat(el.value); if (Number.isFinite(mm) && mm > 0) Na__LeParam__Regenerate(picked.sheet, picked.groupId, { SwatchWidthMm : mm }); }));
+        on('change', 'param-legend-swatch-h', guarded((picked, el) => { const mm = parseFloat(el.value); if (Number.isFinite(mm) && mm > 0) Na__LeParam__Regenerate(picked.sheet, picked.groupId, { SwatchHeightMm : mm }); }));
+        on('change', 'param-legend-row',      (event, el, key) => {
+            const picked = Na__LePanelParam__Selected();
+            if (!picked || !key || !Na__LePanels__IsEditable() || Na__LeParam__IsLocked(picked.sheet, picked.groupId)) return;
+            const hidden = (Array.isArray(picked.params.Hidden) ? picked.params.Hidden : []).filter((one) => one !== key);
+            Na__LeParam__Regenerate(picked.sheet, picked.groupId, { Hidden : el.checked ? hidden : hidden.concat([ key ]) });
+        });
+        on('click',  'param-legend-show-all', guarded((picked) => {
+            const listed = new Set(((picked.params.Data && picked.params.Data.Rows) || []).map((row) => row.Key));
+            Na__LeParam__Regenerate(picked.sheet, picked.groupId, { Hidden : (picked.params.Hidden || []).filter((key) => !listed.has(key)) });   // <-- Keys for layers not on the sheet stay, so the base map stays off when it arrives
+        }));
         const entry = Na__LePanels__RegisterSection('right', {
             id : Na__LePanelParam__PROPS_ID, title : Na__LeParam__Label('PropsTitle', 'Parametric Element'),
             build : Na__LePanelParam__BuildProps, refresh : Na__LePanelParam__RefreshProps

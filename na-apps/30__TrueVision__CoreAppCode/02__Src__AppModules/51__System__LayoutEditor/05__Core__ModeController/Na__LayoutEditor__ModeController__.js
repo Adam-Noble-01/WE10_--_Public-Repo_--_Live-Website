@@ -47,6 +47,21 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.32.0
+// - OpenRegister and OpenStatements take an optional options object and hand
+//   it to the page they show: a shared link (66__Feature__DocumentSharing,
+//   TrueVision3D v2.165.0) opens the register or one named statement in its
+//   Read view. The tabs, the dock and every other caller pass none, and
+//   behave exactly as before.
+//
+// 29-Sep-2026 - Version 1.31.0
+// - THE SPECIFICATION IS KEPT IN STEP WITH ITS LOCAL FILE while the drawing
+//   editor is open (Na__LayoutEditor__SpecData__Lockstep__): the watch starts
+//   when the editor opens from the 3D view and stops when it closes, as the
+//   Statement Writer's runs while its tab shows. The question it raises
+//   (Na__LayoutEditor__SpecLockstep__) is mounted onto the host with the
+//   specification page, where this session may author.
+//
 // 23-Sep-2026 - Version 1.30.0
 // - A DOCUMENT TAB PRESSED FROM THE 3D VIEW opens the first sheet under
 //   itself quietly (Na__LeMode__EnterUnder): the first-open veil is not put
@@ -336,7 +351,8 @@
     import { Na__LeAuto__Initialize } from '../07__Core__SheetData/Na__LayoutEditor__AutoSave__.js';
     import { Na__LeRaster__CHANGED_EVENT } from '../20__System__Viewports/Na__LayoutEditor__RasterQuality__.js';
     import { Na__LePanelMargin__Register } from '../50__Feature__Specification/Na__LayoutEditor__Panel__MarginNotes__.js';
-    import { Na__LeSpec__CHANGED_EVENT, Na__LeSpec__OPEN_EVENT, Na__LeSpec__GOTO_EVENT, Na__LeSpec__Initialize, Na__LeSpec__EnsureLoaded } from '../50__Feature__Specification/Na__LayoutEditor__SpecData__.js';
+    import { Na__LeSpec__CHANGED_EVENT, Na__LeSpec__OPEN_EVENT, Na__LeSpec__GOTO_EVENT, Na__LeSpec__Initialize, Na__LeSpec__EnsureLoaded, Na__LeSpec__StartWatch, Na__LeSpec__StopWatch } from '../50__Feature__Specification/Na__LayoutEditor__SpecData__.js';
+    import { Na__LeSpecLock__Mount } from '../50__Feature__Specification/Na__LayoutEditor__SpecLockstep__.js';
     import { Na__LeSpecLink__Initialize } from '../50__Feature__Specification/Na__LayoutEditor__SpecLinks__.js';
     // @delegate: ../51__Feature__DrawingRegister/Na__LayoutEditor__Register__Editor__.js
     import { Na__LeRegEd__Mount, Na__LeRegEd__Show, Na__LeRegEd__Hide } from '../51__Feature__DrawingRegister/Na__LayoutEditor__Register__Editor__.js';
@@ -538,6 +554,7 @@
         Na__LeToolbar__Mount(host.querySelector('.na-le-centre__toolbar'), { editable : editable, showToast : toast });
         Na__LeMeasure__Mount(host.querySelector('.na-le-centre'), { editable : editable, stage : Na__LeMode__Stage });   // <-- The Measurements box, bottom right over the stage
         Na__LeSpecEd__Mount(host, { editable : editable, showToast : toast });    // <-- The Project Specification page, over the shell
+        if (editable) Na__LeSpecLock__Mount(host);                             // <-- The question when the specification and its local file are out of step, over every view
     }
     // ------------------------------------------------------------
 
@@ -690,6 +707,7 @@
             Na__DrawView__Transitions__SuspendThreeD({ returnToOrbit : true });   // <-- Walk or Fly left for Orbit, the whole exit; orbit and distance culling let go, as in a drawing
             Na__LeSnap__ResetFingerprints();                                // <-- One model walk per session, not per refresh
             Na__LeMode__RestartSheetKeys();                                // <-- Pointer, keys, tools and the margin grip, started afresh from the 3D Model tab
+            if (!Na__LeVw__IsViewerMode()) Na__LeSpec__StartWatch();        // <-- The specification's local file is watched while the editor is open (localhost, authoring)
         }
         const specLoad    = Na__LeSpec__EnsureLoaded();                    // <-- The specification is read when the drawing editor first opens, never before
         const metricsLoad = Na__LeMode__PreloadMetrics();
@@ -747,6 +765,7 @@
         Na__LeRegEd__Hide();
         Na__LeStmtPage__Hide();                                                 // <-- Writes whatever was typed to disk on the way out
         if (!Na__LeMode__Active) return false;
+        Na__LeSpec__StopWatch();                                                // <-- Looked at again the moment the editor reopens
         if (Na__LeVw__IsViewerMode()) Na__LeVw__Teardown();                     // <-- Both reading surfaces let go, whichever was showing
         else if (Na__LeMode__View === Na__LeMode__VIEW_SPEC) Na__LeSpecEd__Hide();   // <-- The sheet's input already stood down when the page opened
         else Na__LeMode__DetachSheetInput();
@@ -903,7 +922,10 @@
     // ------------------------------------------------------------
     // FUNCTION | Open the Pack Register Beside the Specification
     // ------------------------------------------------------------
-    function Na__LeMode__OpenRegister() {
+    // options: { view : 'read' } from a shared link (66__Feature__DocumentSharing),
+    // handed to the register as it is shown. Every other caller passes none.
+    // ------------------------------------------------------------
+    function Na__LeMode__OpenRegister(options) {
         if (!Na__LeMode__EnterUnder()) return false;                              // <-- From the 3D view: the first sheet opens underneath, quietly
         Na__LeText__Commit();
         Na__LeMode__DetachSheetInput();
@@ -911,7 +933,7 @@
         Na__LeStmtPage__Hide();
         if (Na__LeVw__IsViewerMode()) Na__LeVw__ShowRegister();
         Na__LeMode__View = Na__LeMode__VIEW_REGISTER;
-        Na__LeRegEd__Show();
+        Na__LeRegEd__Show((options && typeof options === 'object') ? options : undefined);
         Na__LeMode__Dispatch();
         return true;
     }
@@ -927,8 +949,12 @@
     // THE VIEWER GETS THE SAME PAGE. It was mounted read-only, so a reader
     // sees the statement and no authoring surface at all - there is no
     // separate viewer route to keep in step.
+    //
+    // options: { statementId, view : 'read' } from a shared link
+    // (66__Feature__DocumentSharing), handed to the page. Every other caller
+    // passes none.
     // ------------------------------------------------------------
-    function Na__LeMode__OpenStatements() {
+    function Na__LeMode__OpenStatements(options) {
         if (!Na__LeMode__EnterUnder()) return false;                              // <-- From the 3D view: the first sheet opens underneath, quietly
         Na__LeRegEd__Hide();
         Na__LeSpecEd__Hide();
@@ -937,7 +963,7 @@
             Na__LeMode__DetachSheetInput();
             Na__LeMode__View = Na__LeMode__VIEW_STATEMENT;
         }
-        void Na__LeStmtPage__Show();
+        void Na__LeStmtPage__Show((options && typeof options === 'object') ? options : undefined);
         Na__LeMode__Dispatch();
         return true;
     }

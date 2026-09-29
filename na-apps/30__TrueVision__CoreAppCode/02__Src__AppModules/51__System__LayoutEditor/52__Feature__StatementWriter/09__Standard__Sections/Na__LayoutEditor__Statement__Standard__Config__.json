@@ -1,0 +1,97 @@
+{
+    "StatementStandard__Description": "Standard Sections: the parts of a statement that are the same on every job apart from the project they name (the TrueVision 3D Project Hub), the headings they are drawn from (the Contents) or the few fields they carry (the Document Header). Each one is switched on and off from the Statement Writer's edit bar (Standard Sections), lives in the statement's markdown as ONE marker line, and is drawn fresh from this file every time the statement is shown, printed or published - so a better sentence written here reaches every statement that carries the section, and the project's own name, code, link and QR code are always the ones on screen. The marker is a block like any picture: it can be dragged anywhere in the statement. Every value here is mirrored as a built-in default in the section's own module, so a failed fetch still draws the section.",
+
+    "StatementStandard__Order__Note": "Adam, 29-Sep-2026, the order every statement opens in: 1. the header, 2. the header information, 3. the table of contents, 4. the TrueVision section, 5. the introduction. Each section's PlaceAfter keeps to it: the header takes over the top of the file, the Contents goes after the header's divider, the hub after the Contents. Every section but the header sits between two major dividers.",
+
+    "StatementStandard__DocumentHeader__Config": {
+        "DocumentHeader__Description": "The statement's opening block: the company logo, the title and the header fields (Applicant, Site Address, Local Planning Authority, Prepared By, Document Version, and any others written). The fields are the job's own words and live INSIDE the marker, one a line - 'Label: value', with indented lines carrying a value on to more lines; 'Title' is the title and 'Logo' may replace the logo's address. Drawn with spacing of its own, so the document's heading rules (the minus two millimetres under every #####) cannot squeeze it - Adam, 29-Sep-2026: 'too constrained'. Switched on, it takes over a house header already at the top of the file; switched off, it writes that header back as markdown.",
+
+        "DocumentHeader__Label": "Document Header",
+
+        "DocumentHeader__LogoUrl": "https://www.noble-architecture.com/assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets/NA03_01_-_PNG_-_NA_Company_Logo_-_w2048_x_h500px.png",
+
+        "DocumentHeader__LabelsWithoutColon": [ "Document Version" ],
+        "DocumentHeader__LabelsWithoutColonNote": "Labels drawn without a colon after them, as the house header always set 'Document Version' (bold, no colon) under 'Applicant:' and the rest.",
+
+        "DocumentHeader__NewFields": [
+            "Title: Design and Access Statement",
+            "Applicant: [TO CONFIRM: applicant]",
+            "Site Address:",
+            "    [TO CONFIRM: site address]",
+            "Local Planning Authority: [TO CONFIRM: local planning authority]",
+            "Prepared By: Mr Adam Noble of Noble Architecture",
+            "Document Version: Revision A  -  [TO CONFIRM: date]"
+        ],
+        "DocumentHeader__NewFieldsNote": "What a statement with no header of its own is given when the section is switched on. Edit the card's marker to fill it in.",
+
+        "DocumentHeader__FallbackText": "Standard Section: Document Header."
+    },
+
+    "StatementStandard__Contents__Config": {
+        "Contents__Description": "The table of contents, drawn from the statement's own headings every time it is shown: each '### N.0 |' section, its '#### N.N |' subsections, any '##' part after the first section, and any other standard section that names a line for itself (the TrueVision 3D Project Hub). Two columns that never split a section; no page numbers, because a statement is one continuous page. It replaces the static list build_contents.py wrote, which fell behind the headings within the hour on RB05.",
+
+        "Contents__Label": "Table Of Contents",
+        "Contents__TitleText": "Contents",
+
+        "Contents__PlaceAfter": [ "HeaderDivider" ],
+        "Contents__PlaceAfterNote": "Straight after the divider that closes the header, with a divider of its own under it.",
+
+        "Contents__Columns": 2,
+
+        "Contents__FallbackText": "Standard Section: Table Of Contents. It is drawn from this statement's own headings by TrueVision's Statement Writer; this line is all an editor without it can show."
+    },
+
+    "StatementStandard__TrueVisionHub__Config": {
+        "TrueVisionHub__Description": "The TrueVision 3D Project Hub: a boxed section that sends the reader into the project's live 3D model with a QR code, a button and the short address, and tells them everything else the hub holds - every drawing, the specification, the document register and the statements. Built from the EB03 statement's section 18.0 (Interactive Online Tools) and Adam's brief of 29-Sep-2026: 'the ultimate nudge'. TOKENS in any text: {ProjectName} (the project's display name, or its code when it has none), {ProjectCode}, {ShortUrlText} (the short address without https://www.). Words written in the house comma-light rhythm for the paragraphs; the tiles and the access panel are captions and use ordinary punctuation.",
+
+        "TrueVisionHub__Label": "TrueVision 3D Project Hub",
+        "TrueVisionHub__LabelNote": "What the Standard Sections menu calls it.",
+
+        "TrueVisionHub__PlaceAfter": [ "Standard:Contents", "HeaderDivider" ],
+        "TrueVisionHub__PlaceAfterNote": "Where the section lands when it is switched on, tried in order: straight after the Contents (Standard:Contents - after the divider that closes it), else straight after the header's divider (HeaderDivider - the last major divider above the first numbered section). Adam, 29-Sep-2026, for every statement: 1. the header, 2. the header information, 3. the table of contents, 4. this section, 5. the introduction. It always sits between two major dividers, as its own section. Drag it to another section boundary afterwards.",
+
+        "TrueVisionHub__QrSizeMm": 28,
+        "TrueVisionHub__QrSizeMmNote": "The symbol edge to edge on the A4 page, quiet zone NOT included (the SVG adds its own two modules round it). A project's code is a 29 module symbol, so 28 mm is a 0.97 mm module - over three times the 0.28 mm floor, big enough to read off a laptop screen held at arm's length, and small enough to sit beside the words without taking the panel over. The PDF is rasterised at 144 dpi by default, which is 5.5 pixels a module. It was 34 mm until Adam, 29-Sep-2026, found the hub 'too jump-outy' against the rest of the document and its type came down to the document's own sizes; the code came down with it so the panel stays in proportion.",
+
+        "TrueVisionHub__QrDarkColour": "#172b3a",
+        "TrueVisionHub__QrDarkColourNote": "The dark modules of the code: the house navy the whole section is drawn in (the drawings' ink, #172b3a), so the code belongs to the panel it sits in. It is darker than the Project Portal block's grey (#595959) and reads at least as well; an empty or invalid value falls back to that grey. Adam, 29-Sep-2026: the section uses the blue scheme, not the olive.",
+
+        "TrueVisionHub__KickerText": "The Project Hub",
+        "TrueVisionHub__TitleText": "Explore This Proposal In TrueVision 3D",
+        "TrueVisionHub__TitleTextNote": "Also the section's line in the Contents.",
+        "TrueVisionHub__LeadInPoints": [
+            "The complete 3D model of {ProjectName}",
+            "Every drawing and every document in one place",
+            "Opens in any web browser",
+            "Nothing to download or install"
+        ],
+        "TrueVisionHub__LeadInPointsNote": "Quick-reference points under the access panel, in two columns with square markers. Adam, 29-Sep-2026: the one bold lead-in line \"reads as one strangely structured sentence\" - \"make them quick-reference bullet points\". Keep each to a few words; four fill the two columns evenly.",
+
+        "TrueVisionHub__LeadParagraphs": [
+            "Every part of this proposal has been built as a complete three dimensional model and published through TrueVision 3D, Noble Architecture's own project platform. TrueVision is the single home of the whole project. The live model sits alongside a digital copy of every drawing in the pack, the drawing specification, the document register and this statement itself. There is nothing to download and nothing to install. It opens in seconds in any modern web browser on a phone, a tablet or a desktop computer.",
+            "This is not a fixed fly through and it is not a reel of flattering viewpoints. The reader is in complete control. The model can be orbited, panned and zoomed without limit and viewed from any direction, both from ground level and from a bird's-eye view. It can be walked round at eye level or taken in whole from the air. Nothing is hidden and nothing is staged. Every roof plane, every eaves line and every elevation is there to be inspected at will."
+        ],
+
+        "TrueVisionHub__Tiles": [
+            { "Heading": "Walk Round It Freely",         "Text": "Orbit, pan and zoom round the whole scheme, or step down to eye level and walk through it in any direction you choose." },
+            { "Heading": "Or Simply Click Through",      "Text": "Not confident with 3D controls? A carousel of prepared scenes steps through the key views of the proposal one click at a time." },
+            { "Heading": "Every Drawing In Full Detail", "Text": "A digital copy of every sheet in the pack, sharp at any zoom and far closer than paper will ever allow." },
+            { "Heading": "Everything In One Place",      "Text": "Drawings, specification, document register and statements kept together, so nothing has to be hunted for." }
+        ],
+        "TrueVisionHub__WordsNote": "Every sentence here goes into EVERY statement, so none may assume a site: no street, garden, boundary or neighbour. Adam, 29-Sep-2026: \"some jobs won't have boundaries and some jobs won't be seen from the street ... genericise it\" - hence \"from ground level and from a bird's-eye view\".",
+
+        "TrueVisionHub__TilesNote": "Two rows of two. Keep each Text under about 140 characters or the four stop lining up.",
+
+        "TrueVisionHub__CloseParagraphs": [
+            "The value of this to anyone assessing the scheme is simple. Every claim this statement makes about scale massing and appearance can be confirmed with one's own eyes in a few unhurried minutes rather than taken from the page. Reading a building from flat elevations takes years of training. Walking round it in TrueVision takes seconds. There is no easier way to understand this proposal and no good reason to judge it from paper alone."
+        ],
+
+        "TrueVisionHub__AccessHeadingText": "Scan To Step Inside The Model",
+        "TrueVisionHub__AccessBodyText": "Point any phone camera at the code, or select the button. It opens {ProjectName} directly and can be returned to at any time.",
+        "TrueVisionHub__ButtonText": "Open {ProjectName} In TrueVision 3D",
+        "TrueVisionHub__FactsText": "Any web browser  ·  Nothing to download  ·  Phone, tablet or desktop",
+
+        "TrueVisionHub__FallbackText": "Standard Section: TrueVision 3D Project Hub. It is drawn with the project's live link and QR code by TrueVision's Statement Writer; this line is all an editor without it can show.",
+        "TrueVisionHub__FallbackTextNote": "What the marker line holds between its tags, so Typora (or anything else that opens the markdown) shows a sentence saying what belongs there rather than nothing."
+    }
+}

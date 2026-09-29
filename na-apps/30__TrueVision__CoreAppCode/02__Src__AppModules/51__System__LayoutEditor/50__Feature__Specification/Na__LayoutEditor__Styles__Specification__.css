@@ -11,6 +11,8 @@
  *            Styles__Specification__Notes, and the read document and print rules to
  *            Styles__Specification__Read; the CSS index imports both straight after this sheet.
  *            The split ValeVision3D made in v2.47.0.
+ * EXTENDED : 29-Sep-2026 (v2.162.0) - The Lockstep Question (Na__LayoutEditor__SpecLockstep__),
+ *            the Statement Writer's card for the specification, and the bar's out-of-step state.
  */
 
 
@@ -467,3 +469,167 @@
 
 /* endregion ------------------------------------------------------- */
 
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Lockstep Question                                  */
+/* ----------------------------------------------------------------- */
+
+/* THE SPECIFICATION AND ITS FILE ARE OUT OF STEP (v2.162.0). The Statement
+   Writer's card (v2.157.0) - two large answers and no way out, because
+   nothing is saved until one is chosen - over the whole drawing editor, not
+   one page: the specification is read on every sheet. Above the specification
+   page (5), the register and the statements (12) and the first-open veil
+   (40). The newer copy wears the blue of an open row and a badge; the other
+   stays plain, so the eye lands on the likely answer without the other one
+   looking wrong. */
+.na-le-spec-lock {
+    position                           : absolute;
+    inset                              : 0;
+    z-index                            : 50;
+    display                            : flex;
+    align-items                        : flex-start;
+    justify-content                    : center;
+    padding                            : 64px 24px;
+    overflow                           : auto;
+    background                         : rgba(23, 43, 58, 0.48);
+    color                              : var(--Na_Le_Ink);
+}
+
+.na-le-spec-lock[hidden] {
+    display                            : none;
+}
+
+.na-le-spec-lock__card {
+    width                              : 100%;
+    max-width                          : 720px;
+    padding                            : 20px 22px 16px;
+    border-radius                      : 8px;
+    background                         : var(--Na_Le_Chrome);
+    box-shadow                         : var(--Na_Le_PaperShadow);
+}
+
+.na-le-spec-lock__title {
+    margin                             : 0 0 6px;
+    font-size                          : 1.02rem;
+    font-weight                        : 600;
+}
+
+.na-le-spec-lock__lead {
+    margin                             : 0 0 8px;
+    font-size                          : 0.82rem;
+    line-height                        : 1.5;
+}
+
+/* WHAT DIFFERS, note by note - the line the statement's question has no need
+   of, because a markdown file's difference is its lines. */
+.na-le-spec-lock__differs {
+    margin                             : 0 0 14px;
+    padding                            : 7px 10px;
+    border-left                        : 3px solid #d99a1e;
+    border-radius                      : 0 4px 4px 0;
+    background                         : #fbf6ea;
+    font-size                          : 0.76rem;
+    line-height                        : 1.5;
+}
+
+.na-le-spec-lock__choices {
+    display                            : grid;
+    grid-template-columns              : 1fr 1fr;
+    gap                                : 10px;
+    margin                             : 0 0 12px;
+}
+
+.na-le-spec-lock__choice {
+    display                            : flex;
+    flex-direction                     : column;
+    align-items                        : flex-start;
+    gap                                : 3px;
+    padding                            : 11px 12px 12px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 6px;
+    background                         : #ffffff;
+    color                              : inherit;
+    font                               : inherit;
+    text-align                         : left;
+    cursor                             : pointer;
+}
+
+.na-le-spec-lock__choice:hover:not(:disabled) {
+    border-color                       : #1a7fc4;
+}
+
+.na-le-spec-lock__choice:focus-visible {
+    outline                            : 2px solid #1a7fc4;
+    outline-offset                     : 2px;
+}
+
+.na-le-spec-lock__choice.is-newer {
+    border-color                       : #1a7fc4;
+    background                         : #eef5fb;
+}
+
+.na-le-spec-lock__choice:disabled {
+    cursor                             : default;
+    opacity                            : 0.6;
+}
+
+.na-le-spec-lock__choice.is-busy {
+    opacity                            : 1;
+}
+
+.na-le-spec-lock__head {
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 8px;
+}
+
+.na-le-spec-lock__name {
+    font-size                          : 0.90rem;
+    font-weight                        : 600;
+}
+
+.na-le-spec-lock__badge {
+    display                            : none;
+    padding                            : 1px 7px;
+    border-radius                      : 9px;
+    background                         : #1a7fc4;
+    color                              : #ffffff;
+    font-size                          : 0.64rem;
+    font-weight                        : 600;
+    letter-spacing                     : 0.02em;
+}
+
+.na-le-spec-lock__choice.is-newer .na-le-spec-lock__badge {
+    display                            : inline-block;
+}
+
+.na-le-spec-lock__kind {
+    color                              : var(--Na_Le_InkMuted);
+    font-size                          : 0.70rem;
+    white-space                        : pre;
+}
+
+.na-le-spec-lock__when,
+.na-le-spec-lock__what {
+    font-size                          : 0.76rem;
+    line-height                        : 1.45;
+}
+
+.na-le-spec-lock__foot {
+    margin                             : 0;
+    padding-top                        : 10px;
+    border-top                         : 1px solid #e2e8ee;
+    color                              : var(--Na_Le_InkMuted);
+    font-size                          : 0.72rem;
+    line-height                        : 1.45;
+}
+
+@media (max-width: 720px) {
+
+    .na-le-spec-lock__choices {
+        grid-template-columns          : 1fr;
+    }
+
+}
+
+/* endregion ------------------------------------------------------- */

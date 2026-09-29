@@ -10,6 +10,8 @@ Section 13 (20-Sep-2026, v2.96.0) is the drawing title with its scale bar stood 
 held by its far end - built and tested by Claude, not yet tried by Adam, not in ValeVision.
 Section 16 (21-Sep-2026, v2.128.0) is the cabinet infill - the dashed cross and boxed name from Adam's LayOut
 plans, fitted by a snapping corner grip - built and tested by Claude, not yet tried by Adam, not in ValeVision.
+Section 17 (29-Sep-2026, v2.164.0) is the site plan legend - every wash, hatch and line the sheet's site plans show,
+each swatch drawn as the drawing draws it - built and tested by Claude, not yet tried by Adam, not in ValeVision.
 
 Adam's brief (19-Sep-2026): "I need a way to be able to save and insert common elements, but we
 need two versions in the main drawings: a custom scrapbook, and a parametric element scrapbook.
@@ -97,6 +99,8 @@ the same again in ValeVision.
         Na__LayoutEditor__ScrapbookParametric__ViewportLink__.js  Na__LeParamLink  THE LINK TO THE VIEWPORT SYSTEM
         Na__LayoutEditor__ScrapbookParametric__DrawingTitle__.js Na__LeParamTitle the drawing title: title, underline, optional bar, written from its viewport's facts
         Na__LayoutEditor__ScrapbookParametric__CabinetInfill__.js Na__LeParamInfill the cabinet infill: a dashed cross and a boxed name over a cupboard (section 16)
+        Na__LayoutEditor__ScrapbookParametric__SiteLegend__.js  Na__LeParamLegend the site plan legend: a row per wash, hatch and line, the swatches drawn (section 17)
+        Na__LayoutEditor__ScrapbookParametric__SiteLegendLink__.js Na__LeParamLegendLink what feeds it: the sheet's site plans, read off the painter's own build (section 17)
         Na__LayoutEditor__ScrapbookParametric__Grips__.js      Na__LeParamGrips  the stretch grip, the slide grip (section 13) and the lookup grip
         Na__LayoutEditor__ScrapbookParametric__LinkNoodle__.js Na__LeParamNoodle the noodle to what an element is tied to, and the socket that re-ties it
         Na__LayoutEditor__ScrapbookParametric__Config__.json
@@ -372,6 +376,7 @@ first so it is theirs by default. The left column is back to the sheet and its l
 | 20-Sep-2026 | FOUND BY TESTING THE SLIDE IN THE APP, not by the Node tests: the slide grip sits ON the bar's own far corner, so `Na__LeOsnap__Find` returned that corner at distance 0 and the bar locked onto itself and would not move. Proved directly - the same point searched with and without the exclusion returns its own `Shape__195` at 0.0000 mm, or a neighbour's vertex 2.8358 mm away. The snapping module already took the exclusions a selection move passes; the grips module now passes the element's own vectors. |
 | 21-Sep-2026 | A SIXTH ELEMENT, v2.128.0: the Cabinet Infill (section 16), from two LayOut crops Adam marked up. Measured from the vector PDF of NP03 D07 Rev C. The engine gained `adopt` (a hand-restyled member survives rebuilds, read at every GetParams) and the grips a snapping corner (`stretchCorner`). Node: 64 checks, the box round Storage equal to NP03's to the thousandth. In the app on a scratch copy of PS01 D01, fetch guarded, nothing written: dropped at 1:50 and 1:100, moved onto the Dressing Room wardrobe's corner and its grip snapped onto the far one (625 x 4480), every panel control, the menu, undo x5 / redo x5 byte for byte, Escape, a hand-recoloured fill kept, refit, and the PDF's 0.907 pt dashes. NOT yet tried by Adam; NOT in ValeVision. |
 | 21-Sep-2026 | THE INFILL REWORKED, v2.134.0, after Adam found the single corner grip "impossible to use" (16.6): a bottom left BASE point the tile hangs from, snaps and lands by, and a hollow grip there that moves it; corner grips on the other three, each holding the one opposite; the options arrow beside the label. Engine 1.7.0 (`base`, `BasePoint`, `Insert` at 'base', `Regenerate` origin), grips 1.6.0, TileDrag 1.2.0 (`hold`, `snap`). Node 70 checks. In the app, fetch guarded, nothing written: a real tile drag landed the base exactly on the wardrobe's corner, each corner held its opposite exactly, the base moved it, Escape and undo/redo byte for byte. NOT yet tried by Adam; NOT in ValeVision. |
+| 29-Sep-2026 | AN ELEVENTH TILE AND A SIXTH TYPE, v2.164.0: the Site Plan Legend (section 17), from Adam's "a legend automatically for whatever hatches are found in the current drawing". Engine untouched; the link reads the site plan painter's own build through a new `Na__LeVp2d__SitePlanLegend`. Node 56 checks against the real hatch library. In the app on a scratch copy of RB05 D13, write-guarded: the drop filled inside its own step, a layer switched off followed in ONE step, a row unticked, a location plan read, the frame panned off the site - each with undo AND redo byte for byte; the records printed through the app's PDF path and rasterised. Real sheets byte-identical; no write attempted. NOT yet tried by Adam; NOT in ValeVision. |
 | 19-Sep-2026 | NOT YET DONE: Adam's own test in his browser through the real 8090 server, which must be RESTARTED first to load the scrapbook routes. |
 
 ---------------------------------------------------------
@@ -1047,3 +1052,77 @@ geometry is measured from; they need not be the same point, and `base` says how 
   vertex will see it take the next one. Assert against what `Na__LeOsnap__Find` answers at the release point.
 - **The pane's screenshot frame changed mid-session** (1280 x 960 scaled into 800 x 600, then 1:1 at the same size),
   so coordinate drags went wrong; the grip drags were driven by synthetic pointer events on the grips themselves.
+
+## 17. The Site Plan Legend (29-Sep-2026, v2.164.0)
+---------------------------------------------------------
+
+Adam, over RB05's proposed site plan: *"In the layout editor on site plans, create a new dynamic block for the dynamic
+block scrapbook that creates a legend automatically for whatever hatches are found in the current drawing (the hatches
+and the shading, etc.), and creates a little quick-reference legend table."*
+
+### 17.1 What it is
+
+A sixth type, `SiteLegend`, one tile ("Site Plan Legend", `Element__DrawingTypes : [ "siteplan" ]`). A title
+("Legend") over a 0.4 pt rule, then a row per layer the sheet's site plans actually PAINT INSIDE THEIR FRAMES:
+- an AREA row - a layer whose wash or hatch shows - with a swatch box: the wash, the hatch's glyphs, the edge;
+- a LINE row - a layer drawn as lines alone (the red line, a fence, a removal) - with a swatch-wide run of the line.
+Rows run the reverse of the layers' draw order: the red line and the proposal lead, the base map comes last.
+
+### 17.2 The decisions
+
+1. **The rows are the `Data` parameter, filled by a link module** - the Area Schedule's split. The type
+   (`...SiteLegend__.js`) is pure and imports nothing; `...SiteLegendLink__.js` is the only part that knows what a site
+   plan viewport is, as ViewportLink is for the others. `linkable : false`: no socket, no noodle.
+2. **What is listed is what is painted.** The link asks each viewport through `Na__LeVp2d__SitePlanLegend` (the site
+   plan unit, 1.2.0), which reads `SitePlanBuild` - the painter's own decks, location rules, per-viewport colours and
+   patterns - and puts one stand-in segment per layer through `StyleBands` for the line each is drawn in. Nothing about
+   a layer's look is worked out twice. A layer counts only when something of it is INSIDE THE FRAME: lines by
+   Liang-Barsky against the window, faces even-odd (an island's hole is not water).
+3. **The glyphs are drawn, not tiled.** A `Shape__Hatch` is anchored to the sheet's corner, so a small swatch shows
+   whatever of the tile lands on it - on grass (28 x 26 mm, ten tufts) often nothing - and changes as the legend moves.
+   The densest swatch-sized window of the pattern, as the drawing lays it (scaled, turned), is found in half-millimetre
+   steps and its WHOLE glyphs written as ordinary vectors. The marks arrive through a new tool, `hatchTile`
+   (`Na__LeHatch__TileMarks`, HatchPatterns 1.5.0: TilePolylines' lines still grouped by glyph).
+4. **Dashes are capsules.** The site plan paints round caps; a vector's own dash pattern is butt-capped on screen and
+   on paper (and the PDF draws even solid vectors butt-capped), which turns 0.2 mm dots into slivers. Each dash is a
+   filled capsule: its length plus a half width of round end each side, exactly what the round cap draws.
+5. **Set to its words**, measured by the chrome; `WidthMm` is a minimum; `refit` catches a legend drawn to the estimate.
+6. **Columns automatic** (0) as dropped - another every `AutoRowsPerColumn` (12) rows.
+7. **Location plans are read only when the sheet has nothing else** (17.4).
+8. **Nothing is rebuilt while anything is loading.** The site plan layers and the hatch library arrive after the sheet:
+   the link returns null, leaves the legend alone and books a refresh for when they land - a half-read would write a
+   legend short of rows and then write it again.
+
+### 17.3 Parameters
+
+`TitleText`, `Columns` (0 automatic, 1-4), `ShowLines`, `Hidden` (row keys - the layer STEM, so an existing and a
+proposed store's layer are one row; absent = `HiddenByDefault`, the OS base map and the contours), `ViewportId` ('' =
+the sheet's site plans), `WidthMm` (minimum), `TextSizeMm`, `SwatchWidthMm` x `SwatchHeightMm` (12 x 6 - the smallest
+that carries two of the woodland's and the water's glyphs), `Data : { Rows, Sources }`. A row: `{ Key, Label, Kind,
+Fill { Hex, Opacity }, Hatch { Key, Scale, RotationDeg, Colour, StrokePt? }, Line { Hex, WidthMm, DashMm } }`, every
+key in one order, so the link compares stored and fresh as one string.
+
+### 17.4 Traps
+
+- **The drop announces its LAST leaf**, which for a legend is a text: the follower's reasons need 'annotation' as well
+  as 'shape' or a legend dropped empty waits for the next refresh.
+- **Hand-placed knit copies.** Mixed Woodland's conifer and Ponds & Lakes' ripple each carry a copy one tile away (from
+  before `SeamCopies`); once tiles are laid side by side it lands exactly on another mark. Counted twice, a 10 x 5
+  swatch "held two" woodland glyphs that were one tree drawn twice. Marks landing on the same box are one mark.
+- **Location plans.** RB05 D13 has a 1:1250 block plan and two 1:5000 location plans. Read together, the location plans
+  added a grey line for every layer - and a layer switched off on the block plan stayed listed in its greyed look. The
+  sheet's legend reads block plans only unless location plans are all it has; Reads can still pick one by hand.
+- **An odd-sided arc misses its tip**: a capsule with five sides per half fell 0.006 mm short of a round cap's reach.
+- **Engine slots keep what a patch leaves out**: every opacity is written on every shape, or a 10% proposal wash would
+  hand its 10% to the grass swatch that moved up into its slot.
+- **Python inside a Bash heredoc drops a backslash** - `'The sheet\'s'` landed as `'The sheet's'` and the whole panel
+  module failed to parse. `Na__Verify__Exports__` does not parse bodies; `node --check` on an `.mjs` copy does.
+
+### 17.5 Open, deliberately
+
+- A legend follows its own sheet only. One on a sheet that is not open catches up when it next comes up, as a drawing
+  title does; a batch PDF of the pack prints what each legend last read.
+- No headings by group (Boundaries, Buildings, Soft Landscape): offered, not built.
+- A swatch cannot be restyled by hand (no `adopt`): its look is the drawing's, and a hand edit would be undone on the
+  next rebuild.
+- NOT tried by Adam; NOT in ValeVision (it has no site plan drawings).

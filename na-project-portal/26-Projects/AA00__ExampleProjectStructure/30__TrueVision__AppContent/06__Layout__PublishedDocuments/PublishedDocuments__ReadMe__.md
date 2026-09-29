@@ -66,6 +66,7 @@ what crashes phones.
 │
 ├── PublishedDocuments__ReadMe__.md            This file
 ├── PublishedDocuments__Index__.json           WHICH documents exist, and their state
+├── PublishedDocuments__ShareLinks__.json      Every document's Share link, and what it opens
 │
 ├── 00__Archive__Revisions/                    Local only — never pushed to R2 or git
 │   ├── Archive__ReadMe__.note
@@ -120,6 +121,40 @@ what crashes phones.
 
 `AA00_T02_D03` and `AA00_T02_D04` are named in the index as **not published**. They have
 no folder. That is the whole mechanism for the grey mask.
+
+---
+
+## The share link record (added 29-Sep-2026, TrueVision v2.165.0)
+
+`PublishedDocuments__ShareLinks__.json` sits beside the index. It lists **every document of
+the project a person can be sent** - each drawing in register order (published or not), the
+Project Specification, the Document Register and each Design Statement - with the link its
+Share button hands out, and what that link opens:
+
+```
+https://www.noble-architecture.com/s/?AA00&open=Sheet_001
+            |                       |          |
+            s/index.html            project    document key
+            (never moves)           code       (never changes)
+```
+
+- **The link carries no folder, no year and no app path.** `s/index.html` at the website root
+  looks the code up in `q/index.json` (the QR resolver's index) and opens the project with the
+  key handed through; the app opens that document's **read** view.
+- **A drawing's key is its SHEET ID, not its number.** D02 is worked out from the register's
+  order - one dragged row renumbers every drawing below it - so a link carrying D02 would
+  quietly open a different drawing. The sheet id survives renaming, renumbering, a new phase
+  and a new revision.
+- **Recorded, not worked out.** The Share buttons read `Share__Url` from here, and the app
+  reads `Share__Target` before it falls back on its own rules, so when the rules change a
+  project published under the old ones goes on handing out - and answering - the same links.
+  `ShareLinks__Aliases` is reserved for the day a key has to be renamed.
+- **Not recorded: whether a drawing is published.** The index says that; a record carried to
+  R2 by a statement publish must never claim a drawing R2 does not hold.
+- Written just before the index by every publish, and again whenever a statement is published.
+  The reader in `52__System__Layout__PublishedDocuments` never needs it.
+
+The statement entry here is illustrative - AA00 has no statements folder.
 
 ---
 

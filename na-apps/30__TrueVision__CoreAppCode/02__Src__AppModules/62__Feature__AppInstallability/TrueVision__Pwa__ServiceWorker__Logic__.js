@@ -34,6 +34,29 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.9.50
+// - Token 2026-09-29-01, still undeployed, also covers the statement figure
+//   titles (v2.165.0): the Statement Writer's picture menu and cards import
+//   the new Md__Figure module, and the editor stops importing the cards'
+//   CaptionMarkdown, which is gone - an old editor against new cards would
+//   not link. If the earlier releases ship without it, bump again.
+//
+// 29-Sep-2026 - Version 1.9.49
+// - Token 2026-09-29-01, still undeployed, also covers the site plan legend
+//   (v2.164.0): the Parametric Scrapbook's panel imports the new SiteLegend__
+//   and SiteLegendLink__ modules and HatchPatterns' new TileMarks, and the
+//   link imports Viewport2d's new SitePlanLegend and SitePlanStoreId exports.
+//   If the earlier releases ship without it, bump again for v2.164.0.
+//
+// 29-Sep-2026 - Version 1.9.48
+// - Token 2026-09-29-01 (bumped for the Statement Writer's Standard Sections,
+//   v2.162.0, and not yet deployed) also covers the specification lockstep
+//   (v2.163.0): the new SpecData__Lockstep__ and SpecLockstep__ modules import
+//   new exports from the State, Document and Draft units, and the Editing,
+//   Transport and ModeController modules import the new unit - a warm cache
+//   must not serve the old half of any of them. If v2.162.0 ships on its own
+//   first, bump again for v2.163.0.
+//
 // 28-Sep-2026 - Version 1.9.47
 // - Token bumped (2026-09-28-01) for per-scene lighting (v2.161.0): the
 //   lighting setup, the scene transition, the scene editor, the batch walk,
@@ -602,7 +625,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-28-01';                                                            // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-29-01';                                                            // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

@@ -38,6 +38,12 @@
 //   taken from the picture as it is actually laid out at the moment of
 //   cropping, and the frame carries a zoom of its own for the drag handle to
 //   go on working exactly as it did.
+// - A FIGURE WITH A TITLE IS A <figure> HOLDING THE PICTURE AND ITS
+//   <figcaption> (Na__LayoutEditor__Statement__Md__Figure__). Everything above
+//   is done to the PICTURE inside it, through MapBody, and the figure is put
+//   back round the answer with the picture's margins copied onto it - so a
+//   justify moves the figure, title and all, and a crop leaves the title where
+//   it was. The menu's Title switch shows or hides the title.
 //
 // INTEGRATION:
 // - Attached to each frozen picture card by Na__LayoutEditor__Statement__Editor__Cards__.
@@ -53,6 +59,18 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.2.0
+// - Figure titles: Read, Justify, SetDress, Uncrop and the crop tool work on
+//   the picture inside a <figure> and keep the figure (and the blank lines
+//   under it) round the answer. Read also says Titled. The menu has a Title
+//   switch, handed to the card (onTitle) so it can take in the old caption
+//   paragraph under the picture.
+//
+// 29-Sep-2026 - Version 1.1.0
+// - Frame and Drop shadow switches in the menu, each on its own: the classes
+//   na-figure--no-frame and na-figure--no-shadow beside na-figure (SetDress).
+//   The crop and the uncrop carry both switches with the frame class.
+//
 // 20-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -67,6 +85,7 @@
     // ------------------------------------------------------------
     import { Na__ContextMenu__Ui__Open, Na__ContextMenu__Ui__Close } from '../../../27__System__ContextMenuSystem/Na__ContextMenuSystem__Ui__MenuRenderer__.js';
     import { Na__LeCfg__GetLabel } from '../../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
+    import { Na__LeStmtFigMd__Parts, Na__LeStmtFigMd__MapBody, Na__LeStmtFigMd__TitleState, Na__LeStmtFigMd__SetTitle } from '../02__Core__Markdown/Na__LayoutEditor__Statement__Md__Figure__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -81,6 +100,8 @@
     const Na__LeStmtFig__PX_PER_MM = 96 / 25.4;                                 // <-- A CSS millimetre, which is what the document is laid out in
     const Na__LeStmtFig__MIN_SPAN  = 0.08;                                      // <-- A crop may not take more than 92% of either side away
     const Na__LeStmtFig__FIGURE_CLASS = 'na-figure';                            // <-- The frame - border and shadow - lives in the stylesheet under this name
+    const Na__LeStmtFig__NO_FRAME     = 'na-figure--no-frame';                  // <-- Worn beside it: the rule is switched off, the shadow stays
+    const Na__LeStmtFig__NO_SHADOW    = 'na-figure--no-shadow';                 // <-- Worn beside it: the shadow is switched off, the rule stays
     // ------------------------------------------------------------
 
     // MODULE CONSTANTS | The Eight Handles, and Which Edges Each One Moves
@@ -173,12 +194,13 @@
 
     // FUNCTION | Read a Figure's Current State Out of Its Own Markup
     // ------------------------------------------------------------
-    // Returns { Cropped, Justify, Src }. Nothing is remembered between calls:
-    // the markup is asked every time, so the menu can never tick a state the
-    // document does not actually hold.
+    // Returns { Cropped, Justify, Src, Frame, Shadow, Titled }. Nothing is
+    // remembered between calls: the markup is asked every time, so the menu
+    // can never tick a state the document does not actually hold. A figure is
+    // read through to the picture inside it.
     // ------------------------------------------------------------
     function Na__LeStmtFig__Read(markup) {
-        const text   = String(markup || '');
+        const text   = Na__LeStmtFigMd__Parts(markup).Body;
         const parts  = Na__LeStmtFig__SplitStyle(text);
         const style  = parts ? parts.Style : '';
         const left   = (Na__LeStmtFig__ReadDecl(style, 'margin-left')  || '').toLowerCase();
@@ -190,11 +212,99 @@
 
         const source = /<img\b[^>]*?\ssrc\s*=\s*["']([^"']+)["']/i.exec(text);
 
+        // THE FRAME AND THE SHADOW ARE READ SEPARATELY, because each can be
+        // switched off on its own. A figure written before the class existed
+        // spells them out inline, and those count too.
+        const classes = Na__LeStmtFig__TagClasses(text);
+        const worn    = classes.includes(Na__LeStmtFig__FIGURE_CLASS);
+        const inline  = (property) => {
+            const value = (Na__LeStmtFig__ReadDecl(style, property) || '').toLowerCase();
+            return !!value && value !== 'none' && !/^0(px|mm)?$/.test(value);  // <-- "0 2px 10px ..." is a real shadow; only a bare nought is none
+        };
+
         return {
             Cropped : /^\s*<div\b[^>]*\boverflow\s*:\s*hidden/i.test(text),
             Justify : justify,
-            Src     : source ? source[1] : ''
+            Src     : source ? source[1] : '',
+            Frame   : (worn && !classes.includes(Na__LeStmtFig__NO_FRAME))  || inline('border'),
+            Shadow  : (worn && !classes.includes(Na__LeStmtFig__NO_SHADOW)) || inline('box-shadow'),
+            Titled  : Na__LeStmtFigMd__TitleState(markup).Shown
         };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Class Names on a Figure's First Tag
+    // ------------------------------------------------------------
+    // The first tag is the figure's outermost element in both forms - the
+    // picture itself, or the frame round a cropped one - and it is the one
+    // that wears the frame.
+    // ------------------------------------------------------------
+    function Na__LeStmtFig__TagClasses(markup) {
+        const tag   = /<[A-Za-z][A-Za-z0-9-]*\b[^<>]*>/.exec(String(markup || ''));
+        const found = tag ? /\sclass\s*=\s*["']([^"']*)["']/i.exec(tag[0]) : null;
+        return found ? found[1].split(/\s+/).filter(Boolean) : [];
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Rewrite the Class Names on a Figure's First Tag
+    // ------------------------------------------------------------
+    // On the string, like every other change here. A new class attribute goes
+    // straight after the tag name, where every figure in these statements
+    // already carries it; an empty list takes the attribute away altogether.
+    // ------------------------------------------------------------
+    function Na__LeStmtFig__WriteClasses(markup, names) {
+        const text  = String(markup || '');
+        const tag   = /<[A-Za-z][A-Za-z0-9-]*\b[^<>]*>/.exec(text);
+        if (!tag) return text;
+
+        const value = names.join(' ');
+        let   next;
+        if (/\sclass\s*=\s*["'][^"']*["']/i.test(tag[0])) {
+            next = value
+                ? tag[0].replace(/(\sclass\s*=\s*["'])[^"']*(["'])/i, '$1' + value + '$2')
+                : tag[0].replace(/\sclass\s*=\s*["'][^"']*["']/i, '');
+        } else {
+            next = value ? tag[0].replace(/^<([A-Za-z][A-Za-z0-9-]*)\b/, '<$1 class="' + value + '"') : tag[0];
+        }
+        return text.slice(0, tag.index) + next + text.slice(tag.index + tag[0].length);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Switch a Figure's Frame or Its Shadow On or Off
+    // ------------------------------------------------------------
+    // part  'frame' or 'shadow'
+    //
+    // Off wears the modifier class, and takes away any inline border or
+    // shadow an older figure spelled out, which would otherwise go on drawing
+    // over the class. On takes the modifier off, and a picture that never wore
+    // the frame at all - the logo, say - gains the class with the OTHER half
+    // switched off, so asking for a frame does not bring a shadow with it.
+    // With both off the figure classes go altogether, so a plain picture is
+    // written as a plain picture. In a figure it is the picture that is
+    // dressed, never the figure round it.
+    // ------------------------------------------------------------
+    function Na__LeStmtFig__SetDress(markup, part, on) {
+        return Na__LeStmtFigMd__MapBody(markup, (picture) => {
+            const state    = Na__LeStmtFig__Read(picture);
+            const modifier = (part === 'shadow') ? Na__LeStmtFig__NO_SHADOW : Na__LeStmtFig__NO_FRAME;
+            const other    = (part === 'shadow') ? Na__LeStmtFig__NO_FRAME  : Na__LeStmtFig__NO_SHADOW;
+            const otherOn  = (part === 'shadow') ? state.Frame : state.Shadow;
+
+            let out = on ? picture : Na__LeStmtFig__WriteDecl(picture, (part === 'shadow') ? 'box-shadow' : 'border', null);
+
+            const kept = Na__LeStmtFig__TagClasses(out).filter((name) =>
+                name !== Na__LeStmtFig__FIGURE_CLASS && name !== Na__LeStmtFig__NO_FRAME && name !== Na__LeStmtFig__NO_SHADOW);
+
+            if (!on && !otherOn) return Na__LeStmtFig__WriteClasses(out, kept);
+
+            const dress = [ Na__LeStmtFig__FIGURE_CLASS ];
+            if (!on)      dress.push(modifier);
+            if (!otherOn) dress.push(other);
+            return Na__LeStmtFig__WriteClasses(out, dress.concat(kept));
+        });
     }
     // ------------------------------------------------------------
 
@@ -203,21 +313,25 @@
     // ------------------------------------------------------------
     // A picture is inline by default, so it sits wherever the line box puts it
     // and neither margin does anything. Block is what makes auto margins mean
-    // centre and right, so it goes in with them.
+    // centre and right, so it goes in with them. In a figure the picture is
+    // justified and MapBody copies its margins onto the figure, which is what
+    // actually moves across the page with its title under it.
     // ------------------------------------------------------------
     function Na__LeStmtFig__Justify(markup, justify) {
-        let out = Na__LeStmtFig__WriteDecl(markup, 'display', 'block');
-        if (justify === 'centre') {
-            out = Na__LeStmtFig__WriteDecl(out, 'margin-left',  'auto');
-            out = Na__LeStmtFig__WriteDecl(out, 'margin-right', 'auto');
-        } else if (justify === 'right') {
-            out = Na__LeStmtFig__WriteDecl(out, 'margin-left',  'auto');
-            out = Na__LeStmtFig__WriteDecl(out, 'margin-right', '0');
-        } else {
-            out = Na__LeStmtFig__WriteDecl(out, 'margin-left',  '0');
-            out = Na__LeStmtFig__WriteDecl(out, 'margin-right', 'auto');
-        }
-        return out;
+        return Na__LeStmtFigMd__MapBody(markup, (picture) => {
+            let out = Na__LeStmtFig__WriteDecl(picture, 'display', 'block');
+            if (justify === 'centre') {
+                out = Na__LeStmtFig__WriteDecl(out, 'margin-left',  'auto');
+                out = Na__LeStmtFig__WriteDecl(out, 'margin-right', 'auto');
+            } else if (justify === 'right') {
+                out = Na__LeStmtFig__WriteDecl(out, 'margin-left',  'auto');
+                out = Na__LeStmtFig__WriteDecl(out, 'margin-right', '0');
+            } else {
+                out = Na__LeStmtFig__WriteDecl(out, 'margin-left',  '0');
+                out = Na__LeStmtFig__WriteDecl(out, 'margin-right', 'auto');
+            }
+            return out;
+        });
     }
     // ------------------------------------------------------------
 
@@ -310,9 +424,13 @@
     // ------------------------------------------------------------
     // The picture keeps the size the crop gave it and takes the border and the
     // shadow back off the frame, so undoing a crop changes the trim and
-    // nothing else about how the figure looks.
+    // nothing else about how the figure looks. A figure's title stays put.
     // ------------------------------------------------------------
     function Na__LeStmtFig__Uncrop(markup, justify) {
+        return Na__LeStmtFigMd__MapBody(markup, (picture) => Na__LeStmtFig__UncropPicture(picture, justify));
+    }
+
+    function Na__LeStmtFig__UncropPicture(markup, justify) {
         // THIS IS DONE ON THE STRING, NOT THROUGH THE DOM, and the reason is
         // worth stating because the DOM version looked cleaner and was wrong:
         // reading a style back off an element returns the BROWSER's idea of it.
@@ -368,13 +486,19 @@
         };
     }
 
-    // HELPER FUNCTION | The Figure Class, If the Picture Is Wearing One
+    // HELPER FUNCTION | The Figure Classes, If the Picture Is Wearing Them
+    // ------------------------------------------------------------
+    // The frame class AND its two switches travel together, so a figure whose
+    // shadow was switched off keeps it off through a crop and an uncrop.
     // ------------------------------------------------------------
     function Na__LeStmtFig__ReadClass(markup) {
         const found = /\bclass\s*=\s*["']([^"']*)["']/i.exec(String(markup || ''));
         if (!found) return null;
         const names = found[1].split(/\s+/).filter(Boolean);
-        return names.includes(Na__LeStmtFig__FIGURE_CLASS) ? Na__LeStmtFig__FIGURE_CLASS : null;
+        if (!names.includes(Na__LeStmtFig__FIGURE_CLASS)) return null;
+        return names.filter((name) => name === Na__LeStmtFig__FIGURE_CLASS
+                                    || name === Na__LeStmtFig__NO_FRAME
+                                    || name === Na__LeStmtFig__NO_SHADOW).join(' ');
     }
     // ------------------------------------------------------------
 
@@ -554,14 +678,18 @@
         const trims = (rect.Left > 0.001 || rect.Top > 0.001 || rect.Right < 0.999 || rect.Bottom < 0.999);
         if (!apply || !trims) return;
 
+        // THE PICTURE IS CROPPED, NOT THE FIGURE: in a figure the title stays
+        // under the new frame, and the blank lines under the block stay too.
         const markup  = crop.Card.getAttribute('data-na-stmt-src') || '';
-        const state   = Na__LeStmtFig__Read(markup);
-        const plain   = state.Cropped ? Na__LeStmtFig__Uncrop(markup, state.Justify) : markup;
-        const dress   = Na__LeStmtFig__Dress(plain);
-        const source  = Na__LeStmtFig__Read(plain).Src;
+        const next    = Na__LeStmtFigMd__MapBody(markup, (picture) => {
+            const state  = Na__LeStmtFig__Read(picture);
+            const plain  = state.Cropped ? Na__LeStmtFig__UncropPicture(picture, state.Justify) : picture;
+            const dress  = Na__LeStmtFig__Dress(plain);
+            const source = Na__LeStmtFig__Read(plain).Src;
+            return Na__LeStmtFig__BuildCrop(source, rect, crop.Shown, dress, state.Justify);
+        });
 
-        crop.Card.setAttribute('data-na-stmt-src',
-            Na__LeStmtFig__BuildCrop(source, rect, crop.Shown, dress, state.Justify));
+        crop.Card.setAttribute('data-na-stmt-src', next);
         crop.OnChanged();
     }
     // ------------------------------------------------------------
@@ -581,8 +709,9 @@
 
     // FUNCTION | Open the Figure Menu at the Pointer
     // ------------------------------------------------------------
-    // handlers: { onChanged, onRaw, onRemove } - what the card already knows
-    // how to do, offered here as well so one gesture reaches everything.
+    // handlers: { onChanged, onRaw, onRemove, onTitle } - what the card
+    // already knows how to do, offered here as well so one gesture reaches
+    // everything. onTitle(on) switches the title under the picture.
     // ------------------------------------------------------------
     function Na__LeStmtFig__OpenMenu(event, card, handlers) {
         const opts   = handlers || {};
@@ -601,6 +730,38 @@
             isActive : state.Justify === where,
             action   : () => write(Na__LeStmtFig__Justify(markup, where))
         }));
+
+        // THE FRAME AND THE SHADOW, EACH ITS OWN SWITCH. Every figure wears
+        // both by default; the dot says which are on, and picking a row flips
+        // just that one.
+        const onOff    = (on) => on ? Na__LeCfg__GetLabel('StatementFigureOn', 'On') : Na__LeCfg__GetLabel('StatementFigureOff', 'Off');
+        const dressing = [ {
+            group    : 'statementFigureDress',
+            label    : Na__LeCfg__GetLabel('StatementFigureFrame', 'Frame'),
+            meta     : onOff(state.Frame),
+            isActive : state.Frame,
+            action   : () => write(Na__LeStmtFig__SetDress(markup, 'frame', !state.Frame))
+        }, {
+            group    : 'statementFigureDress',
+            label    : Na__LeCfg__GetLabel('StatementFigureShadow', 'Drop shadow'),
+            meta     : onOff(state.Shadow),
+            isActive : state.Shadow,
+            action   : () => write(Na__LeStmtFig__SetDress(markup, 'shadow', !state.Shadow))
+        } ];
+
+        // THE TITLE UNDER THE PICTURE, ON OR OFF. The card does the switching
+        // when it can, because only the card can see the old caption paragraph
+        // under the picture and take it in as the title.
+        const titling = [ {
+            group    : 'statementFigureTitle',
+            label    : Na__LeCfg__GetLabel('StatementFigureTitle', 'Title'),
+            meta     : onOff(state.Titled),
+            isActive : state.Titled,
+            action   : () => {
+                if (typeof opts.onTitle === 'function') opts.onTitle(!state.Titled);
+                else write(Na__LeStmtFigMd__SetTitle(markup, !state.Titled));
+            }
+        } ];
 
         const trimming = [ {
             group  : 'statementFigureCrop',
@@ -635,6 +796,8 @@
             Na__LeCfg__GetLabel('StatementFigureMenuTitle', 'Picture'),
             [
                 { id : 'statementFigurePlace',  rows : placing    },
+                { id : 'statementFigureDress',  rows : dressing   },
+                { id : 'statementFigureTitle',  rows : titling    },
                 { id : 'statementFigureCrop',   rows : trimming   },
                 { id : 'statementFigureMarkup', rows : markupRows }
             ],
@@ -665,6 +828,7 @@
         Na__LeStmtFig__IsCropping,
         Na__LeStmtFig__Read,
         Na__LeStmtFig__Justify,
+        Na__LeStmtFig__SetDress,
         Na__LeStmtFig__Uncrop,
         Na__LeStmtFig__BuildCrop,
         Na__LeStmtFig__Dress,

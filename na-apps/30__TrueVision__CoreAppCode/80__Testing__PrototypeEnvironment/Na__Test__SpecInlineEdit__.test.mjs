@@ -69,7 +69,8 @@ const tick = (ms) => new Promise((resolve) => setTimeout(resolve, ms || 0));
 // -----------------------------------------------------------------------------
 
     const IMPORT = /^[ \t]*import\s+(\{[\s\S]*?\}|[\w*\s,]+)\s+from\s+'([^']+)';[ \t]*(?:\/\/[^\n]*)?$/gm;
-    const UNITS  = [ 'State', 'Document', 'Draft', 'Editing', 'Transport' ];
+    const UNITS  = [ 'State', 'Document', 'Draft', 'Lockstep', 'Editing', 'Transport' ];
+    const STMT_LOCK = path.resolve(SRC, '51__System__LayoutEditor', '52__Feature__StatementWriter', '01__Core__Data', 'Na__LayoutEditor__Statement__Lockstep__.js');
 
     // One session: every unit transformed once and written to its own folder,
     // so the units of one session share each other's instances and a second
@@ -77,6 +78,7 @@ const tick = (ms) => new Promise((resolve) => setTimeout(resolve, ms || 0));
     let sessions = 0;
     async function loadSession() {
         const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'na_spec_inline_' + (++sessions) + '_'));
+        fs.writeFileSync(path.join(dir, 'package.json'), '{"type":"module"}', 'utf8');   // <-- The copies keep their .js names: without this Node 20 reads them as CommonJS
         const url = (name) => pathToFileURL(path.join(dir, name)).href;
         const transform = (file) => {
             let src = fs.readFileSync(path.join(SPEC, file), 'utf8').replace(/\r\n/g, '\n');
@@ -84,12 +86,14 @@ const tick = (ms) => new Promise((resolve) => setTimeout(resolve, ms || 0));
             src = src.replace(IMPORT, (whole, names, spec) => {
                 const unit = /^\.\/(Na__LayoutEditor__SpecData__(?:\w+__)?\.js)$/.exec(spec);
                 if (unit) return 'import ' + names + ' from ' + JSON.stringify(url(unit[1])) + ';';
+                if (/Na__LayoutEditor__Statement__Lockstep__\.js$/.test(spec)) return 'import ' + names + ' from ' + JSON.stringify(url('Na__LayoutEditor__Statement__Lockstep__.js')) + ';';   // <-- Pure: the real rules, not a stub
                 names.trim().slice(1, -1).split(',').map((s) => s.trim()).filter(Boolean).forEach((s) => stubbed.push(s.split(/\s+as\s+/).pop()));
                 return '';
             });
             const head = stubbed.map((n) => 'const ' + n + ' = (...args) => globalThis.__spec[' + JSON.stringify(n) + '](...args);').join('\n');
             fs.writeFileSync(path.join(dir, file), head + '\n' + src, 'utf8');
         };
+        fs.copyFileSync(STMT_LOCK, path.join(dir, 'Na__LayoutEditor__Statement__Lockstep__.js'));
         UNITS.forEach((unit) => transform('Na__LayoutEditor__SpecData__' + unit + '__.js'));
         transform('Na__LayoutEditor__SpecData__.js');
         return import(url('Na__LayoutEditor__SpecData__.js'));

@@ -2,7 +2,7 @@
     "LayoutEditor__ScrapbookParametric__Meta": {
         "Meta__FileName"    : "Na__LayoutEditor__ScrapbookParametric__Config__.json",
         "Meta__Description" : "The Parametric Scrapbook: scripted sheet elements that are dragged onto the paper like any scrapbook item and then keep answering to their parameters, the way an AutoCAD dynamic block does. Owned by Na__LayoutEditor__ScrapbookParametric__.js (the engine); each element type has a module of its own and a block of its own here. A parametric element lands as an ordinary group of vectors and text, so it moves, copies, prints, exports and undoes like anything drawn by hand; the group record carries a Group__Parametric block, which is what lets it be regenerated. Ungrouping it explodes it: the vectors and text stay, the parameters go.",
-        "Meta__Version"     : "1.7.0",
+        "Meta__Version"     : "1.8.0",
         "Meta__Created"     : "19-Sep-2026",
         "Meta__Author"      : "Adam Noble - Noble Architecture",
 
@@ -16,7 +16,7 @@
 
     "LayoutEditor__ScrapbookParametric__Elements": {
         "Elements__Description" : "The tiles the Parametric Scrapbook section shows, in this order. An element is a PRESET of a type: Element__Type names a registered element module, Element__Id is the element's own (two elements may share a type; without one it is the type), Element__Params are laid onto every element dropped from it, and Element__PreviewParams are added for the tile and the drag ghost only - a title's tile reads EXISTING EAST ELEVATION where a real drop reads its own viewport. Element__DrawingTypes lists the drawing types an element is offered on ('siteplan', 'architectural'); an element without the key is offered on every sheet. Elements__TypeNames is what each type is called on the sheet's group tag and in the panel.",
-        "Elements__TypeNames"   : { "ScaleBar" : "Scale Bar", "DrawingTitle" : "Drawing Title", "ProjectQr" : "Project Portal", "AreaSchedule" : "Area Schedule", "CabinetInfill" : "Cabinet Infill" },
+        "Elements__TypeNames"   : { "ScaleBar" : "Scale Bar", "DrawingTitle" : "Drawing Title", "ProjectQr" : "Project Portal", "AreaSchedule" : "Area Schedule", "CabinetInfill" : "Cabinet Infill", "SiteLegend" : "Site Plan Legend" },
         "Elements__List"        : [
             {
                 "Element__Id"            : "DrawingTitleWithBar",
@@ -93,6 +93,21 @@
                 "Element__DrawingTypes"  : [ "architectural" ],
                 "Element__RealSizeMm"    : [ 1800, 600 ],
                 "Element__RealSizeNote"  : "Width and height in real millimetres, drawn at the scale of the drawing the tile is dropped on: 36 x 12 mm on a 1:50 plan, 18 x 6 on a 1:100 one. Dropped anywhere else it is the block's own WidthMm x HeightMm."
+            },
+            {
+                "Element__Id"            : "SiteLegend",
+                "Element__Type"          : "SiteLegend",
+                "Element__Name"          : "Site Plan Legend",
+                "Element__Description"   : "A quick-reference legend of every wash, hatch and line this sheet's site plans actually show inside their frames - the red line, the proposal, woodland, grass, water, hard standing, removals - each with a swatch drawn exactly as the drawing draws it. It re-writes itself whenever a layer is switched on or off, a colour or pattern is changed, or a site plan is moved or cropped. Drag the arrow to set how wide it is at least; click the triangle for more columns, to leave the lines off, or to take a row off the legend.",
+                "Element__DrawingTypes"  : [ "siteplan" ],
+                "Element__PreviewParams" : { "Data" : { "Rows" : [
+                    { "Key" : "TrueVision__SitePlan__RedLineBoundary",     "Label" : "Red Line Boundary",           "Kind" : "line", "Line" : { "Hex" : "#E53935", "WidthMm" : 0.529, "DashMm" : [] } },
+                    { "Key" : "TrueVision__SitePlan__ProposedBuildings",   "Label" : "Proposed - New Construction", "Kind" : "area", "Fill" : { "Hex" : "#FF0000", "Opacity" : 0.1 }, "Line" : { "Hex" : "#E53935", "WidthMm" : 0.706, "DashMm" : [] } },
+                    { "Key" : "TrueVision__SitePlan__TreesMixedWoodland",  "Label" : "Mixed Woodland",              "Kind" : "area", "Fill" : { "Hex" : "#DCEDCF", "Opacity" : 1 }, "Hatch" : { "Key" : "SitePlanHatch__MixedWoodland", "Scale" : 1, "RotationDeg" : 0, "Colour" : "#43A047" }, "Line" : { "Hex" : "#43A047", "WidthMm" : 0.265, "DashMm" : [] } },
+                    { "Key" : "TrueVision__SitePlan__Grassland",           "Label" : "Grassland",                   "Kind" : "area", "Fill" : { "Hex" : "#E5F2D6", "Opacity" : 1 }, "Hatch" : { "Key" : "SitePlanHatch__Grassland", "Scale" : 1, "RotationDeg" : 0, "Colour" : "#43A047" }, "Line" : { "Hex" : "#666666", "WidthMm" : 0.176, "DashMm" : [] } },
+                    { "Key" : "TrueVision__SitePlan__Waterbodies",         "Label" : "Waterbodies",                 "Kind" : "area", "Fill" : { "Hex" : "#BAE4FD", "Opacity" : 1 }, "Hatch" : { "Key" : "SitePlanHatch__PondsAndLakes", "Scale" : 1, "RotationDeg" : 0, "Colour" : "#1E88E5" }, "Line" : { "Hex" : "#1E88E5", "WidthMm" : 0.353, "DashMm" : [] } },
+                    { "Key" : "TrueVision__SitePlan__TreesToRemove",       "Label" : "Trees To Be Removed",         "Kind" : "line", "Line" : { "Hex" : "#E53935", "WidthMm" : 0.265, "DashMm" : [ 2.5, 1.5 ] } }
+                ], "Sources" : 1 } }
             }
         ]
     },
@@ -391,6 +406,55 @@
         "CabinetInfill__FillNote"               : "The fill underneath is OFF as dropped: the cross and the label alone, so the cabinet the model draws shows through. Switched on, a rectangle of this colour lies under the cross and blanks out whatever is under the infill, with a rule of FillLineColour at FillLinePt round it - Adam's Vectors standard, Soft Black at 0.3 pt - so the white does not read as a hole with no edge. It is an ordinary vector - open the group and give the fill or its rule any colour or weight, or take the rule off, and the element keeps that choice through every rebuild after, as it keeps anything else restyled by hand."
     },
 
+    "LayoutEditor__ScrapbookParametric__SiteLegend": {
+        "SiteLegend__Description"      : "Element six: the site plan legend (Na__LayoutEditor__ScrapbookParametric__SiteLegend__.js), asked for by Adam on 29-Sep-2026: 'a legend automatically for whatever hatches are found in the current drawing (the hatches and the shading, etc.), and a little quick-reference legend table'. One row per layer the sheet's site plans actually paint INSIDE THEIR FRAMES - an AREA row for a layer whose wash or hatch shows, a LINE row for one drawn as lines alone. The origin is the LEFT END OF THE TOP RULE, with the title above it and the rows below, as the area schedule's is. THE ROWS ARE NOT HERE AND ARE NOT TYPED: they arrive as the Data parameter, read by Na__LayoutEditor__ScrapbookParametric__SiteLegendLink__.js off the very build the site plan painter paints, so a legend always says what the drawing beside it shows.",
+
+        "SiteLegend__WidthMm"          : 60,
+        "SiteLegend__WidthMaxMm"       : 420,
+        "SiteLegend__WidthStepMm"      : 2,
+        "SiteLegend__WidthNote"        : "The width the legend is AT LEAST, in paper millimetres: every column is as wide as its swatch, the gap and its longest label measure, and the legend is never drawn narrower than its words, whatever this says. Set it wider to line the rule up with a title block; any width it adds is shared between the columns. The stretch arrow drags it in 2 mm steps.",
+
+        "SiteLegend__Columns"          : 0,
+        "SiteLegend__ColumnsMax"       : 4,
+        "SiteLegend__AutoRowsPerColumn": 12,
+        "SiteLegend__ColumnGapMm"      : 6,
+        "SiteLegend__ColumnsNote"      : "Rows run DOWN each column and then on to the next, as a list is read. Columns 0 is AUTOMATIC, as dropped: another column every AutoRowsPerColumn rows, so RB05's proposed site plan - 22 rows - lands as two columns of 11 rather than one strip 170 mm down the sheet. The lookup triangle and the panel offer automatic or one to ColumnsMax; a number chosen by hand is kept however many rows arrive.",
+
+        "SiteLegend__TextSizeMm"       : 2.2,
+        "SiteLegend__TextWeight"       : 400,
+        "SiteLegend__TextColour"       : "#172b3a",
+        "SiteLegend__MutedColour"      : "#5f6b74",
+        "SiteLegend__CharWidthRatio"   : 0.55,
+        "SiteLegend__TextNote"         : "House type sizes, as the area schedule's. EVERY GAP BELOW IS TAKEN AS A RATIO TO TextSizeMm, so a larger type size sets the whole legend larger without anything colliding. CharWidthRatio is the average letter width the legend guesses with before the paper's own font metrics have loaded; it is refit to the real ones the moment they do.",
+
+        "SiteLegend__TitleSizeMm"      : 3.2,
+        "SiteLegend__TitleWeight"      : 600,
+        "SiteLegend__TitleColour"      : "#172b3a",
+        "SiteLegend__TitleAboveRuleMm" : 1.8,
+        "SiteLegend__Heading"          : "Legend",
+        "SiteLegend__RulePt"           : 0.4,
+        "SiteLegend__RuleColour"       : "#172b3a",
+        "SiteLegend__TitleNote"        : "The title over a 0.4 pt rule, the way the area schedule and a drawing title are set; no box round the rows, because a legend read beside a drawing is read by its swatches. Typed over in the panel, the title is kept.",
+
+        "SiteLegend__FirstRowGapMm"    : 2.0,
+        "SiteLegend__RowGapMm"         : 1.6,
+        "SiteLegend__SwatchWidthMm"    : 12,
+        "SiteLegend__SwatchHeightMm"   : 6,
+        "SiteLegend__SwatchTextGapMm"  : 2.4,
+        "SiteLegend__SwatchNote"       : "A swatch is drawn exactly as the drawing draws that layer: the WASH in its fill colour and opacity, the HATCH's own glyphs at the pattern's paper size, turn, line weight and ink, and the EDGE in the layer's line colour, weight and dash. A line row is a swatch-wide run of the line. Everything comes from the viewport the layer was read from - a colour or pattern changed on that viewport shows here too. 12 x 6 mm is the smallest that carries TWO of the woodland's and the water's glyphs (a 10 x 5 swatch holds one, and 'mixed' woodland shown as one conifer reads as a plantation); the grass tufts are sparse enough that one sits in the middle at this size.",
+
+        "SiteLegend__GlyphInsetMm"     : 0.35,
+        "SiteLegend__GlyphSearchStepMm": 0.5,
+        "SiteLegend__GlyphMax"         : 16,
+        "SiteLegend__GlyphNote"        : "THE GLYPHS ARE DRAWN, NOT TILED. A hatch on a sheet vector is anchored to the sheet's corner, so a small swatch would show whatever part of the tile happened to fall on it - often nothing, on grass whose tile is 28 x 26 mm with ten tufts - and would change every time the legend moved. Instead the swatch-sized window of the pattern holding the most WHOLE glyphs (never half a tree) is found, a half millimetre at a time, and those glyphs are written as ordinary vectors GlyphInsetMm clear of the edge. GlyphMax caps how many one swatch carries.",
+
+        "SiteLegend__ShowLines"        : true,
+        "SiteLegend__HiddenByDefault"  : [ "TrueVision__SitePlan__Contours", "TrueVision__SitePlan__OsMapping", "TrueVision__SitePlan__OsMappingMainRoads", "TrueVision__SitePlan__OsMappingMajorFeature", "TrueVision__SitePlan__OsMappingMinorStreets" ],
+        "SiteLegend__RowsNote"         : "What is listed and in what order. A layer is listed when the site plan PAINTS it inside its frame: switched off in Model Layers, a deck turned off, a location plan's missing hatches, or nothing of the layer inside the crop - and it is not listed. Rows run the reverse of the layers' draw order, so the red line and the proposal lead and the base map comes last. A layer shown by two site plans on one sheet is listed once, as the most detailed drawing shows it. LOCATION PLANS ARE READ ONLY WHEN THE SHEET HAS NO OTHER SITE PLAN: a location plan greys every layer but the red line and the proposal and draws no hatches, so beside a block plan it would only add grey lines - and keep a layer switched off on the block plan listed in its greyed look. The panel's Reads list can still point a legend at one location plan by hand. HiddenByDefault are layers a new legend leaves off - the OS base map and the contours, which frame a drawing rather than say anything a reader must look up; each can be ticked back on. ShowLines lists the line-only layers (the boundary, fences, removals) as well as the washes and hatches.",
+
+        "SiteLegend__EmptyLabel"       : "No washes, hatches or lines found on this sheet's site plans"
+    },
+
     "LayoutEditor__ScrapbookParametric__ViewportLink": {
         "ViewportLink__Description"       : "The link between a parametric element and a viewport (Na__LayoutEditor__ScrapbookParametric__ViewportLink__.js). AutoLinkOnInsert links a dropped element to the nearest 2D viewport, measured from the drop point to the viewport's frame; MaxLinkDistanceMm is how far away that viewport may be. A scale bar sits under a drawing's title, which sits under the drawing, so the frame is usually 10 to 30 mm above it. FollowScale regenerates a linked element when its viewport's scale changes, inside the same undo step.",
         "ViewportLink__AutoLinkOnInsert"  : true,
@@ -543,6 +607,29 @@
         "Labels__MenuInfillAuto"     : "Words along the longer side",
         "Labels__MenuInfillAcross"   : "Words across",
         "Labels__MenuInfillUp"       : "Words up the sheet",
+
+        "Labels__MenuLegendAutoColumns" : "Columns as the rows need",
+        "Labels__MenuLegendOneColumn"   : "One column",
+        "Labels__PropsLegendColumnsAuto": "Automatic",
+        "Labels__MenuLegendColumns"     : "{count} columns",
+        "Labels__MenuLegendLines"       : "Lines as well as areas",
+        "Labels__MenuLegendShowAll"     : "List every row",
+        "Labels__PropsLegendSource"     : "Reads",
+        "Labels__PropsLegendSourceAll"  : "The sheet's site plans",
+        "Labels__PropsLegendTitle"      : "Title",
+        "Labels__PropsLegendTitleAuto"  : "Legend",
+        "Labels__PropsLegendColumns"    : "Columns",
+        "Labels__PropsLegendLines"      : "Lines as well as areas",
+        "Labels__PropsLegendWidth"      : "Width at least (mm)",
+        "Labels__PropsLegendTextSize"   : "Type size (mm)",
+        "Labels__PropsLegendSwatchW"    : "Swatch width (mm)",
+        "Labels__PropsLegendSwatchH"    : "Swatch height (mm)",
+        "Labels__PropsLegendRowsNote"   : "Every wash, hatch and line the site plans show inside their frames - location plans only when the sheet has no other, since they grey all but the red line and the proposal. Untick one to leave it off the legend.",
+        "Labels__PropsLegendShowAll"    : "List every row",
+        "Labels__PropsLegendLineMark"   : " (line)",
+        "Labels__PropsLegendNoSitePlan" : "This sheet has no site plan drawing for it to read.",
+        "Labels__PropsLegendReads"      : "Lists {shown} of the {found} washes, hatches and lines its site plans show.",
+        "Labels__PropsLegendEmpty"      : "Nothing to list yet: its site plans show no wash, hatch or line inside their frames, or are still loading.",
 
         "Labels__MenuFromViewport" : "From viewport ({scale})",
         "Labels__MenuFromNearest"  : "Link to nearest viewport",

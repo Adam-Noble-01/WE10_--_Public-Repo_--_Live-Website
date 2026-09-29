@@ -96,7 +96,7 @@ directly.
 | folder | what it owns |
 |---|---|
 | `01__Core__Data/` | the index, the open statement, where each copy lives, and which file a picture link means |
-| `02__Core__Markdown/` | tokenise → render → serialise. The only place markdown rules live |
+| `02__Core__Markdown/` | tokenise → render → serialise, and a figure's picture + title block (`Md__Figure`). The only place markdown rules live |
 | `03__Ui__Page/` | the tab, the bar, and the manager |
 | `04__Ui__Editor/` | the live-preview surface, the typing rules, and the frozen raw-HTML cards |
 | `05__Ui__Reader/` | the same document with nothing to click. This is what the PDF photographs |
@@ -500,5 +500,107 @@ Typora does. Drive the data module by its same-URL import (`Na__LeStmt__SetText`
 its `%TEMP%\na_statements_live_*` folder** - a hard stop leaves ~700 MB of photography behind
 on C:, because hard links fail from D: to C: and it copies instead.
 
-**The Project Specification has the same shape** (its JSON file, a browser draft, Reload Local
-and Sync) and still lets the last save win. Not changed here.
+**The Project Specification now runs the same system (v2.163.0, 29-Sep-2026).** Its JSON file
+(`TrueVision__DrawingNotes__.json`) is watched while the drawing editor is open and looked at before
+every write, with the same verdict: `Na__LayoutEditor__SpecData__Lockstep__` imports this section's
+`Na__LeStmtLock__Compare`, `NeedsChoice`, `Newer` and `FromHttpDate`, and its question imports `When`.
+**Changing those exports changes the specification too.** Test: `Na__Test__SpecLockstep__.test.mjs`.
+
+## 16 · Standard sections (v2.162.0)
+
+**What they are.** Parts of a statement that are the same on every job apart from the project they name
+(the TrueVision 3D Project Hub), the headings they are drawn from (the Contents) or the few fields they
+carry (the Document Header). Edit mode > **Standard Sections** on the bar switches each on or off;
+a card offers Move (not the header), Edit and Switch Off. Code: `09__Standard__Sections/`.
+
+**Stored as one marker, drawn every time.** The file holds
+`<div class="na-le-stmt-std-marker" data-na-standard-section="<Id>">...</div>` and nothing else of the
+section. The renderer's expander (`Na__LeStmtRnd__RegisterExpander`) swaps the marker for the drawn
+section in every surface - editor, reader, published HTML, PDF - with the document's blocks as context.
+Typora and anything else reading the file see the marker's fallback sentence. **The header's marker
+holds its fields** between the tags, one a line; a blank line inside it would end the block in Typora,
+so the registry never writes one.
+
+**The house order and the dividers.** Adam: 1. the header, 2. the header information, 3. the contents,
+4. the TrueVision section, 5. the introduction. The header takes over the top of the file; the Contents
+goes after the first divider above 1.0; the hub after the Contents. Every section but the header sits
+between two major dividers: on adds the one under it, off takes it away, and Move carries it. **Two
+dividers must never touch** - the test checks the whole file for it.
+
+**Three traps.**
+1. A card's body is repainted from its source by `Na__LeStmtCard__Repaint`. It must go through
+   `Na__LeStmtRnd__Expand`, or a standard card shows its fallback sentence after an Edit.
+2. The Contents is drawn from the headings. Inside a full render the renderer hands it the blocks; a
+   repaint outside one asks the registry's document source, which the editor sets to the page as it
+   stands. Change either and the Contents silently lists stale headings.
+3. The PDF photographs the page, so the hub's button would be a picture of a button. `Pdf__.js` lays a
+   link annotation over every http(s) link it measures before tiling. Check zero text AND the links
+   after any exporter change.
+
+**Tests.** `Na__Test__StatementStandard__.test.mjs` (node, 45 checks, the real modules copied into a
+scratch ES module tree); `Na__Test__StatementStandard__.html` (the paper, `?statement=` for a whole
+file, `window.__NaTestStd.raster(sel)` through the vendored html2canvas).
+
+## 17 · Figure titles are inside the figure (v2.165.0)
+
+**What changed.** A figure's title used to be a paragraph of its own under the picture, pushed across
+by a zero-width space and two tabs (`\u200B\t\t**Fig 3.1  -**  ...`). The editor keeps whitespace
+(contenteditable is `pre-wrap`), so the title looked aligned there. The reader and the PDF collapse it,
+so every title sat against the page margin under a centred picture. Adam, 29-Sep-2026, on RB05's
+Fig 3.1: "the titles aren't being inset properly against the images".
+
+Now the picture and its title are ONE raw HTML block, with no blank line inside:
+
+```html
+<figure class="na-figure-block" style="margin-left: auto; margin-right: auto;">
+<img class="na-figure" src="./02__DocImages/..." style="zoom: 30%; display: block; margin-left: auto; margin-right: auto;" />
+<figcaption class="na-figure-title"><strong>Fig 3.1  -</strong>  Site Location  -  Local Context</figcaption>
+</figure>
+```
+
+**How it lines up, with no script.** The stylesheet lays the figure out as a `table` and the title as
+its `table-caption`. A table with no width of its own is as wide as its picture (zoom included), and a
+caption is held to the table's width. So the title starts at the picture's left edge and wraps at its
+right edge, at any size, cropped or not. The title is `pre-wrap`, so the house double spaces round each
+dash show in every view.
+
+**The figure's margins MIRROR the picture's.** Justify writes the picture's margins as before, and
+`Na__LeStmtFigMd__MapBody` copies them onto the `<figure>` every time it puts the figure back together.
+The picture's margins are the answer; the figure's are never set on their own.
+
+**Spacing.** 7mm above and below every figure (Adam: the pictures felt "squashed" between the text), collapsing
+with the paragraph margins round it; 8mm when a heading follows. The same in Edit and Read.
+
+**Where the code is.**
+- `02__Core__Markdown/Na__LayoutEditor__Statement__Md__Figure__.js` (`Na__LeStmtFigMd`, pure strings,
+  runs under node): `Parts` / `Assemble` / `MapBody`, `SetTitle` (off = `hidden`, the words kept),
+  `WriteTitle`, `AdoptCaptions` (converts a whole file), `IsCaption` (a BOLD `Fig` behind the old indent;
+  "Figure 8.1 sets the scene" is prose and is never taken).
+- The picture menu (`Editor__Figure__`) does every justify, frame, shadow and crop to the PICTURE inside
+  the figure through `MapBody`, and has a **Title On/Off** row.
+- The cards (`Editor__Cards__`): the `<figcaption>` is an editing surface inside the frozen card
+  (`ArmTitle`, after every paint). Typing rewrites only the words between the figcaption tags
+  (`TitleHtml` walks the DOM by hand: text plus b/strong/i/em/u/sup/sub, nothing else). Enter finishes
+  the title; Tab does nothing. The card is NOT repainted while typing, so the caret stays put. Title On
+  for a picture with no title first takes in an old caption paragraph directly under it.
+- A dropped picture is written as a figure with the title `Fig  -  <file name>`.
+
+**Traps.**
+1. **Every rewrite of a figure goes through `MapBody`.** The old helpers act on "the FIRST tag"; in a
+   figure that is the `<figure>`, and a class or a zoom written there does nothing right.
+2. **`MapBody` keeps the blank lines under the block.** Before it, a crop or an uncrop dropped them,
+   which glued the next block to the figure in the file.
+3. **Right-click on a title is the browser's own menu** (spelling). The Picture menu is on the picture.
+4. **In the editor, a title's typing never reaches the page's typing rules.** `input` and Enter/Tab
+   `keydown` stop at the card. If a rule ever has to see a title, it must not reflow the card.
+
+**Proved 29-Sep-2026** on a throwaway copy of RB05 (`tv-figure-titles`, port 8846): all 23 figures
+measured with the title's left edge and width equal to the picture's, in Edit and Read. A crop, Justify
+right and Title Off/On were driven through the real menu, and real key presses were typed into a title.
+The PDF (zero text) shows the title flush with the picture. Node: `Na__Test__StatementFigureTitle__.test.mjs`
+(32 checks: a legacy document converted with nothing outside its figures changed, and the real RB05 file
+still one block per figure, round-tripping, with no old caption left).
+
+**Seen in passing, not caused by this.** In a PDF made on the test origin, Figs 2.1 and 2.2 (the only
+two pictures linked straight to `cdn.noble-architecture.com`) print as blank frames. They print blank
+bare as well as inside a figure, and local pictures print in both. Not investigated further.

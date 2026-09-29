@@ -68,7 +68,7 @@
     import { Na__LeModel__KIND_2D, Na__LeModel__GetActiveSheet, Na__LeModel__GetSelectedViewport, Na__LeModel__UpdateViewport } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeModelLayers__Ready, Na__LeModelLayers__Groups, Na__LeModelLayers__IsOn } from '../25__System__RenderStyles/Na__LayoutEditor__ModelLayers__.js';
     import { Na__LeSource__CategoryKeys } from '../20__System__Viewports/Na__LayoutEditor__ModelSource__.js';
-    import { Na__SpStore__CHANGED_EVENT } from '../21__System__SitePlanData/Na__SitePlan__Store__.js';
+    import { Na__SpStore__CHANGED_EVENT, Na__SpStore__GetLayers } from '../21__System__SitePlanData/Na__SitePlan__Store__.js';
     import {
         Na__LeEdge__FIELD,
         Na__LeEdge__CAT_FIELD,
@@ -78,6 +78,7 @@
         Na__LeEdge__LineTypes,
         Na__LeEdge__WeightBounds,
         Na__LeEdge__Effective,
+        Na__LeEdge__FillHex,
         Na__LeEdge__Patch,
         Na__LeEdge__ResetPatch,
         Na__LeEdge__OverrideCount
@@ -173,8 +174,10 @@
         head.setAttribute('data-na-block', 'edge-head');
         const cells = [
             [ 'na-le-adv-head__spacer', '' ],
-            [ 'na-le-adv-head__cell', Na__LeCfg__GetLabel('EdgeColourHead', 'Colour'), '108px' ],
+            [ 'na-le-adv-head__cell', 'Fill', '34px' ],
+            [ 'na-le-adv-head__cell', Na__LeCfg__GetLabel('LayerLineColourHead', 'Line'), '108px' ],
             [ 'na-le-adv-head__cell', Na__LeCfg__GetLabel('EdgeTypeHead',   'Type'),    '82px' ],
+            [ 'na-le-adv-head__cell', 'Line scale', '52px' ],
             [ 'na-le-adv-head__cell', Na__LeCfg__GetLabel('EdgeWeightHead', 'Weight'),  '74px' ],
             [ 'na-le-adv-head__cell', '', '16px' ]
         ];
@@ -196,6 +199,13 @@
         const cluster = document.createElement('span');
         cluster.className = 'na-le-row__adv na-le-adv';
 
+        const fill = Na__LePanels__Input('color', 'layer-fill');
+        fill.setAttribute('data-na-role', layerKey);
+        fill.setAttribute('aria-label', 'Fill colour');
+        fill.title = 'Fill colour for this layer in this viewport';
+        fill.style.cssText = 'width:30px;min-width:30px;height:22px;padding:1px;flex:0 0 30px;';
+        cluster.appendChild(fill);
+
         const swatch = document.createElement('span');
         swatch.className = 'na-le-adv-swatch';
         cluster.appendChild(swatch);
@@ -209,6 +219,13 @@
         type.classList.add('na-le-adv-type');
         type.setAttribute('data-na-role', layerKey);
         cluster.appendChild(type);
+
+        const scale = Na__LePanels__Input('number', 'edge-scale', { min : 0.1, max : 10, step : 0.05 });
+        scale.setAttribute('data-na-role', layerKey);
+        scale.setAttribute('aria-label', 'Line type scale');
+        scale.style.cssText = 'width:52px;min-width:52px;flex:0 0 52px;';
+        scale.title = 'Dash and dot lengths and gaps: 0.50 is half scale, 1.00 is full scale. Does not change line width.';
+        cluster.appendChild(scale);
 
         const bounds = Na__LeEdge__WeightBounds();
         const weight = Na__LePanels__Input('number', 'edge-weight', { min : bounds.min, max : bounds.max, step : bounds.step });
@@ -273,7 +290,19 @@
         };
         set('edge-colour', effective.colour);
         set('edge-type',   effective.lineType);
+        set('edge-scale',  effective.dashScale.toFixed(2));
+        const scaleInput = row.querySelector('[data-na-control="edge-scale"]');
+        if (scaleInput) scaleInput.disabled = effective.patternMm.length === 0;
         set('edge-weight', effective.weight.toFixed(Na__LeEdge__WeightBounds().decimals));
+        const layer = Na__SpStore__GetLayers().find((item) => item.Layer__CategoryKey === layerKey);
+        const defaultFill = layer && layer.Layer__Style && layer.Layer__Style.FillHex;
+        const fill = row.querySelector('[data-na-control="layer-fill"]');
+        if (fill) {
+            fill.disabled = !defaultFill;
+            fill.style.visibility = defaultFill ? 'visible' : 'hidden';
+            if (document.activeElement !== fill) fill.value = Na__LeEdge__FillHex(viewport, layerKey, defaultFill) || '#ffffff';
+            fill.title = 'Fill colour: ' + (Na__LeEdge__FillHex(viewport, layerKey, defaultFill) || 'none') + ' (Reset Styles restores the exported default)';
+        }
         const swatch = row.querySelector('.na-le-adv-swatch');
         if (swatch) swatch.style.background = effective.hex;
         row.classList.toggle('is-overridden', effective.overridden);
@@ -384,8 +413,14 @@
             Na__LePanelModelLayers__Apply(patch);
         });
 
+        Na__LePanels__OnControl('change', 'layer-fill', (e, el, key) => Na__LePanelModelLayers__ApplyEdge(key, 'fill', el.value));
         Na__LePanels__OnControl('change', 'edge-colour', (e, el, key) => Na__LePanelModelLayers__ApplyEdge(key, 'colour', el.value));
         Na__LePanels__OnControl('change', 'edge-type',   (e, el, key) => Na__LePanelModelLayers__ApplyEdge(key, 'lineType', el.value));
+        Na__LePanels__OnControl('change', 'edge-scale', (e, el, key) => {
+            const value = Number(el.value);
+            if (Number.isFinite(value) && value > 0) Na__LePanelModelLayers__ApplyEdge(key, 'dashScale', value);
+            Na__LePanels__Refresh(Na__LePanelModelLayers__ID);
+        });
         Na__LePanels__OnControl('change', 'edge-weight', (e, el, key) => {
             if (Number.isFinite(parseFloat(el.value))) Na__LePanelModelLayers__ApplyEdge(key, 'weight', el.value);
         });

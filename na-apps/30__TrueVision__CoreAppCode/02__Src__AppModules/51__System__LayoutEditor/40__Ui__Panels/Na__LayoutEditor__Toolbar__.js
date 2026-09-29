@@ -32,6 +32,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.24.0
+// - SHARE after Download PDF: the link that opens the drawing on screen,
+//   read-only, on any device - the same link the web viewer's Share hands
+//   out beside its PDF (66__Feature__DocumentSharing, TrueVision3D v2.165.0).
+//   Always the live site's address, never this machine's.
+//
+// 29-Sep-2026 - Version 1.23.0
+// - Save Sheets says so when the specification was NOT synced because it and
+//   its local file are out of step (the specification's lockstep): the
+//   sheets are saved, the specification waits for the question's answer.
+//
 // 21-Sep-2026 - Version 1.22.0
 // - Axes: a toggle after Ortho switches the Drawing Axes Overlay (F9,
 //   Na__LayoutEditor__DrawingAxes__) - SketchUp's red and green axes carried
@@ -201,6 +212,7 @@
     import { Na__LeOsnap__ToggleMenu, Na__LeOsnap__CloseMenu } from '../28__System__ObjectSnap/Na__LayoutEditor__ObjectSnap__Menu__.js';   // <-- The snap options dropdown, on the arrow beside the Snap button
     import { Na__LeOrtho__CHANGED_EVENT, Na__LeOrtho__IsOn, Na__LeOrtho__Toggle, Na__LeOrtho__Label } from '../32__System__OrthoMode/Na__LayoutEditor__OrthoMode__.js';
     import { Na__LePdf__ExportSheet } from '../60__Feature__PdfExport/Na__LayoutEditor__PdfExporter__.js';
+    import { Na__LeShareUi__Open } from '../66__Feature__DocumentSharing/Na__LayoutEditor__Share__Button__.js';   // <-- Share, beside Download PDF: the link to the drawing on screen
     import { Na__LeRaster__LEVELS, Na__LeRaster__CHANGED_EVENT, Na__LeRaster__Get, Na__LeRaster__Set } from '../20__System__Viewports/Na__LayoutEditor__RasterQuality__.js';
     import { Na__LeVectorQ__LEVELS, Na__LeVectorQ__CHANGED_EVENT, Na__LeVectorQ__Get, Na__LeVectorQ__Set } from '../20__System__Viewports/Na__LayoutEditor__VectorQuality__.js';   // <-- Vector: how clean the linework is drawn against how fast the editing is
     import { Na__LeDraft__CHANGED_EVENT, Na__LeDraft__IsOn, Na__LeDraft__Toggle, Na__LeDraft__Label } from '../26__System__DraftMode/Na__LayoutEditor__DraftMode__.js';
@@ -389,6 +401,7 @@
             await Na__LeModel__Save(note);
             const spec = Na__LeSpec__GetState();
             if (spec.dirty && spec.canSync) await Na__LeSpec__Sync({ showToast : note });   // <-- The notes the sheets' codes come from go up with them
+            else if (spec.conflict) note('The specification was not synced: it and its file on disk are out of step - choose which copy to keep', true);
         }
         finally {
             Na__LeToolbar__Busy = false; Na__LeToolbar__Sync();
@@ -560,6 +573,13 @@
             root.appendChild(note);
         }
         root.appendChild(Na__LeToolbar__Button(Na__LeCfg__GetLabel('DownloadPdf', 'Download PDF'), 'pdf', 'Export this sheet as a PDF at paper size', () => { void Na__LeToolbar__Pdf(); }));
+        // SHARE | Beside the PDF, as the web viewer's is: a link that opens the
+        // drawing on screen, read-only, on any device (66__Feature__DocumentSharing).
+        const share = Na__LeToolbar__Button(Na__LeCfg__GetLabel('ShareDrawing', 'Share'), 'share', Na__LeCfg__GetLabel('ShareDrawingTitle', 'A link that opens this drawing, read-only, on any device - the live site\'s, never this machine\'s'), () => {
+            const sheet = Na__LeModel__GetActiveSheet();
+            if (sheet) Na__LeShareUi__Open(share, { kind : 'drawing', sheetId : sheet.Sheet__Id });
+        });
+        root.appendChild(share);
 
         container.appendChild(root);
         Na__LeToolbar__Root = root;

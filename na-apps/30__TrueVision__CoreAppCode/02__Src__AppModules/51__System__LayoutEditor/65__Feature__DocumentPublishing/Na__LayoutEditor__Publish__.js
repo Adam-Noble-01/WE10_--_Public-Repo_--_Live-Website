@@ -43,6 +43,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.1.0
+// - THE SHARE LINK RECORD (TrueVision3D v2.165.0). Just before the index, a
+//   publish writes PublishedDocuments__ShareLinks__.json through
+//   66__Feature__DocumentSharing - every document's Share link, locally and,
+//   with Also push to R2, on R2 - and reports it as result.ShareLinks. A
+//   failure there is a warning and never stops the publish.
+// - The built-in app version stamp is v2.165.0, with the config's.
+//
 // 23-Sep-2026 - Version 1.0.0
 // - Created with Phases 4 and 5 of TrueVision__PLAN__PublishingSystem__.md.
 //
@@ -75,6 +83,7 @@
         Na__LePubNet__Archive, Na__LePubNet__PruneLocal, Na__LePubNet__R2Ready, Na__LePubNet__PushR2,
         Na__LePubNet__VerifyR2, Na__LePubNet__PruneR2
     } from './Na__LayoutEditor__Publish__Transport__.js';
+    import { Na__LeShareMf__Record } from '../66__Feature__DocumentSharing/Na__LayoutEditor__Share__Manifest__.js';   // <-- The share link record, written just before the index
 
 // endregion -------------------------------------------------------------------
 
@@ -87,7 +96,7 @@
     let Na__LePub__Busy  = false;
 
     const Na__LePub__F = {                                                        // <-- The built-in floor
-        appVersion : 'v2.155.0', pushToR2Default : false, bakePdf : true,
+        appVersion : 'v2.165.0', pushToR2Default : false, bakePdf : true,
         retireOrphans : true, specLoadTimeoutMs : 15000, labels : {}
     };
 
@@ -638,6 +647,17 @@
             const indexBlob       = Na__LePub__JsonBlob(built.Index);
             const wroteLocalPaper = await Na__LePubNet__WriteLocal(files.unpublished, unpublishedBlob);
             if (!wroteLocalPaper.Ok) return Object.assign(result, { Ok : false, Reason : 'the unpublished sheets could not be written (' + wroteLocalPaper.Reason + ')' });
+
+            // THE SHARE LINK RECORD, just before the index (66__Feature__DocumentSharing):
+            // every document's link written down now, locally and - when asked - on
+            // R2, so a link already sent keeps opening its document whatever the
+            // rules, the folders or the numbering become. A failure costs a warning,
+            // never the publish: the Share buttons build the same links meanwhile.
+            progress({ Stage : 'recording the share links', Name : '', DocumentId : null });
+            const shareLinks = await Na__LeShareMf__Record({ toR2 : toR2, json : Na__LePub__Json, appVersion : setup.appVersion, reason : 'drawings' });
+            result.ShareLinks = { Ok : shareLinks.Ok, Count : shareLinks.Count || 0, Local : !!shareLinks.Local, R2 : !!shareLinks.R2, Reason : shareLinks.Reason || null };
+            if (!shareLinks.Ok) result.Warnings.push('Share links: ' + shareLinks.Reason + '.');
+
             const wroteLocal = await Na__LePubNet__WriteLocal(files.index, indexBlob);
             if (!wroteLocal.Ok) return Object.assign(result, { Ok : false, Reason : 'the index could not be written (' + wroteLocal.Reason + ')' });
             if (toR2) {

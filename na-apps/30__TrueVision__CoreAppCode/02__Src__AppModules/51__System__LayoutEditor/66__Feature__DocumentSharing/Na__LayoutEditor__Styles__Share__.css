@@ -1,0 +1,220 @@
+/* ================================================================= */
+/* REGION  |  TrueVision3D - Layout Editor Styles (document sharing) */
+/* ================================================================= */
+/*
+ * AUTHORED : 29-Sep-2026 for TrueVision3D v2.165.0 (Share buttons and the Share box)
+ * PORT NOTE: TrueVision3D first; ValeVision has no web viewer to share from.
+ *
+ * The Share box (Na__LayoutEditor__Share__Button__): the link, already
+ * copied, with Copy link, Share... and Open under it. The Share BUTTONS are
+ * not styled here - each tab makes its own with its own button maker, so a
+ * Share button always looks exactly like the buttons beside it.
+ *
+ * IMPORTED BY THE APP'S STYLESHEET INDEX, never linked lazily: off
+ * localhost the service worker serves shell files stale-while-revalidate,
+ * and a sheet linked on first use sat outside the precache list, so the
+ * first load after an edit painted the previous release (see the note above
+ * the statement stylesheets in PWA_SW_SHELL_PRECACHE_RELATIVE).
+ *
+ * THE BOX SITS ABOVE THE EDITOR (600), ITS TAB MENU (1002) AND THE
+ * SPECIFICATION'S LOCKSTEP QUESTION, and below the toasts (9999) and the
+ * Publish Drawings dialog (10050): a toast about the copy must never be
+ * hidden behind the box that caused it.
+ */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Box                                                */
+/* ----------------------------------------------------------------- */
+
+.na-le-share {
+    position                           : fixed;
+    top                                : 0;
+    left                               : 0;
+    z-index                            : 1100;
+    box-sizing                         : border-box;
+    width                              : 380px;
+    max-width                          : calc(100vw - 16px);
+    padding                            : 12px 14px 12px;
+    background                         : var(--Na_Le_Chrome, #ffffff);
+    border                             : 1px solid var(--Na_Le_ChromeRule, rgba(23, 43, 58, 0.14));
+    border-radius                      : 8px;
+    box-shadow                         : 0 10px 32px rgba(23, 43, 58, 0.22);
+    color                              : var(--Na_Le_Ink, #172b3a);
+    font-family                        : var(--Vale_FontFamily, 'Open Sans', sans-serif);
+    font-size                          : 0.78rem;
+    line-height                        : 1.45;
+    text-align                         : left;
+}
+
+.na-le-share__head {
+    display                            : flex;
+    align-items                        : baseline;
+    gap                                : 8px;
+    margin-bottom                      : 8px;
+}
+
+.na-le-share__title {
+    flex                               : 0 0 auto;
+    font-size                          : 0.74rem;
+    font-weight                        : 600;
+    letter-spacing                     : 0.06em;
+    text-transform                     : uppercase;
+}
+
+.na-le-share__what {
+    flex                               : 1 1 auto;
+    min-width                          : 0;
+    overflow                           : hidden;
+    color                              : var(--Na_Le_InkMuted, #6c757d);
+    text-overflow                      : ellipsis;
+    white-space                        : nowrap;
+}
+
+.na-le-share__close {
+    flex                               : 0 0 auto;
+    align-self                         : center;
+    width                              : 26px;
+    height                             : 26px;
+    padding                            : 0;
+    border                             : 0;
+    border-radius                      : 5px;
+    background                         : transparent;
+    color                              : var(--Na_Le_InkMuted, #6c757d);
+    font-size                          : 1.15rem;
+    line-height                        : 1;
+    cursor                             : pointer;
+}
+
+.na-le-share__close:hover {
+    background                         : #e8edf3;
+    color                              : var(--Na_Le_Ink, #172b3a);
+}
+
+/* THE LINK ITSELF. Read-only and selectable: a reader who cannot use the
+   clipboard can still select it and copy it by hand. Monospace, because a
+   link is read character by character when it is read at all. */
+
+.na-le-share__url {
+    display                            : block;
+    box-sizing                         : border-box;
+    width                              : 100%;
+    padding                            : 7px 8px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 5px;
+    background                         : #f7f9fa;
+    color                              : var(--Na_Le_Ink, #172b3a);
+    font-family                        : Consolas, 'SFMono-Regular', Menlo, monospace;
+    font-size                          : 0.74rem;
+    user-select                        : all;
+    -webkit-user-select                : all;
+}
+
+.na-le-share__url:focus {
+    outline                            : 2px solid rgba(26, 127, 196, 0.35);
+    outline-offset                     : 0;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Actions and Notes                                      */
+/* ----------------------------------------------------------------- */
+
+.na-le-share__actions {
+    display                            : flex;
+    flex-wrap                          : wrap;
+    gap                                : 6px;
+    margin-top                         : 8px;
+}
+
+/* 32px tall: the box opens on phones too, from the web viewer's dock. */
+
+.na-le-share__action {
+    display                            : inline-flex;
+    align-items                        : center;
+    justify-content                    : center;
+    box-sizing                         : border-box;
+    min-height                         : 32px;
+    padding                            : 0 12px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 5px;
+    background                         : #f4f6f8;
+    color                              : var(--Na_Le_Ink, #172b3a);
+    font-family                        : inherit;
+    font-size                          : 0.76rem;
+    font-weight                        : 600;
+    text-decoration                    : none;
+    white-space                        : nowrap;
+    cursor                             : pointer;
+    -webkit-tap-highlight-color        : transparent;
+}
+
+.na-le-share__action:hover:not(:disabled) {
+    background                         : #e8edf3;
+}
+
+.na-le-share__action:disabled {
+    opacity                            : 0.5;
+    cursor                             : default;
+}
+
+.na-le-share__action[hidden] {
+    display                            : none;
+}
+
+.na-le-share__action--primary {
+    border-color                       : #1a7fc4;
+    background                         : #eef5fb;
+    color                              : #1a7fc4;
+}
+
+.na-le-share__status {
+    min-height                         : 1.45em;
+    margin                             : 8px 0 0;
+    color                              : var(--Na_Le_InkMuted, #6c757d);
+}
+
+.na-le-share__status[data-state="copied"] {
+    color                              : #2a7d4f;
+    font-weight                        : 600;
+}
+
+.na-le-share__status[data-state="manual"] {
+    color                              : #9a6a12;
+    font-weight                        : 600;
+}
+
+.na-le-share__note {
+    margin                             : 4px 0 0;
+    color                              : var(--Na_Le_InkMuted, #6c757d);
+}
+
+.na-le-share__note--warn {
+    padding                            : 6px 8px;
+    border-left                        : 3px solid #d99a1e;
+    border-radius                      : 3px;
+    background                         : #fdf6e7;
+    color                              : #6d4c10;
+}
+
+.na-le-share__note--quiet {
+    font-size                          : 0.72rem;
+    font-style                         : italic;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Printing                                               */
+/* ----------------------------------------------------------------- */
+
+@media print {
+    .na-le-share {
+        display                        : none !important;
+    }
+}
+
+/* endregion ------------------------------------------------------- */

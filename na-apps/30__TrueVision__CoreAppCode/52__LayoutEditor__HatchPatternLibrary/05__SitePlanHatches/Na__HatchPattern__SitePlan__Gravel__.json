@@ -1,0 +1,106 @@
+{
+    "HatchPattern__Gravel__Meta": {
+        "Meta__FileName": "Na__HatchPattern__SitePlan__Gravel__.json",
+        "Meta__Description": "Sparse small stone outlines in paper millimetres. Transparent tile; the tag supplies the warm stone wash independently.",
+        "Meta__Version": "1.0.0",
+        "Meta__Created": "29-Sep-2026"
+    },
+    "HatchPattern__Gravel__Identity": {
+        "Identity__Key": "SitePlanHatch__Gravel",
+        "Identity__Label": "Gravel",
+        "Identity__Group": "Hard Surfaces",
+        "Identity__Keywords": [
+            "gravel",
+            "driveway",
+            "stone",
+            "aggregate"
+        ]
+    },
+    "HatchPattern__Gravel__Tile": {
+        "Tile__WidthMm": 8.0,
+        "Tile__HeightMm": 8.0,
+        "Tile__RowOffsetMm": 0.0
+    },
+    "HatchPattern__Gravel__Defaults": {
+        "Defaults__Scale": 1.0,
+        "Defaults__RotationDeg": 0,
+        "Defaults__StrokeMm": 0.1,
+        "Defaults__StrokeColour": "#A69E90",
+        "Defaults__FillColour": "none",
+        "Defaults__Opacity": 1.0
+    },
+    "HatchPattern__Gravel__Glyphs": {
+        "SmallStone": {
+            "Glyph__Label": "Small stone",
+            "Glyph__WidthMm": 0.38,
+            "Glyph__HeightMm": 0.28,
+            "Glyph__Fill": "none",
+            "Glyph__Path": "M-0.18,0 L-0.08,-0.25 L0.16,-0.28 L0.20,-0.06 Z"
+        },
+        "LongStone": {
+            "Glyph__Label": "Long stone",
+            "Glyph__WidthMm": 0.5,
+            "Glyph__HeightMm": 0.25,
+            "Glyph__Fill": "none",
+            "Glyph__Path": "M-0.25,-0.08 L-0.11,-0.25 L0.19,-0.20 L0.25,0 L-0.09,0 Z"
+        }
+    },
+    "HatchPattern__Gravel__Placements": [
+        {
+            "Place__Glyph": "SmallStone",
+            "Place__XMm": 0.9,
+            "Place__YMm": 1.1
+        },
+        {
+            "Place__Glyph": "LongStone",
+            "Place__XMm": 3.4,
+            "Place__YMm": 0.7
+        },
+        {
+            "Place__Glyph": "SmallStone",
+            "Place__XMm": 6.6,
+            "Place__YMm": 1.5
+        },
+        {
+            "Place__Glyph": "LongStone",
+            "Place__XMm": 2.1,
+            "Place__YMm": 3.2
+        },
+        {
+            "Place__Glyph": "SmallStone",
+            "Place__XMm": 5.2,
+            "Place__YMm": 2.8
+        },
+        {
+            "Place__Glyph": "LongStone",
+            "Place__XMm": 7.1,
+            "Place__YMm": 4.4
+        },
+        {
+            "Place__Glyph": "SmallStone",
+            "Place__XMm": 0.8,
+            "Place__YMm": 5.4
+        },
+        {
+            "Place__Glyph": "LongStone",
+            "Place__XMm": 3.8,
+            "Place__YMm": 5.1
+        },
+        {
+            "Place__Glyph": "SmallStone",
+            "Place__XMm": 5.8,
+            "Place__YMm": 6.8
+        },
+        {
+            "Place__Glyph": "LongStone",
+            "Place__XMm": 2.4,
+            "Place__YMm": 7.2
+        }
+    ],
+    "HatchPattern__Gravel__Bounds": {
+        "Bounds__MinScale": 0.25,
+        "Bounds__MaxScale": 4.0,
+        "Bounds__StepScale": 0.05,
+        "Bounds__RotationStepDeg": 15
+    }
+}

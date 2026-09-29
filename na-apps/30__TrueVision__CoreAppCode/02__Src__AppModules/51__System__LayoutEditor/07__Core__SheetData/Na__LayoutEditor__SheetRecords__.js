@@ -540,9 +540,12 @@
             const colour   = Na__LeEdge__IsColour(entry['Category__EdgeColour'])     ? entry['Category__EdgeColour']   : fallback.colour;
             const lineType = Na__LeEdge__IsLineType(entry['Category__EdgeLineType']) ? entry['Category__EdgeLineType'] : fallback.lineType;
 
+            const scale = Number.isFinite(entry.Category__LineTypeScale) && entry.Category__LineTypeScale > 0
+                ? Math.max(0.1, Math.min(10, entry.Category__LineTypeScale)) : null;
+
             // A SITE PLAN CATEGORY IS NEVER PRUNED: its default is the style its export
             // carries, which is not known until the site plan data has loaded.
-            if (canPrune && key.indexOf(Na__LeRec__SITEPLAN_CATEGORY_PREFIX) !== 0 && weight === Na__LeEdge__ClampWeight(fallback.weight) && colour === fallback.colour && lineType === fallback.lineType) {
+            if (canPrune && scale === null && key.indexOf(Na__LeRec__SITEPLAN_CATEGORY_PREFIX) !== 0 && weight === Na__LeEdge__ClampWeight(fallback.weight) && colour === fallback.colour && lineType === fallback.lineType) {
                 return;                                                            // <-- Back to the default: the record says nothing
             }
 
@@ -552,6 +555,11 @@
                 'Category__EdgeColour'       : colour,
                 'Category__EdgeLineType'     : lineType
             };
+            if (scale !== null) kept[key].Category__LineTypeScale = scale;
+            if (key.indexOf(Na__LeRec__SITEPLAN_CATEGORY_PREFIX) === 0 &&
+                typeof entry.Category__FillHex === 'string' && /^#[0-9a-f]{6}$/i.test(entry.Category__FillHex)) {
+                kept[key].Category__FillHex = entry.Category__FillHex.toUpperCase();
+            }
         });
 
         if (Object.keys(kept).length === 0) return null;

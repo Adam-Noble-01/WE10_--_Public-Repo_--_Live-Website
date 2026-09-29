@@ -37,6 +37,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.1.0
+// - files.shareLinks (Files__ShareLinks) and Na__PubSchema__ShareLinksPath:
+//   the share link manifest, one file beside the index, written by
+//   51__System__LayoutEditor/66__Feature__DocumentSharing. Additive: the
+//   schema version stays 1, because no reader of schema 1 reads it and
+//   nothing a reader of schema 1 reads has changed.
+//
 // 23-Sep-2026 - Version 1.0.0
 // - Created with the folder, file, element and tier tables of schema version 1.
 //
@@ -64,6 +71,7 @@
         files : {
             index         : 'PublishedDocuments__Index__.json',
             unpublished   : 'PublishedDocuments__Unpublished__.json',
+            shareLinks    : 'PublishedDocuments__ShareLinks__.json',
             manifest      : 'Document__Manifest__.json',
             sheet         : 'Document__Sheet__.json',
             readMe        : 'PublishedDocuments__ReadMe__.md',
@@ -135,7 +143,7 @@
         });
 
         const files = whole['PublishedSchema__Files'] || {};
-        const fileMap = { index : 'Files__Index', unpublished : 'Files__Unpublished', manifest : 'Files__Manifest', sheet : 'Files__Sheet',
+        const fileMap = { index : 'Files__Index', unpublished : 'Files__Unpublished', shareLinks : 'Files__ShareLinks', manifest : 'Files__Manifest', sheet : 'Files__Sheet',
                           readMe : 'Files__ReadMe', pdfPrefix : 'Files__PdfPrefix',
                           elementPrefix : 'Files__ElementPrefix', elementSuffix : 'Files__ElementSuffix' };
         Object.keys(fileMap).forEach((key) => {
@@ -290,6 +298,19 @@
     function Na__PubSchema__UnpublishedPath() {
         const setup = Na__PubSchema__Get();
         return Na__PubSchema__Join(setup.folders.root, setup.files.unpublished);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Share Link Manifest (one file, beside the index)
+    // ------------------------------------------------------------
+    // Every document a person can be sent a link to, and the link recorded for
+    // it at publish. Written by 66__Feature__DocumentSharing; the reader in 52
+    // never asks for it.
+    // ------------------------------------------------------------
+    function Na__PubSchema__ShareLinksPath() {
+        const setup = Na__PubSchema__Get();
+        return Na__PubSchema__Join(setup.folders.root, setup.files.shareLinks);
     }
     // ------------------------------------------------------------
 
@@ -627,6 +648,7 @@
         Na__PubSchema__RootFolder,
         Na__PubSchema__IndexPath,
         Na__PubSchema__UnpublishedPath,
+        Na__PubSchema__ShareLinksPath,
         Na__PubSchema__DocumentFolder,
         Na__PubSchema__ManifestPath,
         Na__PubSchema__SheetPath,

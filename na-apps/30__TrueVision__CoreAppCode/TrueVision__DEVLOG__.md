@@ -2,6 +2,323 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.165.0  -  29-Sep-2026
+### A Figure's Title Lives Inside the Figure: It Starts at the Picture's Left Edge and Wraps at Its Right, in Edit, Read and the PDF
+
+**Overview**
+- From Adam, over RB05's Fig 3.1 in the Statement Writer: "the titles aren't being inset properly against the images
+  ... in edit mode, it's aligned, but this could be because currently it's just set up with the alignment being done
+  with space bars, and then the read mode purges them out ... HTML wrappers ... so there is always an option to switch
+  on or off a title, so the title is properly wrapped in HTML".
+- He was right about the cause. A title was a paragraph of its own under the picture, pushed across by a zero-width
+  space and two tabs. The editor keeps that whitespace (contenteditable is pre-wrap), the reader and the PDF collapse
+  it, so every title sat against the page margin under a centred picture.
+- Now the picture and its title are ONE raw HTML block: a `<figure class="na-figure-block">` holding the picture line
+  exactly as it was and a `<figcaption class="na-figure-title">`. The picture's right-click menu has a **Title On/Off**
+  switch, and the title is typed where it stands.
+
+**The change**
+- New pure module `52__Feature__StatementWriter/02__Core__Markdown/Na__LayoutEditor__Statement__Md__Figure__.js`
+  (Na__LeStmtFigMd, strings only, runs under node): Parts / Assemble / MapBody take a figure apart and put it back;
+  SetTitle (off adds `hidden` and KEEPS the words), WriteTitle, Wrap, IsCaption, CaptionToHtml and AdoptCaptions (a
+  whole file's old captions taken into their figures).
+  - THE FIGURE IS A TABLE AND THE TITLE ITS CAPTION (document stylesheet). A table with no width of its own is as wide
+    as its picture, zoom included, and a caption is held to the table's width. So the title lines up with the picture
+    at any size, cropped or not, with nothing measured by script. The title is pre-wrap, so the house double spaces
+    round each dash show in every view. 2.5mm under the frame; a paragraph's 3.5mm under the figure; a heading under a
+    figure gets the same 8mm as under a bare picture, in both views.
+  - THE FIGURE'S MARGINS MIRROR THE PICTURE'S. Justify still writes the picture's margins; MapBody copies them onto
+    the `<figure>` every time it reassembles one, so Justify right moves the picture and its title together.
+- The picture menu (`Na__LayoutEditor__Statement__Editor__Figure__.js` 1.2.0): Read, Justify, SetDress, Uncrop and the
+  crop tool work on the PICTURE inside a figure through MapBody (the old helpers act on "the first tag", which in a
+  figure is the `<figure>`). A Title row between the dress and the crop rows.
+- The cards (`Na__LayoutEditor__Statement__Editor__Cards__.js` 1.2.0): the figcaption is an editing surface inside the
+  frozen card (ArmTitle, after every paint). Typing rewrites only the words between the figcaption tags (TitleHtml
+  walks the DOM by hand: text plus b/strong/i/em/u/sup/sub). Enter finishes the title, Tab does nothing, and neither
+  reaches the page's typing rules. Title On for a picture with no title takes in an old caption paragraph directly
+  under it (a BOLD "Fig" behind the old indent; "Figure 8.1 sets the scene" is prose and is never taken), keeping its
+  blank lines under the figure. The corner handle and the zoom work on the picture, not the figure. Right-click on a
+  title is the browser's own menu, spelling and all.
+- A dropped picture (`Na__LayoutEditor__Statement__Editor__.js` 1.2.0) is written as a figure titled "Fig  -  <file
+  name>". `Na__LeStmtCard__CaptionMarkdown` is gone; nothing else imported it.
+- The renderer (1.2.0) marks a `<figure>` block as a figure card like a bare picture.
+- A side effect worth knowing: MapBody keeps the blank lines under a block, so a crop or an uncrop no longer drops the
+  blank line under a picture (it used to glue the next block to it in the file).
+- MORE AIR ROUND A FIGURE. Adam, over Fig 4.1: "Add a little space above and below images ... how squashed they
+  feel between the text". 7mm above and below each figure (was the paragraph's 3.5mm), collapsing with the paragraph
+  margins rather than adding to them; a heading under a figure keeps its 8mm. Measured the same in Edit and Read: 7mm
+  text to picture, 7mm title to text, 8mm title to heading.
+- RB05's statement: all 24 figures converted with AdoptCaptions at 19:00:30, after the comparables session handed the
+  file over (it had just added Fig 3.2). Nothing outside the 24 picture + caption pairs changed, checked byte for byte;
+  backup `D:/_ClaudeScratch/figtitles/RB05_before_figure_titles__2026-09-29T18-00-30-718Z.md`.
+
+**How it was proved**
+- Throwaway copy of RB05 (`tv-figure-titles`, the statement test server on 8846). All 23 figures measured with the
+  title's left edge and width equal to the picture's (0 px off) in Edit and in Read. Title Off / On, Justify right /
+  centre and a crop were driven through the real menu. Real key presses typed into a title changed only the
+  figcaption words; Enter and Tab left the block count unchanged. The editor's saved markdown is byte for byte the
+  converted file. The PDF (zero text) shows Fig 3.1's title flush with the cropped picture, wrapping at its edge.
+- `80__Testing__PrototypeEnvironment/Na__Test__StatementFigureTitle__.test.mjs` - 32 checks, including a legacy
+  document converted with nothing outside its figures changed (the prose "Figure 3.1 above..." left alone), and the
+  real RB05 file: one block per figure, a byte-for-byte round trip, a second pass taking in nothing. The round-trip, standard sections and lockstep suites and `Na__Verify__Exports__.mjs` all pass.
+- Seen in passing and NOT caused by this: in a PDF made on the test origin, Figs 2.1 and 2.2 (the two pictures linked
+  straight to cdn.noble-architecture.com) print blank - bare as well as inside a figure. Local pictures print both ways.
+- NOT confirmed by Adam. NOT in ValeVision.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.164.0  -  29-Sep-2026
+### A Site Plan Legend in the Parametric Scrapbook: Every Wash, Hatch and Line the Site Plans Show, Each Swatch Drawn as the Drawing Draws It
+
+**Overview**
+- From Adam, over RB05's proposed site plan: "In the layout editor on site plans, create a new dynamic block for the
+  dynamic block scrapbook that creates a legend automatically for whatever hatches are found in the current drawing
+  (the hatches and the shading, etc.), and creates a little quick-reference legend table."
+- A sixth element type in the Parametric Scrapbook, `SiteLegend`, offered on site plan sheets only (tile "Site Plan
+  Legend"). Drop it and it lists, one row each, every layer the sheet's site plans actually PAINT INSIDE THEIR FRAMES:
+  an AREA row (a wash and/or a hatch) with a swatch box, or a LINE row (the red line, a fence, a removal) with a run of
+  the line. It re-writes itself inside the same undo step whenever a layer is switched off, a deck, colour, pattern or
+  line style is changed, or a site plan is moved, cropped or re-scaled.
+
+**The change**
+- New pure type `57__Feature__ScrapbookParametric/Na__LayoutEditor__ScrapbookParametric__SiteLegend__.js`
+  (Na__LeParamLegend, imports nothing). Parameters in, records out, the Area Schedule's idiom: the rows are the `Data`
+  parameter; the origin is the left end of the top rule; every shape before every text.
+  - A SWATCH IS THE DRAWING'S THREE DECKS: the wash (fill colour and opacity), the hatch, the edge (the layer's line
+    colour, weight and dash), bottom to top.
+  - THE HATCH'S GLYPHS ARE DRAWN, NOT TILED. A hatch on a sheet vector is anchored to the sheet's corner, so a small
+    swatch shows whatever part of the tile falls on it - often nothing on grass (a 28 x 26 mm tile with ten tufts) -
+    and changes whenever the legend moves. The densest swatch-sized window of the pattern (as the drawing lays it:
+    scaled and turned) is found a half millimetre at a time, and its WHOLE glyphs are written as ordinary vectors at
+    the pattern's weight and ink. The woodland's and the pond's hand-placed knit copies land on top of another glyph
+    once tiles are laid side by side; such a mark is counted and drawn once.
+  - DASHES AND DOTS ARE FILLED CAPSULES. The site plan paints round-capped lines; a sheet vector's own dash pattern is
+    butt-capped on screen and in the PDF alike (and a solid vector prints butt-capped too), which would turn the
+    removals' dots into slivers. Each dash is the dash plus a half line width of round end at each side.
+  - SET TO ITS WORDS. Each column is as wide as its swatch, the gap and its longest label measure (the chrome's own
+    measurer); WidthMm is a MINIMUM for lining the rule up with a title block. `refit` rebuilds a legend drawn to the
+    estimate before the fonts loaded, as the Drawing Title's does.
+  - COLUMNS ARE AUTOMATIC as dropped: another every 12 rows (RB05's 22 rows land as two columns of 11); 1 to 4 by hand.
+  - 12 x 6 mm swatches: the smallest that carries two of the woodland's and the water's glyphs (conifer and broadleaf).
+  - A new legend hides the OS base map and the contours (`HiddenByDefault`); every row can be ticked off or back on.
+- New link `57__Feature__ScrapbookParametric/Na__LayoutEditor__ScrapbookParametric__SiteLegendLink__.js`
+  (Na__LeParamLegendLink): the only part of the legend that knows what a site plan viewport is.
+  - Reads each viewport through the new `Na__LeVp2d__SitePlanLegend` (Viewport2d SitePlan unit 1.2.0): the SAME build
+    the painter paints (SitePlanBuild) plus StyleBands' own answer for each layer's line - one stand-in segment per
+    layer is put through it - and an exact test of what shows inside the frame (Liang-Barsky on the lines; the faces
+    even-odd, as they are filled). A layer switched off, a deck off, a per-viewport colour, pattern or dash, a location
+    plan's greyed ink: all as drawn. Cached per viewport on the painter's own repaint key and the frame's window.
+  - Rows run the reverse of the draw order: the red line and the proposal lead, the base map comes last. A layer two
+    site plans show is listed once, as the most detailed shows it.
+  - LOCATION PLANS ARE READ ONLY WHEN THE SHEET HAS NO OTHER SITE PLAN. They grey every layer but the red line and the
+    proposal and draw no hatches; beside a block plan they only added grey lines and kept a layer switched off on the
+    block plan listed in its greyed look (found testing RB05: one block plan, two location plans). The panel's Reads
+    list can still point a legend at one location plan by hand.
+  - Before-announce hook (Na__LeModel__RegisterBeforeAnnounce): a drop, a layer switch, a crop is followed INSIDE its
+    own announcement, so one Ctrl+Z puts both back. Legends are compared normalised-against-normalised; nothing is
+    rebuilt when nothing moved. NOTHING IS REBUILT WHILE ANYTHING IS STILL LOADING (site plan layers, the hatch
+    library): the legend is left alone and a refresh is booked for when they land.
+  - A tile dropped while the data is in lands already filled, centred at the size it will be.
+- Engine untouched. HatchPatterns 1.5.0: `Na__LeHatch__TileMarks(key)`, a tile's marks each as its own lines (what
+  TilePolylines gives, still grouped by glyph). Viewport2d 1.16.0 re-exports SitePlanLegend and SitePlanStoreId.
+- Panel (Panel__ScrapbookParametric 1.8.0): registers the type and attaches the link beside the viewport link; tools
+  gain `hatchTile`. Settings for a selected legend: what it lists ("Lists 22 of the 27 washes, hatches and lines its
+  site plans show."), Reads, Title, Columns, Lines as well as areas, Width at least, Type size, Swatch width and height,
+  a tick box per row, List every row. The lookup triangle offers the columns, the lines switch and every row.
+- Config (Parametric Scrapbook 1.8.0): the `SiteLegend` block, the tile, its type name and the wording.
+- Service worker token 2026-09-29-01 (undeployed) covers it; its log says so.
+
+**How it was proved**
+- `Na__Verify__Exports__` PASS (532 files). New `Na__Test__ScrapbookSiteLegend__.test.mjs` (56 checks, all passing)
+  runs the type against the REAL site plan hatch library: every site plan pattern puts whole glyphs inside the standard
+  swatch (the woodland and the water two DIFFERENT ones), a dash reaches exactly half a line width past its ends,
+  fifteen round dots in a 12 mm run, columns, the minimum width, the labels never overrunning the rule, refit, the menu.
+  `Na__Test__AreaSchedule__` and `Na__Test__ScrapbookCabinetInfill__` still pass.
+- In the app, RB05 on a static server with a write guard, on a scratch copy of D13 Proposed Site Plan:
+  - a legend dropped with NO rows given filled itself inside the drop's own step (27 layers found, 22 listed in two
+    columns); one undo took it away byte for byte, redo brought it back byte for byte; an idle refresh changed nothing;
+  - Mixed Woodland switched off on the block plan left the legend in the same step; undo put both back in ONE step;
+    redo; undo again - each byte for byte;
+  - unticking Grassland in the panel ("Lists 21 of the 27"), pointing the legend at a location plan (its greyed lines
+    and proposal-only washes), and panning the block plan off the site ("No washes, hatches or lines found") - each
+    undone byte for byte;
+  - the legend's own records drawn through the app's PDF path (`Na__LeChrome__DrawToPdf`) and rasterised with
+    PlanVision's pdf.js: the swatches print as they show, dots round.
+  - Every real sheet byte-identical afterwards; not one write attempted all session; the browser draft cleared.
+- FOUND BY TESTING, fixed before this entry: the drop announces its LAST leaf, a text, so 'annotation' had to join
+  the follower's reasons; the knit copies above; the location plans above; an odd-sided capsule stopping short of its
+  tip.
+- NOT tried by Adam. NOT in ValeVision (it has no site plan drawings).
+
+# ---------------------------------------------------------
+## TrueVision3D v2.163.0  -  29-Sep-2026
+### The Project Specification Is Kept in Step With Its File, as a Statement Is: an Agent's Edit Is Asked About, Never Saved Over
+
+**Overview**
+- From Adam: "I keep accidentally saving over things other agents are doing... If somebody edits the underlying data
+  file and it's newer than what's in the app currently, ask you to make a decision and prompt you to always take the
+  latest." The statement system (v2.157.0) was the model: "that same visibility and server checking in the
+  background... applied to the specification".
+- What was actually happening, read from the code:
+  - The app NEVER LOOKED at `TrueVision__DrawingNotes__.json` after load. The drawing note writer (tv_notes.py) and
+    hand edits change that file directly, and an open tab kept the copy it had loaded.
+  - Save Sheets (Sync), Enter in the drawing's Specification tab (WriteLocalCopy) and Sync on the tab all wrote that
+    stale copy straight over the file. Sync only checked whether R2 had moved.
+  - On load, a browser draft that differed from the file was put back UNASKED, under a toast.
+  - Reload Local marked the file it loaded as the cloud copy. After an agent's edit, Sync therefore stayed greyed
+    out, and the edit never reached R2 unless something else was changed.
+
+**The change**
+- New unit `50__Feature__Specification/Na__LayoutEditor__SpecData__Lockstep__.js` (Na__LeSpec), sitting between the
+  Draft and Transport units. It owns the local file: its reads (with the server's Last-Modified), its one write queue,
+  the watch, the autosave, and the question.
+  - THE SAME RULES AS THE STATEMENT. The verdict (in step, app ahead, file ahead, diverged) is imported from
+    `Na__LayoutEditor__Statement__Lockstep__`, not copied, so the two can never drift apart.
+  - CONTENT DECIDES. Copies are compared by `Na__LeSpec__LockJson` (Document 1.1.0): the groups, notes, revision
+    and document number, but not the stamps (not even each note's Note__UpdatedIso). An agent writing the very words
+    on screen agrees with the app.
+  - WHEN IT LOOKS. On load; every LockstepPollMs (3 s) while the drawing editor is open and the browser tab visible;
+    when the window regains focus; and IMMEDIATELY BEFORE EVERY WRITE (the autosave, Enter in the drawing's
+    Specification tab, Save Sheets and Sync). A write that finds the file moved writes nothing and asks.
+  - The look happens inside the write's own turn in the queue, so nothing of this app's can land between the two.
+- THE FILE IS NOW THE WORKING COPY, as a statement's markdown is.
+  - What is in the app is written to the file AutoSaveLocalMs (4 s) after the editing pauses, so an agent always
+    starts from what is on screen.
+  - R2 is still written only by Save Sheets and Sync. A change saved to the file still reads as unsynced.
+- THE QUESTION: new `Na__LayoutEditor__SpecLockstep__.js` (Na__LeSpecLock). It is the statement's card, over the
+  whole drawing editor (a sheet, the specification, the register or the statements), with no way out but an answer.
+  - "Keep the app's copy" writes it to the file. "Load the specification file" replaces the app's copy.
+  - Each answer says when it last changed. A "what differs" line names the note CODES only one copy holds, the notes
+    worded or renumbered differently, and a revision, number or group that differs.
+  - The newer copy is badged Newer and gets the focus, and the footer says the newer is usually the one to keep.
+  - The copy not chosen is kept in this browser (`Na__LayoutEditor__SpecDiscarded__<code>`).
+- ON LOAD a browser draft that differs from the file is the question (kind 'open'), asked before anything is edited.
+  Off localhost, where there is no file, it is put back as before.
+- Transport 1.3.0:
+  - Sync stops before R2 is touched when the file moved. It looks again in the local write's own turn, and refuses
+    while the question stands.
+  - Reload Local and "Load the file" leave the cloud bookkeeping alone, so an agent's edit reads as unsynced and Save
+    Sheets sends it.
+  - Reload Local asks first only when the app holds something the file does not. Both reloads keep what they replace.
+  - A seed that writes a newer cloud copy over a different local file on load keeps the local one in this browser.
+- A HAND-WRITTEN NOTE WITH NO ID never makes the watch ask again and again. The file's key is worked out with this
+  session's id floor held at nought and is marked when an id is missing. The app then reads as ahead, and the next
+  autosave writes the ids in, so a bubble linked to that note keeps its link.
+- The tab's bar says disk first, cloud second, as the statement's does: "Out of step with the file", "Unsaved
+  changes", "Saved to file, not synced", then the old cloud states. Its hover says when the file last changed, and an
+  alert shows while the question stands.
+  - Save Sheets says when the specification was held back.
+  - Enter in the drawing's Specification tab says when its write was held (RowEditor 1.1.0).
+- Config (`LayoutEditor__Specification__`): LockstepEnabled (true), LockstepPollMs (3000), AutoSaveLocalMs (4000; 0
+  switches the autosave off) and a note. A setup that does not name LockstepEnabled keeps the last save winning.
+- Wiring: ModeController 1.31.0 starts the watch when the editor opens and stops it when it closes, and mounts the
+  question where this session may author. Styles are in `Na__LayoutEditor__Styles__Specification__.css` (The
+  Lockstep Question). No new server route: the local file's Last-Modified comes from whatever serves the repository.
+
+**How it was proved**
+- `Na__Verify__Exports__` PASS (530 files).
+- New `Na__Test__SpecLockstep__.test.mjs`, all passing. It loads the real units wired together, with lockstep ON,
+  and plays the agent by writing the "disk" directly. It covers:
+  - the autosave;
+  - file ahead, where Enter, the autosave and Sync are all held and nothing reaches the disk or R2;
+  - both answers;
+  - both moved;
+  - the same words reached by both;
+  - a file moving DURING Sync's R2 write;
+  - the load-time draft question, both ways;
+  - Reload Local leaving the file unsynced;
+  - an id-less note;
+  - off localhost.
+- `Na__Test__SpecInlineEdit__` still passes with lockstep off (its harness gained a package.json, without which Node
+  20 could not load it at all, and the new unit).
+- In the app, PS01 on a static server, with a fetch guard serving the local file from memory: no disk write, and
+  nothing sent to R2. Answers were given with real clicks.
+  - An agent's new note plus a reworded one gave "What differs: 1 note only in the file (GN03) · 1 note worded or
+    numbered differently (SN01)", with the file badged Newer and focused. "Load the specification file" gave "Saved to
+    file, not synced", with Sync enabled.
+  - App typing plus an agent's edit in the same seconds: the autosave wrote NOTHING, the question was "both", and "Keep
+    the app's copy" put the typing on disk with the agent's version kept in the browser.
+  - Sync with the file just moved wrote nothing to R2 or the disk, and asked.
+  - The real PS01 file was untouched throughout.
+- A hidden pane pauses the watch by design (visibilityState 'hidden'); it looks the moment the tab is visible again.
+- NOT tried by Adam. NOT in ValeVision (its port needs the Statement Writer's pure rules file with it).
+
+# ---------------------------------------------------------
+## TrueVision3D v2.162.0  -  29-Sep-2026
+### Standard Sections: the Header, the Contents and the TrueVision 3D Project Hub Are Switched On in Edit Mode, Drawn by the App, and Dragged Like a Section
+
+**Overview**
+- Adam, 29-Sep-2026, over RB05's statement: a standard section "that can be toggled on in any section that's made. In
+  the UI, in the statement editor tool in edit mode" - first the TrueVision section the EB03 statement carried (section
+  18.0, a button and no code), rebuilt as "the ultimate nudge": the project's QR code from the drawings' own generator,
+  sized for A4, the case for the 3D model and the hub. Then "the table of contents set up as an automatic element as
+  well", then the header block, "too constrained ... just so the styles that exist already for headings and stuff don't
+  mess them up". Every statement opens: 1. the header, 2. the header information, 3. the contents, 4. the TrueVision
+  section, 5. the introduction.
+- EDIT MODE > STANDARD SECTIONS (the bar): a menu of the three, dotted where the statement carries one. A pick switches it
+  on - where its placement puts it, brought into view and picked out - or off. Each card says "Standard Section" on hover
+  and offers Move (not the header), Edit (the marker) and Switch Off.
+
+**What is stored** - one marker per section, nothing else
+- `<div class="na-le-stmt-std-marker" data-na-standard-section="TrueVisionHub">fallback sentence</div>`. The tokeniser
+  reads it as one raw HTML block, so the editor freezes, serialises and round-trips it like a picture; Typora shows the
+  fallback sentence. The header's marker carries its fields between the tags, one a line ("Applicant: ...", indented
+  lines continue a value). `data-na-std-name="..."` names the project in the statement's words where the app's differ.
+- Drawn fresh on every render from `09__Standard__Sections/Na__LayoutEditor__Statement__Standard__Config__.json` and the
+  project on screen, so improved words reach every statement and the Contents cannot fall behind the headings.
+
+**The three sections** (new folder `52__Feature__StatementWriter/09__Standard__Sections/`)
+- `...Standard__Registry__.js` - the list, the markers, placement, on and off. Registers an expander with the renderer.
+  Every section but the header sits between two major dividers ("an HR above and below it in my standard HR style"):
+  switching on adds a divider under it unless one is there; switching off takes it away again, so on and off give the
+  file back byte for byte. Placement anchors: `Top`, `HeaderDivider` (the first divider above 1.0), `Standard:<Id>`.
+- `...Standard__Header__.js` - logo, title and fields in spacing of its own (9 mm under the logo, 7 under the title, 6
+  between groups, 1.8 label to value). Switched on it TAKES OVER the house header at the top of the file (logo, `##`,
+  each `#####` with its one paragraph); switched off it writes that markdown back. Never moves.
+- `...Standard__Contents__.js` - every `### N.0 |` and `#### N.N |`, any `##` after 1.0, and any standard section with a
+  line of its own (the hub), in two columns that never split a section; RB05's static list, as classes. Lands after the
+  header's divider. In the editor it is drawn again 450 ms after the headings change.
+- `...Standard__TrueVisionHub__.js` - a navy band (the drawings' ink #172b3a and the drawing register's tints: Adam,
+  "don't use the brown colour scheme ... use the new blue"), then the access panel - the project's code, 28 mm (a 0.97
+  mm module), in navy, beside "Scan To Step Inside The Model", the Open button and a line of facts - then four
+  quick-reference points in two columns (Adam: the one bold lead-in "reads as one strangely structured sentence"), the
+  lead paragraphs, four tiles (no numbers - "remove these little numbers") and the closing paragraph. Its type keeps to
+  the document's hierarchy (title at the h3's 12pt, body at 10pt). The words assume no site: "from ground level and from
+  a bird's-eye view", never the street, the garden or a boundary (Adam: "some jobs won't be seen from the street"). The link and
+  the code are the drawings' short address, `/q/?RB05`, from `Na__ProjectQr__GetUrl` and `Na__ProjectQr__GetSymbol`; no
+  project on the address bar, no access panel. Lands after the Contents.
+
+**Moving a section** - `04__Ui__Editor/Na__LayoutEditor__Statement__Editor__Move__.js`, new
+- Nothing could move a block before (the picture grip resizes). Pointer events on the Move handle, a line at the nearest
+  section boundary, auto-scroll at the top and bottom of the view, Escape to cancel. A section is only put down straight
+  under a divider and carries the divider under it, so it always has one above and below and never leaves two touching.
+
+**Around it**
+- Renderer 1.1.0: `RegisterExpander` / `Expand(html, context)`; `Blocks` hands expanders the document's blocks. Nothing
+  registers under node, so the markdown tests see raw HTML as written.
+- Cards 1.1.0: badge, Move (movable sections only), Switch Off through the registry's rule (the header is written back,
+  dividers kept right), and `Repaint` through the expanders.
+- Editor 1.1.0: `ToggleStandard`, `StandardPresent`, `RepaintStandard`; the registry's document source.
+- Page 1.3.0: the Standard Sections button and menu; redraws when either config lands.
+- Pdf 1.1.0: CLICKABLE LINKS - every http(s) link on the page gets a link annotation over the same spot, so the hub's
+  button and code open from a PDF viewer. Still no text in the file.
+- The document stylesheet has a Standard Sections region; the editor stylesheet one for the badge, the handle, the line.
+- Two lockstep sentences say "made today at ..." for "from today at ...", and one PDF error string was reworded, because
+  the module graph verifier reads "from" or "export" followed by a quote as an import.
+
+**Shared files** - the "Statement image HTML styling" session (FigureZoom, the frame's weight at any zoom) edited Render,
+Cards and Figure in the same hour; both sets of hunks are on disk side by side and this entry covers only this release.
+
+**Tests** - `80__Testing__PrototypeEnvironment/Na__Test__StatementStandard__.test.mjs` (45 checks, the real modules in a
+scratch ES module tree): markers, the house order on RB05 in any switch-on order, no touching dividers, on/off byte for
+byte, the header's round trip, the Contents rows, the header and hub as drawn. `Na__Test__StatementStandard__.html`
+draws them on the paper and rasterises through the vendored html2canvas. In the app on a throwaway RB05 (the statement
+test server): menu, header take-over, Contents, hub, Move to 13.0 and back, Contents following a renamed heading,
+Switch Off from a card, Save.
+
+**Not done** - NOT tried by Adam; NOT in ValeVision (no statement tab there). The QR code has not been scanned off a
+printed statement or a screen by a phone. NP03's statement had no TrueVision section in any copy found.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.161.0  -  28-Sep-2026
 ### A Scene Can Turn the Sun, and Every Scene It Does Not Touch Keeps the Default (Ported From ValeVision3D v2.71.0)
 

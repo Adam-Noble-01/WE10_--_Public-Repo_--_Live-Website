@@ -67,6 +67,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.16.0 (TrueVision)
+// - Re-exports the SitePlan unit's new SitePlanLegend, and SitePlanStoreId,
+//   for the Parametric Scrapbook's site plan legend: what a site plan viewport
+//   shows inside its frame, layer by layer, and which store it draws.
+//
 // 21-Sep-2026 - Version 1.15.0 (TrueVision)
 // - Hide swings. ForceRender, RenderForExport and RenderFogForExport draw the
 //   picture with Na__LeDoors__RasterLayers(viewport): the viewport's own model
@@ -259,7 +264,7 @@
         Na__LeVp2d__StyleBands,
         Na__LeVp2d__PaintLinework
     } from './Na__LayoutEditor__Viewport2d__Linework__.js';
-    import { Na__LeVp2d__SitePlanDrawing, Na__LeVp2d__FillSitePlan, Na__LeVp2d__SitePlanStoreId } from './Na__LayoutEditor__Viewport2d__SitePlan__.js';
+    import { Na__LeVp2d__SitePlanDrawing, Na__LeVp2d__SitePlanLegend, Na__LeVp2d__FillSitePlan, Na__LeVp2d__SitePlanStoreId } from './Na__LayoutEditor__Viewport2d__SitePlan__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -643,7 +648,9 @@
         Na__LeVp2d__RenderFogForExport,
         Na__LeVp2d__ForceRender,
         Na__LeVp2d__GetSnapSource,
-        Na__LeVp2d__SitePlanDrawing
+        Na__LeVp2d__SitePlanDrawing,
+        Na__LeVp2d__SitePlanLegend,                                           // <-- What a site plan shows, layer by layer: the Parametric Scrapbook's legend reads it
+        Na__LeVp2d__SitePlanStoreId
     };
     // ------------------------------------------------------------
 

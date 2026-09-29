@@ -1,0 +1,77 @@
+<!doctype html>
+<!--
+    Na__Test__StatementStandard__.html
+    ----------------------------------
+    Draws the Statement Writer's standard sections on the statement paper, the way
+    the reader does, so their look can be judged and rasterised without loading a
+    project into the app.
+
+    Open it on a server rooted at the repository with a project on the address bar,
+    or the QR code and the access panel are (correctly) left out:
+        .../80__Testing__PrototypeEnvironment/Na__Test__StatementStandard__.html?project=RB05&project-folder=RB05__WestFarm&year=26
+
+    ?statement=<path from the repository root to a statement .md> renders that whole
+    statement through the real tokeniser and renderer instead of the sample page.
+    window.__NaTestStd.raster(selector) returns a JPEG data URL of that element made
+    by the vendored html2canvas at the PDF exporter's default scale, which is what
+    reaches the PDF.
+-->
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Statement Standard Sections - Test</title>
+    <link rel="stylesheet" href="../03__Style__AppStylesheets/Na__CoreUi__Styles__Fonts__.css">
+    <link rel="stylesheet" href="../02__Src__AppModules/51__System__LayoutEditor/52__Feature__StatementWriter/08__Style__Stylesheets/Na__LayoutEditor__Styles__Statement__Document__.css">
+    <style>body { background:#d9dcdf; margin:0; padding:10px; }</style>
+    <!-- The app's name for the project (window.TrueVision__Pwa__ProjectContext), as Index.html loads it. -->
+    <script src="../02__Src__AppModules/62__Feature__AppInstallability/TrueVision__Pwa__ProjectContext__.js"></script>
+</head>
+<body>
+<div id="paper" class="na-le-stmt-doc"></div>
+<script type="module">
+    import { Na__LeStmtStd__Ready } from '../02__Src__AppModules/51__System__LayoutEditor/52__Feature__StatementWriter/09__Standard__Sections/Na__LayoutEditor__Statement__Standard__Registry__.js';
+    import { Na__LeStmtMd__Tokenise } from '../02__Src__AppModules/51__System__LayoutEditor/52__Feature__StatementWriter/02__Core__Markdown/Na__LayoutEditor__Statement__Md__Tokenise__.js';
+    import { Na__LeStmtRnd__Blocks } from '../02__Src__AppModules/51__System__LayoutEditor/52__Feature__StatementWriter/02__Core__Markdown/Na__LayoutEditor__Statement__Md__Render__.js';
+    import { Na__ProjectQr__Ready } from '../02__Src__AppModules/51__System__LayoutEditor/53__Feature__ProjectQrCode/Na__ProjectQr__Symbol__.js';
+
+    const SAMPLE = [
+        '### 12.0 |  Matters On Which The Council\'s Advice Is Sought',
+        '',
+        'The purpose of this enquiry is to establish the council\'s position on the matters that will shape a full application. This paragraph stands in for the section above the standard section.',
+        '',
+        '<div class="na-le-stmt-std-marker" data-na-standard-section="TrueVisionHub">Standard Section: TrueVision 3D Project Hub.</div>',
+        '',
+        '### 13.0 |  Conclusion',
+        '',
+        'West Beacon Farm is an established residential estate within the Charnwood Forest landscape. This paragraph stands in for the conclusion below it.',
+        ''
+    ].join('\n');
+
+    await Promise.all([Na__LeStmtStd__Ready(), Na__ProjectQr__Ready()]);
+    const params = new URLSearchParams(location.search);
+    let markdown = SAMPLE;
+    if (params.get('statement')) {
+        markdown = await (await fetch('../../../' + params.get('statement') + '?t=' + Date.now(), { cache : 'no-store' })).text();
+    }
+    const paper = document.getElementById('paper');
+    paper.innerHTML = Na__LeStmtRnd__Blocks(Na__LeStmtMd__Tokenise(markdown), { Editable : params.get('editable') === '1' });
+
+    window.__NaTestStd = {
+        async raster(selector, scale) {
+            if (!window.html2canvas) {
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = '../04__Lib__ThirdParty__VersionLocked/06__Vendor__Html2Canvas__v1.4.1/html2canvas.umd.js';
+                    script.onload = resolve; script.onerror = reject;
+                    document.head.appendChild(script);
+                });
+            }
+            const element = document.querySelector(selector);
+            const canvas  = await window.html2canvas(element, { scale : scale || 1.5, useCORS : true, backgroundColor : '#ffffff', logging : false });
+            return { width : canvas.width, height : canvas.height, url : canvas.toDataURL('image/jpeg', 0.8) };
+        }
+    };
+    window.__ready = true;
+</script>
+</body>
+</html>

@@ -53,6 +53,20 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.4.0
+// - SHARE at the end of the bar, in Read only (a reader is always on Read):
+//   a link that opens the statement on screen, read-only, on any device
+//   (66__Feature__DocumentSharing, TrueVision3D v2.165.0). Show takes
+//   { statementId, view : 'read' }, which is how a shared link lands on one
+//   statement in its Read view.
+//
+// 29-Sep-2026 - Version 1.3.0
+// - STANDARD SECTIONS on the bar (edit only): a menu of every registered
+//   standard section, dotted where the statement carries one; a pick switches
+//   it on or off through the editor. The TrueVision 3D Project Hub is the
+//   first. The page reads the standard sections and QR configs when it mounts
+//   and draws the sections again when either lands.
+//
 // 23-Sep-2026 - Version 1.2.0
 // - THE LOCKSTEP QUESTION. When the data module finds the statement on screen
 //   and its markdown file out of step, this page puts the choice over the
@@ -105,11 +119,23 @@
         Na__LeStmt__GetConflict
     } from '../01__Core__Data/Na__LayoutEditor__Statement__Data__.js';
     import { Na__LeStmtLock__When, Na__LeStmtLock__LinesText } from '../01__Core__Data/Na__LayoutEditor__Statement__Lockstep__.js';
-    import { Na__LeStmtEd__Build, Na__LeStmtEd__SetMarkdown, Na__LeStmtEd__SetSourceView, Na__LeStmtEd__SetMono, Na__LeStmtEd__IsSourceView, Na__LeStmtEd__IsMono } from '../04__Ui__Editor/Na__LayoutEditor__Statement__Editor__.js';
+    import { Na__LeStmtEd__Build, Na__LeStmtEd__SetMarkdown, Na__LeStmtEd__SetSourceView, Na__LeStmtEd__SetMono, Na__LeStmtEd__IsSourceView, Na__LeStmtEd__IsMono,
+             Na__LeStmtEd__StandardPresent, Na__LeStmtEd__ToggleStandard, Na__LeStmtEd__RepaintStandard } from '../04__Ui__Editor/Na__LayoutEditor__Statement__Editor__.js';
     import { Na__LeStmtRead__Build, Na__LeStmtRead__SetMarkdown, Na__LeStmtRead__Fit, Na__LeStmtRead__Paper__Element } from '../05__Ui__Reader/Na__LayoutEditor__Statement__Reader__.js';
     import { Na__LeStmtMgr__Build, Na__LeStmtMgr__Show, Na__LeStmtMgr__Hide, Na__LeStmtMgr__IsShowing } from './Na__LayoutEditor__Statement__Manager__.js';
     import { Na__LeStmtPdf__Build } from '../06__Export__Pdf/Na__LayoutEditor__Statement__Pdf__.js';
     import { Na__LeStmtPublish__Run, Na__LeStmtPublish__Title } from '../07__Export__Publish/Na__LayoutEditor__Statement__Publish__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Standard Sections, the Project QR Code and the App's Menu
+    // ------------------------------------------------------------
+    // Importing the registry is also what registers its expander with the
+    // renderer, so every surface on this page draws a marker as its section.
+    // ------------------------------------------------------------
+    import { Na__LeStmtStd__READY_EVENT, Na__LeStmtStd__Ready, Na__LeStmtStd__List } from '../09__Standard__Sections/Na__LayoutEditor__Statement__Standard__Registry__.js';
+    import { Na__ProjectQr__READY_EVENT, Na__ProjectQr__Ready } from '../../53__Feature__ProjectQrCode/Na__ProjectQr__Symbol__.js';
+    import { Na__ContextMenu__Ui__Open } from '../../../27__System__ContextMenuSystem/Na__ContextMenuSystem__Ui__MenuRenderer__.js';
+    import { Na__LeShareUi__Open } from '../../66__Feature__DocumentSharing/Na__LayoutEditor__Share__Button__.js';   // <-- Share: the link to the open statement's Read view
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | The Documents' Own Keyboard
@@ -258,6 +284,20 @@
                 Na__LeStmtPage__Views.appendChild(pill);
             }
             bar.appendChild(Na__LeStmtPage__Views);
+
+            // STANDARD SECTIONS | Edit only: a menu with a dot against each one
+            // the statement carries; picking one switches it on or off.
+            const standard = Na__LeStmtPage__El('button', 'na-le-btn na-le-btn--small na-le-stmt__standard', 'Standard Sections');
+            standard.type = 'button';
+            standard.title = 'Switch standard sections on and off - the TrueVision 3D Project Hub and any others - then drag them where they are wanted';
+            standard.setAttribute('data-na-stmt-only', 'edit');
+            standard.addEventListener('mousedown', (event) => event.preventDefault());   // <-- Never take the caret out of the document
+            standard.addEventListener('click', (event) => {
+                event.preventDefault();
+                const box = standard.getBoundingClientRect();
+                Na__LeStmtPage__StandardMenu(box.left, box.bottom + 4);
+            });
+            bar.appendChild(standard);
         }
 
         bar.appendChild(Na__LeStmtPage__El('div', 'na-le-stmt__spacer'));
@@ -280,7 +320,57 @@
                 () => Na__LeStmtPage__DownloadPdf(preset.Key)));
         }
 
+        // SHARE | Read only: a link that opens the statement on screen in its
+        // Read view on any device (66__Feature__DocumentSharing).
+        const share = Na__LeStmtPage__Button('Share', 'na-le-btn--small', () => {
+            Na__LeShareUi__Open(share, { kind : 'statement', statementId : Na__LeStmt__GetState().openId });
+        });
+        share.title = 'A link that opens this statement, read-only, on any device';
+        share.setAttribute('data-na-stmt-only', 'read');
+        bar.appendChild(share);
+
         return bar;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Standard Sections Menu
+    // ------------------------------------------------------------
+    // One row per registered section, dotted when the statement carries it.
+    // A pick switches it on (it lands where its placement rule says, usually
+    // above the Conclusion, and is brought into view) or off.
+    // ------------------------------------------------------------
+    function Na__LeStmtPage__StandardMenu(x, y) {
+        if (!Na__LeStmt__GetState().open) { Na__LeStmtPage__Toast('Open a statement first.', true); return; }
+        if (Na__LeStmtEd__IsSourceView()) { Na__LeStmtPage__Toast('Leave the raw markdown view to switch standard sections on or off.', true); return; }
+        const present = Na__LeStmtEd__StandardPresent();
+        const rows = Na__LeStmtStd__List().map((section) => ({
+            group    : 'statementStandard',
+            label    : section.Label,
+            isActive : present.includes(section.Id),
+            action   : () => {
+                const result = Na__LeStmtEd__ToggleStandard(section.Id);
+                if (!result.ok) Na__LeStmtPage__Toast(result.reason || 'Nothing changed.', true);
+                else Na__LeStmtPage__Toast(section.Label + (result.on ? ' switched on. Drag it by its Move button to put it somewhere else.' : ' switched off.'), false);
+                Na__LeStmtPage__Refresh();
+            }
+        }));
+        Na__ContextMenu__Ui__Open('Standard Sections', [ { id : 'statementStandard', rows : rows } ], x, y, null);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Draw the Standard Sections Again When What They Are Drawn From Lands
+    // ------------------------------------------------------------
+    // Their words (the standard sections config) and their code (the Project
+    // QR config) are each fetched once. A page drawn before either landed drew
+    // the built-in defaults, which mirror the files; this makes it agree with
+    // the files. Only the sections are touched - never the prose around them.
+    // ------------------------------------------------------------
+    function Na__LeStmtPage__RedrawStandard() {
+        if (!Na__LeStmtPage__Root || !Na__LeStmt__GetState().open) return;
+        if (Na__LeStmtPage__View === 'read') Na__LeStmtRead__SetMarkdown(Na__LeStmt__GetText());
+        else                                  Na__LeStmtEd__RepaintStandard();
     }
     // ------------------------------------------------------------
 
@@ -624,12 +714,14 @@
         const lock = Na__LeStmtPage__BuildLock();
 
         const appWhen  = Na__LeStmtLock__When(conflict.appIso);
+        // "made" rather than "from" before a time: the module graph verifier reads the word from, a quote
+        // and a name as an import, and its scan reached these two sentences once the bar grew a menu.
         const fileWhen = Na__LeStmtLock__When(conflict.fileIso);
         const lead = (conflict.kind === 'open')
-            ? 'This browser is holding unsaved changes to the statement from ' + appWhen + ', and the markdown file on disk is not the same - it was last changed ' + fileWhen + '. Choose which to carry on with.'
+            ? 'This browser is holding unsaved changes to the statement made ' + appWhen + ', and the markdown file on disk is not the same - it was last changed ' + fileWhen + '. Choose which to carry on with.'
             : (conflict.kind === 'file')
                 ? 'The markdown file was changed outside the app ' + fileWhen + ' - in Typora, or by an agent. Nothing in the app is unsaved. Choose which to carry on with.'
-                : 'The markdown file was changed outside the app ' + fileWhen + ', while this browser had unsaved changes from ' + appWhen + '. Choose which to keep.';
+                : 'The markdown file was changed outside the app ' + fileWhen + ', while this browser had unsaved changes made ' + appWhen + '. Choose which to keep.';
         lock.querySelector('.na-le-stmt-lock__lead').textContent = lead;
 
         const summary = conflict.summary || {};
@@ -773,6 +865,10 @@
             Na__LeStmtPage__Refresh();
         });
         window.addEventListener('resize', () => { if (Na__LeStmtPage__Shown) Na__LeStmtPage__Fit(); });
+        window.addEventListener(Na__LeStmtStd__READY_EVENT, () => Na__LeStmtPage__RedrawStandard());
+        window.addEventListener(Na__ProjectQr__READY_EVENT, () => Na__LeStmtPage__RedrawStandard());
+        void Na__LeStmtStd__Ready();
+        void Na__ProjectQr__Ready();
 
         // THE TAB'S OWN KEYS, through the documents' keyboard. Registered only
         // where this session may author: a reader has nothing to save and no
@@ -836,8 +932,13 @@
 
     // FUNCTION | Show the Statements Tab
     // ------------------------------------------------------------
-    async function Na__LeStmtPage__Show() {
+    // options: { statementId, view : 'read' } - how a shared link lands on one
+    // statement in its Read view (66__Feature__DocumentSharing). A statement
+    // id the project does not have is passed over: the page opens as ever.
+    // ------------------------------------------------------------
+    async function Na__LeStmtPage__Show(options) {
         if (!Na__LeStmtPage__Root) return;
+        const asked = (options && typeof options === 'object') ? options : {};
         Na__LeStmtPage__Root.hidden = false;
         Na__LeStmtPage__Shown = true;
         if (Na__LeStmtPage__Root.parentElement) Na__LeStmtPage__Root.parentElement.classList.add('is-stmt-shown');
@@ -845,7 +946,10 @@
         await Na__LeStmt__EnsureLoaded();
 
         const state = Na__LeStmt__GetState();
-        if (!state.openId) {
+        const named = Number(asked.statementId) || 0;
+        if (named && named !== state.openId && Na__LeStmt__List().some((record) => record.Doc__Id === named)) {
+            await Na__LeStmtPage__OpenStatement(named);
+        } else if (!state.openId) {
             const wanted = Number(Na__LeStmtPage__Recall(Na__LeStmtPage__LAST_KEY, '0'));
             const rows   = Na__LeStmt__List();
             const first  = rows.find((record) => record.Doc__Id === wanted) || rows[0];
@@ -853,6 +957,7 @@
             else if (state.editable) Na__LeStmtMgr__Show();
         }
 
+        if (asked.view === 'read') Na__LeStmtPage__View = 'read';
         Na__LeStmtPage__SetView(Na__LeStmtPage__View);
 
         // THE WATCH runs while the tab is showing, so an edit made in Typora or

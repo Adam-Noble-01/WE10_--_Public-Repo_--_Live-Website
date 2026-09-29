@@ -31,6 +31,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.1.0
+// - Says whether the share link record was written, and where (TrueVision3D
+//   v2.165.0): "Share links recorded for 19 document(s), here and on R2."
+//
 // 23-Sep-2026 - Version 1.0.0
 // - Created with Phase 4 of TrueVision__PLAN__PublishingSystem__.md.
 //
@@ -232,6 +236,11 @@
             result.Failed.forEach((one) => Na__LePubPanel__Log(log, Na__LePub__Label('Failed', '{name} was not published: {reason}', { name : one.DocumentId || one.Name, reason : one.Reason }), 'bad'));
             if (result.Orphans.length) Na__LePubPanel__Log(log, Na__LePub__Label('Orphans', '{count} published drawing(s) no longer match a sheet: {ids}. Publish all drawings to retire them.', { count : result.Orphans.length, ids : result.Orphans.join(', ') }), null);
             if (result.Retired.length) Na__LePubPanel__Log(log, Na__LePub__Label('Retired', 'Retired {ids}: archived here and taken off R2.', { ids : result.Retired.join(', ') }), null);
+            if (result.ShareLinks) {                                             // <-- The share link record (66__Feature__DocumentSharing), written just before the index
+                Na__LePubPanel__Log(log, result.ShareLinks.Ok
+                    ? Na__LePub__Label(result.ShareLinks.R2 ? 'ShareLinksR2' : 'ShareLinks', result.ShareLinks.R2 ? 'Share links recorded for {count} document(s), here and on R2.' : 'Share links recorded for {count} document(s).', { count : result.ShareLinks.Count })
+                    : Na__LePub__Label('ShareLinksFailed', 'Share links not recorded: {reason}. The Share buttons build the same links meanwhile.', { reason : result.ShareLinks.Reason }), result.ShareLinks.Ok ? null : 'bad');
+            }
             if (result.Warnings.length) Na__LePubPanel__Log(log, Na__LePub__Label('Warnings', '{count} warning(s) - see the console.', { count : result.Warnings.length }), null);
             if (!result.Ok && result.Reason && result.Failed.length === 0) {
                 Na__LePubPanel__Log(log, Na__LePub__Label('NoLocal', 'Cannot publish: {reason}.', { reason : result.Reason }), 'bad');

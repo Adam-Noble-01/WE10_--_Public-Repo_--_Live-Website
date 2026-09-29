@@ -34,6 +34,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.5.0
+// - TileMarks: a pattern's tile as its MARKS, each a list of flattened lines
+//   in tile millimetres - what TilePolylines gives, still grouped by the glyph
+//   each line belongs to. For the site plan legend, which picks whole glyphs
+//   into a swatch and must never cut one in half.
+//
 // 22-Sep-2026 - Version 1.4.0
 // - DrawPdf's options take holes (a holed vector's, from the vector tools'
 //   Boolean section): the clip is every ring, each closed, taken even-odd, so
@@ -733,6 +739,39 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | One Tile as Its Marks, Each Mark Its Own Lines (by pattern key)
+    // ------------------------------------------------------------
+    // Returns { tileWidthMm, tileHeightMm, strokeMm, opacity, marks : [ [ line,
+    // ... ] ] }, every line a list of [x, y] in TILE millimetres with its
+    // mark's placement already added - or null for a key the library has not
+    // got (not loaded yet, or never). TilePolylines' lines, kept together by
+    // the glyph each belongs to, so a caller can take a mark whole or not at
+    // all: the site plan legend's swatches do exactly that.
+    //
+    // Cached on the pattern object beside TilePolylines' copy.
+    // ------------------------------------------------------------
+    function Na__LeHatch__TileMarks(patternKey) {
+        const pattern = Na__LeHatch__Get(patternKey);
+        if (!pattern) return null;
+        if (pattern.Pattern__MarkCache) return pattern.Pattern__MarkCache;
+        const marks = [];
+        pattern.Pattern__Marks.forEach((mark) => {
+            const flat = Na__LeHatch__FlattenPath(mark.Mark__Glyph.Glyph__Path);
+            if (!flat || !flat.length) return;
+            marks.push(flat.map((line) => line.points.map((point) => [ point[0] + mark.Mark__XMm, point[1] + mark.Mark__YMm ])));
+        });
+        pattern.Pattern__MarkCache = {
+            tileWidthMm  : pattern.Pattern__TileWidthMm,
+            tileHeightMm : pattern.Pattern__TileHeightMm,
+            strokeMm     : pattern.Pattern__StrokeMm,
+            opacity      : pattern.Pattern__Opacity,
+            marks        : marks
+        };
+        return pattern.Pattern__MarkCache;
+    }
+    // ------------------------------------------------------------
+
+
     // MODULE VARIABLE | Unique Ids for Pattern Definitions
     // ------------------------------------------------------------
     // One document can hold many hatched shapes and more than one site plan
@@ -948,6 +987,7 @@
         Na__LeHatch__Token,
         Na__LeHatch__PatternDef,
         Na__LeHatch__TilePolylines,
+        Na__LeHatch__TileMarks,
         Na__LeHatch__SvgPaint,
         Na__LeHatch__DrawPdf,
         Na__LeHatch__SwatchMarkup

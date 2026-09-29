@@ -1,0 +1,89 @@
+{
+  "bbox": [
+    52.696,
+    -1.29,
+    52.745,
+    -1.15
+  ],
+  "rings_km": [
+    2,
+    4,
+    6
+  ],
+  "site": {
+    "name": "West Beacon Farm",
+    "sub": "The application site",
+    "lat": 52.732214,
+    "lon": -1.258094,
+    "side": "l"
+  },
+  "points": [
+    {
+      "name": "Beaumanor Hall",
+      "sub": "{km} km  ·  Grade II* listed",
+      "E": 453779,
+      "N": 315685,
+      "lat": 52.736132,
+      "lon": -1.204951,
+      "side": "r"
+    },
+    {
+      "name": "The Brand",
+      "sub": "{km} km  ·  Grade II listed",
+      "E": 453594,
+      "N": 313286,
+      "lat": 52.714587,
+      "lon": -1.208081,
+      "side": "r",
+      "dy": 12
+    },
+    {
+      "name": "Swithland Hall",
+      "sub": "{km} km  ·  Grade II listed",
+      "E": 455958,
+      "N": 312647,
+      "lat": 52.708604,
+      "lon": -1.173199,
+      "side": "r"
+    },
+    {
+      "name": "Hillview House",
+      "sub": "{km} km  ·  early 2000s  ·  28 acres",
+      "lat": 52.70334376678,
+      "lon": -1.2338286637168,
+      "side": "r"
+    },
+    {
+      "name": "Maplewell Farm",
+      "sub": "{km} km  ·  about 11 acres",
+      "lat": 52.715473,
+      "lon": -1.221188,
+      "side": "l",
+      "dy": 14
+    },
+    {
+      "name": "Maplehurst, Maplewell Road",
+      "sub": "{km} km  ·  1865",
+      "lat": 52.718852,
+      "lon": -1.218551,
+      "side": "l",
+      "dy": -12
+    },
+    {
+      "name": "Church Hill",
+      "sub": "{km} km  ·  2.47 acres",
+      "lat": 52.720779,
+      "lon": -1.214644,
+      "side": "r",
+      "dy": -24
+    },
+    {
+      "name": "Black Birds Nest",
+      "sub": "{km} km  ·  P/23/0512/2",
+      "lat": 52.735187,
+      "lon": -1.24056,
+      "side": "r",
+      "dy": -8
+    }
+  ]
+}

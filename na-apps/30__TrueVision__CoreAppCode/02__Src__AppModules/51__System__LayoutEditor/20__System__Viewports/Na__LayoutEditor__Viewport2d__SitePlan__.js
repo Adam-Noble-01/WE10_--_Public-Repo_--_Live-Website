@@ -49,6 +49,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.2.0
+// - SitePlanLegend: what a site plan viewport shows inside its frame, layer
+//   by layer - the wash, the pattern and the line each is painted with -
+//   read off SitePlanBuild and StyleBands, for the Parametric Scrapbook's
+//   site plan legend. Nothing the painter does changes.
+//
 // 21-Sep-2026 - Version 1.1.0
 // - SitePlanBuild inks a pattern with the pattern's OWN colour when it names
 //   one (Pattern__Ink), and with the layer's line colour otherwise. Grass tufts
@@ -87,13 +93,15 @@
         Na__SpStore__GetNote,
         Na__SpStore__GetDescriptor,
         Na__SpStore__GetLayerData,
-        Na__SpStore__DefaultStoreId
+        Na__SpStore__DefaultStoreId,
+        Na__SpStore__SplitKey
     } from '../21__System__SitePlanData/Na__SitePlan__Store__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Viewport 2D Units (Window, Frame, Linework)
     // ------------------------------------------------------------
-    import { Na__LeHatch__Effective, Na__LeHatch__PatternDef, Na__LeHatch__Token } from '../36__System__HatchPatternTools/Na__LayoutEditor__HatchPatterns__.js';
+    import { Na__LeEdge__FillHex } from '../25__System__RenderStyles/Na__LayoutEditor__EdgeStyles__.js';
+    import { Na__LeHatch__Effective, Na__LeHatch__PatternDef, Na__LeHatch__Token, Na__LeHatch__IsLoaded } from '../36__System__HatchPatternTools/Na__LayoutEditor__HatchPatterns__.js';
     import {
         Na__LeSpComp__IsDeckOn,
         Na__LeSpComp__LocationRules,
@@ -261,7 +269,7 @@
             .filter((data) => data.layer.Layer__Style.FillHex && Number.isFinite(data.layer.Layer__Style.FillOpacity) && data.layer.Layer__Style.FillOpacity > 0)
             .filter((data) => Na__LeHatch__Effective(viewport, data.categoryKey, data.layer.Layer__Style.HatchPatternId).Hatch__Filled)
             .filter((data) => !(location && location.fillsAreProposalOnly) || location.IsProposalLayer(data.layer))
-            .map((data) => ({ categoryKey : data.categoryKey, hex : data.layer.Layer__Style.FillHex, opacity : data.layer.Layer__Style.FillOpacity, rings : data.rings }));
+            .map((data) => ({ categoryKey : data.categoryKey, hex : Na__LeEdge__FillHex(viewport, data.categoryKey, data.layer.Layer__Style.FillHex), opacity : data.layer.Layer__Style.FillOpacity, rings : data.rings }));
 
         // THE PATTERN DECK, over the washes and under the linework. A layer's
         // hatch comes from the Tags SSOT through Layer__Style.HatchPatternId, and
@@ -462,6 +470,149 @@
     }
     // ------------------------------------------------------------
 
+
+    // HELPER FUNCTION | Does a Segment Reach Into a Box (Liang-Barsky)
+    // ------------------------------------------------------------
+    function Na__LeVp2d__SegmentMeetsBox(x1, y1, x2, y2, box) {
+        const dx = x2 - x1, dy = y2 - y1;
+        let t0 = 0, t1 = 1;
+        const clip = (p, q) => {
+            if (p === 0) return q >= 0;
+            const r = q / p;
+            if (p < 0) { if (r > t1) return false; if (r > t0) t0 = r; }
+            else       { if (r < t0) return false; if (r < t1) t1 = r; }
+            return true;
+        };
+        return clip(-dx, x1 - box.minX) && clip(dx, box.maxX - x1) && clip(-dy, y1 - box.minY) && clip(dy, box.maxY - y1);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Does Any of a Layer's Linework Show Inside a Box
+    // ------------------------------------------------------------
+    function Na__LeVp2d__LinesInBox(data, box) {
+        const s = data.segments;
+        const n = data.segmentCount;
+        for (let i = 0; i < n; i++) {
+            const k = i * 4;
+            if (Na__LeVp2d__SegmentMeetsBox(s[k], s[k + 1], s[k + 2], s[k + 3], box)) return true;
+        }
+        return false;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Does Any of a Layer's Faces Show Inside a Box
+    // ------------------------------------------------------------
+    // An edge crossing into the box shows a face; with none, the box is either
+    // wholly inside a face or wholly out of every one, and its middle says
+    // which - read EVEN-ODD over every ring, as the painter fills them, so a
+    // window that sits wholly inside an island's hole shows no water.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__FacesInBox(rings, box) {
+        const cx = (box.minX + box.maxX) / 2;
+        const cy = (box.minY + box.maxY) / 2;
+        let inside = false;
+        for (let r = 0; r < rings.length; r++) {
+            const p = rings[r].points;
+            if (!p || p.length < 6) continue;
+            const count = Math.floor(p.length / 2);
+            for (let i = 0, j = count - 1; i < count; j = i++) {
+                const xi = p[i * 2], yi = p[(i * 2) + 1], xj = p[j * 2], yj = p[(j * 2) + 1];
+                if (Na__LeVp2d__SegmentMeetsBox(xj, yj, xi, yi, box)) return true;
+                if (((yi > cy) !== (yj > cy)) && (cx < (((xj - xi) * (cy - yi)) / (yj - yi)) + xi)) inside = !inside;
+            }
+        }
+        return inside;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | What a Site Plan Viewport Shows, Layer by Layer (for a legend)
+    // ------------------------------------------------------------
+    // One entry per layer this viewport actually paints INSIDE ITS FRAME, read
+    // off the very build the painter paints from: the same decks, the same
+    // location plan rules, the same per-viewport colours, patterns and line
+    // styles. The line style is StyleBands' own answer - one stand-in segment
+    // per layer is put through it - so a legend can never describe a line the
+    // way the drawing does not. Returns null while a layer this viewport shows
+    // is still loading, unless allowMissing (everything has settled, and a
+    // layer that failed is left out), and [] for anything but a site plan.
+    //
+    //   { key, stem, label, group, drawOrder,
+    //     fill    : { hex, opacity } | null,
+    //     pattern : { key, scale, rotationDeg, strokePt, colour } | null,
+    //     line    : { colour, widthMm, dashMm } | null,
+    //     area    : true when its wash or its pattern shows inside the frame }
+    //
+    // Kept per viewport against the painter's own repaint key and the frame's
+    // window, so the legend's follower costs a string compare when nothing
+    // that could change the answer has moved.
+    // ------------------------------------------------------------
+    const Na__LeVp2d__LegendCache = new Map();
+    function Na__LeVp2d__SitePlanLegend(sheet, viewport, allowMissing) {
+        if (!viewport || !Na__LeModel__IsSitePlanViewport(viewport)) return [];
+        const descriptor = Na__SpStore__GetDescriptor(Na__LeVp2d__SitePlanStoreId(viewport));
+        if (!descriptor) return null;
+        const masterPt = sheet && sheet.Sheet__Lineweights ? sheet.Sheet__Lineweights.ViewportPt : null;
+        const win      = Na__LeVp2d__Window(viewport);
+        const box      = { minX : win.OriginX, minY : win.OriginY, maxX : win.OriginX + win.WidthMm, maxY : win.OriginY + win.HeightMm };
+        const loaded   = descriptor.SitePlan__Layers
+            .filter((layer) => Na__LeModelLayers__IsOn(viewport, layer.Layer__CategoryKey))
+            .map((layer) => Na__SpStore__GetLayerData(layer.Layer__CategoryKey));
+        if (loaded.some((data) => !data) && allowMissing !== true) return null;
+        const present  = loaded.filter(Boolean);
+        const key = [ Na__LeVp2d__SitePlanPaintKey(viewport, masterPt), box.minX, box.minY, box.maxX, box.maxY,
+                      present.map((data) => data.categoryKey).join(','), Na__LeHatch__IsLoaded() ? 'hatch' : 'nohatch' ].join('|');
+        const kept = Na__LeVp2d__LegendCache.get(viewport.Viewport__Id);
+        if (kept && kept.key === key) return JSON.parse(kept.json);
+        const built = Na__LeVp2d__SitePlanBuild(viewport, true);
+        if (!built) return null;
+
+        // THE LINE EACH LAYER IS DRAWN IN, asked of StyleBands itself.
+        const keys   = present.map((data) => data.categoryKey);
+        const lineOf = new Map();
+        if (built.paintLines !== false && keys.length) {
+            const stand  = new Float32Array(keys.length * 4);
+            const owners = new Uint16Array(keys.length);
+            const table  = Na__PlOwners__CreateTable();
+            keys.forEach((categoryKey, i) => { stand.set([ 0, 0, 1, 0 ], i * 4); owners[i] = Na__PlOwners__IdFor(table, categoryKey); });
+            const classes = { visible : stand, hidden : new Float32Array(0), authored : new Float32Array(0), section : new Float32Array(0) };
+            Na__PlOwners__Attach(classes, { visible : owners, hidden : new Uint16Array(0), authored : new Uint16Array(0), section : new Uint16Array(0) }, table.Keys);
+            Na__LeVp2d__StyleBands(viewport, masterPt, classes, false, built.siteRules).forEach((band) => {
+                const indices = band.indices || keys.map((categoryKey, i) => i);
+                indices.forEach((i) => lineOf.set(keys[i], { colour : band.colour, widthMm : band.widthMm, dashMm : Array.isArray(band.dashMm) ? band.dashMm.slice() : [] }));
+            });
+        }
+
+        const fills    = new Map(built.fills.map((fill) => [ fill.categoryKey, fill ]));
+        const patterns = new Map((built.patterns || []).map((entry) => [ entry.categoryKey, entry ]));
+        const entries  = [];
+        present.forEach((data) => {
+            const fill    = fills.get(data.categoryKey) || null;
+            const pattern = patterns.get(data.categoryKey) || null;
+            const faces   = (fill || pattern) ? Na__LeVp2d__FacesInBox(data.rings, box) : false;
+            const line    = lineOf.get(data.categoryKey) || null;
+            const lines   = line ? Na__LeVp2d__LinesInBox(data, box) : false;
+            if (!faces && !lines) return;                                        // <-- Switched on, but nothing of it inside the frame
+            entries.push({
+                key       : data.categoryKey,
+                stem      : Na__SpStore__SplitKey(data.categoryKey).stem,
+                label     : data.layer.Layer__Label || data.categoryKey,
+                group     : data.layer.Layer__Group || '',
+                drawOrder : Number.isFinite(data.layer.Layer__DrawOrder) ? data.layer.Layer__DrawOrder : 0,
+                fill      : (faces && fill) ? { hex : fill.hex, opacity : fill.opacity } : null,
+                pattern   : (faces && pattern) ? { key : pattern.pattern.Pattern__Key, scale : pattern.scale, rotationDeg : pattern.rotationDeg, strokePt : pattern.strokePt, colour : pattern.colour } : null,
+                line      : lines ? line : null,
+                area      : faces
+            });
+        });
+        const json = JSON.stringify(entries);
+        Na__LeVp2d__LegendCache.set(viewport.Viewport__Id, { key : key, json : json });
+        return JSON.parse(json);                                                // <-- A copy every time, so no caller can edit the kept answer
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -474,6 +625,7 @@
     export {
         Na__LeVp2d__SitePlanStoreId,
         Na__LeVp2d__SitePlanDrawing,
+        Na__LeVp2d__SitePlanLegend,
         Na__LeVp2d__FillSitePlan
     };
     // ------------------------------------------------------------

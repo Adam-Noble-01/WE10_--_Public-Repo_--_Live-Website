@@ -55,6 +55,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.2.0
+// - SHARE IN THE DOCK, BESIDE THE PDF, as Adam asked: a link that opens the
+//   drawing showing, read-only, on any device - the same Share box every
+//   tab's Share opens (66__Feature__DocumentSharing, TrueVision3D v2.165.0).
+//   Under the register it shares the register.
+//
 // 18-Sep-2026 - Version 1.1.0
 // - The document bar and the document list are gone (Adam: "the tab system is
 //   too different, use regular tabs"). The tab strip does both jobs again - it
@@ -104,6 +110,7 @@
         Na__LeVwSpec__StepPage
     } from './Na__LayoutEditor__WebViewer__Spec__.js';
     import { Na__LeVwTouch__IsTouchDevice } from './Na__LayoutEditor__WebViewer__TouchControls__.js';
+    import { Na__LeShareUi__Open } from '../66__Feature__DocumentSharing/Na__LayoutEditor__Share__Button__.js';   // <-- Share, beside the PDF: the link to the drawing showing
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -293,6 +300,7 @@
         actions.appendChild(Na__LeVw__Button('−', 'zoom-out', Na__LeCfg__GetLabel('ViewerZoomOutTitle', 'Zoom out')));
         actions.appendChild(Na__LeVw__Button('+', 'zoom-in', Na__LeCfg__GetLabel('ViewerZoomInTitle', 'Zoom in')));
         actions.appendChild(Na__LeVw__Button(Na__LeCfg__GetLabel('ViewerPdf', 'PDF'), 'pdf', Na__LeCfg__GetLabel('ViewerPdfTitle', 'Download this sheet as a PDF at paper size')));
+        actions.appendChild(Na__LeVw__Button(Na__LeCfg__GetLabel('ViewerShare', 'Share'), 'share', Na__LeCfg__GetLabel('ViewerShareTitle', 'A link that opens this drawing, read-only, on any device')));   // <-- Beside the PDF, as Adam asked (66__Feature__DocumentSharing)
     }
     // ------------------------------------------------------------
 
@@ -333,6 +341,25 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Hand the Reader a Link to the Document Showing
+    // ------------------------------------------------------------
+    // The drawing on screen - or the register, whose page the dock sits under
+    // - through the Share box every tab opens (66__Feature__DocumentSharing).
+    // The specification shares from its own bar. Whether the drawing is
+    // published is already known here, so the box is told rather than left to
+    // ask the index again; a drawing that failed to load leaves it to ask.
+    // ------------------------------------------------------------
+    function Na__LeVw__Share(button) {
+        const current = Na__LeVw__Current;
+        if (!current || current === Na__LeVw__SPEC_ID) return false;
+        if (current === 'register') return Na__LeShareUi__Open(button, { kind : 'register' });
+        const shown = (Na__LeVw__Shown && Na__LeVw__Shown.SheetId === current) ? Na__LeVw__Shown : null;
+        const published = !shown ? undefined : (shown.State === 'published' ? true : (shown.State === 'unpublished' ? false : undefined));
+        return Na__LeShareUi__Open(button, { kind : 'drawing', sheetId : current, published : published });
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | One Delegated Click Handler for the Whole Chrome
     // ------------------------------------------------------------
     function Na__LeVw__OnClick(event) {
@@ -346,6 +373,7 @@
             case 'zoom-in'    : Na__LeVwDraw__ZoomBy(Na__LeVw__ZOOM_STEP);                            break;
             case 'zoom-out'   : Na__LeVwDraw__ZoomBy(1 / Na__LeVw__ZOOM_STEP);                        break;
             case 'pdf'        : void Na__LeVw__Pdf();                                                 break;
+            case 'share'      : Na__LeVw__Share(target);                                              break;
             case 'page-up'    : Na__LeVwSpec__StepPage(-1);                                           break;
             case 'page-down'  : Na__LeVwSpec__StepPage(1);                                            break;
             default           : break;

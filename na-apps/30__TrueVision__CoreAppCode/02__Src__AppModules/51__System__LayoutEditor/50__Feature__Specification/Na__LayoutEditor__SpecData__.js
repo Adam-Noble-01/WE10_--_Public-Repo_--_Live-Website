@@ -40,11 +40,16 @@
 //   never let an empty specification overwrite a real one.
 // - KEPT LOCALLY AT ONCE, SYNCED ON REQUEST. Every change writes a browser
 //   draft a moment after the typing pauses, and when the tab is hidden or
-//   closed. A load that finds a draft different from the file puts the draft
-//   back and says so. Sync writes the whole file to R2 and to the local
+//   closed. Sync writes the whole file to R2 and to the local
 //   TrueVision__DrawingNotes__.json, and asks first when the cloud copy changed
 //   after this browser read it. A local file whose UpdatedIso is newer than R2
 //   is adopted as the live document so an on-disk edit reaches the editor.
+// - IN LOCKSTEP WITH THE LOCAL FILE (v1.5.0), as a statement is with its
+//   markdown. Agents and hand edits change the local file behind the app's
+//   back, so it is watched while the drawing editor is open and looked at
+//   before every write; a file that moved is never written over - the person
+//   is asked which copy to keep. The app's copy is saved to the file as the
+//   editing pauses. See Na__LayoutEditor__SpecData__Lockstep__.
 // - UNDO. The tab keeps its own history of whole-document snapshots, one step
 //   per committed change. Typing into a title or a body is live - no step -
 //   and the field's commit is the one step for everything typed into it.
@@ -62,6 +67,10 @@
 //     Na__LayoutEditor__SpecData__Editing__.js     every change to groups and
 //                                                  notes, and undo and redo
 //     Na__LayoutEditor__SpecData__Draft__.js       the browser draft
+//     Na__LayoutEditor__SpecData__Lockstep__.js    the local file: its reads
+//                                                  and writes, the watch, the
+//                                                  autosave and the question
+//                                                  (v1.5.0, a sixth unit)
 //     Na__LayoutEditor__SpecData__Transport__.js   load, retry and sync, the
 //                                                  unit that differs most
 //                                                  between the two apps
@@ -80,8 +89,8 @@
 // - Import the specification data from this file, never from a unit: its
 //   export list is the API, and every module that reads the specification
 //   imports this file by name. The units import one way only (State, then
-//   Document, then Draft, then Editing and Transport); this file imports all
-//   five, and no unit imports it.
+//   Document, then Draft, then Lockstep, then Editing and Transport); this
+//   file imports all six, and no unit imports it.
 //
 // -----------------------------------------------------------------------------
 //
@@ -95,6 +104,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.5.0
+// - The lockstep with the local file (Na__LayoutEditor__SpecData__Lockstep__),
+//   the Statement Writer's system brought to the specification. Adam,
+//   29-Sep-2026: "I keep accidentally saving over things other agents are
+//   doing." Initialize starts its listeners; another project forgets the
+//   last one's file (ResetLockstep). Exports StartWatch, StopWatch,
+//   IsWatching, CheckFile, SaveLocal, ResolveConflict, GetConflict and
+//   LockstepOn; WriteLocalCopy now comes from the Lockstep unit and looks at
+//   the file before it writes.
+//
 // 22-Sep-2026 - Version 1.4.0
 // - Re-exports the State unit's LOCATE_EVENT (show a note in the drawing
 //   editor's own Specification tab) and the Transport unit's WriteLocalCopy
@@ -173,6 +192,7 @@
         Na__LeSpec__PrefixClashes,
         Na__LeSpec__ValidatePrefix,
         Na__LeSpec__NumberDigits,
+        Na__LeSpec__LockstepOn,
         Na__LeSpec__GetState,
         Na__LeSpec__IsLoaded,
         Na__LeSpec__IsDirty,
@@ -182,6 +202,18 @@
         Na__LeSpec__GetDocumentNumber
     } from './Na__LayoutEditor__SpecData__Document__.js';
     import { Na__LeSpec__FlushDraft } from './Na__LayoutEditor__SpecData__Draft__.js';
+    import {
+        Na__LeSpec__WriteLocalCopy,
+        Na__LeSpec__SaveLocal,
+        Na__LeSpec__CheckFile,
+        Na__LeSpec__StartWatch,
+        Na__LeSpec__StopWatch,
+        Na__LeSpec__IsWatching,
+        Na__LeSpec__ListenForLockstep,
+        Na__LeSpec__ResetLockstep,
+        Na__LeSpec__ResolveConflict,
+        Na__LeSpec__GetConflict
+    } from './Na__LayoutEditor__SpecData__Lockstep__.js';
     import {
         Na__LeSpec__AddGroup,
         Na__LeSpec__AddStarterGroups,
@@ -203,7 +235,6 @@
         Na__LeSpec__EnsureLoaded,
         Na__LeSpec__Retry,
         Na__LeSpec__Sync,
-        Na__LeSpec__WriteLocalCopy,
         Na__LeSpec__CanReloadCloud,
         Na__LeSpec__CanReloadLocal,
         Na__LeSpec__ReloadFromCloud,
@@ -240,12 +271,14 @@
         Na__LeSpec__SetShowToast((options && options.showToast) || null);
         if (Na__LeSpec__Initialised) return true;
         Na__LeSpec__Initialised = true;
+        Na__LeSpec__ListenForLockstep();                                                  // <-- The focus coming back is when an agent's edit is most likely
         window.addEventListener('pagehide', () => Na__LeSpec__FlushDraft());               // <-- Closing the tab keeps the last edit
         document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') Na__LeSpec__FlushDraft(); });
         window.addEventListener(Na__DrawData__CHANGED_EVENT, (event) => {
             const detail = event.detail || {};
             if (detail.reason !== 'loaded' || !Na__LeSpec__LoadPromise || detail.projectCode === Na__LeSpec__ProjectCode) return;
             Na__LeSpec__FlushDraft();                                                     // <-- A different project: the next entry loads its own
+            Na__LeSpec__ResetLockstep();                                                  // <-- ...and its own file
             Na__LeSpec__SetDoc(null); Na__LeSpec__SetIndex(null); Na__LeSpec__SetLoadPromise(null); Na__LeSpec__SetIdFloor(0);
             Na__LeSpec__SetStatus(Na__LeSpec__STATUS_IDLE);
             Na__LeSpec__Dispatch('loaded', { codesChanged : true });
@@ -282,6 +315,14 @@
         Na__LeSpec__CanReloadLocal,
         Na__LeSpec__ReloadFromCloud,
         Na__LeSpec__ReloadFromLocal,
+        Na__LeSpec__SaveLocal,
+        Na__LeSpec__CheckFile,
+        Na__LeSpec__StartWatch,
+        Na__LeSpec__StopWatch,
+        Na__LeSpec__IsWatching,
+        Na__LeSpec__ResolveConflict,
+        Na__LeSpec__GetConflict,
+        Na__LeSpec__LockstepOn,
         Na__LeSpec__FlushDraft,
         Na__LeSpec__GetState,
         Na__LeSpec__IsLoaded,

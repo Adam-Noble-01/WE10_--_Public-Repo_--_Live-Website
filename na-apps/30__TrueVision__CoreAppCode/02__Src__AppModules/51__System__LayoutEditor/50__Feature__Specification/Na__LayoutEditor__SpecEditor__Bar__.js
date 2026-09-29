@@ -37,6 +37,21 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.4.0
+// - SHARE after Print, in Read only (and so in the web viewer, which is
+//   always on Read): a link that opens this specification's Read view on
+//   any device (66__Feature__DocumentSharing, TrueVision3D v2.165.0).
+//
+// 29-Sep-2026 - Version 1.3.0
+// - The status says how the specification stands against its LOCAL FILE
+//   first and the cloud second, as the Statement Writer's does (the lockstep,
+//   Na__LayoutEditor__SpecData__Lockstep__): "Out of step with the file"
+//   while the question is up, "Unsaved changes" until the autosave has
+//   written the file, then "Saved to file, not synced" until Save Sheets or
+//   Sync. Its hover says when the file on disk last changed. Where the
+//   lockstep is off the wording is as it was.
+// - An alert above the groups while the question stands.
+//
 // 19-Sep-2026 - Version 1.2.0
 // - A go-to chip names its sheet as the tab does (Na__LeModel__GetTabLabel,
 //   "D03 - 3D Images"). The sheet's name alone no longer carries a number.
@@ -76,6 +91,8 @@
     } from './Na__LayoutEditor__SpecData__.js';
     import { Na__DrawData__GetProjectCode } from '../../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     import { Na__LeModel__GetTabLabel } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';   // <-- A chip names a sheet as its tab does ("D03 - 3D Images")
+    import { Na__LeStmtLock__When } from '../52__Feature__StatementWriter/01__Core__Data/Na__LayoutEditor__Statement__Lockstep__.js';   // <-- A time said as the statement's status says it
+    import { Na__LeShareUi__Open } from '../66__Feature__DocumentSharing/Na__LayoutEditor__Share__Button__.js';   // <-- Share: the link to this specification's Read view
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Specification Editor Units: State and Small Builders
@@ -184,6 +201,13 @@
         const print = Na__LeSpecEd__Button(L('SpecPrint', 'Print'), 'print', L('SpecPrintTitle', 'Print the specification on A4 paper, or choose Save as PDF in the print dialog'));
         print.setAttribute('data-na-spec-only', Na__LeSpecEd__VIEW_READ);
         bar.appendChild(print);
+        // SHARE | Read only: a link that opens this specification's Read view on
+        // any device (66__Feature__DocumentSharing). Its own click, so the bar's
+        // delegated handler passes 'share' by as an action it does not know.
+        const share = Na__LeSpecEd__Button(L('SpecShare', 'Share'), 'share', L('SpecShareTitle', 'A link that opens this specification, read-only, on any device'));
+        share.setAttribute('data-na-spec-only', Na__LeSpecEd__VIEW_READ);
+        share.addEventListener('click', () => { Na__LeShareUi__Open(share, { kind : 'specification' }); });
+        bar.appendChild(share);
         const status = Na__LeSpecEd__El('span', 'na-le-spec__status');
         status.setAttribute('data-na-spec-bar', 'status');
         bar.appendChild(status);
@@ -212,17 +236,26 @@
         const summary = Na__LeSpecEd__Bar.querySelector('[data-na-spec-bar="summary"]');
         summary.textContent = [ code || '', state.loaded ? Na__LeSpecEd__Count(notes, 'SpecNotesOne', '{count} note', 'SpecNotesMany', '{count} notes') + ' ' + Na__LeSpecEd__Count(groups, 'SpecInGroupsOne', 'in {count} group', 'SpecInGroupsMany', 'in {count} groups') : '' ].filter(Boolean).join(' · ');
 
+        // THE STATUS | The file on disk first, the cloud second: they are
+        // different questions, and the file is the one an agent writes.
+        const onDisk = state.lockstep && state.fileKnown;
         let text, flag;
-        if (state.syncing)                                  { text = L('SpecStatusSyncing', 'Syncing...'); flag = 'syncing'; }
+        if (state.conflict)                                 { text = L('SpecStatusOutOfStep', 'Out of step with the file'); flag = 'failed'; }
+        else if (state.syncing)                             { text = L('SpecStatusSyncing', 'Syncing...'); flag = 'syncing'; }
         else if (!state.loaded)                             { text = L('SpecStatusLoading', 'Loading...'); flag = 'loading'; }
+        else if (state.savingLocal)                         { text = L('SpecStatusSavingLocal', 'Saving...'); flag = 'syncing'; }
         else if (state.status === Na__LeSpec__STATUS_FAILED) { text = L('SpecStatusFailed', 'Cloud copy could not be read'); flag = 'failed'; }
-        else if (state.dirty)                               { text = L('SpecStatusDirty', 'Unsynced - kept in this browser'); flag = 'dirty'; }
+        else if (onDisk && !state.inStepWithFile)           { text = L('SpecStatusUnsavedLocal', 'Unsaved changes'); flag = 'dirty'; }
+        else if (state.dirty)                               { text = onDisk ? L('SpecStatusSavedNotSynced', 'Saved to file, not synced') : L('SpecStatusDirty', 'Unsynced - kept in this browser'); flag = 'dirty'; }
         else if (state.status === Na__LeSpec__STATUS_NEW)   { text = L('SpecStatusNew', 'Not in the cloud yet'); flag = 'new'; }
         else if (state.lastSyncIso)                         { text = Na__LeCfg__FormatLabel('SpecStatusSynced', 'Synced {time}', { time : new Date(state.lastSyncIso).toLocaleTimeString() }); flag = 'synced'; }
         else                                                { text = state.editable ? L('SpecStatusClean', 'Up to date with the cloud') : L('SpecStatusReadOnly', 'Read-only'); flag = 'clean'; }
         const status = Na__LeSpecEd__Bar.querySelector('[data-na-spec-bar="status"]');
         status.textContent = text;
         status.setAttribute('data-state', flag);
+        status.title = onDisk
+            ? Na__LeCfg__FormatLabel('SpecStatusFileTitle', 'The specification file on disk was last changed {when}. It is watched while the drawing editor is open: a change made outside the app is asked about, never written over.', { when : Na__LeStmtLock__When(state.fileIso) })
+            : '';
 
         const each = (action, fn) => { const button = Na__LeSpecEd__Bar.querySelector('[data-na-spec="' + action + '"]'); if (button) fn(button); };
         const matching = Na__LeSpecEd__Usage ? Array.from(Na__LeSpecEd__Usage.matching.values()).reduce((sum, list) => sum + list.length, 0) : 0;
@@ -271,6 +304,9 @@
             alerts.appendChild(box);
         };
         if (!Na__LeSpecEd__Editable) add('info', L('SpecReadOnlyAlert', 'Read-only: the specification is written where authoring is enabled.'));
+        if (state.conflict) {
+            add('warn', L('SpecOutOfStepAlert', 'The specification and its file on disk are out of step. Nothing is saved or synced until you choose which copy to keep.'));
+        }
         if (state.status === Na__LeSpec__STATUS_FAILED) {
             add('warn', Na__LeCfg__FormatLabel('SpecFailedAlert', 'The cloud copy could not be read ({error}). Changes are kept in this browser, and Sync stays off until the cloud copy can be read.', { error : state.error || 'unknown' }),
                 Na__LeSpecEd__Editable ? [ Na__LeSpecEd__Button(L('SpecRetry', 'Retry'), 'retry', null, 'na-le-btn--small') ] : null);

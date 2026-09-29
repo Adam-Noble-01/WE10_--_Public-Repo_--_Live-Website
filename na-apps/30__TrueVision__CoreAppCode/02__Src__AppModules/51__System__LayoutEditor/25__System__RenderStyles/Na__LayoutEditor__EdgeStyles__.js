@@ -118,6 +118,8 @@
         { alias : 'light-grey', label : 'Light Grey', hex : '#D9D9D9' },
         { alias : 'red',        label : 'Red',        hex : '#E53935' },
         { alias : 'green',      label : 'Green',      hex : '#43A047' },
+        { alias : 'new-planting-green', label : 'New Planting Green', hex : '#69B36C' },
+        { alias : 'dark-blue', label : 'Dark Blue', hex : '#154D8A' },
         { alias : 'blue',       label : 'Blue',       hex : '#1E88E5' }
     ];
     const Na__LeEdge__FALLBACK_TYPES = [
@@ -417,6 +419,14 @@
     // ------------------------------------------------------------
     // Returns { weight, colour, lineType, hex, patternMm, overridden }.
     // ------------------------------------------------------------
+    // Fill overrides share the category record with line styles. The exported
+    // material colour is the default; no separate fill palette needs maintaining.
+    function Na__LeEdge__FillHex(viewport, categoryKey, fallback = null) {
+        const stored = Na__LeEdge__Stored(viewport);
+        const value = stored && stored[categoryKey] && stored[categoryKey].Category__FillHex;
+        return typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value) ? value.toUpperCase() : fallback;
+    }
+
     function Na__LeEdge__Effective(viewport, categoryKey) {
         const base   = Na__LeEdge__Default(categoryKey);
         const stored = Na__LeEdge__Stored(viewport);
@@ -425,7 +435,7 @@
         let weight   = base.weight;
         let colour   = base.colour;
         let lineType = base.lineType;
-        let touched  = false;
+        let touched  = Na__LeEdge__FillHex(viewport, categoryKey) !== null;
 
         if (entry && typeof entry === 'object') {
             if (Number.isFinite(entry['Category__EdgeWeightFactor'])) { weight   = entry['Category__EdgeWeightFactor']; touched = true; }
@@ -436,13 +446,18 @@
         // THE DASH SCALE SURVIVES A RESTYLE. It belongs to the layer, so picking
         // a different line type by hand gives THAT type at this layer's dash
         // scale rather than quietly returning the drawing to full-size dashes.
-        const scale   = Number.isFinite(base.dashScale) ? base.dashScale : 1;
+        const overrideScale = entry && entry.Category__LineTypeScale;
+        const hasScale = Number.isFinite(overrideScale) && overrideScale > 0;
+        const scale = hasScale ? Math.max(0.1, Math.min(10, overrideScale)) :
+            (Number.isFinite(base.dashScale) && base.dashScale > 0 ? base.dashScale : 1);
+        if (hasScale) touched = true;
         const pattern = Na__LeEdge__Pattern(lineType);
         return {
             weight     : Na__LeEdge__ClampWeight(weight),
             colour     : colour,
             lineType   : lineType,
             hex        : Na__LeEdge__Hex(colour),
+            dashScale  : scale,
             patternMm  : (scale === 1 || pattern.length === 0) ? pattern : pattern.map((mm) => mm * scale),
             overridden : touched
         };
@@ -457,7 +472,7 @@
     // changed replaced - which is what keeps a stored entry self-describing
     // rather than a scattering of single fields.
     //
-    // part is 'weight' | 'colour' | 'lineType'.
+    // part is 'weight' | 'colour' | 'lineType' | 'dashScale' | 'fill'.
     // ------------------------------------------------------------
     function Na__LeEdge__Patch(viewport, categoryKey, label, part, value) {
         const now = Na__LeEdge__Effective(viewport, categoryKey);
@@ -473,6 +488,17 @@
             'Category__EdgeColour'       : next.colour,
             'Category__EdgeLineType'     : next.lineType
         };
+        const held = Na__LeEdge__Stored(viewport);
+        const heldScale = held && held[categoryKey] && held[categoryKey].Category__LineTypeScale;
+        if (Number.isFinite(heldScale) && heldScale > 0) patch[categoryKey].Category__LineTypeScale = heldScale;
+        if (part === 'dashScale' && Number.isFinite(Number(value)) && Number(value) > 0) {
+            patch[categoryKey].Category__LineTypeScale = Math.max(0.1, Math.min(10, Number(value)));
+        }
+        const heldFill = Na__LeEdge__FillHex(viewport, categoryKey);
+        if (heldFill) patch[categoryKey].Category__FillHex = heldFill;
+        if (part === 'fill' && /^#[0-9a-f]{6}$/i.test(String(value))) {
+            patch[categoryKey].Category__FillHex = String(value).toUpperCase();
+        }
         return patch;
     }
     // ------------------------------------------------------------
@@ -503,7 +529,7 @@
         if (keys.length === 0) return '';
         return keys.map((key) => {
             const entry = stored[key] || {};
-            return key + ':' + entry['Category__EdgeWeightFactor'] + ':' + entry['Category__EdgeColour'] + ':' + entry['Category__EdgeLineType'];
+            return key + ':' + entry['Category__EdgeWeightFactor'] + ':' + entry['Category__EdgeColour'] + ':' + entry['Category__EdgeLineType'] + ':' + (Na__LeEdge__FillHex(viewport, key) || '') + ':' + (entry.Category__LineTypeScale || '');
         }).join('|');
     }
     // ------------------------------------------------------------
@@ -543,6 +569,7 @@
         Na__LeEdge__ClampWeight,
         Na__LeEdge__Default,
         Na__LeEdge__Effective,
+        Na__LeEdge__FillHex,
         Na__LeEdge__Patch,
         Na__LeEdge__ResetPatch,
         Na__LeEdge__Token,

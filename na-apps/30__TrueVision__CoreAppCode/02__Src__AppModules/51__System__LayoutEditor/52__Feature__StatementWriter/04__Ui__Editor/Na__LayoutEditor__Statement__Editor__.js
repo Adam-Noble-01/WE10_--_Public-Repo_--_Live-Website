@@ -31,8 +31,8 @@
 //   serialised on demand and handed to the data module, which is the only
 //   thing that knows where a statement is saved.
 // - A DROPPED PICTURE IS COPIED INTO THE STATEMENT'S OWN PICTURES FOLDER and
-//   written in as the house figure markup, with a caption line under it ready
-//   to type over.
+//   written in as the house figure - the picture inside a <figure> with its
+//   title under it, ready to type over.
 //
 // INTEGRATION:
 // - Built by Na__LayoutEditor__Statement__Page__ into the desk, and shown only
@@ -49,6 +49,19 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.2.0
+// - A dropped picture is written as one <figure> holding the picture and its
+//   title, not a picture and a caption paragraph faked into place with a
+//   zero-width space and tabs.
+//
+// 29-Sep-2026 - Version 1.1.0
+// - Standard sections: ToggleStandard switches one on (where the registry's
+//   placement rule puts it, brought into view and picked out) or off;
+//   StandardPresent says which the page carries; RepaintStandard draws them
+//   again when their config or the QR config lands. The registry reads the
+//   page as its document source, and a Contents is drawn again once typing
+//   pauses on a change to the headings.
+//
 // 20-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -75,10 +88,11 @@
     } from './Na__LayoutEditor__Statement__Editor__Typing__.js';
     import {
         Na__LeStmtCard__Decorate,
+        Na__LeStmtCard__Repaint,
         Na__LeStmtCard__Store,
-        Na__LeStmtCard__FigureHtml,
-        Na__LeStmtCard__CaptionMarkdown
+        Na__LeStmtCard__FigureHtml
     } from './Na__LayoutEditor__Statement__Editor__Cards__.js';
+    import { Na__LeStmtStd__Present, Na__LeStmtStd__InsertInto, Na__LeStmtStd__RemoveFrom, Na__LeStmtStd__SetDocumentSource, Na__LeStmtStd__DependsOnDocument } from '../09__Standard__Sections/Na__LayoutEditor__Statement__Standard__Registry__.js';
     import { Na__LeStmt__GetOpen, Na__LeStmt__GetTree, Na__LeStmt__ImageBase } from '../01__Core__Data/Na__LayoutEditor__Statement__Data__.js';
     import { Na__LeStmtImg__Apply } from '../01__Core__Data/Na__LayoutEditor__Statement__Images__.js';
     // ------------------------------------------------------------
@@ -113,6 +127,44 @@
     function Na__LeStmtEd__Changed() {
         if (Na__LeStmtEd__Quiet) return;
         if (typeof Na__LeStmtEd__OnChange === 'function') Na__LeStmtEd__OnChange(Na__LeStmtEd__GetMarkdown());
+        Na__LeStmtEd__FollowDocument();
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | What Every Card on the Page Is Told
+    // ------------------------------------------------------------
+    // A standard section's Switch Off goes through the same rule as the menu
+    // (its dividers, the header written back), never a bare delete.
+    // ------------------------------------------------------------
+    function Na__LeStmtEd__CardOptions() {
+        return {
+            onChanged   : () => Na__LeStmtEd__Changed(),
+            onSwitchOff : (id) => Na__LeStmtEd__ToggleStandard(id)
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Keep the Sections Drawn From the Document in Step With It
+    // ------------------------------------------------------------
+    // The Contents is drawn from the headings, so a heading typed, renamed or
+    // renumbered has to reach it. Once the typing pauses, and only when the
+    // headings have actually changed, every such section is drawn again.
+    // ------------------------------------------------------------
+    let Na__LeStmtEd__FollowTimer = 0;
+    let Na__LeStmtEd__HeadingKey  = '';
+    function Na__LeStmtEd__FollowDocument() {
+        clearTimeout(Na__LeStmtEd__FollowTimer);
+        Na__LeStmtEd__FollowTimer = setTimeout(() => {
+            if (!Na__LeStmtEd__Paper) return;
+            const key = Array.from(Na__LeStmtEd__Paper.children)
+                .filter((el) => /^H[1-6]$/.test(el.tagName) || el.classList.contains('na-le-stmt-frozen--standard'))
+                .map((el) => el.tagName + ':' + (el.getAttribute('data-na-stmt-standard') || el.textContent)).join('|');
+            if (key === Na__LeStmtEd__HeadingKey) return;
+            Na__LeStmtEd__HeadingKey = key;
+            Na__LeStmtEd__RepaintStandard(true);
+        }, 450);
     }
     // ------------------------------------------------------------
 
@@ -161,6 +213,10 @@
         host.appendChild(Na__LeStmtEd__Root);
 
         Na__LeStmtEd__Listen();
+
+        // A section redrawn outside a full render (a Contents after typing)
+        // reads the document as the page holds it now.
+        Na__LeStmtStd__SetDocumentSource(() => Na__LeStmtMd__Tokenise(Na__LeStmtEd__GetMarkdown()));
         return Na__LeStmtEd__Root;
     }
     // ------------------------------------------------------------
@@ -175,7 +231,7 @@
             Na__LeStmtEd__Paper.innerHTML = Na__LeStmtRnd__Blocks(Na__LeStmtMd__Tokenise(markdown || ''), { Editable : true });
             Na__LeStmtType__StampAll(Na__LeStmtEd__Paper);
             Na__LeStmtEd__ResolveImages();
-            Na__LeStmtCard__Decorate(Na__LeStmtEd__Paper, { onChanged : () => Na__LeStmtEd__Changed() });
+            Na__LeStmtCard__Decorate(Na__LeStmtEd__Paper, Na__LeStmtEd__CardOptions());
             Na__LeStmtEd__Source.value = markdown || '';
         } finally {
             Na__LeStmtEd__Quiet = false;
@@ -250,6 +306,88 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Standard Sections
+// -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | The Element That Scrolls the Page
+    // ------------------------------------------------------------
+    function Na__LeStmtEd__Scroller() {
+        for (let node = Na__LeStmtEd__Root ? Na__LeStmtEd__Root.parentElement : null; node; node = node.parentElement) {
+            const overflow = getComputedStyle(node).overflowY;
+            if ((overflow === 'auto' || overflow === 'scroll') && node.scrollHeight > node.clientHeight) return node;
+        }
+        return document.scrollingElement || document.documentElement;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Standard Sections the Page Carries Now
+    // ------------------------------------------------------------
+    function Na__LeStmtEd__StandardPresent() {
+        return Na__LeStmtStd__Present(Na__LeStmtEd__GetMarkdown());
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Switch a Standard Section On or Off
+    // ------------------------------------------------------------
+    // The rule for where a section lands is the registry's, applied to the
+    // markdown the page holds right now; the page is then drawn again from
+    // the result and the change reported like any other edit. Switching on
+    // brings the new section into view, picked out; switching off leaves the
+    // page where it was. Refused in the raw markdown view, where the page is
+    // not the document being typed into.
+    //
+    // Returns { ok, on, reason }.
+    // ------------------------------------------------------------
+    function Na__LeStmtEd__ToggleStandard(id) {
+        if (!Na__LeStmtEd__Paper)                return { ok : false, on : false, reason : 'The statement is not open.' };
+        if (Na__LeStmtEd__Showing === 'source')  return { ok : false, on : false, reason : 'Leave the raw markdown view first.' };
+
+        const before = Na__LeStmtEd__GetMarkdown();
+        const wasOn  = Na__LeStmtStd__Present(before).includes(id);
+        const after  = wasOn ? Na__LeStmtStd__RemoveFrom(before, id) : Na__LeStmtStd__InsertInto(before, id);
+        if (after === before) return { ok : false, on : wasOn, reason : 'Nothing changed.' };
+
+        const scroller = Na__LeStmtEd__Scroller();
+        const top      = scroller.scrollTop;
+        Na__LeStmtEd__SetMarkdown(after);
+        Na__LeStmtEd__Changed();
+        scroller.scrollTop = top;
+
+        if (!wasOn) {
+            const card = Na__LeStmtEd__Paper.querySelector('.na-le-stmt-frozen--standard[data-na-stmt-standard="' + id + '"]');
+            if (card) {
+                for (const other of Array.from(Na__LeStmtEd__Paper.querySelectorAll('.na-le-stmt-frozen.is-selected'))) other.classList.remove('is-selected');
+                card.classList.add('is-selected', 'is-landed');
+                setTimeout(() => card.classList.remove('is-landed'), 1200);
+                card.scrollIntoView({ block : 'center' });
+            }
+        }
+        return { ok : true, on : !wasOn, reason : '' };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Draw Every Standard Section Again
+    // ------------------------------------------------------------
+    // For when what they are drawn from has changed underneath the page: the
+    // standard sections config or the QR config has just landed. The sources
+    // are untouched, so nothing is reported as a change.
+    // ------------------------------------------------------------
+    function Na__LeStmtEd__RepaintStandard(documentOnly) {
+        if (!Na__LeStmtEd__Paper) return;
+        for (const card of Array.from(Na__LeStmtEd__Paper.querySelectorAll('.na-le-stmt-frozen--standard'))) {
+            if (documentOnly && !Na__LeStmtStd__DependsOnDocument(card.getAttribute('data-na-stmt-standard'))) continue;
+            Na__LeStmtCard__Repaint(card);
+        }
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Listening
 // -----------------------------------------------------------------------------
 
@@ -265,7 +403,7 @@
             if (Na__LeStmtType__ShouldReflow(event)) {
                 Na__LeStmtEd__Quiet = true;
                 try { Na__LeStmtType__Reflow(paper); } finally { Na__LeStmtEd__Quiet = false; }
-                Na__LeStmtCard__Decorate(paper, { onChanged : () => Na__LeStmtEd__Changed() });
+                Na__LeStmtCard__Decorate(paper, Na__LeStmtEd__CardOptions());
             }
             Na__LeStmtType__MarkCaretBlock(paper);
             Na__LeStmtEd__Changed();
@@ -353,7 +491,7 @@
                 continue;
             }
 
-            const markdown = Na__LeStmtCard__FigureHtml(inside) + '\n\n' + Na__LeStmtCard__CaptionMarkdown(file.name) + '\n\n';
+            const markdown = Na__LeStmtCard__FigureHtml(inside) + '\n\n';     // <-- The figure carries its own title, ready to be numbered
             const scratch  = document.createElement('div');
             scratch.innerHTML = Na__LeStmtRnd__Blocks(Na__LeStmtMd__Tokenise(markdown), { Editable : true });
 
@@ -365,7 +503,7 @@
 
         Na__LeStmtType__StampAll(Na__LeStmtEd__Paper);
         Na__LeStmtEd__ResolveImages();
-        Na__LeStmtCard__Decorate(Na__LeStmtEd__Paper, { onChanged : () => Na__LeStmtEd__Changed() });
+        Na__LeStmtCard__Decorate(Na__LeStmtEd__Paper, Na__LeStmtEd__CardOptions());
         Na__LeStmtEd__Changed();
     }
     // ------------------------------------------------------------
@@ -398,7 +536,10 @@
         Na__LeStmtEd__SetSourceView,
         Na__LeStmtEd__SetMono,
         Na__LeStmtEd__IsSourceView,
-        Na__LeStmtEd__IsMono
+        Na__LeStmtEd__IsMono,
+        Na__LeStmtEd__StandardPresent,
+        Na__LeStmtEd__ToggleStandard,
+        Na__LeStmtEd__RepaintStandard
     };
     // ------------------------------------------------------------
 

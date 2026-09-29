@@ -36,6 +36,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.6.0
+// - GetSpecificationSetup answers the specification's lockstep with its local
+//   file, the Statement Writer's keys and defaults: lockstepEnabled
+//   (LockstepEnabled, on unless set false), lockstepPollMs (LockstepPollMs,
+//   3000 when unset, never below 1000) and autoSaveLocalMs (AutoSaveLocalMs,
+//   4000 when unset; 0 turns the autosave to the file off, never otherwise
+//   below 500).
+//
 // 23-Sep-2026 - Version 1.5.0
 // - GetStatementSetup answers the Statement Writer's lockstep settings:
 //   lockstepEnabled (LockstepEnabled, on unless set false) and lockstepPollMs
@@ -134,6 +142,9 @@
             historySteps     : Math.max(1, Math.round(Na__LeCfg__Num('Specification', 'HistorySteps', 50))),
             loadTimeoutMs    : Math.max(1000, Na__LeCfg__Num('Specification', 'LoadTimeoutMs', 12000)),
             confirmOverwrite : Na__LeCfg__Val('Specification', 'ConfirmCloudOverwrite', true) !== false,
+            lockstepEnabled  : Na__LeCfg__Val('Specification', 'LockstepEnabled', true) !== false,              // <-- The local file is watched and looked at before every write
+            lockstepPollMs   : Math.max(1000, Na__LeCfg__Num('Specification', 'LockstepPollMs', 3000)),
+            autoSaveLocalMs  : (Na__LeCfg__Num('Specification', 'AutoSaveLocalMs', 4000) <= 0) ? 0 : Math.max(500, Na__LeCfg__Num('Specification', 'AutoSaveLocalMs', 4000)),
             defaultRevision      : String(Na__LeCfg__Val('Specification', 'DefaultRevision', 'A')),          // <-- An issued document has a revision even before one is typed
             revisionMaxLength    : Math.max(1, Math.min(12, Math.round(Na__LeCfg__Num('Specification', 'RevisionMaxLength', 6)))),
             documentNumberSuffix : String(Na__LeCfg__Val('Specification', 'DocumentNumberSuffix', '_SPEC')),

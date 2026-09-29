@@ -26,21 +26,25 @@
 //   is 'failed', edits stay in this browser, and Sync refuses until Retry can
 //   read the cloud copy.
 // - LOADING. EnsureLoaded fetches once per project, on the first entry into
-//   the editor; Adopt takes the fetched copy as the live document and
-//   RestoreDraft then puts back any unsynced edits from this browser.
-// - SYNC reads the cloud copy first, asks before replacing one that changed
-//   since this browser read it, writes the whole file to R2 through the
-//   Cloudflare API client, and then writes the local copy (MirrorLocal).
-// - Its own helpers: a time limit on a read, a JSON fetch for the CDN and the
-//   repository copy (Na__LeSpec__FetchJson, TrueVision only), a document's
-//   cloud stamp, and the local mirror.
+//   the editor; Adopt takes the fetched copy as the live document, the
+//   lockstep unit remembers what the local file holds (SettleFile), and a
+//   browser draft that differs from the file is ASKED about
+//   (RestoreDraftOrAsk) - it used to be put back unasked.
+// - SYNC looks at the local file first (the lockstep) and stops, asking, if
+//   it moved behind the app's back; then reads the cloud copy, asks before
+//   replacing one that changed since this browser read it, writes the whole
+//   file to R2 through the Cloudflare API client, and then writes the local
+//   copy (MirrorLocal), looking again inside that write's turn.
+// - Its own helpers: a time limit on a read, a JSON fetch for the CDN
+//   (Na__LeSpec__FetchJson, TrueVision only) and a document's cloud stamp.
+//   The local file's reads and writes are the lockstep unit's.
 //
 // INTEGRATION:
-// - Imports the State, Document and Draft units, the config state, the project
-//   code, the environment, the authoring gate, the confirm dialog, the local
-//   project mirror and the Cloudflare API client.
+// - Imports the State, Document, Draft and Lockstep units, the config state,
+//   the project code, the environment, the authoring gate, the confirm dialog
+//   and the Cloudflare API client.
 // - Imported by Na__LayoutEditor__SpecData__.js, which exports EnsureLoaded,
-//   Retry and Sync.
+//   Retry, Sync and the two reloads.
 //
 // -----------------------------------------------------------------------------
 //
@@ -57,6 +61,26 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.3.0
+// - The lockstep with the local file (Na__LayoutEditor__SpecData__Lockstep__).
+//   The file's queue, the stamped copy (FileCopy), the local mirror and
+//   WriteLocalCopy moved to that unit, and this one imports them.
+//   - Fetch reads the local file through ReadLocalFile, which carries the
+//     file's date, and hands the read on as result.local.
+//   - EnsureLoaded waits for a seed write, settles what the file holds, and
+//     asks about a browser draft that differs from the file instead of
+//     putting it back unasked; Retry settles the file too.
+//   - Sync stops, asking, when the local file moved behind the app's back -
+//     before R2 is touched - and looks again inside the local write's turn.
+//     It refuses while the question stands.
+//   - Reload Local keeps the cloud bookkeeping: a file that differs from R2
+//     now reads as unsynced, so Save Sheets sends it. (It used to mark the
+//     file as the cloud copy, and Sync stayed off after an agent's edit.) It
+//     asks first only when the app holds something the file does not.
+//   - Both reloads put the copy they replace aside in this browser, and close
+//     any open question. Reload R2 gives the local file the cloud copy on the
+//     next autosave.
+//
 // 22-Sep-2026 - Version 1.2.0
 // - WriteLocalCopy: the live specification written to the local
 //   TrueVision__DrawingNotes__.json now, then READ BACK and compared before
@@ -99,8 +123,6 @@
     import { Na__AppUtils__IsRunningOnLocalhost } from '../../03__AppUtils/Na__AppUtils__ProjectLoader.js';
     import { Na__DevGate__IsAuthoringEnabled } from '../../03__AppUtils/Na__AppUtils__DevGate__.js';
     import { Na__AppUtils__ConfirmDialog__Show } from '../../03__AppUtils/Na__AppUtils__ConfirmDialog.js';
-    // @delegate: ../../03__AppUtils/Na__AppUtils__LocalProjectMirror__.js
-    import { Na__LocalMirror__WriteSiblingFile } from '../../03__AppUtils/Na__AppUtils__LocalProjectMirror__.js';
     import {
         Na__CfApi__IsConfigured,
         Na__CfApi__ProjectFileLocation,
@@ -108,17 +130,12 @@
         Na__CfApi__WriteProjectFile
     } from '../../80__CloudflareIntegration/Na__CloudflareIntegration__ApiClient__.js';
     import {
-        Na__LeSpec__VERSION,
         Na__LeSpec__STATUS_LOADING,
         Na__LeSpec__STATUS_READY,
         Na__LeSpec__STATUS_NEW,
         Na__LeSpec__STATUS_FAILED,
-        Na__LeSpec__K_DESCRIPTION,
-        Na__LeSpec__K_VERSION,
-        Na__LeSpec__K_PROJECT,
         Na__LeSpec__K_UPDATED,
         Na__LeSpec__K_LAST_ID,
-        Na__LeSpec__DESCRIPTION,
         Na__LeSpec__Doc,
         Na__LeSpec__Status,
         Na__LeSpec__ProjectCode,
@@ -127,6 +144,8 @@
         Na__LeSpec__Syncing,
         Na__LeSpec__IdFloor,
         Na__LeSpec__Editable,
+        Na__LeSpec__FileJson,
+        Na__LeSpec__Conflict,
         Na__LeSpec__SetDoc,
         Na__LeSpec__SetIndex,
         Na__LeSpec__SetStatus,
@@ -141,6 +160,8 @@
         Na__LeSpec__SetLastSyncIso,
         Na__LeSpec__SetHistory,
         Na__LeSpec__SetIdFloor,
+        Na__LeSpec__SetLiveIso,
+        Na__LeSpec__SetConflict,
         Na__LeSpec__Dispatch,
         Na__LeSpec__Toast
     } from './Na__LayoutEditor__SpecData__State__.js';
@@ -148,12 +169,25 @@
         Na__LeSpec__Skeleton,
         Na__LeSpec__Normalise,
         Na__LeSpec__ContentJson,
+        Na__LeSpec__LockJson,
         Na__LeSpec__CodeSignature,
         Na__LeSpec__ListNotes,
         Na__LeSpec__IsLoaded,
         Na__LeSpec__IsDirty
     } from './Na__LayoutEditor__SpecData__Document__.js';
-    import { Na__LeSpec__ClearDraft, Na__LeSpec__ScheduleDraft, Na__LeSpec__RestoreDraft } from './Na__LayoutEditor__SpecData__Draft__.js';
+    import { Na__LeSpec__ClearDraft, Na__LeSpec__ScheduleDraft } from './Na__LayoutEditor__SpecData__Draft__.js';
+    import {
+        Na__LeSpec__ReadLocalFile,
+        Na__LeSpec__FileCopy,
+        Na__LeSpec__MirrorLocal,
+        Na__LeSpec__FileKey,
+        Na__LeSpec__KeepDiscarded,
+        Na__LeSpec__AdoptFile,
+        Na__LeSpec__SettleFile,
+        Na__LeSpec__RestoreDraftOrAsk,
+        Na__LeSpec__ScheduleLocalSave,
+        Na__LeSpec__LookBeforeWrite
+    } from './Na__LayoutEditor__SpecData__Lockstep__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -198,45 +232,13 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Write a Document to the Local Drawing-Notes File, in Turn
+    // HELPER FUNCTION | A Fetched Copy, With the Local File's Read Beside It
     // ------------------------------------------------------------
-    // EVERY WRITE OF THE LOCAL FILE GOES THROUGH ONE QUEUE - the seed on load,
-    // Sync's copy and WriteLocalCopy's - so two writes in flight can never
-    // land in the wrong order and leave the older document on disk. The
-    // server answers each POST in its own time; the queue does not.
+    // The lockstep unit settles what the file holds from this (SettleFile).
     // ------------------------------------------------------------
-    let Na__LeSpec__LocalQueue = Promise.resolve();
-    function Na__LeSpec__InTurn(task) {
-        const job = Na__LeSpec__LocalQueue.then(task);
-        Na__LeSpec__LocalQueue = job.catch(() => {});
-        return job;
-    }
-    async function Na__LeSpec__MirrorLocalNow(doc) {
-        if (!Na__AppUtils__IsRunningOnLocalhost() || !doc || typeof doc !== 'object') return { ok : false, skipped : true, error : null };
-        const local = await Na__LocalMirror__WriteSiblingFile(Na__LeCfg__GetSpecificationSetup().fileName, doc);
-        if (!local.ok && !local.skipped) console.warn('[TrueVision3D] Layout Editor: the local drawing-notes file was not written:', local.error);
-        return local;
-    }
-    function Na__LeSpec__MirrorLocal(doc) {
-        return Na__LeSpec__InTurn(() => Na__LeSpec__MirrorLocalNow(doc));
-    }
-    // ------------------------------------------------------------
-
-
-    // HELPER FUNCTION | The Live Document as a File Holds It: a Fresh, Stamped Copy
-    // ------------------------------------------------------------
-    // What Sync writes to R2 and to the local file, and what WriteLocalCopy
-    // writes to the local file alone: the same keys, the same stamp rule.
-    // THE LIVE DOCUMENT IS NEVER STAMPED - see Sync - only this copy is.
-    // ------------------------------------------------------------
-    function Na__LeSpec__FileCopy() {
-        const out = Na__LeSpec__Normalise(Na__LeSpec__Doc);
-        out[Na__LeSpec__K_DESCRIPTION] = Na__LeSpec__DESCRIPTION;
-        out[Na__LeSpec__K_VERSION]     = Na__LeSpec__VERSION;
-        out[Na__LeSpec__K_PROJECT]     = Na__LeSpec__ProjectCode || Na__DrawData__GetProjectCode() || null;
-        out[Na__LeSpec__K_UPDATED]     = new Date().toISOString();
-        out[Na__LeSpec__K_LAST_ID]     = Math.max(out[Na__LeSpec__K_LAST_ID], Na__LeSpec__IdFloor);   // <-- Ids undone away stay spent in the file too
-        return out;
+    function Na__LeSpec__WithLocal(result, localCopy) {
+        result.local = localCopy || null;
+        return result;
     }
     // ------------------------------------------------------------
 
@@ -329,7 +331,7 @@
         if (!location) return { status : Na__LeSpec__STATUS_FAILED, data : null, source : null, error : 'no project folder in the URL' };
         const legacyLocation = setup.legacyFileName ? Na__CfApi__ProjectFileLocation(setup.legacyFileName) : null;
         const local          = Na__AppUtils__IsRunningOnLocalhost();
-        const localCopy      = local ? await Na__LeSpec__FetchJson(location.repoUrl) : { ok : true, data : null, missing : true };
+        const localCopy      = local ? await Na__LeSpec__ReadLocalFile() : { ok : true, data : null, missing : true };   // <-- With the file's date, for the lockstep
 
         if (Na__LeSpec__UsesWorker()) {
             let read = await Na__LeSpec__ReadCloudFile(setup.fileName, setup.loadTimeoutMs);
@@ -338,20 +340,20 @@
                 if (legacy && legacy.ok && !legacy.missing && Na__LeSpec__HasDoc(legacy.data)) read = legacy;
             }
             if (read && read.ok && !read.missing && Na__LeSpec__HasDoc(read.data)) {
-                return Na__LeSpec__Reconcile({ status : Na__LeSpec__STATUS_READY, data : read.data, source : 'cloud' }, localCopy);
+                return Na__LeSpec__WithLocal(Na__LeSpec__Reconcile({ status : Na__LeSpec__STATUS_READY, data : read.data, source : 'cloud' }, localCopy), localCopy);
             }
             if (read && read.ok) {
-                return Na__LeSpec__Reconcile({ status : Na__LeSpec__STATUS_NEW, data : null, source : 'cloud', cloudMissing : true }, localCopy);
+                return Na__LeSpec__WithLocal(Na__LeSpec__Reconcile({ status : Na__LeSpec__STATUS_NEW, data : null, source : 'cloud', cloudMissing : true }, localCopy), localCopy);
             }
             const fallback = (localCopy.ok && Na__LeSpec__HasDoc(localCopy.data))
                 ? localCopy
                 : (!local ? await Na__LeSpec__FetchJson(location.cdnUrl) : { ok : false, data : null });
-            return Na__LeSpec__Reconcile({
+            return Na__LeSpec__WithLocal(Na__LeSpec__Reconcile({
                 status : Na__LeSpec__STATUS_FAILED,
                 data   : (fallback.ok && Na__LeSpec__HasDoc(fallback.data)) ? fallback.data : null,
                 source : (fallback.ok && Na__LeSpec__HasDoc(fallback.data)) ? (local ? 'repository' : 'cdn') : null,
                 error  : (read && read.error) || 'Worker unreachable'
-            }, localCopy);
+            }, localCopy), localCopy);
         }
 
         let cdn = await Na__LeSpec__FetchJson(location.cdnUrl);
@@ -367,6 +369,10 @@
 
 
     // HELPER FUNCTION | Take a Fetched Copy as the Live Document
+    // ------------------------------------------------------------
+    // Resolves to the seed write's promise when the local file is to be
+    // written from what was loaded, else null: the load waits for it, so the
+    // lockstep knows what the file holds before anything is compared.
     // ------------------------------------------------------------
     function Na__LeSpec__Adopt(result) {
         const doc = Na__LeSpec__Normalise(result.data);
@@ -385,7 +391,7 @@
         }
         Na__LeSpec__SetHistory({ undo : [], redo : [], current : JSON.stringify(doc) });
         Na__LeSpec__SetCodeSig(Na__LeSpec__CodeSignature());
-        if (result.seedLocal) void Na__LeSpec__MirrorLocal(doc);
+        return result.seedLocal ? Na__LeSpec__MirrorLocal(doc) : null;
     }
     // ------------------------------------------------------------
 
@@ -401,14 +407,18 @@
         Na__LeSpec__SetProjectCode(code);
         Na__LeSpec__SetStatus(Na__LeSpec__STATUS_LOADING);
         Na__LeSpec__Dispatch('status');
-        Na__LeSpec__SetLoadPromise(Na__LeSpec__Fetch().then((result) => {
+        Na__LeSpec__SetLoadPromise(Na__LeSpec__Fetch().then(async (result) => {
             if (Na__LeSpec__ProjectCode !== code) return Na__LeSpec__Doc;           // <-- Another project arrived meanwhile
-            Na__LeSpec__Adopt(result);
-            Na__LeSpec__RestoreDraft();
+            const seeding  = Na__LeSpec__Adopt(result);
+            const seeded   = seeding ? await seeding : null;                         // <-- The file is written before it is compared against
+            if (Na__LeSpec__ProjectCode !== code) return Na__LeSpec__Doc;
+            const fileData = Na__LeSpec__SettleFile(result, seeded);
+            const asking   = Na__LeSpec__RestoreDraftOrAsk(fileData);                // <-- A draft that differs from the file is asked about, not put back
             Na__LeSpec__SetCodeSig(Na__LeSpec__CodeSignature());
             if (result.status === Na__LeSpec__STATUS_FAILED) console.warn('[TrueVision3D] Layout Editor: the project specification could not be read (' + (result.error || 'unknown') + '). Edits stay in this browser; Sync is closed until it can be read.');
             else console.log('[TrueVision3D] Layout Editor: project specification ' + (result.status === Na__LeSpec__STATUS_NEW ? 'not created yet' : 'loaded from the ' + result.source) + ' (' + Na__LeSpec__ListNotes().length + ' note(s)).');
             Na__LeSpec__Dispatch('loaded', { codesChanged : true });
+            if (asking) Na__LeSpec__Dispatch('conflict');
             return Na__LeSpec__Doc;
         }).catch((error) => {
             console.error('[TrueVision3D] Layout Editor: specification load error:', error);
@@ -444,7 +454,8 @@
             Na__LeSpec__Dispatch('status');
             return false;
         }
-        Na__LeSpec__Adopt(result);
+        const seeding = Na__LeSpec__Adopt(result);
+        Na__LeSpec__SettleFile(result, seeding ? await seeding : null);
         if (hadEdits && kept) {
             Na__LeSpec__SetDoc(kept);                                           // <-- The cloud copy's counter is already in the id floor
             Na__LeSpec__SetIndex(null);
@@ -454,6 +465,7 @@
         }
         Na__LeSpec__SetCodeSig(Na__LeSpec__CodeSignature());
         Na__LeSpec__Dispatch('loaded', { codesChanged : true });
+        Na__LeSpec__ScheduleLocalSave();                                        // <-- Whatever the app now holds reaches the file, after a look
         return true;
     }
     // ------------------------------------------------------------
@@ -514,12 +526,16 @@
             Na__LeSpec__Toast(Na__LeCfg__FormatLabel('SpecReloadFailed', 'Reload from the cloud failed: {error}.', { error : (read && read.error) || 'unknown' }), true);
             return false;
         }
+        if (Na__LeSpec__IsDirty() && Na__LeSpec__Doc) Na__LeSpec__KeepDiscarded(JSON.parse(JSON.stringify(Na__LeSpec__Doc)), 'Reload R2 replaced it');   // <-- Asked, and still kept
         Na__LeSpec__ClearDraft();
+        Na__LeSpec__SetConflict(null);                                          // <-- A reload is an answer too
         Na__LeSpec__Adopt(Na__LeSpec__HasDoc(read.data)
             ? { status : Na__LeSpec__STATUS_READY, data : read.data, source : 'cloud' }
             : { status : Na__LeSpec__STATUS_NEW, data : null, source : 'cloud', cloudMissing : true });
         Na__LeSpec__SetCodeSig(Na__LeSpec__CodeSignature());
+        Na__LeSpec__SetLiveIso(new Date().toISOString());
         Na__LeSpec__Dispatch('loaded', { codesChanged : true });
+        Na__LeSpec__ScheduleLocalSave();                                        // <-- The local file follows the cloud copy just chosen, after a look
         Na__LeSpec__Toast(Na__LeCfg__GetLabel('SpecReloadedCloud', 'Reloaded from the cloud.'), false);
         return true;
     }
@@ -530,8 +546,16 @@
     // ------------------------------------------------------------
     // The counterpart to ReloadFromCloud: on localhost only, where the
     // repository file beside TrueVision__ProjectData__.json exists. It reads
-    // that file fresh (no browser cache) and adopts it as the live document,
-    // asking first when this browser holds unsynced edits it would discard.
+    // that file fresh (no browser cache) and takes it as the live document.
+    //
+    // IT ASKS ONLY WHEN SOMETHING WOULD BE LOST: when the app holds changes
+    // the file does not - unsynced edits, or edits not yet saved to the file.
+    // A file that already holds everything in the app replaces nothing. What
+    // it replaces is put aside in this browser, as the lockstep's answers are.
+    //
+    // THE CLOUD BOOKKEEPING STAYS THE CLOUD'S (AdoptFile, v1.3.0). The file is
+    // not the cloud copy: one that differs from R2 reads as unsynced, so Save
+    // Sheets sends it - which is what an agent's handover asks for.
     // ------------------------------------------------------------
     async function Na__LeSpec__ReloadFromLocal() {
         if (Na__LeSpec__Syncing) return false;
@@ -539,30 +563,32 @@
         const setup    = Na__LeCfg__GetSpecificationSetup();
         const location = Na__CfApi__ProjectFileLocation(setup.fileName);
         if (!location) { Na__LeSpec__Toast(Na__LeCfg__GetLabel('SpecReloadNoProject', 'No project folder in the URL.'), true); return false; }
-        if (Na__LeSpec__IsDirty()) {
-            const ok = await Na__AppUtils__ConfirmDialog__Show({
-                title         : Na__LeCfg__GetLabel('SpecReloadLocalTitle', 'Reload from the local file?'),
-                message       : Na__LeCfg__GetLabel('SpecReloadLocalPrompt', 'This browser holds changes that have not been synced. Reloading replaces them with the local file on disk, and the unsynced changes are lost.'),
-                confirmLabel  : Na__LeCfg__GetLabel('SpecReloadConfirm', 'Reload'),
-                isDestructive : true
-            });
-            if (!ok) return false;
-        }
         const prevStatus = Na__LeSpec__Status;
         Na__LeSpec__SetStatus(Na__LeSpec__STATUS_LOADING);
         Na__LeSpec__Dispatch('status');
-        const local = await Na__LeSpec__FetchJson(location.repoUrl);
+        const local = await Na__LeSpec__ReadLocalFile();
+        Na__LeSpec__SetStatus(prevStatus);
         if (!local.ok || !Na__LeSpec__HasDoc(local.data)) {
-            Na__LeSpec__SetStatus(prevStatus);
             Na__LeSpec__Dispatch('status');
             Na__LeSpec__Toast(!local.ok
                 ? Na__LeCfg__FormatLabel('SpecReloadFailed', 'Reload from the local file failed: {error}.', { error : local.error || 'unknown' })
                 : Na__LeCfg__GetLabel('SpecReloadLocalMissing', 'No local copy was found for this project.'), true);
             return false;
         }
-        Na__LeSpec__ClearDraft();
-        Na__LeSpec__Adopt({ status : Na__LeSpec__STATUS_READY, data : local.data, source : 'repository' });
-        Na__LeSpec__SetCodeSig(Na__LeSpec__CodeSignature());
+        const appKey = Na__LeSpec__Doc ? Na__LeSpec__LockJson(Na__LeSpec__Doc) : '';
+        const loses  = !!Na__LeSpec__Doc && appKey !== Na__LeSpec__FileKey(local.data) && (Na__LeSpec__IsDirty() || appKey !== Na__LeSpec__FileJson);
+        if (loses) {
+            const ok = await Na__AppUtils__ConfirmDialog__Show({
+                title         : Na__LeCfg__GetLabel('SpecReloadLocalTitle', 'Reload from the local file?'),
+                message       : Na__LeCfg__GetLabel('SpecReloadLocalPrompt', 'This browser holds changes that have not been synced. Reloading replaces them with the local file on disk, and the unsynced changes are lost.'),
+                confirmLabel  : Na__LeCfg__GetLabel('SpecReloadConfirm', 'Reload'),
+                isDestructive : true
+            });
+            if (!ok) { Na__LeSpec__Dispatch('status'); return false; }
+            Na__LeSpec__KeepDiscarded(JSON.parse(JSON.stringify(Na__LeSpec__Doc)), 'Reload Local replaced it');
+        }
+        Na__LeSpec__SetConflict(null);                                          // <-- A reload is an answer too
+        Na__LeSpec__AdoptFile(local.data, local.modifiedIso);
         Na__LeSpec__Dispatch('loaded', { codesChanged : true });
         Na__LeSpec__Toast(Na__LeCfg__GetLabel('SpecReloadedLocal', 'Reloaded from the local file.'), false);
         return true;
@@ -584,10 +610,21 @@
         if (!Na__LeSpec__Editable) { toast(Na__LeCfg__GetLabel('SpecSyncReadOnly', 'The specification is read-only here.'), true); return false; }
         if (!Na__LeSpec__IsLoaded()) { toast(Na__LeCfg__GetLabel('SpecSyncNotLoaded', 'The specification has not finished loading.'), true); return false; }
         if (!Na__CfApi__IsConfigured()) { toast(Na__LeCfg__GetLabel('SpecSyncNoWorker', 'Cloudflare Worker not configured. The specification cannot be synced.'), true); return false; }
+        if (Na__LeSpec__Conflict) {
+            toast(Na__LeCfg__GetLabel('SpecSyncOutOfStep', 'The specification and its file on disk are out of step, so it was not synced. Choose which copy to keep first.'), true);
+            Na__LeSpec__Dispatch('conflict');                                   // <-- The question comes back up
+            return false;
+        }
 
         Na__LeSpec__SetSyncing(true);
         Na__LeSpec__Dispatch('status');
         try {
+            // THE LOCAL FILE FIRST. An agent's edit on disk is not overwritten
+            // on R2 or on disk: nothing is written and the question is asked.
+            if (await Na__LeSpec__LookBeforeWrite()) {
+                toast(Na__LeCfg__GetLabel('SpecSyncFileMoved', 'The specification file on disk was changed outside the app, so nothing was synced. Choose which copy to keep, then save again.'), true);
+                return false;
+            }
             let read = await Na__LeSpec__ReadCloudFile(setup.fileName, setup.loadTimeoutMs);
             if (read && read.ok && (read.missing || !Na__LeSpec__HasDoc(read.data)) && setup.legacyFileName) {
                 const legacy = await Na__LeSpec__ReadCloudFile(setup.legacyFileName, setup.loadTimeoutMs);
@@ -618,7 +655,8 @@
                 toast(Na__LeCfg__FormatLabel('SpecSyncFailed', 'Specification sync failed: {error}. Your changes are kept in this browser.', { error : (write && write.error) || 'unknown' }), true);
                 return false;
             }
-            await Na__LeSpec__MirrorLocal(out);
+            const local = await Na__LeSpec__MirrorLocal(out, { look : true });   // <-- Looks again in its own turn: a file moved during the R2 write is asked about
+            if (local && local.held) toast(Na__LeCfg__GetLabel('SpecSyncLocalHeld', 'Synced to the cloud, but the specification file on disk changed meanwhile and was not written. Choose which copy to keep.'), true);
 
             // THE LIVE DOCUMENT IS NOT STAMPED. The stamp belongs to the copy in the
             // cloud and is remembered as the base; writing it into the document
@@ -644,56 +682,6 @@
     }
     // ------------------------------------------------------------
 
-
-    // FUNCTION | Write This Computer's Copy of the Specification Now: { ok, skipped, verified, error }
-    // ------------------------------------------------------------
-    // WHY. A note reworded where it is read - the drawing editor's own
-    // Specification tab - is a finished change, made with Enter, and belongs
-    // in the specification FILE straight away: the repository's
-    // TrueVision__DrawingNotes__.json beside the project data, the copy an
-    // agent reads on disk. Until now only Sync wrote that file.
-    //
-    // WHAT IT DOES NOT DO. It does not touch R2, and it changes none of the
-    // cloud bookkeeping - the base stamp and the synced content stay the
-    // cloud copy's - so the specification still reads as unsynced, Save
-    // Sheets stays lit, and Save Sheets still takes the change to R2 (Sync),
-    // asking first as ever if the cloud copy moved on meanwhile.
-    //
-    // WHY THE NEWER STAMP IS SAFE. The file is stamped now, later than the
-    // cloud copy it started from, and a load that finds a local copy newer
-    // than R2 adopts it as the live document (Reconcile) - which is what an
-    // edit on disk has always done. A cloud copy synced since, by someone
-    // else, is newer still and wins; this browser's draft then brings the
-    // edit back and Sync asks before replacing the cloud copy.
-    //
-    // SAFE ON DISK. The document is the live one AS IT STANDS NOW, copied
-    // before anything is awaited; the write waits its turn behind any other
-    // write of the file; and the file is READ BACK and compared, content for
-    // content, before this reports verified. Localhost only: elsewhere there
-    // is no local file and the answer is skipped.
-    // ------------------------------------------------------------
-    function Na__LeSpec__WriteLocalCopy() {
-        if (!Na__AppUtils__IsRunningOnLocalhost()) return Promise.resolve({ ok : false, skipped : true, verified : false, error : null });
-        if (!Na__LeSpec__IsLoaded() || !Na__LeSpec__Doc) return Promise.resolve({ ok : false, skipped : false, verified : false, error : Na__LeCfg__GetLabel('SpecSyncNotLoaded', 'The specification has not finished loading.') });
-        const setup    = Na__LeCfg__GetSpecificationSetup();
-        const location = Na__CfApi__ProjectFileLocation(setup.fileName);
-        const out      = Na__LeSpec__FileCopy();                              // <-- Now, before anything is awaited
-        return Na__LeSpec__InTurn(async () => {
-            const written = await Na__LeSpec__MirrorLocalNow(out);
-            if (!written.ok) return { ok : false, skipped : written.skipped === true, verified : false, error : written.error || null };
-            if (!location) return { ok : true, skipped : false, verified : false, error : null };
-            const back = await Na__LeSpec__FetchJson(location.repoUrl);       // <-- Inside the turn: no later write can land between the two
-            if (!back.ok || !Na__LeSpec__HasDoc(back.data)) {
-                return { ok : false, skipped : false, verified : false, error : 'the file could not be read back (' + ((back && back.error) || 'not found') + ')' };
-            }
-            if (Na__LeSpec__ContentJson(Na__LeSpec__Normalise(back.data)) !== Na__LeSpec__ContentJson(out)) {
-                return { ok : false, skipped : false, verified : false, error : 'the file on disk does not hold what was written' };
-            }
-            return { ok : true, skipped : false, verified : true, error : null };
-        });
-    }
-    // ------------------------------------------------------------
-
 // endregion -------------------------------------------------------------------
 
 
@@ -707,7 +695,6 @@
         Na__LeSpec__EnsureLoaded,
         Na__LeSpec__Retry,
         Na__LeSpec__Sync,
-        Na__LeSpec__WriteLocalCopy,
         Na__LeSpec__CanReloadCloud,
         Na__LeSpec__CanReloadLocal,
         Na__LeSpec__ReloadFromCloud,

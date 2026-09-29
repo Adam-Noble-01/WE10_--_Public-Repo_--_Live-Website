@@ -29,6 +29,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.3.0
+// - SHARE on the bar in Read (and always for a reader), after Export register
+//   PDF: a link that opens this register's Read view on any device
+//   (66__Feature__DocumentSharing, TrueVision3D v2.165.0). Show takes
+//   { view : 'read' }, which is how a shared link lands on Read.
+//
 // 21-Sep-2026 - Version 1.2.0
 // - CTRL+S SAVES THE REVISION NOTES. The tab registers Doc__Save with the
 //   documents' keyboard (31__System__DocumentKeys), which hears it first; the
@@ -83,6 +89,7 @@
     import { Na__LeRegExport__Run } from './Na__LayoutEditor__Register__Export__.js';
     import { Na__LePubPanel__Open } from '../65__Feature__DocumentPublishing/Na__LayoutEditor__Publish__Panel__.js';   // <-- Publish Drawings: bakes the drawings the web viewer shows
     import { Na__LeRegPreview__Render, Na__LeRegPreview__Clear } from './Na__LayoutEditor__Register__Preview__.js';
+    import { Na__LeShareUi__Open } from '../66__Feature__DocumentSharing/Na__LayoutEditor__Share__Button__.js';   // <-- Share: the link to this register's Read view
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | The Documents' Own Keyboard
@@ -517,6 +524,13 @@
         });
         bar.appendChild(mode);
         bar.appendChild(Na__LeRegEd__Button('Export register PDF', () => Na__LeRegPdf__Download(Na__LeRegEd__Detailed)));
+        // SHARE | Read only, as every tab's Share is: a link that opens this
+        // register's Read view on any device (66__Feature__DocumentSharing).
+        if (Na__LeRegEd__View === 'read' || !Na__LeRegEd__Options.editable) {
+            const share = Na__LeRegEd__Button('Share', () => { Na__LeShareUi__Open(share, { kind : 'register' }); });
+            share.title = 'A link that opens this register, read-only, on any device';
+            bar.appendChild(share);
+        }
         bar.appendChild(Na__LeRegEd__Button('Export all drawings', () => Na__LeRegExport__Run(false, Na__LeRegEd__Detailed, Na__LeRegEd__Options.navigation, Na__LeRegEd__Options.showToast)));
         bar.appendChild(Na__LeRegEd__Button('Download entire pack', () => Na__LeRegExport__Run(true, Na__LeRegEd__Detailed, Na__LeRegEd__Options.navigation, Na__LeRegEd__Options.showToast)));
         if (Na__LeRegEd__Options.editable) {
@@ -632,8 +646,13 @@
 
     // FUNCTION | Show the Register Tab
     // ------------------------------------------------------------
-    function Na__LeRegEd__Show() {
+    // options: { view : 'read' } puts it on Read - a shared link opens every
+    // tab's read view (66__Feature__DocumentSharing). No options leaves the
+    // view as it was.
+    // ------------------------------------------------------------
+    function Na__LeRegEd__Show(options) {
         if (Na__LeRegEd__Root) {
+            if (options && options.view === 'read') Na__LeRegEd__View = 'read';
             Na__LeRegEd__Root.hidden = false;
             Na__LeRegEd__Render();
         }

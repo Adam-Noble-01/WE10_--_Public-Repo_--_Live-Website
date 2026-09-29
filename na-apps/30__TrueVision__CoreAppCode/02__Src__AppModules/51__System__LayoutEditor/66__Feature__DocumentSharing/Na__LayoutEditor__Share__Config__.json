@@ -1,0 +1,61 @@
+{
+    "LayoutEditor__Share__Meta": {
+        "Meta__FileName"    : "Na__LayoutEditor__Share__Config__.json",
+        "Meta__Namespace"   : "Na__LeShare",
+        "Meta__Module"      : "Layout Editor - Document Sharing - Settings",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+        "Meta__Purpose"     : "The address a Share button hands out, how the app answers one, and every word the Share box says",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "29-Sep-2026",
+        "Meta__Note"        : "Every value here is a built-in default mirrored in Na__LayoutEditor__Share__Links__.js and Na__LayoutEditor__Share__Button__.js, so a failed fetch degrades to a working link rather than a missing one. THE DOCUMENT KEYS ARE NOT HERE, on purpose: a key is what an already-sent link carries, so it is a permanent rule in code (Na__LayoutEditor__Share__Links__.js), never a setting anybody can change by editing a file."
+    },
+
+    "LayoutEditor__Share__Link": {
+        "Link__Description"     : "The address a Share button hands out. A SHARED LINK OUTLIVES EVERYTHING IN THIS REPOSITORY - it sits in an email, a WhatsApp thread or a planning file for years - so whatever form is handed out has to go on being answered for good.",
+
+        "Link__BaseUrl"         : "https://www.noble-architecture.com/s/",
+        "Link__BaseUrlNote"     : "THE RESOLVER, NOT THE APP, AND ALWAYS THE LIVE SITE. /s/ at the website root is a flat page (s/index.html) that looks the project code up in q/index.json - the same index the printed QR codes are resolved through, written by the ProjectVision build script - and sends the reader on to the project's full TrueVision address with the document key handed through. It is never window.location: documents are authored on localhost, and a link reading http://localhost:8090/... opens on the authoring machine and on no phone in the world. The folder is one letter to match q, and it must NEVER be moved, renamed or removed.",
+
+        "Link__QueryPattern"    : "?{projectCode}&open={documentKey}",
+        "Link__QueryPatternNote": "Tokens: projectCode and documentKey, each URL-encoded. The code is the first token of the query, exactly as a printed QR address carries it, so s/index.html reads a project the way q/index.html does. A token the pattern asks for that the document cannot supply gives NO link, never a broken one. If this pattern is ever changed, s/index.html and the app must go on answering the old form, because links in the old form have already been sent.",
+
+        "Link__OpenParam"       : "open",
+        "Link__OpenParamNote"   : "The query key the resolver hands to the app and the app reads when it starts (Na__LayoutEditor__Share__Open__). Renaming it breaks every link already sent unless the resolver and the app go on reading the old key as well."
+    },
+
+    "LayoutEditor__Share__Open": {
+        "Open__Description"          : "What the app does when it is opened by a shared link.",
+        "Open__WaitForSheetsMs"      : 60000,
+        "Open__WaitForSheetsNote"    : "How long the app waits for the project's drawings to arrive before it gives up on the link and stays on the 3D model. The drawings arrive before the 3D model starts loading, so this is only ever reached on a dead connection.",
+        "Open__LiftLoadingScreen"    : true,
+        "Open__LiftLoadingScreenNote": "A reader who was sent a document is shown it as soon as it can be shown, not after the whole 3D model has loaded behind it: the loading screen is lifted off the document the moment it opens, and put back if the reader goes to the 3D Model tab before the model is ready. Where this session can AUTHOR the link waits for the model instead, because the editor renders its drawings from it."
+    },
+
+    "LayoutEditor__Share__Labels": {
+        "Labels__Description"           : "Every word the Share buttons and the Share box say. {what} is the kind of document, from the What... labels.",
+        "Labels__Button"                : "Share",
+        "Labels__ButtonTitle"           : "A link that opens this document, read-only, on any device",
+        "Labels__Title"                 : "Share",
+        "Labels__Copy"                  : "Copy link",
+        "Labels__Copied"                : "Link copied.",
+        "Labels__CopyFailed"            : "Select the link above and copy it.",
+        "Labels__Native"                : "Share...",
+        "Labels__Open"                  : "Open",
+        "Labels__Close"                 : "Close",
+        "Labels__Note"                  : "Anyone with this link can read this {what} on a phone, tablet or computer.",
+        "Labels__NotPublishedDrawing"   : "This drawing has not been published yet. Until it is, the link shows its sheet with a grey panel saying so.",
+        "Labels__NotPublishedStatement" : "This statement has not been published yet. Until it is, the link cannot show it.",
+        "Labels__NotRecorded"           : "Not in the project's share link record yet - publishing the drawings records it. The link is the same either way.",
+        "Labels__NoLink"                : "No link can be made on this page: it has no project in its address.",
+        "Labels__NoStatement"           : "Open a statement first.",
+        "Labels__WhatDrawing"           : "drawing",
+        "Labels__WhatSpecification"     : "specification",
+        "Labels__WhatRegister"          : "document register",
+        "Labels__WhatStatement"         : "statement",
+        "Labels__Specification"         : "Project Specification",
+        "Labels__Register"              : "Document Register",
+        "Labels__OpenMissingDrawing"    : "The drawing that link was for is no longer part of this project, so here is its current document register.",
+        "Labels__OpenMissingStatement"  : "The statement that link was for is no longer part of this project.",
+        "Labels__OpenUnknown"           : "That link names a document this project does not have."
+    }
+}

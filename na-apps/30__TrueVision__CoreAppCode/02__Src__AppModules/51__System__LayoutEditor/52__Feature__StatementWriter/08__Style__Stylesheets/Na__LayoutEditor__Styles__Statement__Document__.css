@@ -471,18 +471,126 @@
 
    A CROPPED FIGURE WEARS THE CLASS ON ITS FRAME, not on the picture inside
    it - the frame is the thing with an edge - which is why the crop builder
-   moves the class outwards and the uncrop moves it back. */
+   moves the class outwards and the uncrop moves it back.
+
+   29-SEP-2026 - THE FRAME LIFTS THE PICTURE OFF THE PAGE, AT HALF THE WEIGHT
+   OF THE INTRODUCTION SHEETS. Adam: the figures "look a little bit weak";
+   he wanted the look of the Sheet Images frame on the design introduction
+   drawings - the bronze rule over a soft shadow - "maybe half that much".
+   That frame (Na__LayoutEditor__SheetImages__Config__.json) is a 1.5pt rule
+   (0.53mm) over a shadow of 1.6mm standard deviation dropped 0.9mm at 0.30.
+   This one is a 0.40mm rule over a shadow half as deep and half as soft,
+   in the same warm near-black at the same strength. 0.40mm and not a hair
+   less: Chrome rounds a border DOWN to whole device pixels, so 0.35mm drew
+   one device pixel at 150% scaling - no heavier than the frame it replaced.
+
+   THE FRAME WAS WEAK BECAUSE OF THE ZOOM, NOT THE NUMBERS. A figure is sized
+   with Typora's zoom, and zoom scales the border and the shadow with the
+   picture: the old 2px rule on a "zoom: 30%" figure drew at 0.6px. The
+   renderer now writes each framed figure's zoom beside it as
+   --na-figure-zoom (Na__LeStmtRnd__FigureZoom), and every length below is
+   divided by it, so the frame is the same weight on every figure. Only the
+   rendered copy carries it; the markdown file never does.
+
+   EACH HALF CAN BE SWITCHED OFF ON ITS OWN, from the picture's right-click
+   menu: na-figure--no-frame takes the rule away, na-figure--no-shadow the
+   shadow. Either way the figure keeps the class, so it stays a figure. */
 .na-le-stmt-doc .na-figure {
-    border                             : 02.00px solid #555041;
-    box-shadow                         : 0 01.00px 06.00px rgba(0, 0, 0, 0.18);
+    --na-figure-rule                   : 00.40mm;
+    --na-figure-drop                   : 00.45mm;
+    --na-figure-blur                   : 01.60mm;
+    border                             : calc(var(--na-figure-rule) / var(--na-figure-zoom, 1)) solid #555041;
+    box-shadow                         : 0 calc(var(--na-figure-drop) / var(--na-figure-zoom, 1)) calc(var(--na-figure-blur) / var(--na-figure-zoom, 1)) rgba(31, 29, 24, 0.30);
 }
 
-/* A FIGURE CAPTION is the bold run on the line under a picture. It is written
-   as ordinary markdown - the indent is a zero-width space and two tabs - so it
-   carries no class of its own and is styled by the strong rule above. This
-   block only takes the air out from under the picture it belongs to. */
+.na-le-stmt-doc .na-figure.na-figure--no-frame {
+    border                             : none;
+}
+
+.na-le-stmt-doc .na-figure.na-figure--no-shadow {
+    box-shadow                         : none;
+}
+
+/* THE PDF DRAWS THE FRAME UNZOOMED. html2canvas reads a zoomed element's
+   border and shadow at their unzoomed widths (measured 29-Sep-2026: a 2px rule
+   at "zoom: 30%" is 0.67px on screen and 2px in the capture), so dividing by
+   the zoom there would print the rule three times too heavy. The exporter
+   takes the zoom off every framed PICTURE in the clone it captures
+   (Na__LeStmtPdf__Unzoom), which settles it exactly; this is the fallback for
+   the one thing it leaves zoomed - the frame round a cropped figure that was
+   resized, whose picture is laid out inside that zoom. It must not reach a
+   picture: those are measured at their on-screen box before being pinned. */
+.na-le-stmt-doc.is-capturing div.na-figure {
+    --na-figure-zoom                   : 1 !important;
+}
+
+/* A PICTURE ALONE IN A PARAGRAPH is a block, so it brings no line box - and
+   no air under it - with it. */
 .na-le-stmt-doc p > img:only-child {
     display                            : block;
+}
+
+/* A FIGURE AND ITS TITLE ARE ONE BLOCK.
+   -----------------------------------------------------------------
+   A title used to be a paragraph of its own under the picture, pushed across
+   by a zero-width space and two tabs until it looked as if it started where
+   the picture did. Only the editor keeps that whitespace; the reader and the
+   PDF collapse it, so the title sat against the page margin under a centred
+   picture. Adam, 29-Sep-2026, on RB05's Fig 3.1: "the titles aren't being
+   inset properly against the images".
+
+   So the picture and its title are one <figure> (Md__Figure), and the figure
+   is laid out as a TABLE. A table with no width of its own is as wide as
+   what is in it - the picture - and a table caption is held to the table's
+   width, so the title starts at the picture's left edge and wraps at its
+   right one, at any size and any zoom, with nothing measured by script. The
+   figure carries the picture's own margins (written into the markup), which
+   is what centres it, or sets it left or right.
+
+   THE TITLE KEEPS ITS SPACES. The house writes "Fig 3.1  -  Title" with two
+   spaces round each dash; pre-wrap draws them in every view instead of the
+   editor alone. A title is always written on one line, so no line break in
+   the markup is ever drawn. It sits 2.5mm under the frame.
+
+   A FIGURE HAS AIR ROUND IT. Adam, 29-Sep-2026, over RB05's Fig 4.1: "Add a
+   little space above and below images ... how squashed they feel between the
+   text". It had only the paragraph's own 3.5mm either side. 7mm above and
+   below now - the same air an h4 takes above itself - which collapses with
+   the paragraph margins round it rather than adding to them, so the gap to
+   the text is 7mm, not 10.5mm. A heading under a figure still gets 8mm. */
+.na-le-stmt-doc figure.na-figure-block {
+    display                            : table;
+    margin-top                         : 07.00mm;
+    margin-bottom                      : 07.00mm;
+    margin-left                        : auto;
+    margin-right                       : auto;
+    padding                            : 00.00mm;
+}
+
+.na-le-stmt-doc figure.na-figure-block > figcaption {
+    display                            : table-caption;
+    caption-side                       : bottom;
+    padding-top                        : 02.50mm;
+    color                              : #3c3c3c;
+    font-family                        : "Open Sans", sans-serif;
+    font-size                          : 10.00pt;
+    line-height                        : 1.40;
+    text-align                         : left;
+    white-space                        : pre-wrap;
+}
+
+.na-le-stmt-doc figure.na-figure-block > figcaption[hidden] {
+    display                            : none;                  /* <--- A title switched off; the words are kept in the markup */
+}
+
+/* A HEADING UNDER A FIGURE gets the same air as a heading under a bare
+   picture - in the reader the figure is a bare sibling; the editor's frozen
+   card is matched by the rule under Headings. */
+.na-le-stmt-doc > figure + h1,
+.na-le-stmt-doc > figure + h2,
+.na-le-stmt-doc > figure + h3,
+.na-le-stmt-doc > figure + h4 {
+    margin-top                         : 08.00mm;
 }
 
 /* endregion ------------------------------------------------------- */
@@ -578,6 +686,331 @@
     margin-right                       : 02.00mm;       /* <--- Space right of the divider */
     font-size                          : 10.00pt;
     vertical-align                     : middle;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Standard Sections                                      */
+/* ----------------------------------------------------------------- */
+
+/* A STANDARD SECTION is drawn by the Statement Writer from ONE marker line in
+   the markdown (09__Standard__Sections), so these classes exist only where the
+   app draws the page: the editor, the reader, the published HTML and the PDF.
+   Typora shows the marker's own fallback sentence instead. Nothing here reaches
+   outside .na-le-stmt-std, so a standard section can never restyle the prose
+   around it - and nothing in the prose rules may assume it is absent: every
+   rule the document sets on p, h3 and a is answered below where it matters.
+
+   NO BOX SHADOWS. html2canvas paints a shadow as grey pixels down the edge of
+   every tile it captures, which print as a seam (see The Paper, above). */
+
+/* Every standard section but the header sits between two major dividers,
+   which already bring five millimetres of air each; the section adds only a
+   little of its own. */
+.na-le-stmt-doc .na-le-stmt-std {
+    display                            : block;
+    margin-top                         : 02.00mm;
+    margin-bottom                      : 02.00mm;
+}
+
+
+/* THE DOCUMENT HEADER. The house header was "#####" labels, and every heading
+   in this stylesheet ends two millimetres short on purpose - so each label
+   sat hard on its value and each group hard on the next. Adam, 29-Sep-2026:
+   "too constrained ... give a little bit more space between these". Drawn as
+   a standard section, the block keeps the same type and colours with spacing
+   no heading rule can reach: nine millimetres under the logo, seven under the
+   title, six between groups, a clear gap between each label and its value. */
+.na-le-stmt-doc .na-le-stmt-std-head {
+    margin-top                         : 00.00mm;
+    margin-bottom                      : 00.00mm;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-head__logo {
+    display                            : block;
+    width                              : 75.00mm;
+    max-width                          : 100%;
+    margin-left                        : -03.00mm;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-head__title {
+    margin-top                         : 09.00mm;
+    margin-bottom                      : 00.00mm;
+    color                              : #555041;
+    font-size                          : 16.00pt;
+    font-weight                        : 500;
+    line-height                        : 1.25;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-head__fields {
+    margin-top                         : 07.00mm;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-head__field + .na-le-stmt-std-head__field {
+    margin-top                         : 06.00mm;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-head__label {
+    color                              : #555041;
+    font-size                          : 11.00pt;
+    font-weight                        : 500;
+    line-height                        : 1.20;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-head__value {
+    margin-top                         : 01.80mm;
+    color                              : #3c3c3c;
+    font-size                          : 10.00pt;
+    line-height                        : 1.50;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-head__date {
+    color                              : #646464;
+    font-size                          : 08.00pt;
+    font-style                         : italic;
+}
+
+
+/* THE CONTENTS, drawn from the headings: the list RB05 carried, as classes.
+   Sections in the document's olive with a fixed column for the numbers,
+   subsections in grey under them, two columns that never split a section. */
+.na-le-stmt-doc .na-le-stmt-std-toc__title {
+    margin-top                         : 02.00mm;
+    margin-bottom                      : 00.00mm;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-toc__columns {
+    display                            : flex;
+    gap                                : 08.00mm;
+    margin-top                         : 04.00mm;
+    margin-bottom                      : 02.00mm;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-toc__column {
+    flex                               : 1 1 0;
+    min-width                          : 0;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-toc__main {
+    display                            : flex;
+    margin-top                         : 02.50mm;
+    color                              : #555041;
+    font-size                          : 09.50pt;
+    font-weight                        : 500;
+    line-height                        : 1.40;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-toc__column > .na-le-stmt-std-toc__main:first-child {
+    margin-top                         : 00.00mm;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-toc__sub {
+    display                            : flex;
+    padding-left                       : 10.00mm;
+    color                              : #3c3c3c;
+    font-size                          : 08.50pt;
+    line-height                        : 1.45;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-toc__number {
+    flex                               : 0 0 10.00mm;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-toc__sub .na-le-stmt-std-toc__number {
+    color                              : #8c8778;
+}
+
+/* THE TRUEVISION 3D PROJECT HUB. A navy band over a white box, in the blue
+   scheme of the drawings and the drawing register (ink #172b3a, the register's
+   tints and rules) - Adam, 29-Sep-2026: "don't use the brown colour scheme".
+   It is the one block of solid colour in the statement, on purpose, because
+   its whole job is to be the thing a reader cannot miss.
+
+   ITS TYPE KEEPS TO THE DOCUMENT'S HIERARCHY. Adam, 29-Sep-2026, over the
+   first drawn hub: "the font sizes are a bit too big ... too jump-outy compared
+   to the hierarchy of the rest of the document". The colour does the calling
+   out; the sizes are the document's own. The title is a section heading (the
+   h3's 12pt), the panel heading and the tile headings sit between h4 and h5
+   (11pt, 9.5pt), the points and paragraphs are body text (10pt), and the
+   small print matches the Contents' subsections (8.5pt). Padding came in
+   with it so the box reads as part of the column, not a poster laid on it. */
+.na-le-stmt-doc .na-le-stmt-std-tvh {
+    border                             : 00.35mm solid #d9dfe4;
+    border-radius                      : 01.20mm;
+    overflow                           : hidden;
+    background-color                   : #ffffff;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-tvh__band {
+    padding                            : 04.20mm 05.50mm 04.00mm 05.50mm;
+    background-color                   : #172b3a;
+    color                              : #ffffff;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-tvh__kicker {
+    color                              : #a9bccb;
+    font-size                          : 07.00pt;
+    font-weight                        : 600;
+    letter-spacing                     : 0.14em;
+    text-transform                     : uppercase;
+}
+
+/* The document's h3 is 12pt olive with its own margins: all three answered.
+   The size stays the h3's, so the hub's title is a section title and no more. */
+.na-le-stmt-doc .na-le-stmt-std-tvh__title {
+    margin-top                         : 01.20mm;
+    margin-bottom                      : 00.00mm;
+    color                              : #ffffff;
+    font-size                          : 12.00pt;
+    font-weight                        : 500;
+    line-height                        : 1.30;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-tvh__body {
+    padding                            : 00.50mm 05.50mm 05.50mm 05.50mm;
+}
+
+/* THE QUICK-REFERENCE POINTS under the access panel (Adam, 29-Sep-2026: "make
+   them quick-reference bullet points"). Two columns, body size, the document's
+   bold weight in ink. The document gives every li a counter square, absolutely
+   placed and nudged up by half its height; every one of those is answered here
+   so the markers are the hub's own small ink squares. */
+.na-le-stmt-doc .na-le-stmt-std-tvh__points {
+    display                            : grid;
+    grid-template-columns              : 1fr 1fr;
+    gap                                : 01.40mm 06.00mm;
+    margin-top                         : 04.50mm;
+    margin-bottom                      : 00.00mm;
+    padding-left                       : 00.00mm;
+    list-style-type                    : none;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-tvh__points li {
+    position                           : relative;
+    padding-left                       : 04.20mm;
+    color                              : #172b3a;
+    font-size                          : 10.00pt;
+    font-weight                        : 500;
+    line-height                        : 1.40;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-tvh__points li::before {
+    content                            : "";
+    counter-increment                  : none;
+    position                           : absolute;
+    left                               : 00.00mm;
+    top                                : 0.52em;
+    width                              : 01.50mm;
+    height                             : 01.50mm;
+    background-color                   : #172b3a;
+    transform                          : none;
+}
+
+/* Two rows of two: the ink rule down the left and the register's pale tint. */
+.na-le-stmt-doc .na-le-stmt-std-tvh__tiles {
+    display                            : grid;
+    grid-template-columns              : 1fr 1fr;
+    gap                                : 02.50mm;
+    margin-top                         : 04.00mm;
+    margin-bottom                      : 01.00mm;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-tvh__tile {
+    padding                            : 02.20mm 03.20mm 02.60mm 03.20mm;
+    border-left                        : 00.60mm solid #172b3a;
+    background-color                   : #f2f4f5;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-tvh__tile-heading {
+    margin-top                         : 00.00mm;
+    color                              : #172b3a;
+    font-size                          : 09.50pt;
+    font-weight                        : 500;
+    line-height                        : 1.25;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-tvh__tile-text {
+    margin-top                         : 01.00mm;
+    color                              : #4b5661;
+    font-size                          : 08.50pt;
+    line-height                        : 1.40;
+}
+
+/* THE ACCESS PANEL: the code, and everything a reader needs to use it. */
+.na-le-stmt-doc .na-le-stmt-std-tvh__access {
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 05.00mm;
+    margin-top                         : 04.50mm;
+    padding                            : 03.50mm 04.50mm 03.50mm 03.50mm;
+    border                             : 00.35mm solid #e4e8ec;
+    border-radius                      : 01.20mm;
+    background-color                   : #f2f4f5;
+}
+
+/* The link round the code takes none of the document's link styling, and the
+   SVG fills it: its viewBox already holds the quiet zone. */
+.na-le-stmt-doc .na-le-stmt-std-tvh__qr {
+    display                            : block;
+    flex                               : 0 0 auto;
+    background-color                   : #ffffff;
+    font-size                          : 0;
+    line-height                        : 0;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-tvh__qr-svg {
+    display                            : block;
+    width                              : 100%;
+    height                             : 100%;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-tvh__cta {
+    flex                               : 1 1 auto;
+    min-width                          : 0;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-tvh__cta-heading {
+    color                              : #172b3a;
+    font-size                          : 11.00pt;
+    font-weight                        : 500;
+    line-height                        : 1.25;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-tvh__cta-text {
+    margin-top                         : 01.50mm;
+    color                              : #3c3c3c;
+    font-size                          : 09.00pt;
+    line-height                        : 1.40;
+}
+
+/* The document sets every link to 8pt grey with a blue underline on hover;
+   the button answers all of it. */
+.na-le-stmt-doc a.na-le-stmt-std-tvh__button,
+.na-le-stmt-doc a.na-le-stmt-std-tvh__button:visited {
+    display                            : inline-block;
+    margin-top                         : 03.00mm;
+    padding                            : 01.80mm 04.50mm 01.80mm 04.50mm;
+    border-radius                      : 01.00mm;
+    background-color                   : #172b3a;
+    color                              : #ffffff;
+    font-size                          : 09.00pt;
+    font-weight                        : 500;
+    line-height                        : 1.20;
+    text-decoration                    : none;
+}
+
+.na-le-stmt-doc a.na-le-stmt-std-tvh__button:hover {
+    background-color                   : #2d4a60;
+    color                              : #ffffff;
+    text-decoration                    : none;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-tvh__facts {
+    margin-top                         : 01.00mm;
+    color                              : #6c757d;
+    font-size                          : 07.50pt;
 }
 
 /* endregion ------------------------------------------------------- */

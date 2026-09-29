@@ -2,13 +2,13 @@
     "LayoutEditor__EdgeStyles__Meta": {
         "Meta__FileName"        : "Na__LayoutEditor__EdgeStyles__Config__.json",
         "Meta__Description"     : "The vocabulary of the projected linework layer: the edge colours, the line types and the bounds of a weight factor. Nothing here says which object gets which - that is Na__LayoutEditor__ModelLayers__Config__.json's job. This file says only what the choices ARE, so both that config and the per-viewport overrides speak one small alphabet.",
-        "Meta__Version"         : "1.1.0",
+        "Meta__Version"         : "1.2.0",
         "Meta__Created"         : "12-Sep-2026",
         "Meta__Author"          : "Adam Noble - Noble Architecture",
 
         "Meta__SsotSource"      : "Na__DataLib__CoreIndex__EdgeMaterials__.json",
         "Meta__SsotPath"        : "%AppData%/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__Common__DataLib__CoreSuEntityStandards/",
-        "Meta__SsotVersionRead" : "2.0.0",
+        "Meta__SsotVersionRead" : "2.3.0",
 
         "Meta__WhyAliases"      : "The SSOT names a colour MTE103__LineColour__DarkGrey__L40, which is the right name for a SketchUp material and a terrible one to store a thousand times in a project file. The alias is the short name a record holds; Colour__SsotKey is the thread back to the SSOT, so renaming either side is traceable rather than silent.",
         "Meta__WhichSwatches"   : "The six greys are exactly the SSOT's own AssemblyStudioEdgeColourSwatchKeys set - the palette already in use in SketchUp - so a drawing and the model it came from grade their edges the same way. They are listed dark to light, which is also the order they read as depth.",
@@ -27,6 +27,8 @@
         { "Colour__Alias": "light-grey",  "Colour__Label": "Light Grey",       "Colour__Hex": "#D9D9D9", "Colour__SsotKey": "MTE107__LineColour__LightGrey__L85",      "Colour__Note": "Lightness 85 - decor, planting, entourage; present but not read" },
         { "Colour__Alias": "red",         "Colour__Label": "Red",              "Colour__Hex": "#E53935", "Colour__SsotKey": "MTE201__LineColour__Red", "Colour__Note": "Site plans: the red line boundary and the proposal" },
         { "Colour__Alias": "green",       "Colour__Label": "Green",            "Colour__Hex": "#43A047", "Colour__SsotKey": "MTE202__LineColour__Green", "Colour__Note": "Site plans: trees, hedges and planting" },
+        { "Colour__Alias": "new-planting-green", "Colour__Label": "New Planting Green", "Colour__Hex": "#69B36C", "Colour__SsotKey": "MTE206__LineColour__NewPlantingGreen", "Colour__Note": "Lighter woodland outline and inherited tree-pattern ink" },
+        {"Colour__Alias": "dark-blue", "Colour__Label": "Dark Blue", "Colour__Hex": "#154D8A", "Colour__SsotKey": "MTE207__LineColour__DarkBlue", "Colour__Note": "Changed or removed watercourses and water bodies"},
         { "Colour__Alias": "blue",        "Colour__Label": "Blue",             "Colour__Hex": "#1E88E5", "Colour__SsotKey": "MTE205__LineColour__Blue", "Colour__Note": "Site plans: the blue line, drainage and services" }
     ],
 

@@ -44,6 +44,20 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.2.0
+// - A <figure> block (a picture with its title, Md__Figure) is a figure card
+//   in the editor, like a bare picture.
+//
+// 29-Sep-2026 - Version 1.1.0
+// - Raw HTML expanders (RegisterExpander, Expand): a raw HTML block another
+//   module claims is drawn as what that module hands back, given the whole
+//   document's blocks as context (a Contents is drawn from the headings). The standard
+//   sections registry claims its marker lines and draws the section; the
+//   editable shell then carries na-le-stmt-frozen--standard and
+//   data-na-stmt-standard, and the source stays the marker line.
+// - FigureZoom: a framed figure's rendered copy carries --na-figure-zoom, so
+//   the stylesheet draws its frame the same weight whatever its zoom.
+//
 // 20-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -64,6 +78,58 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Raw HTML Expanders
+// -----------------------------------------------------------------------------
+
+    // MODULE VARIABLES | Who May Draw a Raw HTML Block as Something Else
+    // ------------------------------------------------------------
+    // A raw HTML block is emitted as written unless an expander claims it.
+    // The standard sections registry (09__Standard__Sections) registers the
+    // only one: it claims a standard section's marker line and hands back the
+    // section. Nothing registers under node, so the tests see raw HTML exactly
+    // as it stands and this file still imports nothing but the markdown
+    // modules beside it.
+    // ------------------------------------------------------------
+    const Na__LeStmtRnd__Expanders = [];
+    let   Na__LeStmtRnd__Context   = null;                                     // <-- { Blocks } of the document being rendered, while Blocks() runs
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Register an Expander
+    // ------------------------------------------------------------
+    // fn(html) returns { Id, Html } for a block it claims, or null.
+    // ------------------------------------------------------------
+    function Na__LeStmtRnd__RegisterExpander(fn) {
+        if (typeof fn === 'function' && Na__LeStmtRnd__Expanders.indexOf(fn) === -1) Na__LeStmtRnd__Expanders.push(fn);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Expansion of a Raw HTML Block (null when nobody claims it)
+    // ------------------------------------------------------------
+    // An expander that throws is skipped, with a warning: one broken section
+    // must not stop a statement from being drawn. context is { Blocks }, the
+    // whole document's blocks: inside a render it is the document being
+    // rendered (a Contents lists its headings); called alone it is null and
+    // the expander finds the document itself.
+    // ------------------------------------------------------------
+    function Na__LeStmtRnd__Expand(html, context) {
+        for (const fn of Na__LeStmtRnd__Expanders) {
+            try {
+                const out = fn(html, context || Na__LeStmtRnd__Context);
+                if (out && typeof out.Html === 'string') return out;
+            } catch (error) {
+                console.warn('[TrueVision3D Statement] A standard section could not be drawn; its marker is shown instead.', error);
+            }
+        }
+        return null;
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Helpers
 // -----------------------------------------------------------------------------
 
@@ -71,6 +137,36 @@
     // ------------------------------------------------------------
     function Na__LeStmtRnd__Attr(value) {
         return Na__LeStmtInl__Escape(value === undefined || value === null ? '' : String(value)).replace(/"/g, '&quot;');
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Tell Every Framed Figure the Zoom It Is Drawn At
+    // ------------------------------------------------------------
+    // A FIGURE IS SIZED WITH TYPORA'S ZOOM, AND ZOOM SCALES ITS FRAME TOO. At
+    // "zoom: 30%" the stylesheet's rule and shadow were drawn at three tenths
+    // of what they say - a 2px rule came out 0.6px - so a frame was only as
+    // heavy as its picture was large, and every figure looked different.
+    // CSS cannot read an element's zoom, so this writes it next to the zoom as
+    // --na-figure-zoom, and the stylesheet divides the frame by it. Only the
+    // rendered copy carries it: the markdown file never does.
+    //
+    // A tag is touched only when it wears the frame class AND a zoom that is
+    // not 100 per cent. The PDF exporter sets the value back to one, because
+    // html2canvas draws a zoomed element's border at its unzoomed width.
+    // ------------------------------------------------------------
+    function Na__LeStmtRnd__FigureZoom(html) {
+        return String(html || '').replace(/<[A-Za-z][A-Za-z0-9-]*\b[^<>]*>/g, (tag) => {
+            if (!/\sclass\s*=\s*["'][^"']*\bna-figure\b/i.test(tag)) return tag;
+            const style = /(\sstyle\s*=\s*")([^"]*)(")/i.exec(tag);
+            if (!style) return tag;
+            const zoom  = /(?:^|;)\s*zoom\s*:\s*([\d.]+)\s*(%?)/i.exec(style[2]);
+            if (!zoom) return tag;
+            const factor = Number(zoom[1]) / (zoom[2] ? 100 : 1);
+            if (!(factor > 0) || factor === 1) return tag;
+            const body = style[2].replace(/[\s;]*$/, '');
+            return tag.replace(style[0], style[1] + body + '; --na-figure-zoom: ' + Number(factor.toFixed(4)) + ';' + style[3]);
+        });
     }
     // ------------------------------------------------------------
 
@@ -216,12 +312,20 @@
             // ProjectVision's statement builder always has. Editable mode puts
             // a frozen shell around it so the caret steps over it and nothing
             // inside is ever normalised.
-            if (!editable) return block.Html || '';
-            const figure = /^[ \t]*<img\b/i.test(block.Html || '');
-            return '<div class="na-le-stmt-frozen' + (figure ? ' na-le-stmt-frozen--figure' : '') + '"'
+            //
+            // A STANDARD SECTION'S MARKER is the one exception: a registered
+            // expander hands back the section it stands for, and that is what
+            // is drawn. The block's source - the marker line - is carried
+            // unchanged, so the file never holds the drawn section.
+            const standard = Na__LeStmtRnd__Expand(block.Html || '');
+            const html     = standard ? standard.Html : Na__LeStmtRnd__FigureZoom(block.Html || '');
+            if (!editable) return html;
+            const figure = !standard && /^[ \t]*<(?:img|figure)\b/i.test(block.Html || '');   // <-- A picture, or a picture with its title (Md__Figure)
+            return '<div class="na-le-stmt-frozen' + (figure ? ' na-le-stmt-frozen--figure' : '') + (standard ? ' na-le-stmt-frozen--standard' : '') + '"'
                  + ' data-na-stmt-kind="html" contenteditable="false"'
+                 + (standard ? ' data-na-stmt-standard="' + Na__LeStmtRnd__Attr(standard.Id) + '"' : '')
                  + Na__LeStmtRnd__Carry(block, '<>', editable) + '>'
-                 + '<div class="na-le-stmt-frozen__body">' + (block.Html || '') + '</div></div>';
+                 + '<div class="na-le-stmt-frozen__body">' + html + '</div></div>';
         }
 
         if (kind === 'blank') {
@@ -252,8 +356,14 @@
     // ------------------------------------------------------------
     function Na__LeStmtRnd__Blocks(blocks, options) {
         const editable = !!(options && options.Editable);
+        const outer    = Na__LeStmtRnd__Context;
+        Na__LeStmtRnd__Context = { Blocks : blocks || [] };                      // <-- What an expander sees as "the document"
         let   out      = '';
-        for (const block of (blocks || [])) out += Na__LeStmtRnd__Block(block, editable);
+        try {
+            for (const block of (blocks || [])) out += Na__LeStmtRnd__Block(block, editable);
+        } finally {
+            Na__LeStmtRnd__Context = outer;
+        }
         return out;
     }
     // ------------------------------------------------------------
@@ -277,7 +387,10 @@
     // ------------------------------------------------------------
     export {
         Na__LeStmtRnd__Blocks,
-        Na__LeStmtRnd__Markdown
+        Na__LeStmtRnd__Markdown,
+        Na__LeStmtRnd__RegisterExpander,
+        Na__LeStmtRnd__Expand,
+        Na__LeStmtRnd__FigureZoom
     };
     // ------------------------------------------------------------
 

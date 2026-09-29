@@ -1,0 +1,429 @@
+===============================================================================
+ TrueVision3D GLB Builder - Export Log
+===============================================================================
+ Model      : RB05_T01_M00__SitePlanModel__Proposed__0.4.3__.skp
+ Export dir : D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed
+ Timestamp  : 2026-09-29_123624
+ Console    : suppressed (OFF)
+-------------------------------------------------------------------------------
+Site Plan Export v1.4.1 - 28 layer(s) with geometry
+  [SitePlan] Check 71__SitePlan__BaseMap__OsMapping__General: 20 hidden, soft or smooth edge(s) skipped; unhide or unsoften any that belong on the drawing
+  [SitePlan] Check 71__SitePlan__BaseMap__Waterbodies: spans 0.64 m in height; site plan layers should be flat
+  [SitePlan] Check 73__SitePlan__Buildings__Existing: 1 face(s) ignored; this tag exports lines only
+  [SitePlan] Check 73__SitePlan__Buildings__Existing__Removed: 2 face(s) ignored; this tag exports lines only
+  [SitePlan] Check 73__SitePlan__Buildings__Existing__Removed: 3 hidden group(s) or component(s) skipped
+  [SitePlan] Check 73__SitePlan__SiteFeature__Paths: no faces, so no fill; draw the outline as a closed face
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__Contours__LineworkModel__.glb (28448 bytes, BIN: 27496 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 28448 bytes
+    Chunk 1: "JSON", Length: 924 bytes
+    Chunk 2: "BIN\x00", Length: 27496 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__Contours__LineworkModel__.glb - 491 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__NeighbouringBuildings__LineworkModel__.glb (8700 bytes, BIN: 7672 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 8700 bytes
+    Chunk 1: "JSON", Length: 1000 bytes
+    Chunk 2: "BIN\x00", Length: 7672 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__NeighbouringBuildings__LineworkModel__.glb - 137 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__OsMapping__LineworkModel__.glb (195624 bytes, BIN: 194656 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 195624 bytes
+    Chunk 1: "JSON", Length: 940 bytes
+    Chunk 2: "BIN\x00", Length: 194656 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__OsMapping__LineworkModel__.glb - 3476 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__OsMappingMainRoads__LineworkModel__.glb (35772 bytes, BIN: 34832 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 35772 bytes
+    Chunk 1: "JSON", Length: 912 bytes
+    Chunk 2: "BIN\x00", Length: 34832 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__OsMappingMainRoads__LineworkModel__.glb - 622 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__OsMappingMajorFeature__LineworkModel__.glb (8464 bytes, BIN: 7392 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 8464 bytes
+    Chunk 1: "JSON", Length: 1044 bytes
+    Chunk 2: "BIN\x00", Length: 7392 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__OsMappingMajorFeature__LineworkModel__.glb - 132 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__OsMappingMinorFeature__LineworkModel__.glb (2656 bytes, BIN: 1680 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 2656 bytes
+    Chunk 1: "JSON", Length: 948 bytes
+    Chunk 2: "BIN\x00", Length: 1680 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__OsMappingMinorFeature__LineworkModel__.glb - 30 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__OsMappingMinorStreets__LineworkModel__.glb (1948 bytes, BIN: 1008 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 1948 bytes
+    Chunk 1: "JSON", Length: 912 bytes
+    Chunk 2: "BIN\x00", Length: 1008 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__OsMappingMinorStreets__LineworkModel__.glb - 18 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__Waterbodies__LineworkModel__.glb (178436 bytes, BIN: 177408 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 178436 bytes
+    Chunk 1: "JSON", Length: 1000 bytes
+    Chunk 2: "BIN\x00", Length: 177408 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__Waterbodies__LineworkModel__.glb - 3168 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__Waterbodies__FillModel__.glb (8108 bytes, BIN: 5256 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 8108 bytes
+    Chunk 1: "JSON", Length: 2824 bytes
+    Chunk 2: "BIN\x00", Length: 5256 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__Waterbodies__FillModel__.glb - 7 ring(s) from 5 face(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__RedLineBoundary__LineworkModel__.glb (46148 bytes, BIN: 45136 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 46148 bytes
+    Chunk 1: "JSON", Length: 984 bytes
+    Chunk 2: "BIN\x00", Length: 45136 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__RedLineBoundary__LineworkModel__.glb - 806 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__WallsAndFences__LineworkModel__.glb (3428 bytes, BIN: 2464 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 3428 bytes
+    Chunk 1: "JSON", Length: 936 bytes
+    Chunk 2: "BIN\x00", Length: 2464 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__WallsAndFences__LineworkModel__.glb - 44 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__WallsAndFencesRemoved__LineworkModel__.glb (1600 bytes, BIN: 616 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 1600 bytes
+    Chunk 1: "JSON", Length: 956 bytes
+    Chunk 2: "BIN\x00", Length: 616 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__WallsAndFencesRemoved__LineworkModel__.glb - 11 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__ExistingBuildings__LineworkModel__.glb (1564 bytes, BIN: 560 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 1564 bytes
+    Chunk 1: "JSON", Length: 976 bytes
+    Chunk 2: "BIN\x00", Length: 560 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__ExistingBuildings__LineworkModel__.glb - 10 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__ExistingBuildingsRemoved__LineworkModel__.glb (1820 bytes, BIN: 784 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 1820 bytes
+    Chunk 1: "JSON", Length: 1008 bytes
+    Chunk 2: "BIN\x00", Length: 784 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__ExistingBuildingsRemoved__LineworkModel__.glb - 14 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__ProposedBuildingsSecondary__LineworkModel__.glb (2776 bytes, BIN: 1736 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 2776 bytes
+    Chunk 1: "JSON", Length: 1012 bytes
+    Chunk 2: "BIN\x00", Length: 1736 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__ProposedBuildingsSecondary__LineworkModel__.glb - 31 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__ProposedBuildingsSecondary__FillModel__.glb (2952 bytes, BIN: 396 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 2952 bytes
+    Chunk 1: "JSON", Length: 2528 bytes
+    Chunk 2: "BIN\x00", Length: 396 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__ProposedBuildingsSecondary__FillModel__.glb - 6 ring(s) from 6 face(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__ProposedBuildings__LineworkModel__.glb (5488 bytes, BIN: 4480 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 5488 bytes
+    Chunk 1: "JSON", Length: 980 bytes
+    Chunk 2: "BIN\x00", Length: 4480 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__ProposedBuildings__LineworkModel__.glb - 80 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__ProposedBuildings__FillModel__.glb (4004 bytes, BIN: 924 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 4004 bytes
+    Chunk 1: "JSON", Length: 3052 bytes
+    Chunk 2: "BIN\x00", Length: 924 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__ProposedBuildings__FillModel__.glb - 7 ring(s) from 7 face(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__SiteFeaturePaths__LineworkModel__.glb (12680 bytes, BIN: 11760 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 12680 bytes
+    Chunk 1: "JSON", Length: 892 bytes
+    Chunk 2: "BIN\x00", Length: 11760 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__SiteFeaturePaths__LineworkModel__.glb - 210 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__HardStandingAndDriveways__LineworkModel__.glb (15484 bytes, BIN: 14504 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 15484 bytes
+    Chunk 1: "JSON", Length: 952 bytes
+    Chunk 2: "BIN\x00", Length: 14504 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__HardStandingAndDriveways__LineworkModel__.glb - 259 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__HardStandingAndDriveways__FillModel__.glb (5932 bytes, BIN: 3156 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 5932 bytes
+    Chunk 1: "JSON", Length: 2748 bytes
+    Chunk 2: "BIN\x00", Length: 3156 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__HardStandingAndDriveways__FillModel__.glb - 6 ring(s) from 4 face(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__HardSurfaces__LineworkModel__.glb (78204 bytes, BIN: 77224 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 78204 bytes
+    Chunk 1: "JSON", Length: 952 bytes
+    Chunk 2: "BIN\x00", Length: 77224 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__HardSurfaces__LineworkModel__.glb - 1379 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__HardSurfaces__FillModel__.glb (42788 bytes, BIN: 18396 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 42788 bytes
+    Chunk 1: "JSON", Length: 24364 bytes
+    Chunk 2: "BIN\x00", Length: 18396 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__HardSurfaces__FillModel__.glb - 65 ring(s) from 63 face(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__Decking__LineworkModel__.glb (3476 bytes, BIN: 2520 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 3476 bytes
+    Chunk 1: "JSON", Length: 928 bytes
+    Chunk 2: "BIN\x00", Length: 2520 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__Decking__LineworkModel__.glb - 45 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__Decking__FillModel__.glb (5704 bytes, BIN: 720 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 5704 bytes
+    Chunk 1: "JSON", Length: 4956 bytes
+    Chunk 2: "BIN\x00", Length: 720 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__Decking__FillModel__.glb - 12 ring(s) from 12 face(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__GravelDriveway__LineworkModel__.glb (4720 bytes, BIN: 3696 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 4720 bytes
+    Chunk 1: "JSON", Length: 996 bytes
+    Chunk 2: "BIN\x00", Length: 3696 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__GravelDriveway__LineworkModel__.glb - 66 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__GravelDriveway__FillModel__.glb (2788 bytes, BIN: 780 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 2788 bytes
+    Chunk 1: "JSON", Length: 1980 bytes
+    Chunk 2: "BIN\x00", Length: 780 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__GravelDriveway__FillModel__.glb - 4 ring(s) from 3 face(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__ParkingAndAccess__LineworkModel__.glb (3684 bytes, BIN: 2688 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 3684 bytes
+    Chunk 1: "JSON", Length: 968 bytes
+    Chunk 2: "BIN\x00", Length: 2688 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__ParkingAndAccess__LineworkModel__.glb - 48 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__StillWater__LineworkModel__.glb (2624 bytes, BIN: 1680 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 2624 bytes
+    Chunk 1: "JSON", Length: 916 bytes
+    Chunk 2: "BIN\x00", Length: 1680 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__StillWater__LineworkModel__.glb - 30 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__StillWater__FillModel__.glb (1216 bytes, BIN: 360 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 1216 bytes
+    Chunk 1: "JSON", Length: 828 bytes
+    Chunk 2: "BIN\x00", Length: 360 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__StillWater__FillModel__.glb - 1 ring(s) from 1 face(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__Grassland__LineworkModel__.glb (61952 bytes, BIN: 60984 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 61952 bytes
+    Chunk 1: "JSON", Length: 940 bytes
+    Chunk 2: "BIN\x00", Length: 60984 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__Grassland__LineworkModel__.glb - 1089 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__Grassland__FillModel__.glb (18664 bytes, BIN: 13044 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 18664 bytes
+    Chunk 1: "JSON", Length: 5592 bytes
+    Chunk 2: "BIN\x00", Length: 13044 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__Grassland__FillModel__.glb - 14 ring(s) from 8 face(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__HedgesAndPlanting__LineworkModel__.glb (2580 bytes, BIN: 1568 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 2580 bytes
+    Chunk 1: "JSON", Length: 984 bytes
+    Chunk 2: "BIN\x00", Length: 1568 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__HedgesAndPlanting__LineworkModel__.glb - 28 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__HedgesAndPlanting__FillModel__.glb (1224 bytes, BIN: 336 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 1224 bytes
+    Chunk 1: "JSON", Length: 860 bytes
+    Chunk 2: "BIN\x00", Length: 336 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__HedgesAndPlanting__FillModel__.glb - 1 ring(s) from 1 face(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__RoughGrassland__LineworkModel__.glb (59280 bytes, BIN: 58296 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 59280 bytes
+    Chunk 1: "JSON", Length: 956 bytes
+    Chunk 2: "BIN\x00", Length: 58296 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__RoughGrassland__LineworkModel__.glb - 1041 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__RoughGrassland__FillModel__.glb (21420 bytes, BIN: 12492 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 21420 bytes
+    Chunk 1: "JSON", Length: 8900 bytes
+    Chunk 2: "BIN\x00", Length: 12492 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__RoughGrassland__FillModel__.glb - 24 ring(s) from 16 face(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__TreesMixedWoodland__LineworkModel__.glb (96996 bytes, BIN: 95984 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 96996 bytes
+    Chunk 1: "JSON", Length: 984 bytes
+    Chunk 2: "BIN\x00", Length: 95984 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__TreesMixedWoodland__LineworkModel__.glb - 1714 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__TreesMixedWoodland__FillModel__.glb (30644 bytes, BIN: 20568 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 30644 bytes
+    Chunk 1: "JSON", Length: 10048 bytes
+    Chunk 2: "BIN\x00", Length: 20568 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__TreesMixedWoodland__FillModel__.glb - 27 ring(s) from 24 face(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__TreesMixedWoodlandNewPlanting__LineworkModel__.glb (2240 bytes, BIN: 1232 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 2240 bytes
+    Chunk 1: "JSON", Length: 980 bytes
+    Chunk 2: "BIN\x00", Length: 1232 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__TreesMixedWoodlandNewPlanting__LineworkModel__.glb - 22 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__TreesMixedWoodlandNewPlanting__FillModel__.glb (1576 bytes, BIN: 264 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 1576 bytes
+    Chunk 1: "JSON", Length: 1284 bytes
+    Chunk 2: "BIN\x00", Length: 264 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__TreesMixedWoodlandNewPlanting__FillModel__.glb - 2 ring(s) from 2 face(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__TreesToRemove__LineworkModel__.glb (8552 bytes, BIN: 7560 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 8552 bytes
+    Chunk 1: "JSON", Length: 964 bytes
+    Chunk 2: "BIN\x00", Length: 7560 bytes
+  ✓ GLB validation passed
+  [SitePlan] RB05__TrueVision__SitePlan__TreesToRemove__LineworkModel__.glb - 135 line(s)
+  [SitePlan] TrueVision__SitePlanData__Manifest__.json - 28 layer(s)
+-------------------------------------------------------------------------------
+ Export complete. Elapsed: 0.42s
+===============================================================================

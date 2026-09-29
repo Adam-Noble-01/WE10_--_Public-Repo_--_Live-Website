@@ -13,7 +13,7 @@
 
     "LayoutEditor__Publish__Behaviour": {
         "Behaviour__Description"     : "How a publish runs.",
-        "Behaviour__AppVersion"      : "v2.155.0",
+        "Behaviour__AppVersion"      : "v2.165.0",
         "Behaviour__AppVersionNote"  : "Stamped into every manifest and the index as Publish__ByAppVersion. The app keeps its version only in the DEVLOG headings, so this is bumped with each release that changes what is published.",
         "Behaviour__PushToR2Default" : false,
         "Behaviour__PushNote"        : "Off by default: a publish files everything into the project folder first, where it can be looked at on localhost before a client ever can. Pushing to R2 is a second, deliberate tick.",
@@ -46,6 +46,9 @@
         "Labels__StatePublished"    : "Published rev {revision}",
         "Labels__StateStale"        : "Published rev {published}, now rev {revision}",
         "Labels__StateNever"        : "Not published",
-        "Labels__Warnings"          : "{count} warning(s) - see the console."
+        "Labels__Warnings"          : "{count} warning(s) - see the console.",
+        "Labels__ShareLinks"        : "Share links recorded for {count} document(s).",
+        "Labels__ShareLinksR2"      : "Share links recorded for {count} document(s), here and on R2.",
+        "Labels__ShareLinksFailed"  : "Share links not recorded: {reason}. The Share buttons build the same links meanwhile."
     }
 }

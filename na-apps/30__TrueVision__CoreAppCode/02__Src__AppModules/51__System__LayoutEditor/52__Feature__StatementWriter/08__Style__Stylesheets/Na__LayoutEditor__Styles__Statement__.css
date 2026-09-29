@@ -467,6 +467,19 @@
     display                            : block;
 }
 
+/* A FIGURE'S TITLE IS TYPED WHERE IT STANDS. The card round it is frozen, but
+   the title is an editing surface of its own (Na__LeStmtCard__ArmTitle), so it
+   shows the text cursor, and a fine rule while the caret is in it. */
+.na-le-stmt-doc[contenteditable="true"] figure > figcaption[contenteditable="true"] {
+    cursor                             : text;
+    outline                            : none;
+}
+
+.na-le-stmt-doc[contenteditable="true"] figure > figcaption[contenteditable="true"]:focus {
+    outline                            : 1px dashed #1a7fc4;
+    outline-offset                     : 2px;
+}
+
 /* endregion ------------------------------------------------------- */
 
 
@@ -587,6 +600,93 @@
     height                             : 0;
     margin                             : 0;
     border-top                         : 2px solid #1a7fc4;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Standard Sections and Moving a Block                   */
+/* ----------------------------------------------------------------- */
+
+/* A STANDARD SECTION IN THE EDITOR says what it is while the pointer is on
+   it: a small tag at its top-left corner, in the app's chrome blue, never in
+   the document's colours - it is not part of the statement and the reader,
+   the published file and the PDF never see it. */
+.na-le-stmt-std-badge {
+    position                           : absolute;
+    top                                : -9px;
+    left                               : 10px;
+    z-index                            : 3;
+    display                            : none;
+    padding                            : 2px 8px;
+    border-radius                      : 10px;
+    background                         : #1a7fc4;
+    color                              : #ffffff;
+    font-family                        : "Open Sans", sans-serif;
+    font-size                          : 10px;
+    font-weight                        : 600;
+    letter-spacing                     : 0.04em;
+    line-height                        : 1.5;
+    pointer-events                     : none;
+}
+
+.na-le-stmt-doc[contenteditable="true"] .na-le-stmt-frozen--standard:hover > .na-le-stmt-std-badge,
+.na-le-stmt-doc[contenteditable="true"] .na-le-stmt-frozen--standard.is-selected > .na-le-stmt-std-badge {
+    display                            : block;
+}
+
+/* THE MOVE HANDLE is a tool-row button that is held rather than clicked. */
+.na-le-stmt-frozen__tools .na-le-stmt-move__handle {
+    cursor                             : grab;
+    touch-action                       : none;
+}
+
+html.na-le-stmt-is-moving,
+html.na-le-stmt-is-moving * {
+    cursor                             : grabbing !important;
+    user-select                        : none !important;
+}
+
+/* The block in hand fades where it is until it lands. */
+.na-le-stmt-doc .na-le-stmt-frozen.is-moving {
+    opacity                            : 0.45;
+    outline                            : 2px dashed #1a7fc4;
+    outline-offset                     : 3px;
+}
+
+/* WHERE IT WILL LAND: a line across the paper between two blocks, fixed to
+   the screen so the page can scroll under it while the pointer is held at
+   the top or bottom of the view. */
+.na-le-stmt-move__line {
+    position                           : fixed;
+    z-index                            : 9000;
+    height                             : 0;
+    border-top                         : 3px solid #1a7fc4;
+    border-radius                      : 2px;
+    box-shadow                         : 0 0 0 1px rgba(255, 255, 255, 0.85);
+    pointer-events                     : none;
+}
+
+.na-le-stmt-move__line::before,
+.na-le-stmt-move__line::after {
+    content                            : "";
+    position                           : absolute;
+    top                                : -6px;
+    width                              : 9px;
+    height                             : 9px;
+    border-radius                      : 50%;
+    background                         : #1a7fc4;
+}
+
+.na-le-stmt-move__line::before { left  : -5px; }
+.na-le-stmt-move__line::after  { right : -5px; }
+
+/* JUST LANDED, OR JUST SWITCHED ON: a brief glow so the eye finds it. */
+.na-le-stmt-doc .na-le-stmt-frozen.is-landed {
+    outline                            : 3px solid rgba(26, 127, 196, 0.55);
+    outline-offset                     : 4px;
+    transition                         : outline-color 0.9s ease-out;
 }
 
 /* endregion ------------------------------------------------------- */

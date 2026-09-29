@@ -300,7 +300,7 @@ const rough = H.Na__LeHatch__Get('SitePlanHatch__RoughGrassland')
 const sitePack = H.Na__LeHatch__GetPacks().find((pk) => pk.Pack__Key === 'SitePlanHatches')
 check('Grassland and Rough Grassland load from the site plan pack, after the first two',
   sitePack.Pack__Patterns.map((p) => p.Pattern__Key),
-  ['SitePlanHatch__MixedWoodland', 'SitePlanHatch__PondsAndLakes', 'SitePlanHatch__Grassland', 'SitePlanHatch__RoughGrassland'])
+  ['SitePlanHatch__MixedWoodland', 'SitePlanHatch__PondsAndLakes', 'SitePlanHatch__Grassland', 'SitePlanHatch__RoughGrassland', 'SitePlanHatch__Gravel'])
 check('their tiles keep their paper size',
   [grass.Pattern__TileWidthMm, grass.Pattern__TileHeightMm, rough.Pattern__TileWidthMm, rough.Pattern__TileHeightMm], [28, 26, 32, 30])
 check('every placement found its glyph (10 tufts, and 9 in two shapes)',
@@ -480,6 +480,34 @@ const palette = cfg.LayoutEditor__EdgeStyles__Colours.map((c) => String(c.Colour
 check('EVERY site plan line colour is in the EdgeStyles palette, so none paints black (F4)',
   siteTags.filter((t) => !palette.includes(edgeHex[t.SitePlan__LineColourId])).map((t) => t.Tag__SketchUpName + ' ' + t.SitePlan__LineColourId), [])
 
+// New planting, decking and gravel resolve through the shared standards.
+const NEW_WOOD = sp['75__SitePlan__SoftLandscape__Trees__MixedWoodland__NewPlanting']
+const DECKING = sp['74__SitePlan__ExternalWorks__HardSurfaces__Decking']
+const GRAVEL = sp['74__SitePlan__ExternalWorks__HardSurfaces__GravelDriveway']
+check('new planting reuses the existing woodland glyphs',
+  H.Na__LeHatch__Get(NEW_WOOD.SitePlan__FillHatchId) === wood, true)
+check('new planting has a lighter opaque wash',
+  [rgbOf(NEW_WOOD.SitePlan__FillMaterialId), NEW_WOOD.SitePlan__FillOpacity], ['rgb(227,241,217)', 1])
+check('decking uses the lighter RGB and has no hatch',
+  [rgbOf(DECKING.SitePlan__FillMaterialId), DECKING.SitePlan__FillHatchId], ['rgb(221,214,210)', null])
+check('decking and gravel retain the hard surfaces outline',
+  [lineOf(DECKING), lineOf(GRAVEL)], [lineOf(sp['74__SitePlan__ExternalWorks__HardSurfaces']), lineOf(sp['74__SitePlan__ExternalWorks__HardSurfaces'])])
+const gravelPattern = H.Na__LeHatch__Get(GRAVEL.SitePlan__FillHatchId)
+check('gravel has printable stone outlines and its own subtle ink',
+  [H.Na__LeHatch__TilePolylines(gravelPattern).lines.length, gravelPattern.Pattern__Ink], [10, '#A69E90'])
+const fallbackTags = JSON.parse(fs.readFileSync(path.join(SSOT, '../Na__TrueVision__GlbBuilderUtility__Modules__/Na__TrueVision__GlbBuilder__TagsIndex__.json'), 'utf8')).tags
+check('all three tags remain available through the exporter fallback',
+  [NEW_WOOD, DECKING, GRAVEL].every((tag) => fallbackTags.some((t) => t.name === tag.Tag__SketchUpName)), true)
+
+const REMOVED_WATER = sp['71__SitePlan__BaseMap__Waterbodies__Removed']
+check('changed or removed water is dotted in SketchUp and TrueVision, with no wash or ripple',
+  [REMOVED_WATER.Layout__LineStyleName, REMOVED_WATER.SitePlan__LineType, REMOVED_WATER.SitePlan__ExportFills, REMOVED_WATER.SitePlan__FillMaterialId, REMOVED_WATER.SitePlan__FillHatchId],
+  ['Dot', 'dotted', false, null, null])
+check('removed water has dark blue ink registered in the app palette',
+  cfg.LayoutEditor__EdgeStyles__Colours.find((c) => c.Colour__SsotKey === REMOVED_WATER.SitePlan__LineColourId).Colour__Hex, '#154D8A')
+check('removed water is available in exporter fallback with dotted SketchUp styling',
+  fallbackTags.find((t) => t.name === REMOVED_WATER.Tag__SketchUpName).line_style_name, 'Dot')
+
 const stems = Object.values(sp).filter((t) => t && t.SitePlan__ExportFileNameStem).map((t) => t.SitePlan__ExportFileNameStem)
 check('no two site plan tags share a stem (a shared stem would overwrite one GLB with the other)', stems.length, new Set(stems).size)
 check('every site plan weight in points matches its millimetres',
@@ -497,6 +525,16 @@ check('every site plan weight in points matches its millimetres',
 
 globalThis.__H = H
 globalThis.__C = C
+
+const E = await load('51__System__LayoutEditor/25__System__RenderStyles/Na__LayoutEditor__EdgeStyles__.js', `
+  const Na__LeModelLayers__EdgeDefault = () => null;
+  const Na__LeModelLayers__Ready = async () => {};
+  const Na__LeModelLayers__IsLoaded = () => true;
+  const Na__LeCfg__GetLineweightSetup = () => ({ viewportPt : 0.3 });
+  const Na__LeCfg__PtToMm = (pt) => pt * 0.352778;
+  const Na__SpStore__GetLayers = () => globalThis.__DESCRIPTOR?.SitePlan__Layers || [];
+`, 'FillStyles')
+globalThis.__E = E
 
 const PAINT_STUBS = `
     const Na__LeCfg__GetLabel            = (k, f) => f;
@@ -525,7 +563,8 @@ const PAINT_STUBS = `
     const Na__LeVp2d__States             = globalThis.__STATES;
     const Na__LeVp2d__SizeLayer          = () => {};
     const Na__LeVp2d__HideProgress       = (st) => { st.progress.hidden = true };
-    const Na__LeVp2d__StyleToken         = () => 'style';
+    const Na__LeVp2d__StyleToken         = (vp) => globalThis.__E.Na__LeEdge__Token(vp);
+    const Na__LeEdge__FillHex            = (...a) => globalThis.__E.Na__LeEdge__FillHex(...a);
     const Na__LeVp2d__StyleBands         = (...a) => globalThis.__L.Na__LeVp2d__StyleBands(...a);
     const Na__LeVp2d__BandPaths          = (key, bands) => { globalThis.__BANDKEYS.push(key); return bands.map(() => 'M0 0L1 1') };
 `
@@ -926,6 +965,88 @@ svg{display:block;width:340px;height:255px;background:#fff}</style>
  <div class="card">${svgGrass}<div class="cap">Grassland left, Rough Grassland right, under the wood</div></div>
  <div class="card">${svgGrassAsWood}<div class="cap">An inheriting pattern on the grass layer takes its grey</div></div>
 </div>`, 'utf8')
+
+// Render each new tag separately from its actual standards data, so a missing
+// fill, missing hatch registration or unintended decking hatch cannot hide.
+const edgeById = Object.assign({}, ...Object.values(edgeDoc.Na__DataLib__CoreIndex__EdgeMaterials))
+for (const [tag, expectedFill, expectedInk, expectedHatch] of [
+  [NEW_WOOD, '#E3F1D9', '#69B36C', true],
+  [DECKING, '#DDD6D2', '#666666', false],
+  [GRAVEL, '#E6E0D4', '#A69E90', true]
+]) {
+  const key = tag.SitePlan__ExportFileNameStem
+  const rgb = matById[tag.SitePlan__FillMaterialId].BaseColor.match(/\d+/g).map(Number)
+  const fill = '#' + rgb.map((v) => v.toString(16).padStart(2, '0')).join('').toUpperCase()
+  const ink = edgeById[tag.SitePlan__LineColourId].HexValue
+  const layer = mkLayer(key, tag.Tag__SketchUpName, tag.SitePlan__ZIndexLine, tag.SitePlan__ZIndexFill,
+    ink, tag.SitePlan__FillMaterialId, fill, tag.SitePlan__FillOpacity, tag.SitePlan__FillHatchId)
+  globalThis.__DESCRIPTOR = { SitePlan__ExportedIso : '2026-09-29T00:00:00Z', SitePlan__Layers : [layer] }
+  globalThis.__LAYERDATA = { [key] : { categoryKey : key, layer, segments : new Float32Array([0, 0, 1000, 0]), segmentCount : 1, rings : BOX(1000, 1000, 30000, 20000) } }
+  globalThis.__EFFECTIVE[key] = { weight : 1, colour : 'dark-grey', lineType : 'solid', hex : ink, patternMm : [], overridden : false }
+  const svg = paint(freshState(), { Viewport__Id : key, Viewport__ScaleDenominator : 500, Viewport__Styles : {}, Viewport__SitePlan : {} })
+  check(tag.SitePlan__LayerLabel + ' paints its wash and intended pattern',
+    [svg.includes('fill="' + expectedFill + '"'), /url\(#na-le-hatch-/.test(svg)], [true, expectedHatch])
+  check(tag.SitePlan__LayerLabel + ' paints the intended ink', svg.includes('stroke="' + expectedInk + '"'), true)
+  const vp = { Viewport__Id : key + '-override', Viewport__ScaleDenominator : 500, Viewport__Styles : {}, Viewport__SitePlan : {} }
+  const state = freshState()
+  paint(state, vp)
+  const oldToken = state.lineworkKey
+  const patch = E.Na__LeEdge__Patch(vp, key, tag.SitePlan__LayerLabel, 'fill', '#f1e8df')
+  vp[E.Na__LeEdge__FIELD] = { [E.Na__LeEdge__CAT_FIELD] : patch }
+  const roundTrip = JSON.parse(JSON.stringify(vp))
+  const overridden = paint(state, roundTrip)
+  check('saved fill override repaints ' + tag.SitePlan__LayerLabel,
+    [overridden.includes('fill="#F1E8DF"'), oldToken !== state.lineworkKey], [true, true])
+  const drawing = await P.Na__LeVp2d__SitePlanDrawing(roundTrip)
+  check('PDF and document drawing receives the same overridden fill', drawing.fills[0].hex, '#F1E8DF')
+  const linePatch = E.Na__LeEdge__Patch(roundTrip, key, tag.SitePlan__LayerLabel, 'weight', 2)
+  check('editing a line preserves the chosen fill', linePatch[key].Category__FillHex, '#F1E8DF')
+  check('another viewport retains its default fill', E.Na__LeEdge__FillHex({}, key, fill), expectedFill)
+  delete roundTrip[E.Na__LeEdge__FIELD][E.Na__LeEdge__CAT_FIELD][key]
+  check('reset restores the exported fill', E.Na__LeEdge__FillHex(roundTrip, key, fill), expectedFill)
+
+}
+
+// Exercise the shipped record normaliser without the unrelated app imports.
+const recordSource = fs.readFileSync(path.resolve(SRC, '51__System__LayoutEditor/07__Core__SheetData/Na__LayoutEditor__SheetRecords__.js'), 'utf8')
+const normaliser = recordSource.match(/    function Na__LeRec__NormaliseProjectedEdges\(block\) \{[\s\S]*?\n    \}/)[0]
+const normalise = new Function('Na__LeEdge__CAT_FIELD', 'Na__LeEdge__IsLoaded', 'Na__LeEdge__Default', 'Na__LeEdge__ClampWeight', 'Na__LeEdge__IsColour', 'Na__LeEdge__IsLineType', 'Na__LeRec__SITEPLAN_CATEGORY_PREFIX', normaliser + '; return Na__LeRec__NormaliseProjectedEdges;')(
+  E.Na__LeEdge__CAT_FIELD, () => true, E.Na__LeEdge__Default, E.Na__LeEdge__ClampWeight, E.Na__LeEdge__IsColour, E.Na__LeEdge__IsLineType, 'TrueVision__SitePlan__')
+const savedKey = 'TrueVision__SitePlan__Decking'
+const saved = { Edges__Categories : E.Na__LeEdge__Patch({}, savedKey, 'Decking', 'fill', '#eeddcc') }
+check('record normalisation retains the custom fill on save/reload', normalise(saved).Edges__Categories[savedKey].Category__FillHex, '#EEDDCC')
+saved.Edges__Categories[savedKey].Category__FillHex = 'url(bad)'
+check('record normalisation drops invalid fill values', normalise(saved).Edges__Categories[savedKey].Category__FillHex, undefined)
+
+// Dash/dot scale is independent of weight and survives the same record path.
+await E.Na__LeEdge__Ready()
+const waterKey = REMOVED_WATER.SitePlan__ExportFileNameStem
+check('removed water SSOT exports half-scale dots', REMOVED_WATER.SitePlan__LineDashScale, 0.5)
+globalThis.__DESCRIPTOR = { SitePlan__Layers : [{ Layer__CategoryKey : waterKey, Layer__Style : {
+  LineHex : '#154D8A', LineType : 'dotted', LineWeightMm : REMOVED_WATER.SitePlan__LineWeightMm,
+  LineDashScale : REMOVED_WATER.SitePlan__LineDashScale
+} }] }
+const waterDefault = E.Na__LeEdge__Effective({}, waterKey)
+const fullDots = E.Na__LeEdge__Pattern('dotted')
+check('water dots and gaps default to half length', waterDefault.patternMm, fullDots.map((v) => v * 0.5))
+const scaleVp = { [E.Na__LeEdge__FIELD] : { [E.Na__LeEdge__CAT_FIELD] : E.Na__LeEdge__Patch({}, waterKey, 'Water', 'dashScale', 0.25) } }
+scaleVp[E.Na__LeEdge__FIELD] = normalise(JSON.parse(JSON.stringify(scaleVp[E.Na__LeEdge__FIELD])))
+const scaled = E.Na__LeEdge__Effective(scaleVp, waterKey)
+check('saved custom scale changes dots and gaps without changing width', [scaled.patternMm, scaled.weight], [fullDots.map((v) => v * 0.25), waterDefault.weight])
+const scaleToken = E.Na__LeEdge__Token(scaleVp)
+for (const [part, value] of [['weight', 2], ['colour', 'blue'], ['fill', '#AABBCC']]) {
+  const patch = E.Na__LeEdge__Patch(scaleVp, waterKey, 'Water', part, value)
+  check(part + ' edits preserve the custom dot scale', patch[waterKey].Category__LineTypeScale, 0.25)
+}
+scaleVp[E.Na__LeEdge__FIELD][E.Na__LeEdge__CAT_FIELD] = E.Na__LeEdge__Patch(scaleVp, waterKey, 'Water', 'dashScale', 2)
+check('changing scale invalidates the drawing cache', E.Na__LeEdge__Token(scaleVp) !== scaleToken, true)
+check('another viewport retains the half-scale water default', E.Na__LeEdge__Effective({}, waterKey).dashScale, 0.5)
+delete scaleVp[E.Na__LeEdge__FIELD][E.Na__LeEdge__CAT_FIELD][waterKey]
+check('reset restores the half-scale default', E.Na__LeEdge__Effective(scaleVp, waterKey).dashScale, 0.5)
+const invalidScale = { Edges__Categories : { [waterKey] : { Category__LineTypeScale : -1 } } }
+check('invalid saved scale is dropped', normalise(invalidScale).Edges__Categories[waterKey].Category__LineTypeScale, undefined)
+const modelScale = { Edges__Categories : E.Na__LeEdge__Patch({}, 'SomeModelLayer', 'Model', 'dashScale', 0.5) }
+check('a model-layer scale override is not pruned when its line style is otherwise default', normalise(modelScale).Edges__Categories.SomeModelLayer.Category__LineTypeScale, 0.5)
 
 console.log(`\n${pass} passed, ${fail} failed`)
 process.exit(fail ? 1 : 0)
