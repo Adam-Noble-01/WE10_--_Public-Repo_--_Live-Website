@@ -67,6 +67,10 @@
         "prompt__imagegen__whitecard-image__isolated-object-whitecard-with-dimensions" : {
             "Record__FileName"  : "PromptRecord__ImageGen__WhitecardImage__IsolatedObjectWhitecardWithDimensions__.json",
             "Record__LoadOrder" : 3
+        },
+        "prompt__imagegen__image-repair-and-upscale__composite-safe-sharpen-and-upscale" : {
+            "Record__FileName"  : "PromptRecord__ImageGen__ImageRepairAndUpscale__CompositeSafeSharpenAndUpscale__.json",
+            "Record__LoadOrder" : 4
         }
     }
 }

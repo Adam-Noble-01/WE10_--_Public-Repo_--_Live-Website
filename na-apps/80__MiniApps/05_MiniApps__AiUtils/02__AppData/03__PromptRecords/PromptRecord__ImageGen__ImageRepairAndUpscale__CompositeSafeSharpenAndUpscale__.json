@@ -1,0 +1,56 @@
+{
+    "PromptRecord__Meta" : {
+        "PromptRecord__Id"           : "prompt__imagegen__image-repair-and-upscale__composite-safe-sharpen-and-upscale",
+        "PromptRecord__Title"        : "Image Cleanup - Composite Safe Sharpen And Upscale",
+        "PromptRecord__Summary"      : "Sharpens and upscales an existing image with aspect ratio, perspective and camera angle locked and nothing added, so the output still aligns with the other layers of a composite.",
+        "PromptRecord__Category"     : "ImageGeneration",
+        "PromptRecord__SubCategory"  : "ImageRepairAndUpscale",
+        "PromptRecord__ModelTargets" : [
+                                           "NanoBanana",
+                                           "ChatGptImage"
+                                       ],
+        "PromptRecord__KeyWords"     : [
+                                           "Cleanup",
+                                           "Upscale",
+                                           "Sharpen",
+                                           "Resolution",
+                                           "Composite",
+                                           "Alignment",
+                                           "Aspect Ratio",
+                                           "Geometry Lock"
+                                       ],
+        "PromptRecord__Status"       : "Active",
+        "PromptRecord__Favourite"    : false,
+        "PromptRecord__Version"      : "1.0.0",
+        "PromptRecord__Created"      : "30-Sep-2026",
+        "PromptRecord__Updated"      : "30-Sep-2026",
+        "PromptRecord__Author"       : "Adam Noble"
+    },
+
+
+    "PromptRecord__Body" : {
+        "PromptRecord__PromptText" : [
+            "1. DO NOT CHANGE ASPECT RATIO",
+            "2. DO NOT CHANGE PERSPECTIVE",
+            "3. DO NOT CHANGE CAMERA ANGLE",
+            "",
+            "ONLY sharpen and make the image higher resolution",
+            "",
+            "DO NOT ADD NEW BUILDING ELEMENTS OR DETAILS THAT ARE NOT THERE",
+            "",
+            "ACCURACY IS CRITICAL",
+            "",
+            "SAME IMAGE PROPORTIONS MUST BE MAINTAINED THIS IS FOR A COMPOSITE SO ACCURACY IS KEY FOR ALIGNMENT WITH OTHER LAYERS"
+        ]
+    },
+
+
+    "PromptRecord__Variables" : [],
+
+
+    "PromptRecord__Usage" : {
+        "PromptRecord__CopyCount" : 0,
+        "PromptRecord__LastUsed"  : null,
+        "PromptRecord__Notes"     : "Held verbatim with no variables. Capitals are deliberate - they are the emphasis the model responds to. Feed the image to be cleaned up alongside this prompt. Check the output against the source layer at the same pixel size before compositing - any drift in crop or proportion breaks alignment."
+    }
+}
