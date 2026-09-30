@@ -16,8 +16,8 @@
     },
     "PublishedDocument__Publish" : {
         "Publish__SchemaVersion"  : 1,
-        "Publish__AtIso"          : "2026-09-29T20:38:43.879Z",
-        "Publish__AtEpochMs"      : 1790714323879,
+        "Publish__AtIso"          : "2026-09-30T00:53:17.543Z",
+        "Publish__AtEpochMs"      : 1790729597543,
         "Publish__ByApp"          : "TrueVision3D Layout Editor",
         "Publish__ByAppVersion"   : "v2.166.0",
         "Publish__RevisionAction" : "overwritten",
@@ -26,8 +26,8 @@
     "PublishedDocument__Files" : {
         "Files__Sheet" : {
             "File__Path"   : "Document__Sheet__.json",
-            "File__Bytes"  : 24115,
-            "File__Sha256" : "fa08539e34"
+            "File__Bytes"  : 24416,
+            "File__Sha256" : "de178ea275"
         },
         "Files__Elements" : [
             {
@@ -47,8 +47,8 @@
                 ],
                 "File__Path"   : "01__Elements__Data/Elements__Text__.json",
                 "File__Count"  : 94,
-                "File__Bytes"  : 87575,
-                "File__Sha256" : "438097e943"
+                "File__Bytes"  : 87625,
+                "File__Sha256" : "6c07c77e2e"
             },
             {
                 "File__Type"   : "leader",
@@ -56,7 +56,7 @@
                 "File__Path"   : "01__Elements__Data/Elements__Bubbles__.json",
                 "File__Count"  : 4,
                 "File__Bytes"  : 6659,
-                "File__Sha256" : "5fa38d504e"
+                "File__Sha256" : "a6e220e833"
             },
             {
                 "File__Type"   : "group",
@@ -72,17 +72,19 @@
                     "Layer_004"
                 ],
                 "File__Path"   : "01__Elements__Data/Elements__Vectors__.json",
-                "File__Count"  : 112,
-                "File__Bytes"  : 168275,
-                "File__Sha256" : "59107bd466"
+                "File__Count"  : 113,
+                "File__Bytes"  : 169583,
+                "File__Sha256" : "cdf87051f8"
             },
             {
                 "File__Type"   : "area",
-                "File__Layers" : [],
+                "File__Layers" : [
+                    "Layer_005"
+                ],
                 "File__Path"   : "01__Elements__Data/Elements__Areas__.json",
                 "File__Count"  : 14,
-                "File__Bytes"  : 25445,
-                "File__Sha256" : "9772997d26"
+                "File__Bytes"  : 35244,
+                "File__Sha256" : "b82fbed00a"
             },
             {
                 "File__Type"   : "viewport",
@@ -90,30 +92,30 @@
                 "File__Path"   : "01__Elements__Data/Elements__Viewports__.json",
                 "File__Count"  : 2,
                 "File__Bytes"  : 3106,
-                "File__Sha256" : "e5d12fef2d"
+                "File__Sha256" : "328d25c1b9"
             }
         ],
         "Files__Viewports" : [
             {
                 "Viewport__Id"     : "Viewport_001",
-                "Viewport__Hash"   : "ab776f9ec2",
+                "Viewport__Hash"   : "a6ad6de17a",
                 "Viewport__Vector" : {
-                    "File__Path"     : "02__Viewports__Vector/Viewport_001__Linework__ab776f9ec2.svg",
-                    "File__Bytes"    : 448531,
-                    "File__Sha256"   : "ab776f9ec2",
+                    "File__Path"     : "02__Viewports__Vector/Viewport_001__Linework__a6ad6de17a.svg",
+                    "File__Bytes"    : 448298,
+                    "File__Sha256"   : "a6ad6de17a",
                     "File__Paths"    : 11,
-                    "File__Segments" : 14375
+                    "File__Segments" : 14369
                 },
                 "Viewport__Rasters"  : [],
                 "Viewport__FogMasks" : []
             },
             {
                 "Viewport__Id"     : "Viewport_002",
-                "Viewport__Hash"   : "de08e6209d",
+                "Viewport__Hash"   : "fed611324f",
                 "Viewport__Vector" : {
-                    "File__Path"     : "02__Viewports__Vector/Viewport_002__Linework__de08e6209d.svg",
-                    "File__Bytes"    : 76911,
-                    "File__Sha256"   : "de08e6209d",
+                    "File__Path"     : "02__Viewports__Vector/Viewport_002__Linework__fed611324f.svg",
+                    "File__Bytes"    : 76899,
+                    "File__Sha256"   : "fed611324f",
                     "File__Paths"    : 8,
                     "File__Segments" : 2493
                 },
@@ -122,11 +124,11 @@
             }
         ],
         "Files__Pdf" : {
-            "File__Path"   : "Document__Print__1cfdfdfded.pdf",
-            "File__Bytes"  : 392973,
-            "File__Sha256" : "1cfdfdfded",
-            "File__Name"   : "RB05_T01_D07__FirstFloorPlan__A2__RevA__29-Sep-2026__.pdf"
+            "File__Path"   : "Document__Print__5ff89fc9f1.pdf",
+            "File__Bytes"  : 402860,
+            "File__Sha256" : "5ff89fc9f1",
+            "File__Name"   : "RB05_T01_D07__FirstFloorPlan__A2__RevA__30-Sep-2026__.pdf"
         },
-        "Files__TotalBytes" : 1388183
+        "Files__TotalBytes" : 1409283
     }
 }

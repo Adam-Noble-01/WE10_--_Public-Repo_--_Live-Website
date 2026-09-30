@@ -16,8 +16,8 @@
     },
     "PublishedDocument__Publish" : {
         "Publish__SchemaVersion"  : 1,
-        "Publish__AtIso"          : "2026-09-29T20:38:51.227Z",
-        "Publish__AtEpochMs"      : 1790714331227,
+        "Publish__AtIso"          : "2026-09-30T00:53:22.989Z",
+        "Publish__AtEpochMs"      : 1790729602989,
         "Publish__ByApp"          : "TrueVision3D Layout Editor",
         "Publish__ByAppVersion"   : "v2.166.0",
         "Publish__RevisionAction" : "overwritten",
@@ -26,8 +26,8 @@
     "PublishedDocument__Files" : {
         "Files__Sheet" : {
             "File__Path"   : "Document__Sheet__.json",
-            "File__Bytes"  : 21579,
-            "File__Sha256" : "5352cfaa81"
+            "File__Bytes"  : 21586,
+            "File__Sha256" : "63b5dcd9bb"
         },
         "Files__Elements" : [
             {
@@ -47,16 +47,16 @@
                 ],
                 "File__Path"   : "01__Elements__Data/Elements__Text__.json",
                 "File__Count"  : 54,
-                "File__Bytes"  : 49157,
-                "File__Sha256" : "06d5b7f9d1"
+                "File__Bytes"  : 49419,
+                "File__Sha256" : "6bdadf7cf3"
             },
             {
                 "File__Type"   : "leader",
                 "File__Layers" : [],
                 "File__Path"   : "01__Elements__Data/Elements__Bubbles__.json",
                 "File__Count"  : 2,
-                "File__Bytes"  : 3684,
-                "File__Sha256" : "daa7c40f66"
+                "File__Bytes"  : 3691,
+                "File__Sha256" : "cfef19acf6"
             },
             {
                 "File__Type"   : "group",
@@ -73,8 +73,8 @@
                 ],
                 "File__Path"   : "01__Elements__Data/Elements__Vectors__.json",
                 "File__Count"  : 49,
-                "File__Bytes"  : 74483,
-                "File__Sha256" : "417fd80bba"
+                "File__Bytes"  : 74925,
+                "File__Sha256" : "6c269dcc6d"
             },
             {
                 "File__Type"   : "area",
@@ -92,17 +92,17 @@
                 "File__Path"   : "01__Elements__Data/Elements__Viewports__.json",
                 "File__Count"  : 1,
                 "File__Bytes"  : 1700,
-                "File__Sha256" : "2f79d60840"
+                "File__Sha256" : "94393ef1dc"
             }
         ],
         "Files__Viewports" : [
             {
                 "Viewport__Id"     : "Viewport_001",
-                "Viewport__Hash"   : "b592f40fc6",
+                "Viewport__Hash"   : "5c58c76ffe",
                 "Viewport__Vector" : {
-                    "File__Path"     : "02__Viewports__Vector/Viewport_001__Linework__b592f40fc6.svg",
-                    "File__Bytes"    : 190080,
-                    "File__Sha256"   : "b592f40fc6",
+                    "File__Path"     : "02__Viewports__Vector/Viewport_001__Linework__5c58c76ffe.svg",
+                    "File__Bytes"    : 190070,
+                    "File__Sha256"   : "5c58c76ffe",
                     "File__Paths"    : 13,
                     "File__Segments" : 6321
                 },
@@ -111,11 +111,11 @@
             }
         ],
         "Files__Pdf" : {
-            "File__Path"   : "Document__Print__48b240fc79.pdf",
-            "File__Bytes"  : 230429,
-            "File__Sha256" : "48b240fc79",
-            "File__Name"   : "RB05_T01_D09__CoachHousePlan__A2__RevA__29-Sep-2026__.pdf"
+            "File__Path"   : "Document__Print__8ea0bd4097.pdf",
+            "File__Bytes"  : 231645,
+            "File__Sha256" : "8ea0bd4097",
+            "File__Name"   : "RB05_T01_D09__CoachHousePlan__A2__RevA__30-Sep-2026__.pdf"
         },
-        "Files__TotalBytes" : 708606
+        "Files__TotalBytes" : 710530
     }
 }

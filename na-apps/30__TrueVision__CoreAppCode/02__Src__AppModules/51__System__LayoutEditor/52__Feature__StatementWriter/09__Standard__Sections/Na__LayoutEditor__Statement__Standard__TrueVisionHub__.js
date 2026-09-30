@@ -121,8 +121,7 @@
             'Nothing to download or install'
         ],
         LeadParagraphs             : [
-            'Every part of this proposal has been built as a complete three dimensional model and published through TrueVision 3D, Noble Architecture\'s own project platform. TrueVision is the single home of the whole project. The live model sits alongside a digital copy of every drawing in the pack, the drawing specification, the document register and this statement itself. There is nothing to download and nothing to install. It opens in seconds in any modern web browser on a phone, a tablet or a desktop computer.',
-            'This is not a fixed fly through and it is not a reel of flattering viewpoints. The reader is in complete control. The model can be orbited, panned and zoomed without limit and viewed from any direction, both from ground level and from a bird\'s-eye view. It can be walked round at eye level or taken in whole from the air. Nothing is hidden and nothing is staged. Every roof plane, every eaves line and every elevation is there to be inspected at will.'
+            'Every part of this proposal has been built as a complete three dimensional model and published through TrueVision 3D, Noble Architecture\'s own project platform. TrueVision is the single home of the whole project. The live model sits alongside a digital copy of every drawing in the pack, the drawing specification, the document register and this statement itself. There is nothing to download and nothing to install. It opens in seconds in any modern web browser on a phone, a tablet or a desktop computer.'
         ],
         Tiles                      : [
             { Heading : 'Walk Round It Freely',         Text : 'Orbit, pan and zoom round the whole scheme, or step down to eye level and walk through it in any direction you choose.' },
@@ -131,7 +130,7 @@
             { Heading : 'Everything In One Place',      Text : 'Drawings, specification, document register and statements kept together, so nothing has to be hunted for.' }
         ],
         CloseParagraphs            : [
-            'The value of this to anyone assessing the scheme is simple. Every claim this statement makes about scale massing and appearance can be confirmed with one\'s own eyes in a few unhurried minutes rather than taken from the page. Reading a building from flat elevations takes years of training. Walking round it in TrueVision takes seconds. There is no easier way to understand this proposal and no good reason to judge it from paper alone.'
+            'This is not a fixed fly through and it is not a reel of flattering viewpoints. The value of this to anyone assessing the scheme is simple. Every claim this statement makes about scale massing and appearance can be confirmed with one\'s own eyes in a few unhurried minutes rather than taken from the page. Reading a building from flat elevations takes years of training. Walking round it in TrueVision takes seconds. There is no easier way to understand this proposal and no good reason to judge it from paper alone.'
         ],
         AccessHeadingText          : 'Scan To Step Inside The Model',
         AccessBodyText             : 'Point any phone camera at the code, or select the button. It opens {ProjectName} directly and can be returned to at any time.',

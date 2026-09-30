@@ -201,8 +201,8 @@
             "Leader__FillOpacity"    : 1,
             "Leader__SpecNoteId"     : "SpecNote_032",
             "Leader__SpecCode"       : "ES04",
-            "Leader__SpecHeading"    : "Ridge Lantern",
-            "Leader__SpecText"       : "Low hipped glazed lantern set astride the main ridge at the centre of the house. Frame material and finish to be confirmed before a full application."
+            "Leader__SpecHeading"    : "Crown Lantern",
+            "Leader__SpecText"       : "Low hipped glazed lantern set on the flat lead deck of the crown roof of ES09, at the centre of the house. Frame material and finish to be confirmed before a full application."
         },
         {
             "Leader__Id"             : "Leader_008",
@@ -426,7 +426,7 @@
             "Leader__SpecNoteId"     : "SpecNote_045",
             "Leader__SpecCode"       : "CE02",
             "Leader__SpecHeading"    : "Carriage Arch",
-            "Leader__SpecText"       : "Central gabled bay carries a semicircular carriage arch turned in voussoirs with a projecting keystone, on cut ashlar imposts with quoined jambs. The arch carries the pedestrian and service route through from the courtyard."
+            "Leader__SpecText"       : "Central gabled bay carries a semicircular carriage arch turned in voussoirs with a projecting keystone, on cut ashlar imposts with quoined jambs. The arch carries the pedestrian and service route through from the arrival approach."
         },
         {
             "Leader__Id"             : "Leader_016",
@@ -566,7 +566,7 @@
             "Leader__SpecNoteId"     : "SpecNote_038",
             "Leader__SpecCode"       : "EN04",
             "Leader__SpecHeading"    : "Orangery Link",
-            "Leader__SpecText"       : "Orangery between the house and the kitchen building: painted timber, glazed the full height of its bays, under a bespoke glazed lantern, applicant to consider a traditional manufacturer such as Vale Garden House who can provide the level of finish required for such a bespoke painted hardwood orangery structure.."
+            "Leader__SpecText"       : "Orangery between the house and the kitchen building: painted timber, glazed the full height of its bays, under a bespoke glazed lantern, applicant to consider a traditional manufacturer such as Vale Garden Houses, who can provide the level of finish required for such a bespoke painted hardwood orangery structure."
         },
         {
             "Leader__Id"             : "Leader_021",
@@ -733,8 +733,8 @@
             "Leader__FillOpacity"    : 1,
             "Leader__SpecNoteId"     : "SpecNote_032",
             "Leader__SpecCode"       : "ES04",
-            "Leader__SpecHeading"    : "Ridge Lantern",
-            "Leader__SpecText"       : "Low hipped glazed lantern set astride the main ridge at the centre of the house. Frame material and finish to be confirmed before a full application."
+            "Leader__SpecHeading"    : "Crown Lantern",
+            "Leader__SpecText"       : "Low hipped glazed lantern set on the flat lead deck of the crown roof of ES09, at the centre of the house. Frame material and finish to be confirmed before a full application."
         },
         {
             "Leader__TextSizeMm"     : 2.5,

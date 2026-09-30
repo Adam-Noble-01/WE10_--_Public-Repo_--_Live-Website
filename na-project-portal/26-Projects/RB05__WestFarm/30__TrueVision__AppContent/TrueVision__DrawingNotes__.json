@@ -2,7 +2,7 @@
     "ProjectSpecification__Description": "Project specification notes for the TrueVision drawings. Groups hold notes in order; a note’s code is its group’s prefix and its place in the group (GN01, EE02), so the order is the truth and Note__Code is written for readers and recomputed on every load. Specification bubbles on the Layout Editor sheets link to notes by Note__Id. General groups are listed on every sheet’s notes margin, after the notes that sheet’s bubbles link to. LastIdNumber only ever goes up, so no id is used twice.",
     "ProjectSpecification__Version": 1,
     "ProjectSpecification__ProjectCode": "RB05",
-    "ProjectSpecification__UpdatedIso": "2026-09-29T16:53:54.414Z",
+    "ProjectSpecification__UpdatedIso": "2026-09-30T00:31:17.482Z",
     "ProjectSpecification__NumberDigits": 2,
     "ProjectSpecification__LastIdNumber": 117,
     "ProjectSpecification__Revision": "A",
@@ -25,8 +25,8 @@
                     "Note__Id": "SpecNote_093",
                     "Note__Code": "IN02",
                     "Note__Title": "Existing 1960s dwelling",
-                    "Note__Body": "Detached house, altered and extended over time: a low range, mostly single storey, with a one-and-a-half-storey element at one end and a later conservatory. Approximately 37,600 mm long and 456 m² over two floors. Demolish in full. Dimensions from Ordnance Survey data and marketing floor plans; to be confirmed by measured survey before a full application.",
-                    "Note__UpdatedIso": "2026-09-22T09:04:30.700Z"
+                    "Note__Body": "Detached house, altered and extended over time: a low range, mostly single storey, with a one-and-a-half-storey element at one end and a later conservatory. Approximately 37,600 mm long and 456 m² over two floors. Demolish in full. Dimensions from Ordnance Survey data and the selling agent's floor plans; to be confirmed by measured survey before a full application.",
+                    "Note__UpdatedIso": "2026-09-30T00:21:22.797Z"
                 },
                 {
                     "Note__Id": "SpecNote_094",
@@ -53,8 +53,8 @@
                     "Note__Id": "SpecNote_097",
                     "Note__Code": "IN06",
                     "Note__Title": "Footprint and scale",
-                    "Note__Body": "Principal block 23,270 x 18,100 mm, about 14 m shorter across the site than the existing range, with its area gained in depth and height. Ground floor gross internal area 548.58 m² across the main house, orangery, kitchen building and stores; upper floors and coach house additional.",
-                    "Note__UpdatedIso": "2026-09-22T09:04:30.700Z"
+                    "Note__Body": "Principal block 23,270 x 18,100 mm, about 14 m shorter across the site than the existing range, with its area gained in depth and height. Ground floor area 549.86 m² across the main house, orangery, kitchen building and stores; upper floors and coach house additional.",
+                    "Note__UpdatedIso": "2026-09-30T00:21:22.797Z"
                 },
                 {
                     "Note__Id": "SpecNote_098",
@@ -154,8 +154,8 @@
                     "Note__Id": "SpecNote_038",
                     "Note__Code": "EN04",
                     "Note__Title": "Orangery Link",
-                    "Note__Body": "Orangery between the house and the kitchen building: painted timber, glazed the full height of its bays, under a bespoke glazed lantern, applicant to consider a traditional manufacturer such as Vale Garden House who can provide the level of finish required for such a bespoke painted hardwood orangery structure..",
-                    "Note__UpdatedIso": "2026-09-22T11:43:54.885Z"
+                    "Note__Body": "Orangery between the house and the kitchen building: painted timber, glazed the full height of its bays, under a bespoke glazed lantern, applicant to consider a traditional manufacturer such as Vale Garden Houses, who can provide the level of finish required for such a bespoke painted hardwood orangery structure.",
+                    "Note__UpdatedIso": "2026-09-30T00:21:22.797Z"
                 },
                 {
                     "Note__Id": "SpecNote_039",
@@ -203,9 +203,9 @@
                 {
                     "Note__Id": "SpecNote_032",
                     "Note__Code": "ES04",
-                    "Note__Title": "Ridge Lantern",
-                    "Note__Body": "Low hipped glazed lantern set astride the main ridge at the centre of the house. Frame material and finish to be confirmed before a full application.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+                    "Note__Title": "Crown Lantern",
+                    "Note__Body": "Low hipped glazed lantern set on the flat lead deck of the crown roof of ES09, at the centre of the house. Frame material and finish to be confirmed before a full application.",
+                    "Note__UpdatedIso": "2026-09-30T00:21:22.797Z"
                 },
                 {
                     "Note__Id": "SpecNote_033",
@@ -418,8 +418,8 @@
                     "Note__Id": "SpecNote_045",
                     "Note__Code": "CE02",
                     "Note__Title": "Carriage Arch",
-                    "Note__Body": "Central gabled bay carries a semicircular carriage arch turned in voussoirs with a projecting keystone, on cut ashlar imposts with quoined jambs. The arch carries the pedestrian and service route through from the courtyard.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+                    "Note__Body": "Central gabled bay carries a semicircular carriage arch turned in voussoirs with a projecting keystone, on cut ashlar imposts with quoined jambs. The arch carries the pedestrian and service route through from the arrival approach.",
+                    "Note__UpdatedIso": "2026-09-30T00:21:22.797Z"
                 },
                 {
                     "Note__Id": "SpecNote_046",
@@ -453,16 +453,16 @@
                 {
                     "Note__Id": "SpecNote_049",
                     "Note__Code": "CW01",
-                    "Note__Title": "Carriage Arch, Courtyard Face",
-                    "Note__Body": "The carriage arch returns on the courtyard face in matching voussoirs with quoined jambs. Gable oculus and cupola as CE03 and CE04.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+                    "Note__Title": "Carriage Arch, Arrival Approach Face",
+                    "Note__Body": "The carriage arch returns on the arrival approach face in matching voussoirs with quoined jambs. Gable oculus and cupola as CE03 and CE04.",
+                    "Note__UpdatedIso": "2026-09-30T00:21:22.797Z"
                 },
                 {
                     "Note__Id": "SpecNote_050",
                     "Note__Code": "CW02",
-                    "Note__Title": "Courtyard Openings",
-                    "Note__Body": "Courtyard face: boarded and strapped painted timber doors hung either side of glazed French doors beneath a cambered head. Segmentally headed window with a cut ashlar cill to the range beyond.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+                    "Note__Title": "Arrival Approach Openings",
+                    "Note__Body": "Arrival approach face: boarded and strapped painted timber doors hung either side of glazed French doors beneath a cambered head. Segmentally headed window with a cut ashlar cill to the range beyond.",
+                    "Note__UpdatedIso": "2026-09-30T00:21:22.797Z"
                 },
                 {
                     "Note__Id": "SpecNote_051",
@@ -801,8 +801,8 @@
                     "Note__Id": "SpecNote_066",
                     "Note__Code": "FF01",
                     "Note__Title": "Stairwell void and lantern",
-                    "Note__Body": "Grand Stairwell: void through the first and second floors over the Grand Atrium, beneath the ridge lantern as ES04. Daylight from the lantern reaches the ground floor.",
-                    "Note__UpdatedIso": "2026-09-21T22:38:02.444Z"
+                    "Note__Body": "Grand Stairwell: void through the first and second floors over the Grand Atrium, beneath the crown lantern as ES04. Daylight from the lantern reaches the ground floor.",
+                    "Note__UpdatedIso": "2026-09-30T00:21:22.797Z"
                 },
                 {
                     "Note__Id": "SpecNote_067",

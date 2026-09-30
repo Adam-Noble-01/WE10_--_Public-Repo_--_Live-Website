@@ -443,7 +443,7 @@
         {
             "Annotation__Text"       : "Floor Areas",
             "Annotation__PosXMm"     : 506.8334299542631,
-            "Annotation__PosYMm"     : 187.59143727194044,
+            "Annotation__PosYMm"     : 84.59143727194044,
             "Annotation__SizeMm"     : 3.2,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -456,7 +456,7 @@
         {
             "Annotation__Text"       : "Room",
             "Annotation__PosXMm"     : 506.8334299542631,
-            "Annotation__PosYMm"     : 192.79143727194042,
+            "Annotation__PosYMm"     : 89.79143727194042,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -469,7 +469,7 @@
         {
             "Annotation__Text"       : "Area",
             "Annotation__PosXMm"     : 584.8334299542631,
-            "Annotation__PosYMm"     : 192.79143727194042,
+            "Annotation__PosYMm"     : 89.79143727194042,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -482,7 +482,7 @@
         {
             "Annotation__Text"       : "Second Floor - Main House",
             "Annotation__PosXMm"     : 510.43342995426315,
-            "Annotation__PosYMm"     : 198.4914372719404,
+            "Annotation__PosYMm"     : 95.49143727194041,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -495,7 +495,7 @@
         {
             "Annotation__Text"       : "174.48 m²",
             "Annotation__PosXMm"     : 584.8334299542631,
-            "Annotation__PosYMm"     : 198.4914372719404,
+            "Annotation__PosYMm"     : 95.49143727194041,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -508,7 +508,7 @@
         {
             "Annotation__Text"       : "Luggage",
             "Annotation__PosXMm"     : 513.4334299542631,
-            "Annotation__PosYMm"     : 202.69143727194043,
+            "Annotation__PosYMm"     : 99.69143727194043,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -521,7 +521,7 @@
         {
             "Annotation__Text"       : "8.33 m²",
             "Annotation__PosXMm"     : 584.8334299542631,
-            "Annotation__PosYMm"     : 202.69143727194043,
+            "Annotation__PosYMm"     : 99.69143727194043,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -534,7 +534,7 @@
         {
             "Annotation__Text"       : "Grand Stairwell",
             "Annotation__PosXMm"     : 513.4334299542631,
-            "Annotation__PosYMm"     : 206.89143727194042,
+            "Annotation__PosYMm"     : 103.89143727194042,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -547,7 +547,7 @@
         {
             "Annotation__Text"       : "32.57 m²",
             "Annotation__PosXMm"     : 584.8334299542631,
-            "Annotation__PosYMm"     : 206.89143727194042,
+            "Annotation__PosYMm"     : 103.89143727194042,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -560,7 +560,7 @@
         {
             "Annotation__Text"       : "Games Room",
             "Annotation__PosXMm"     : 513.4334299542631,
-            "Annotation__PosYMm"     : 211.09143727194044,
+            "Annotation__PosYMm"     : 108.09143727194044,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -573,7 +573,7 @@
         {
             "Annotation__Text"       : "26.07 m²",
             "Annotation__PosXMm"     : 584.8334299542631,
-            "Annotation__PosYMm"     : 211.09143727194044,
+            "Annotation__PosYMm"     : 108.09143727194044,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -586,7 +586,7 @@
         {
             "Annotation__Text"       : "Bed 05 Ensuite",
             "Annotation__PosXMm"     : 513.4334299542631,
-            "Annotation__PosYMm"     : 215.29143727194042,
+            "Annotation__PosYMm"     : 112.29143727194042,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -599,7 +599,7 @@
         {
             "Annotation__Text"       : "11.72 m²",
             "Annotation__PosXMm"     : 584.8334299542631,
-            "Annotation__PosYMm"     : 215.29143727194042,
+            "Annotation__PosYMm"     : 112.29143727194042,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -612,7 +612,7 @@
         {
             "Annotation__Text"       : "Bedroom 04",
             "Annotation__PosXMm"     : 513.4334299542631,
-            "Annotation__PosYMm"     : 219.4914372719404,
+            "Annotation__PosYMm"     : 116.49143727194041,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -625,7 +625,7 @@
         {
             "Annotation__Text"       : "38.85 m²",
             "Annotation__PosXMm"     : 584.8334299542631,
-            "Annotation__PosYMm"     : 219.4914372719404,
+            "Annotation__PosYMm"     : 116.49143727194041,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -638,7 +638,7 @@
         {
             "Annotation__Text"       : "Bedrroom-04 Wardrobe",
             "Annotation__PosXMm"     : 513.4334299542631,
-            "Annotation__PosYMm"     : 223.69143727194043,
+            "Annotation__PosYMm"     : 120.69143727194043,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -651,7 +651,7 @@
         {
             "Annotation__Text"       : "7.36 m²",
             "Annotation__PosXMm"     : 584.8334299542631,
-            "Annotation__PosYMm"     : 223.69143727194043,
+            "Annotation__PosYMm"     : 120.69143727194043,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -664,7 +664,7 @@
         {
             "Annotation__Text"       : "Bed 04 Ensuite",
             "Annotation__PosXMm"     : 513.4334299542631,
-            "Annotation__PosYMm"     : 227.89143727194042,
+            "Annotation__PosYMm"     : 124.89143727194042,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -677,7 +677,7 @@
         {
             "Annotation__Text"       : "7.56 m²",
             "Annotation__PosXMm"     : 584.8334299542631,
-            "Annotation__PosYMm"     : 227.89143727194042,
+            "Annotation__PosYMm"     : 124.89143727194042,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -690,7 +690,7 @@
         {
             "Annotation__Text"       : "Bedroom 05",
             "Annotation__PosXMm"     : 513.4334299542631,
-            "Annotation__PosYMm"     : 232.09143727194044,
+            "Annotation__PosYMm"     : 129.09143727194044,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -703,7 +703,7 @@
         {
             "Annotation__Text"       : "31.91 m²",
             "Annotation__PosXMm"     : 584.8334299542631,
-            "Annotation__PosYMm"     : 232.09143727194044,
+            "Annotation__PosYMm"     : 129.09143727194044,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -716,7 +716,7 @@
         {
             "Annotation__Text"       : "Bedroom 05 Dressing",
             "Annotation__PosXMm"     : 513.4334299542631,
-            "Annotation__PosYMm"     : 236.29143727194042,
+            "Annotation__PosYMm"     : 133.29143727194042,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -729,7 +729,7 @@
         {
             "Annotation__Text"       : "10.13 m²",
             "Annotation__PosXMm"     : 584.8334299542631,
-            "Annotation__PosYMm"     : 236.29143727194042,
+            "Annotation__PosYMm"     : 133.29143727194042,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -742,7 +742,7 @@
         {
             "Annotation__Text"       : "Total",
             "Annotation__PosXMm"     : 506.8334299542631,
-            "Annotation__PosYMm"     : 242.21643727194044,
+            "Annotation__PosYMm"     : 139.21643727194044,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -755,7 +755,7 @@
         {
             "Annotation__Text"       : "174.48 m²",
             "Annotation__PosXMm"     : 584.8334299542631,
-            "Annotation__PosYMm"     : 242.21643727194044,
+            "Annotation__PosYMm"     : 139.21643727194044,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -768,7 +768,7 @@
         {
             "Annotation__Text"       : "Floor Areas",
             "Annotation__PosXMm"     : 507.40659771192804,
-            "Annotation__PosYMm"     : 252.33447269528094,
+            "Annotation__PosYMm"     : 153.33447269528094,
             "Annotation__SizeMm"     : 3.2,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -781,7 +781,7 @@
         {
             "Annotation__Text"       : "Room",
             "Annotation__PosXMm"     : 507.40659771192804,
-            "Annotation__PosYMm"     : 257.53447269528095,
+            "Annotation__PosYMm"     : 158.53447269528095,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -794,7 +794,7 @@
         {
             "Annotation__Text"       : "Area",
             "Annotation__PosXMm"     : 585.406597711928,
-            "Annotation__PosYMm"     : 257.53447269528095,
+            "Annotation__PosYMm"     : 158.53447269528095,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -807,7 +807,7 @@
         {
             "Annotation__Text"       : "Second Floor - Main House",
             "Annotation__PosXMm"     : 511.00659771192795,
-            "Annotation__PosYMm"     : 263.23447269528094,
+            "Annotation__PosYMm"     : 164.23447269528094,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -820,7 +820,7 @@
         {
             "Annotation__Text"       : "1,878 ft²",
             "Annotation__PosXMm"     : 585.406597711928,
-            "Annotation__PosYMm"     : 263.23447269528094,
+            "Annotation__PosYMm"     : 164.23447269528094,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -833,7 +833,7 @@
         {
             "Annotation__Text"       : "Luggage",
             "Annotation__PosXMm"     : 514.0065977119281,
-            "Annotation__PosYMm"     : 267.43447269528093,
+            "Annotation__PosYMm"     : 168.43447269528093,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -846,7 +846,7 @@
         {
             "Annotation__Text"       : "90 ft²",
             "Annotation__PosXMm"     : 585.406597711928,
-            "Annotation__PosYMm"     : 267.43447269528093,
+            "Annotation__PosYMm"     : 168.43447269528093,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -859,7 +859,7 @@
         {
             "Annotation__Text"       : "Grand Stairwell",
             "Annotation__PosXMm"     : 514.0065977119281,
-            "Annotation__PosYMm"     : 271.6344726952809,
+            "Annotation__PosYMm"     : 172.63447269528092,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -872,7 +872,7 @@
         {
             "Annotation__Text"       : "351 ft²",
             "Annotation__PosXMm"     : 585.406597711928,
-            "Annotation__PosYMm"     : 271.6344726952809,
+            "Annotation__PosYMm"     : 172.63447269528092,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -885,7 +885,7 @@
         {
             "Annotation__Text"       : "Games Room",
             "Annotation__PosXMm"     : 514.0065977119281,
-            "Annotation__PosYMm"     : 275.83447269528097,
+            "Annotation__PosYMm"     : 176.83447269528097,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -898,7 +898,7 @@
         {
             "Annotation__Text"       : "281 ft²",
             "Annotation__PosXMm"     : 585.406597711928,
-            "Annotation__PosYMm"     : 275.83447269528097,
+            "Annotation__PosYMm"     : 176.83447269528097,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -911,7 +911,7 @@
         {
             "Annotation__Text"       : "Bed 05 Ensuite",
             "Annotation__PosXMm"     : 514.0065977119281,
-            "Annotation__PosYMm"     : 280.03447269528095,
+            "Annotation__PosYMm"     : 181.03447269528095,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -924,7 +924,7 @@
         {
             "Annotation__Text"       : "126 ft²",
             "Annotation__PosXMm"     : 585.406597711928,
-            "Annotation__PosYMm"     : 280.03447269528095,
+            "Annotation__PosYMm"     : 181.03447269528095,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -937,7 +937,7 @@
         {
             "Annotation__Text"       : "Bedroom 04",
             "Annotation__PosXMm"     : 514.0065977119281,
-            "Annotation__PosYMm"     : 284.23447269528094,
+            "Annotation__PosYMm"     : 185.23447269528094,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -950,7 +950,7 @@
         {
             "Annotation__Text"       : "418 ft²",
             "Annotation__PosXMm"     : 585.406597711928,
-            "Annotation__PosYMm"     : 284.23447269528094,
+            "Annotation__PosYMm"     : 185.23447269528094,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -963,7 +963,7 @@
         {
             "Annotation__Text"       : "Bedrroom-04 Wardrobe",
             "Annotation__PosXMm"     : 514.0065977119281,
-            "Annotation__PosYMm"     : 288.43447269528093,
+            "Annotation__PosYMm"     : 189.43447269528093,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -976,7 +976,7 @@
         {
             "Annotation__Text"       : "79 ft²",
             "Annotation__PosXMm"     : 585.406597711928,
-            "Annotation__PosYMm"     : 288.43447269528093,
+            "Annotation__PosYMm"     : 189.43447269528093,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -989,7 +989,7 @@
         {
             "Annotation__Text"       : "Bed 04 Ensuite",
             "Annotation__PosXMm"     : 514.0065977119281,
-            "Annotation__PosYMm"     : 292.6344726952809,
+            "Annotation__PosYMm"     : 193.63447269528092,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -1002,7 +1002,7 @@
         {
             "Annotation__Text"       : "81 ft²",
             "Annotation__PosXMm"     : 585.406597711928,
-            "Annotation__PosYMm"     : 292.6344726952809,
+            "Annotation__PosYMm"     : 193.63447269528092,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -1015,7 +1015,7 @@
         {
             "Annotation__Text"       : "Bedroom 05",
             "Annotation__PosXMm"     : 514.0065977119281,
-            "Annotation__PosYMm"     : 296.83447269528097,
+            "Annotation__PosYMm"     : 197.83447269528097,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -1028,7 +1028,7 @@
         {
             "Annotation__Text"       : "343 ft²",
             "Annotation__PosXMm"     : 585.406597711928,
-            "Annotation__PosYMm"     : 296.83447269528097,
+            "Annotation__PosYMm"     : 197.83447269528097,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -1041,7 +1041,7 @@
         {
             "Annotation__Text"       : "Bedroom 05 Dressing",
             "Annotation__PosXMm"     : 514.0065977119281,
-            "Annotation__PosYMm"     : 301.03447269528095,
+            "Annotation__PosYMm"     : 202.03447269528095,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -1054,7 +1054,7 @@
         {
             "Annotation__Text"       : "109 ft²",
             "Annotation__PosXMm"     : 585.406597711928,
-            "Annotation__PosYMm"     : 301.03447269528095,
+            "Annotation__PosYMm"     : 202.03447269528095,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -1067,7 +1067,7 @@
         {
             "Annotation__Text"       : "Total",
             "Annotation__PosXMm"     : 507.40659771192804,
-            "Annotation__PosYMm"     : 306.95947269528097,
+            "Annotation__PosYMm"     : 207.95947269528097,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -1080,7 +1080,7 @@
         {
             "Annotation__Text"       : "1,878 ft²",
             "Annotation__PosXMm"     : 585.406597711928,
-            "Annotation__PosYMm"     : 306.95947269528097,
+            "Annotation__PosYMm"     : 207.95947269528097,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -1093,7 +1093,7 @@
         {
             "Annotation__Text"       : "Floor Areas  -  Ground Floor",
             "Annotation__PosXMm"     : 506.64953067491,
-            "Annotation__PosYMm"     : 179.5001173109354,
+            "Annotation__PosYMm"     : 74.5001173109354,
             "Annotation__SizeMm"     : 3.2,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -1105,6 +1105,6 @@
         }
     ],
     "Elements__LayerSvg" : {
-        "Layer_002" : "<text x=\"-67\" y=\"16.16\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"5\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Construction Lines</text><text x=\"15.23\" y=\"38.052\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3.2\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Scan Me</text><text x=\"8.06\" y=\"43.2\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"1.5\" font-weight=\"400\" fill=\"#5f6b74\" text-anchor=\"start\" xml:space=\"preserve\">Use your phone or tablet camera</text><text x=\"8.06\" y=\"48.4\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">View Project Portal</text><text x=\"8.06\" y=\"52.8\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.2\" font-weight=\"400\" fill=\"#5f6b74\" text-anchor=\"start\" xml:space=\"preserve\">·   Walk Through the 3D Model</text><text x=\"8.06\" y=\"56.4\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.2\" font-weight=\"400\" fill=\"#5f6b74\" text-anchor=\"start\" xml:space=\"preserve\">·   Saved Scenes and Viewpoints</text><text x=\"8.06\" y=\"60\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.2\" font-weight=\"400\" fill=\"#5f6b74\" text-anchor=\"start\" xml:space=\"preserve\">·   Measuring Tools</text><text x=\"8.06\" y=\"63.6\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.2\" font-weight=\"400\" fill=\"#5f6b74\" text-anchor=\"start\" xml:space=\"preserve\">·   Live Drawings Online</text><text x=\"57.593\" y=\"370.226\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3.5\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">PROPOSED SECOND FLOOR PLAN</text><text x=\"57.764\" y=\"385.489\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.5\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">0</text><text x=\"77.764\" y=\"385.489\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">2</text><text x=\"97.764\" y=\"385.489\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">4</text><text x=\"117.764\" y=\"385.489\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">6</text><text x=\"137.764\" y=\"385.489\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">8</text><text x=\"157.764\" y=\"385.489\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">10</text><text x=\"177.764\" y=\"385.489\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">12</text><text x=\"197.764\" y=\"385.489\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">14</text><text x=\"217.764\" y=\"385.489\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">16</text><text x=\"237.764\" y=\"385.489\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">18</text><text x=\"257.764\" y=\"385.489\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.5\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">20</text><text x=\"15.23\" y=\"38.052\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3.2\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Scan Me</text><text x=\"8.06\" y=\"43.2\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"1.5\" font-weight=\"400\" fill=\"#5f6b74\" text-anchor=\"start\" xml:space=\"preserve\">Use your phone or tablet camera</text><text x=\"8.06\" y=\"48.4\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">View Project Portal</text><text x=\"8.06\" y=\"52.8\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.2\" font-weight=\"400\" fill=\"#5f6b74\" text-anchor=\"start\" xml:space=\"preserve\">·   Walk Through the 3D Model</text><text x=\"8.06\" y=\"56.4\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.2\" font-weight=\"400\" fill=\"#5f6b74\" text-anchor=\"start\" xml:space=\"preserve\">·   Saved Scenes and Viewpoints</text><text x=\"8.06\" y=\"60\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.2\" font-weight=\"400\" fill=\"#5f6b74\" text-anchor=\"start\" xml:space=\"preserve\">·   Measuring Tools</text><text x=\"8.06\" y=\"63.6\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.2\" font-weight=\"400\" fill=\"#5f6b74\" text-anchor=\"start\" xml:space=\"preserve\">·   Live Drawings Online</text><text x=\"-67\" y=\"80.489\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"5\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Wall Fills</text><text x=\"238.525\" y=\"253.972\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.117\" font-weight=\"400\" fill=\"#333333\" text-anchor=\"middle\" xml:space=\"preserve\">Storage</text><text x=\"211.893\" y=\"249.866\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.117\" font-weight=\"400\" fill=\"#333333\" text-anchor=\"middle\" transform=\"rotate(-90 211.893 249.866)\" xml:space=\"preserve\">Storage</text><text x=\"118.393\" y=\"255.414\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.117\" font-weight=\"400\" fill=\"#333333\" text-anchor=\"middle\" transform=\"rotate(-90 118.393 255.414)\" xml:space=\"preserve\">Storage</text><text x=\"201.193\" y=\"259.904\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.117\" font-weight=\"400\" fill=\"#333333\" text-anchor=\"middle\" transform=\"rotate(-90 201.193 259.904)\" xml:space=\"preserve\">Storage</text><text x=\"187.887\" y=\"247.472\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.117\" font-weight=\"400\" fill=\"#333333\" text-anchor=\"middle\" xml:space=\"preserve\">Storage</text><text x=\"506.833\" y=\"187.591\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3.2\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Floor Areas</text><text x=\"506.833\" y=\"192.791\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Room</text><text x=\"584.833\" y=\"192.791\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">Area</text><text x=\"510.433\" y=\"198.491\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Second Floor - Main House</text><text x=\"584.833\" y=\"198.491\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">174.48 m²</text><text x=\"513.433\" y=\"202.691\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Luggage</text><text x=\"584.833\" y=\"202.691\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">8.33 m²</text><text x=\"513.433\" y=\"206.891\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Grand Stairwell</text><text x=\"584.833\" y=\"206.891\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">32.57 m²</text><text x=\"513.433\" y=\"211.091\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Games Room</text><text x=\"584.833\" y=\"211.091\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">26.07 m²</text><text x=\"513.433\" y=\"215.291\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Bed 05 Ensuite</text><text x=\"584.833\" y=\"215.291\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">11.72 m²</text><text x=\"513.433\" y=\"219.491\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Bedroom 04</text><text x=\"584.833\" y=\"219.491\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">38.85 m²</text><text x=\"513.433\" y=\"223.691\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Bedrroom-04 Wardrobe</text><text x=\"584.833\" y=\"223.691\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">7.36 m²</text><text x=\"513.433\" y=\"227.891\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Bed 04 Ensuite</text><text x=\"584.833\" y=\"227.891\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">7.56 m²</text><text x=\"513.433\" y=\"232.091\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Bedroom 05</text><text x=\"584.833\" y=\"232.091\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">31.91 m²</text><text x=\"513.433\" y=\"236.291\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Bedroom 05 Dressing</text><text x=\"584.833\" y=\"236.291\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">10.13 m²</text><text x=\"506.833\" y=\"242.216\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Total</text><text x=\"584.833\" y=\"242.216\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">174.48 m²</text><text x=\"507.407\" y=\"252.334\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3.2\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Floor Areas</text><text x=\"507.407\" y=\"257.534\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Room</text><text x=\"585.407\" y=\"257.534\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">Area</text><text x=\"511.007\" y=\"263.234\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Second Floor - Main House</text><text x=\"585.407\" y=\"263.234\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">1,878 ft²</text><text x=\"514.007\" y=\"267.434\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Luggage</text><text x=\"585.407\" y=\"267.434\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">90 ft²</text><text x=\"514.007\" y=\"271.634\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Grand Stairwell</text><text x=\"585.407\" y=\"271.634\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">351 ft²</text><text x=\"514.007\" y=\"275.834\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Games Room</text><text x=\"585.407\" y=\"275.834\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">281 ft²</text><text x=\"514.007\" y=\"280.034\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Bed 05 Ensuite</text><text x=\"585.407\" y=\"280.034\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">126 ft²</text><text x=\"514.007\" y=\"284.234\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Bedroom 04</text><text x=\"585.407\" y=\"284.234\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">418 ft²</text><text x=\"514.007\" y=\"288.434\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Bedrroom-04 Wardrobe</text><text x=\"585.407\" y=\"288.434\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">79 ft²</text><text x=\"514.007\" y=\"292.634\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Bed 04 Ensuite</text><text x=\"585.407\" y=\"292.634\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">81 ft²</text><text x=\"514.007\" y=\"296.834\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Bedroom 05</text><text x=\"585.407\" y=\"296.834\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">343 ft²</text><text x=\"514.007\" y=\"301.034\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Bedroom 05 Dressing</text><text x=\"585.407\" y=\"301.034\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">109 ft²</text><text x=\"507.407\" y=\"306.959\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Total</text><text x=\"585.407\" y=\"306.959\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">1,878 ft²</text><text x=\"506.65\" y=\"179.5\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3.2\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Floor Areas  -  Ground Floor</text>"
+        "Layer_002" : "<text x=\"-67\" y=\"16.16\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"5\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Construction Lines</text><text x=\"15.23\" y=\"38.052\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3.2\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Scan Me</text><text x=\"8.06\" y=\"43.2\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"1.5\" font-weight=\"400\" fill=\"#5f6b74\" text-anchor=\"start\" xml:space=\"preserve\">Use your phone or tablet camera</text><text x=\"8.06\" y=\"48.4\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">View Project Portal</text><text x=\"8.06\" y=\"52.8\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.2\" font-weight=\"400\" fill=\"#5f6b74\" text-anchor=\"start\" xml:space=\"preserve\">·   Walk Through the 3D Model</text><text x=\"8.06\" y=\"56.4\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.2\" font-weight=\"400\" fill=\"#5f6b74\" text-anchor=\"start\" xml:space=\"preserve\">·   Saved Scenes and Viewpoints</text><text x=\"8.06\" y=\"60\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.2\" font-weight=\"400\" fill=\"#5f6b74\" text-anchor=\"start\" xml:space=\"preserve\">·   Measuring Tools</text><text x=\"8.06\" y=\"63.6\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.2\" font-weight=\"400\" fill=\"#5f6b74\" text-anchor=\"start\" xml:space=\"preserve\">·   Live Drawings Online</text><text x=\"57.593\" y=\"370.226\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3.5\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">PROPOSED SECOND FLOOR PLAN</text><text x=\"57.764\" y=\"385.489\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.5\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">0</text><text x=\"77.764\" y=\"385.489\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">2</text><text x=\"97.764\" y=\"385.489\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">4</text><text x=\"117.764\" y=\"385.489\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">6</text><text x=\"137.764\" y=\"385.489\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">8</text><text x=\"157.764\" y=\"385.489\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">10</text><text x=\"177.764\" y=\"385.489\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">12</text><text x=\"197.764\" y=\"385.489\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">14</text><text x=\"217.764\" y=\"385.489\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">16</text><text x=\"237.764\" y=\"385.489\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">18</text><text x=\"257.764\" y=\"385.489\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.5\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">20</text><text x=\"15.23\" y=\"38.052\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3.2\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Scan Me</text><text x=\"8.06\" y=\"43.2\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"1.5\" font-weight=\"400\" fill=\"#5f6b74\" text-anchor=\"start\" xml:space=\"preserve\">Use your phone or tablet camera</text><text x=\"8.06\" y=\"48.4\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">View Project Portal</text><text x=\"8.06\" y=\"52.8\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.2\" font-weight=\"400\" fill=\"#5f6b74\" text-anchor=\"start\" xml:space=\"preserve\">·   Walk Through the 3D Model</text><text x=\"8.06\" y=\"56.4\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.2\" font-weight=\"400\" fill=\"#5f6b74\" text-anchor=\"start\" xml:space=\"preserve\">·   Saved Scenes and Viewpoints</text><text x=\"8.06\" y=\"60\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.2\" font-weight=\"400\" fill=\"#5f6b74\" text-anchor=\"start\" xml:space=\"preserve\">·   Measuring Tools</text><text x=\"8.06\" y=\"63.6\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.2\" font-weight=\"400\" fill=\"#5f6b74\" text-anchor=\"start\" xml:space=\"preserve\">·   Live Drawings Online</text><text x=\"-67\" y=\"80.489\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"5\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Wall Fills</text><text x=\"238.525\" y=\"253.972\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.117\" font-weight=\"400\" fill=\"#333333\" text-anchor=\"middle\" xml:space=\"preserve\">Storage</text><text x=\"211.893\" y=\"249.866\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.117\" font-weight=\"400\" fill=\"#333333\" text-anchor=\"middle\" transform=\"rotate(-90 211.893 249.866)\" xml:space=\"preserve\">Storage</text><text x=\"118.393\" y=\"255.414\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.117\" font-weight=\"400\" fill=\"#333333\" text-anchor=\"middle\" transform=\"rotate(-90 118.393 255.414)\" xml:space=\"preserve\">Storage</text><text x=\"201.193\" y=\"259.904\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.117\" font-weight=\"400\" fill=\"#333333\" text-anchor=\"middle\" transform=\"rotate(-90 201.193 259.904)\" xml:space=\"preserve\">Storage</text><text x=\"187.887\" y=\"247.472\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.117\" font-weight=\"400\" fill=\"#333333\" text-anchor=\"middle\" xml:space=\"preserve\">Storage</text><text x=\"506.833\" y=\"84.591\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3.2\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Floor Areas</text><text x=\"506.833\" y=\"89.791\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Room</text><text x=\"584.833\" y=\"89.791\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">Area</text><text x=\"510.433\" y=\"95.491\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Second Floor - Main House</text><text x=\"584.833\" y=\"95.491\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">174.48 m²</text><text x=\"513.433\" y=\"99.691\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Luggage</text><text x=\"584.833\" y=\"99.691\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">8.33 m²</text><text x=\"513.433\" y=\"103.891\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Grand Stairwell</text><text x=\"584.833\" y=\"103.891\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">32.57 m²</text><text x=\"513.433\" y=\"108.091\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Games Room</text><text x=\"584.833\" y=\"108.091\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">26.07 m²</text><text x=\"513.433\" y=\"112.291\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Bed 05 Ensuite</text><text x=\"584.833\" y=\"112.291\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">11.72 m²</text><text x=\"513.433\" y=\"116.491\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Bedroom 04</text><text x=\"584.833\" y=\"116.491\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">38.85 m²</text><text x=\"513.433\" y=\"120.691\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Bedrroom-04 Wardrobe</text><text x=\"584.833\" y=\"120.691\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">7.36 m²</text><text x=\"513.433\" y=\"124.891\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Bed 04 Ensuite</text><text x=\"584.833\" y=\"124.891\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">7.56 m²</text><text x=\"513.433\" y=\"129.091\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Bedroom 05</text><text x=\"584.833\" y=\"129.091\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">31.91 m²</text><text x=\"513.433\" y=\"133.291\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Bedroom 05 Dressing</text><text x=\"584.833\" y=\"133.291\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">10.13 m²</text><text x=\"506.833\" y=\"139.216\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Total</text><text x=\"584.833\" y=\"139.216\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">174.48 m²</text><text x=\"507.407\" y=\"153.334\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3.2\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Floor Areas</text><text x=\"507.407\" y=\"158.534\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Room</text><text x=\"585.407\" y=\"158.534\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">Area</text><text x=\"511.007\" y=\"164.234\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Second Floor - Main House</text><text x=\"585.407\" y=\"164.234\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">1,878 ft²</text><text x=\"514.007\" y=\"168.434\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Luggage</text><text x=\"585.407\" y=\"168.434\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">90 ft²</text><text x=\"514.007\" y=\"172.634\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Grand Stairwell</text><text x=\"585.407\" y=\"172.634\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">351 ft²</text><text x=\"514.007\" y=\"176.834\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Games Room</text><text x=\"585.407\" y=\"176.834\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">281 ft²</text><text x=\"514.007\" y=\"181.034\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Bed 05 Ensuite</text><text x=\"585.407\" y=\"181.034\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">126 ft²</text><text x=\"514.007\" y=\"185.234\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Bedroom 04</text><text x=\"585.407\" y=\"185.234\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">418 ft²</text><text x=\"514.007\" y=\"189.434\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Bedrroom-04 Wardrobe</text><text x=\"585.407\" y=\"189.434\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">79 ft²</text><text x=\"514.007\" y=\"193.634\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Bed 04 Ensuite</text><text x=\"585.407\" y=\"193.634\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">81 ft²</text><text x=\"514.007\" y=\"197.834\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Bedroom 05</text><text x=\"585.407\" y=\"197.834\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">343 ft²</text><text x=\"514.007\" y=\"202.034\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Bedroom 05 Dressing</text><text x=\"585.407\" y=\"202.034\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">109 ft²</text><text x=\"507.407\" y=\"207.959\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Total</text><text x=\"585.407\" y=\"207.959\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">1,878 ft²</text><text x=\"506.65\" y=\"74.5\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3.2\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Floor Areas  -  Ground Floor</text>"
     }
 }

@@ -11,11 +11,11 @@
     },
     "PublishedDocuments__Publish" : {
         "Publish__SchemaVersion"    : 1,
-        "Publish__AtIso"            : "2026-09-29T20:41:03.052Z",
-        "Publish__AtEpochMs"        : 1790714463052,
+        "Publish__AtIso"            : "2026-09-30T00:55:06.132Z",
+        "Publish__AtEpochMs"        : 1790729706132,
         "Publish__ByApp"            : "TrueVision3D Layout Editor",
         "Publish__ByAppVersion"     : "v2.166.0",
-        "Publish__LastPublishedIso" : "2026-09-29T20:41:03.052Z",
+        "Publish__LastPublishedIso" : "2026-09-30T00:55:06.132Z",
         "Publish__DocumentCount"    : 14,
         "Publish__UnpublishedCount" : 0,
         "Publish__ArchiveFolder"    : "00__Archive__Revisions"
@@ -55,7 +55,8 @@
                 "Tier__PixelsPerMm" : 20,
                 "Tier__MaxPixels"   : 8192,
                 "Tier__Format"      : "image/png",
-                "Tier__Quality"     : null
+                "Tier__Quality"     : null,
+                "Tier__UpToZoom"    : null
             }
         ]
     },
@@ -72,14 +73,14 @@
             "Document__DrawingAreaMm" : {
                 "X"        : 5,
                 "Y"        : 5,
-                "WidthMm"  : 309.1,
+                "WidthMm"  : 304.8,
                 "HeightMm" : 274
             },
             "Document__Revision"       : "A",
             "Document__Status"         : "PRELIMINARY",
             "Document__State"          : "published",
             "Document__Folder"         : "RB05_T01_D01",
-            "Document__PublishedAtIso" : "2026-09-29T20:37:23.827Z",
+            "Document__PublishedAtIso" : "2026-09-30T00:52:12.606Z",
             "Document__HasViewports"   : false,
             "Document__HasPdf"         : true,
             "Document__Order"          : 1
@@ -103,7 +104,7 @@
             "Document__Status"         : "PRELIMINARY",
             "Document__State"          : "published",
             "Document__Folder"         : "RB05_T01_D02",
-            "Document__PublishedAtIso" : "2026-09-29T20:37:39.911Z",
+            "Document__PublishedAtIso" : "2026-09-30T00:52:26.306Z",
             "Document__HasViewports"   : true,
             "Document__HasPdf"         : true,
             "Document__Order"          : 2
@@ -127,7 +128,7 @@
             "Document__Status"         : "PRELIMINARY",
             "Document__State"          : "published",
             "Document__Folder"         : "RB05_T01_D03",
-            "Document__PublishedAtIso" : "2026-09-29T20:37:56.807Z",
+            "Document__PublishedAtIso" : "2026-09-30T00:52:42.140Z",
             "Document__HasViewports"   : true,
             "Document__HasPdf"         : true,
             "Document__Order"          : 3
@@ -151,7 +152,7 @@
             "Document__Status"         : "PRELIMINARY",
             "Document__State"          : "published",
             "Document__Folder"         : "RB05_T01_D04",
-            "Document__PublishedAtIso" : "2026-09-29T20:38:15.777Z",
+            "Document__PublishedAtIso" : "2026-09-30T00:52:57.082Z",
             "Document__HasViewports"   : true,
             "Document__HasPdf"         : true,
             "Document__Order"          : 4
@@ -175,7 +176,7 @@
             "Document__Status"         : "PRELIMINARY",
             "Document__State"          : "published",
             "Document__Folder"         : "RB05_T01_D05",
-            "Document__PublishedAtIso" : "2026-09-29T20:38:33.493Z",
+            "Document__PublishedAtIso" : "2026-09-30T00:53:10.223Z",
             "Document__HasViewports"   : true,
             "Document__HasPdf"         : true,
             "Document__Order"          : 5
@@ -199,7 +200,7 @@
             "Document__Status"         : "PRELIMINARY",
             "Document__State"          : "published",
             "Document__Folder"         : "RB05_T01_D06",
-            "Document__PublishedAtIso" : "2026-09-29T20:38:40.063Z",
+            "Document__PublishedAtIso" : "2026-09-30T00:53:14.769Z",
             "Document__HasViewports"   : true,
             "Document__HasPdf"         : true,
             "Document__Order"          : 6
@@ -223,7 +224,7 @@
             "Document__Status"         : "PRELIMINARY",
             "Document__State"          : "published",
             "Document__Folder"         : "RB05_T01_D07",
-            "Document__PublishedAtIso" : "2026-09-29T20:38:43.879Z",
+            "Document__PublishedAtIso" : "2026-09-30T00:53:17.543Z",
             "Document__HasViewports"   : true,
             "Document__HasPdf"         : true,
             "Document__Order"          : 7
@@ -247,7 +248,7 @@
             "Document__Status"         : "PRELIMINARY",
             "Document__State"          : "published",
             "Document__Folder"         : "RB05_T01_D08",
-            "Document__PublishedAtIso" : "2026-09-29T20:38:47.956Z",
+            "Document__PublishedAtIso" : "2026-09-30T00:53:20.574Z",
             "Document__HasViewports"   : true,
             "Document__HasPdf"         : true,
             "Document__Order"          : 8
@@ -271,7 +272,7 @@
             "Document__Status"         : "PRELIMINARY",
             "Document__State"          : "published",
             "Document__Folder"         : "RB05_T01_D09",
-            "Document__PublishedAtIso" : "2026-09-29T20:38:51.227Z",
+            "Document__PublishedAtIso" : "2026-09-30T00:53:22.989Z",
             "Document__HasViewports"   : true,
             "Document__HasPdf"         : true,
             "Document__Order"          : 9
@@ -295,7 +296,7 @@
             "Document__Status"         : "PRELIMINARY",
             "Document__State"          : "published",
             "Document__Folder"         : "RB05_T01_D10",
-            "Document__PublishedAtIso" : "2026-09-29T20:39:19.458Z",
+            "Document__PublishedAtIso" : "2026-09-30T00:53:45.333Z",
             "Document__HasViewports"   : true,
             "Document__HasPdf"         : true,
             "Document__Order"          : 10
@@ -319,7 +320,7 @@
             "Document__Status"         : "PRELIMINARY",
             "Document__State"          : "published",
             "Document__Folder"         : "RB05_T01_D11",
-            "Document__PublishedAtIso" : "2026-09-29T20:40:04.600Z",
+            "Document__PublishedAtIso" : "2026-09-30T00:54:24.875Z",
             "Document__HasViewports"   : true,
             "Document__HasPdf"         : true,
             "Document__Order"          : 11
@@ -343,7 +344,7 @@
             "Document__Status"         : "PRELIMINARY",
             "Document__State"          : "published",
             "Document__Folder"         : "RB05_T01_D12",
-            "Document__PublishedAtIso" : "2026-09-29T20:40:25.508Z",
+            "Document__PublishedAtIso" : "2026-09-30T00:54:39.941Z",
             "Document__HasViewports"   : true,
             "Document__HasPdf"         : true,
             "Document__Order"          : 12
@@ -367,7 +368,7 @@
             "Document__Status"         : "PRELIMINARY",
             "Document__State"          : "published",
             "Document__Folder"         : "RB05_T01_D13",
-            "Document__PublishedAtIso" : "2026-09-29T20:40:44.561Z",
+            "Document__PublishedAtIso" : "2026-09-30T00:54:53.874Z",
             "Document__HasViewports"   : true,
             "Document__HasPdf"         : true,
             "Document__Order"          : 13
@@ -391,7 +392,7 @@
             "Document__Status"         : "PRELIMINARY",
             "Document__State"          : "published",
             "Document__Folder"         : "RB05_T01_D14",
-            "Document__PublishedAtIso" : "2026-09-29T20:40:57.310Z",
+            "Document__PublishedAtIso" : "2026-09-30T00:55:02.876Z",
             "Document__HasViewports"   : true,
             "Document__HasPdf"         : true,
             "Document__Order"          : 14

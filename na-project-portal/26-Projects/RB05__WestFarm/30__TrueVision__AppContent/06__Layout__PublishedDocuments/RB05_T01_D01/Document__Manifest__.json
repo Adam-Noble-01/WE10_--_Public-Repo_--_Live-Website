@@ -16,8 +16,8 @@
     },
     "PublishedDocument__Publish" : {
         "Publish__SchemaVersion"  : 1,
-        "Publish__AtIso"          : "2026-09-29T20:37:23.827Z",
-        "Publish__AtEpochMs"      : 1790714243827,
+        "Publish__AtIso"          : "2026-09-30T00:52:12.606Z",
+        "Publish__AtEpochMs"      : 1790729532606,
         "Publish__ByApp"          : "TrueVision3D Layout Editor",
         "Publish__ByAppVersion"   : "v2.166.0",
         "Publish__RevisionAction" : "overwritten",
@@ -26,8 +26,8 @@
     "PublishedDocument__Files" : {
         "Files__Sheet" : {
             "File__Path"   : "Document__Sheet__.json",
-            "File__Bytes"  : 50195,
-            "File__Sha256" : "8da3dec794"
+            "File__Bytes"  : 52577,
+            "File__Sha256" : "ca930ef808"
         },
         "Files__Elements" : [
             {
@@ -45,8 +45,8 @@
                 "File__Layers" : [],
                 "File__Path"   : "01__Elements__Data/Elements__Bubbles__.json",
                 "File__Count"  : 20,
-                "File__Bytes"  : 30243,
-                "File__Sha256" : "3ac525b3bf"
+                "File__Bytes"  : 30244,
+                "File__Sha256" : "e64cf0a9ec"
             },
             {
                 "File__Type"   : "group",
@@ -79,11 +79,11 @@
         ],
         "Files__Viewports" : [],
         "Files__Pdf"       : {
-            "File__Path"   : "Document__Print__82f9e3fb44.pdf",
-            "File__Bytes"  : 2732646,
-            "File__Sha256" : "82f9e3fb44",
-            "File__Name"   : "RB05_T01_D01__ProjectIntroduction__A3__RevA__29-Sep-2026__.pdf"
+            "File__Path"   : "Document__Print__45a6aa2446.pdf",
+            "File__Bytes"  : 2733333,
+            "File__Sha256" : "45a6aa2446",
+            "File__Name"   : "RB05_T01_D01__ProjectIntroduction__A3__RevA__30-Sep-2026__.pdf"
         },
-        "Files__TotalBytes" : 2976710
+        "Files__TotalBytes" : 2979780
     }
 }

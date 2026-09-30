@@ -61,8 +61,8 @@
             "Leader__FillOpacity"    : 1,
             "Leader__SpecNoteId"     : "SpecNote_049",
             "Leader__SpecCode"       : "CW01",
-            "Leader__SpecHeading"    : "Carriage Arch, Courtyard Face",
-            "Leader__SpecText"       : "The carriage arch returns on the courtyard face in matching voussoirs with quoined jambs. Gable oculus and cupola as CE03 and CE04."
+            "Leader__SpecHeading"    : "Carriage Arch, Arrival Approach Face",
+            "Leader__SpecText"       : "The carriage arch returns on the arrival approach face in matching voussoirs with quoined jambs. Gable oculus and cupola as CE03 and CE04."
         },
         {
             "Leader__Id"             : "Leader_004",
@@ -89,8 +89,8 @@
             "Leader__FillOpacity"    : 1,
             "Leader__SpecNoteId"     : "SpecNote_050",
             "Leader__SpecCode"       : "CW02",
-            "Leader__SpecHeading"    : "Courtyard Openings",
-            "Leader__SpecText"       : "Courtyard face: boarded and strapped painted timber doors hung either side of glazed French doors beneath a cambered head. Segmentally headed window with a cut ashlar cill to the range beyond."
+            "Leader__SpecHeading"    : "Arrival Approach Openings",
+            "Leader__SpecText"       : "Arrival approach face: boarded and strapped painted timber doors hung either side of glazed French doors beneath a cambered head. Segmentally headed window with a cut ashlar cill to the range beyond."
         },
         {
             "Leader__Id"             : "Leader_005",

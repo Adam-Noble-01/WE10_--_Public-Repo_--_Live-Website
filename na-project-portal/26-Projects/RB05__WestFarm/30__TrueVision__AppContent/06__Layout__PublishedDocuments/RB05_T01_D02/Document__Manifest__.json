@@ -16,8 +16,8 @@
     },
     "PublishedDocument__Publish" : {
         "Publish__SchemaVersion"  : 1,
-        "Publish__AtIso"          : "2026-09-29T20:37:39.911Z",
-        "Publish__AtEpochMs"      : 1790714259911,
+        "Publish__AtIso"          : "2026-09-30T00:52:26.306Z",
+        "Publish__AtEpochMs"      : 1790729546306,
         "Publish__ByApp"          : "TrueVision3D Layout Editor",
         "Publish__ByAppVersion"   : "v2.166.0",
         "Publish__RevisionAction" : "overwritten",
@@ -26,8 +26,8 @@
     "PublishedDocument__Files" : {
         "Files__Sheet" : {
             "File__Path"   : "Document__Sheet__.json",
-            "File__Bytes"  : 42426,
-            "File__Sha256" : "179fb1f708"
+            "File__Bytes"  : 42452,
+            "File__Sha256" : "cb18640a34"
         },
         "Files__Elements" : [
             {
@@ -55,8 +55,8 @@
                 "File__Layers" : [],
                 "File__Path"   : "01__Elements__Data/Elements__Bubbles__.json",
                 "File__Count"  : 17,
-                "File__Bytes"  : 26448,
-                "File__Sha256" : "635fbfc045"
+                "File__Bytes"  : 26474,
+                "File__Sha256" : "2f6294ef9d"
             },
             {
                 "File__Type"   : "group",
@@ -82,95 +82,95 @@
                 "File__Path"   : "01__Elements__Data/Elements__Viewports__.json",
                 "File__Count"  : 1,
                 "File__Bytes"  : 3568,
-                "File__Sha256" : "b446cb85aa"
+                "File__Sha256" : "d4d32462ac"
             }
         ],
         "Files__Viewports" : [
             {
                 "Viewport__Id"     : "Viewport_001",
-                "Viewport__Hash"   : "ee692dc06d",
+                "Viewport__Hash"   : "b528da1315",
                 "Viewport__Vector" : {
-                    "File__Path"     : "02__Viewports__Vector/Viewport_001__Linework__ee692dc06d.svg",
-                    "File__Bytes"    : 347851,
-                    "File__Sha256"   : "ee692dc06d",
+                    "File__Path"     : "02__Viewports__Vector/Viewport_001__Linework__b528da1315.svg",
+                    "File__Bytes"    : 348098,
+                    "File__Sha256"   : "b528da1315",
                     "File__Paths"    : 13,
-                    "File__Segments" : 11533
+                    "File__Segments" : 11535
                 },
                 "Viewport__Rasters" : [
                     {
                         "Tier__Id"           : "Print",
-                        "File__Path"         : "03__Viewports__Raster/Viewport_001__Print__ee692dc06d.png",
+                        "File__Path"         : "03__Viewports__Raster/Viewport_001__Print__b528da1315.png",
                         "File__PixelW"       : 8192,
                         "File__PixelH"       : 2193,
-                        "File__Bytes"        : 1582174,
+                        "File__Bytes"        : 1581957,
                         "File__DecodedBytes" : 71860224,
-                        "File__Sha256"       : "ee692dc06d"
+                        "File__Sha256"       : "b528da1315"
                     },
                     {
                         "Tier__Id"           : "Tier03",
-                        "File__Path"         : "03__Viewports__Raster/Viewport_001__Tier03__Detail__ee692dc06d.webp",
+                        "File__Path"         : "03__Viewports__Raster/Viewport_001__Tier03__Detail__b528da1315.webp",
                         "File__PixelW"       : 5120,
                         "File__PixelH"       : 1371,
-                        "File__Bytes"        : 221574,
+                        "File__Bytes"        : 221564,
                         "File__DecodedBytes" : 28078080,
-                        "File__Sha256"       : "ee692dc06d"
+                        "File__Sha256"       : "b528da1315"
                     },
                     {
                         "Tier__Id"           : "Tier02",
-                        "File__Path"         : "03__Viewports__Raster/Viewport_001__Tier02__Read__ee692dc06d.webp",
+                        "File__Path"         : "03__Viewports__Raster/Viewport_001__Tier02__Read__b528da1315.webp",
                         "File__PixelW"       : 2844,
                         "File__PixelH"       : 761,
-                        "File__Bytes"        : 89768,
+                        "File__Bytes"        : 89750,
                         "File__DecodedBytes" : 8657136,
-                        "File__Sha256"       : "ee692dc06d"
+                        "File__Sha256"       : "b528da1315"
                     },
                     {
                         "Tier__Id"           : "Tier01",
-                        "File__Path"         : "03__Viewports__Raster/Viewport_001__Tier01__Fit__ee692dc06d.webp",
+                        "File__Path"         : "03__Viewports__Raster/Viewport_001__Tier01__Fit__b528da1315.webp",
                         "File__PixelW"       : 948,
                         "File__PixelH"       : 254,
-                        "File__Bytes"        : 13104,
+                        "File__Bytes"        : 13106,
                         "File__DecodedBytes" : 963168,
-                        "File__Sha256"       : "ee692dc06d"
+                        "File__Sha256"       : "b528da1315"
                     }
                 ],
                 "Viewport__FogMasks" : [
                     {
                         "Tier__Id"           : "Tier03",
-                        "File__Path"         : "03__Viewports__Raster/Viewport_001__FogMask__Tier03__Detail__ee692dc06d.webp",
+                        "File__Path"         : "03__Viewports__Raster/Viewport_001__FogMask__Tier03__Detail__b528da1315.webp",
                         "File__PixelW"       : 5120,
                         "File__PixelH"       : 1371,
-                        "File__Bytes"        : 24434,
+                        "File__Bytes"        : 24444,
                         "File__DecodedBytes" : 28078080,
-                        "File__Sha256"       : "ee692dc06d"
+                        "File__Sha256"       : "b528da1315"
                     },
                     {
                         "Tier__Id"           : "Tier02",
-                        "File__Path"         : "03__Viewports__Raster/Viewport_001__FogMask__Tier02__Read__ee692dc06d.webp",
+                        "File__Path"         : "03__Viewports__Raster/Viewport_001__FogMask__Tier02__Read__b528da1315.webp",
                         "File__PixelW"       : 2844,
                         "File__PixelH"       : 761,
-                        "File__Bytes"        : 10142,
+                        "File__Bytes"        : 10138,
                         "File__DecodedBytes" : 8657136,
-                        "File__Sha256"       : "ee692dc06d"
+                        "File__Sha256"       : "b528da1315"
                     },
                     {
                         "Tier__Id"           : "Tier01",
-                        "File__Path"         : "03__Viewports__Raster/Viewport_001__FogMask__Tier01__Fit__ee692dc06d.webp",
+                        "File__Path"         : "03__Viewports__Raster/Viewport_001__FogMask__Tier01__Fit__b528da1315.webp",
                         "File__PixelW"       : 948,
                         "File__PixelH"       : 254,
-                        "File__Bytes"        : 2800,
+                        "File__Bytes"        : 2798,
                         "File__DecodedBytes" : 963168,
-                        "File__Sha256"       : "ee692dc06d"
+                        "File__Sha256"       : "b528da1315"
                     }
                 ]
             }
         ],
         "Files__Pdf" : {
-            "File__Path"   : "Document__Print__a284847b73.pdf",
-            "File__Bytes"  : 2239629,
-            "File__Sha256" : "a284847b73",
-            "File__Name"   : "RB05_T01_D02__FrontElevation__A2__RevA__29-Sep-2026__.pdf"
+            "File__Path"   : "Document__Print__c5a83b2d98.pdf",
+            "File__Bytes"  : 2246460,
+            "File__Sha256" : "c5a83b2d98",
+            "File__Name"   : "RB05_T01_D02__FrontElevation__A2__RevA__30-Sep-2026__.pdf"
         },
-        "Files__TotalBytes" : 4803228
+        "Files__TotalBytes" : 4810119
     }
 }

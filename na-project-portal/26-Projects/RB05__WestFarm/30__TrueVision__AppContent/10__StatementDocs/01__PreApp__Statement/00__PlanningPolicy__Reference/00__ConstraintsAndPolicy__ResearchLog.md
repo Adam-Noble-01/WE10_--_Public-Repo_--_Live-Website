@@ -864,3 +864,18 @@ s.16.3: four paragraphs, a nine-row table and Fig 16.1 (`02__DocImages/05__Site_
 - s.12.2 says of the Deans Lane woodland belt "The proposal keeps that belt". SP25 and its drive cross the protected groups G17 and G18. Consider a clause there pointing to s.16.3.
 - Obtain a copy of order LCC28 (map and schedule) from the council. The applicants' arboriculturist should use it in the BS 5837 survey.
 - Drawing notes SE13/SP24/SP25/SP12/SP22 do not mention the TPO (not changed here).
+
+### Designated heritage assets within 2 km and conservation areas (checked 30-Sep-2026)
+
+Origin: the existing dwelling, E450195 N315211 (as the distances table above). Method: `planning-comparator-location-plan/scripts/locate.py nhle-near 450195 315211 --radius 2000 --layers 0,6,7` against Historic England's NHLE open data service (listed buildings, scheduled monuments, registered parks and gardens); conservation areas from Historic England's `Conservation_Areas` feature service, distance to the nearest polygon edge on EPSG:27700.
+
+| Asset | Type | NHLE | Distance | Bearing |
+| :--- | :--- | :--- | :--- | :--- |
+| Beacon Cottage Farmhouse and Barn Range to Rear | Listed building, Grade II | 1074610 | 629 m | 77 |
+| Beacon Hill hillfort, enclosure and linear boundary | Scheduled monument | 1008835 | 1,086 m (to vertex mean) | 132 |
+| Longhill Farmhouse and Barn | Listed building, Grade II | 1074604 | 1,483 m | 86 |
+| Longcliffe Lodge Farmhouse | Listed building, Grade II | 1236224 | 1,766 m | 321 |
+
+No registered park or garden within 2 km. Conservation areas within 4 km: Woodhouse Eaves 2,497 m (bearing 99), Woodhouse School Lane 3,344 m, Woodhouse Forest Road 3,578 m. Statement s.19.4 (Heritage) updated with these findings; the Round House entry above is the same list entry 1074610.
+
+Also corrected in the statement the same day from the "found in passing" notes above: Beaumanor Hall now "1842 and 1853 ... in red brick with stone dressings" (NHLE 1361103); Swithland Hall "about six kilometres to the south east ... rubble stone and brick, rendered and painted" (NHLE 1074662); "surround the site" now "within a few kilometres of the site".
