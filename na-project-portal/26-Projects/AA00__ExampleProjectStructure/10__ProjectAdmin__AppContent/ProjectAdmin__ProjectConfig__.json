@@ -1,0 +1,31 @@
+{
+    "projectCode": "AA00",
+    "projectName": "Example Project Structure",
+    "projectBriefConcise": "Example project used as the folder and file template for new projects. Not a real job.",
+    "projectBriefFull": "## Project Overview And Goals\nThis is an example project demonstrating the structure of the Project Admin system.",
+    "specialNotes": "This is an example project structure for testing and demonstration purposes.",
+    "projectPin": "1234",
+    "clientDataStorage": "cloudflare-r2-encrypted",
+    "contracts": {
+        "general-business": {
+            "enabled": true,
+            "signed": false,
+            "signatureRef": null,
+            "signedDate": null,
+            "specialTermsEnabled": true
+        },
+        "concept-design": {
+            "enabled": true,
+            "signed": false,
+            "signatureRef": null,
+            "signedDate": null,
+            "specialTermsEnabled": false
+        }
+    },
+    "documents": {
+        "quotation": true,
+        "specialTerms": true
+    },
+    "createdDate": "31-Jan-2026",
+    "lastModified": "01-Feb-2026 at 16:30"
+}

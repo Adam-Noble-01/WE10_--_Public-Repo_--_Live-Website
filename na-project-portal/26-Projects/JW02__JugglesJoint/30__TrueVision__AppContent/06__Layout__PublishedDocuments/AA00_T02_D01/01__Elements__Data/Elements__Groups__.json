@@ -1,0 +1,32 @@
+{
+    "Elements__Meta": {
+        "Meta__FileName"    : "Elements__Groups__.json",
+        "Meta__Description" : "The introduction note groups, IN01 to IN09, as they were built.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "23-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+        "Meta__LayerId"     : null,
+        "Meta__LayerType"   : "group",
+        "Meta__Count"       : 4,
+        "Meta__ExampleNote" : "DUMMY DATA. Two of the four are written out."
+    },
+
+    "Elements__Groups": [
+        {
+            "Group__Id"     : "Group_001",
+            "Group__Name"   : "IN01 The existing building",
+            "Group__Members": [
+                { "kind": "text", "id": "Text_001" },
+                { "kind": "text", "id": "Text_002" }
+            ]
+        },
+        {
+            "Group__Id"     : "Group_002",
+            "Group__Name"   : "Header band",
+            "Group__Members": [
+                { "kind": "shape", "id": "Shape_012" },
+                { "kind": "text",  "id": "Text_030"  }
+            ]
+        }
+    ]
+}

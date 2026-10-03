@@ -1,0 +1,39 @@
+{
+    "contractId": "building-surveying",
+    "contractName": "Building Surveying Service",
+    "sectionTitle": "Special Terms - Surveying",
+    "introduction": "The following special conditions apply to this contract.",
+    "terms": [
+        {
+            "id": 1,
+            "title": "Survey Method: Drone Photogrammetry",
+            "content": "On 26th September 2026 **Noble Architecture** surveyed the barn by drone photogrammetry. Temporary ground control points were set out on site to scale and align the model. They were not fixed to any known site datum, level or grid, so every level and position in the survey is relative to an arbitrary datum."
+        },
+        {
+            "id": 2,
+            "title": "Permitted Use of the Survey And Drawings",
+            "content": "The survey, orthographic photographs, elevations, outline plan, blockout model and area plans are for the earliest stage of feasibility only: massing and spatial blockout, early costing, and approximate overall floor areas once the budget and funds are known. No internal layout and no dimension should be taken from them. They must not be relied on for planning drawings, structural design, procurement, fabrication or construction. The areas per unit are overall gross figures, there to show how the barn might be divided into three units and to give **James Watchorn** a sketch medium."
+        },
+        {
+            "id": 3,
+            "title": "Full Measured Survey Required",
+            "content": "Before a planning application is prepared, **James Watchorn** will need to appoint **Noble Architecture** or a chartered surveyor to carry out a full measured survey, using a laser scanner or survey-grade GPS tied to known site datums, together with an existing conditions report. Converting an agricultural building to homes calls for robust existing documentation, and this survey does not provide it."
+        },
+        {
+            "id": 4,
+            "title": "Accuracy In The Courtyard",
+            "content": "The courtyard between the barn buildings is heavily overgrown. The vegetation blocked the drone images, so the model there is incomplete and much of it is estimated. Survey information in and around the courtyard must not be relied on. The area should be cleared and resurveyed."
+        },
+        {
+            "id": 5,
+            "title": "Electricity Transformer",
+            "content": "An electricity transformer on a tall pole stands to the north of the barn, in the view from the north elevation. **Noble Architecture** did not survey it and accepts no responsibility for its position, or for any cost, consent or complication in moving it. Whether it is private or public infrastructure is unknown. A specialist, and possibly the electricity network operator, should be consulted before any scheme depends on moving it."
+        },
+        {
+            "id": 6,
+            "title": "Buildings Not Surveyed",
+            "content": "The tall agricultural barn to the south of the site is marked on the site plan for reference only. No measurements were taken of it and its use is unknown."
+        }
+    ],
+    "lastUpdated": "03-Oct-2026 at 13:28"
+}

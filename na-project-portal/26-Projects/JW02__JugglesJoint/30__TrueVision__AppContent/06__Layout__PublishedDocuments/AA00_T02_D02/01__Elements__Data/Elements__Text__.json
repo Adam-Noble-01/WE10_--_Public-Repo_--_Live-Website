@@ -1,0 +1,70 @@
+{
+    "Elements__Meta": {
+        "Meta__FileName"    : "Elements__Text__.json",
+        "Meta__Description" : "Every piece of text on this drawing that is not a dimension, a leader or the title block. Authoring keys unchanged, plus Annotation__Lines - the text already broken into the lines it prints as - so the reader never measures a font to decide where a line breaks. Special terms that the editor stores with markdown emphasis are published as the RUNS they print as, because a reader that parses markdown is a reader that can get it wrong.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "23-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+        "Meta__LayerId"     : "Layer_002",
+        "Meta__LayerType"   : "annotation",
+        "Meta__Count"       : 24,
+        "Meta__ExampleNote" : "DUMMY DATA. Three of the twenty-four are written out."
+    },
+
+    "Elements__Text": [
+        {
+            "Annotation__Id"        : "Text_001",
+            "Annotation__LayerId"   : "Layer_002",
+            "Annotation__Text"      : "GROUND FLOOR FINISHED LEVEL",
+            "Annotation__Lines"     : [ "GROUND FLOOR FINISHED LEVEL" ],
+            "Annotation__PosXMm"    : 33.5,
+            "Annotation__PosYMm"    : 239.4,
+            "Annotation__SizeMm"    : 2.5,
+            "Annotation__FontWeight": 600,
+            "Annotation__Colour"    : "#960000",
+            "Annotation__Align"     : "left",
+            "Annotation__LeaderXMm" : null,
+            "Annotation__LeaderYMm" : null
+        },
+        {
+            "Annotation__Id"        : "Text_014",
+            "Annotation__LayerId"   : "Layer_002",
+            "Annotation__Text"      : "Existing stonework to be retained and repointed in a lime mortar to match the existing.",
+            "Annotation__Lines"     : [
+                "Existing stonework to be retained and",
+                "repointed in a lime mortar to match the",
+                "existing."
+            ],
+            "Annotation__PosXMm"    : 412.0,
+            "Annotation__PosYMm"    : 158.2,
+            "Annotation__SizeMm"    : 2.5,
+            "Annotation__FontWeight": 400,
+            "Annotation__Colour"    : "#172b3a",
+            "Annotation__Align"     : "left",
+            "Annotation__WrapWidthMm": 52,
+            "Annotation__LeaderXMm" : 368.4,
+            "Annotation__LeaderYMm" : 171.9,
+            "Annotation__LinesNote" : "ADDED AT PUBLISH, measured with the real font at the real size. WrapWidthMm is published too, so a document can be read back and re-wrapped; the reader uses Lines."
+        },
+        {
+            "Annotation__Id"        : "Text_022",
+            "Annotation__LayerId"   : "Layer_002",
+            "Annotation__Text"      : "Roof covering: reclaimed **Staffordshire blue** clay plain tiles.",
+            "Annotation__Lines"     : [ "Roof covering: reclaimed Staffordshire blue clay", "tiles." ],
+            "Annotation__Runs"      : [
+                [ { "Run__Text": "Roof covering: reclaimed ", "Run__Weight": 400 }, { "Run__Text": "Staffordshire blue", "Run__Weight": 700 }, { "Run__Text": " clay", "Run__Weight": 400 } ],
+                [ { "Run__Text": "tiles.", "Run__Weight": 400 } ]
+            ],
+            "Annotation__PosXMm"    : 412.0,
+            "Annotation__PosYMm"    : 186.6,
+            "Annotation__SizeMm"    : 2.5,
+            "Annotation__FontWeight": 400,
+            "Annotation__Colour"    : "#172b3a",
+            "Annotation__Align"     : "left",
+            "Annotation__WrapWidthMm": 52,
+            "Annotation__LeaderXMm" : null,
+            "Annotation__LeaderYMm" : null,
+            "Annotation__RunsNote"  : "Annotation__Text keeps the markdown so the document reads back into the editor unchanged. Annotation__Runs is what the reader paints: the emphasis already resolved, per line, so the reader parses nothing. A reader that runs a markdown regex over client-facing text is a reader that will one day eat an asterisk that belonged to a dimension."
+        }
+    ]
+}

@@ -1,0 +1,72 @@
+{
+    "Elements__Meta": {
+        "Meta__FileName"    : "Elements__Areas__.json",
+        "Meta__Description" : "The floor area fills. Authoring keys unchanged, plus Area__AreaM2 and Area__LabelText - the number and the string the drawing prints. On the authoring side the square metres are NEVER STORED: they are worked out from the polygon every time the label is painted. Published, they are a number and a string, so the reader does no geometry at all and can never disagree with the printed drawing about how big a room is.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "23-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+        "Meta__LayerId"     : "Layer_005",
+        "Meta__LayerType"   : "area",
+        "Meta__Count"       : 6,
+        "Meta__ExampleNote" : "DUMMY DATA. Three of the six are written out."
+    },
+
+    "Elements__Areas": [
+        {
+            "Area__Id"            : "Area_001",
+            "Area__LayerId"       : "Layer_005",
+            "Area__ViewportId"    : "Viewport_001",
+            "Area__Name"          : "Kitchen / Dining",
+            "Area__Points"        : [ [ 64.2, 118.4 ], [ 168.9, 118.4 ], [ 168.9, 206.7 ], [ 64.2, 206.7 ] ],
+            "Area__Closed"        : true,
+            "Area__FillColour"    : "#dfe7ec",
+            "Area__FillOpacity"   : 0.55,
+            "Area__StrokeColour"  : "#8fa4b2",
+            "Area__StrokePt"      : 0.25,
+            "Area__AreaM2"        : 23.11,
+            "Area__LabelText"     : "KITCHEN / DINING\n23.1 m²",
+            "Area__LabelXMm"      : 116.5,
+            "Area__LabelYMm"      : 162.5,
+            "Area__LabelSizeMm"   : 2.5,
+            "Area__LabelColour"   : "#4a5b67",
+            "Area__LabelNote"     : "ADDED AT PUBLISH. The polygon is published too so the fill can be drawn and so a document reads back into the editor, but the reader never measures it."
+        },
+        {
+            "Area__Id"            : "Area_002",
+            "Area__LayerId"       : "Layer_005",
+            "Area__ViewportId"    : "Viewport_001",
+            "Area__Name"          : "Living Room",
+            "Area__Points"        : [ [ 168.9, 118.4 ], [ 268.4, 118.4 ], [ 268.4, 198.2 ], [ 168.9, 198.2 ] ],
+            "Area__Closed"        : true,
+            "Area__FillColour"    : "#dfe7ec",
+            "Area__FillOpacity"   : 0.55,
+            "Area__StrokeColour"  : "#8fa4b2",
+            "Area__StrokePt"      : 0.25,
+            "Area__AreaM2"        : 19.86,
+            "Area__LabelText"     : "LIVING ROOM\n19.9 m²",
+            "Area__LabelXMm"      : 218.6,
+            "Area__LabelYMm"      : 158.3,
+            "Area__LabelSizeMm"   : 2.5,
+            "Area__LabelColour"   : "#4a5b67"
+        },
+        {
+            "Area__Id"            : "Area_006",
+            "Area__LayerId"       : "Layer_005",
+            "Area__ViewportId"    : "Viewport_001",
+            "Area__Name"          : "Gross Internal - Ground Floor",
+            "Area__Points"        : [ [ 64.2, 118.4 ], [ 402.8, 118.4 ], [ 402.8, 322.6 ], [ 64.2, 322.6 ] ],
+            "Area__Closed"        : true,
+            "Area__FillColour"    : null,
+            "Area__FillOpacity"   : 0,
+            "Area__StrokeColour"  : "#960000",
+            "Area__StrokePt"      : 0.4,
+            "Area__AreaM2"        : 172.64,
+            "Area__LabelText"     : "GROSS INTERNAL AREA - GROUND FLOOR\n172.6 m²  /  1,858 ft²",
+            "Area__LabelXMm"      : 233.5,
+            "Area__LabelYMm"      : 334.8,
+            "Area__LabelSizeMm"   : 3,
+            "Area__LabelColour"   : "#960000",
+            "Area__LabelNote"     : "The imperial conversion is in the published string too. Every unit the drawing shows is decided once, by the drawing, at publish."
+        }
+    ]
+}

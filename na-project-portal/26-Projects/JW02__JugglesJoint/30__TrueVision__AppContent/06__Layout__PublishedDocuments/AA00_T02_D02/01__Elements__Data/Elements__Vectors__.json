@@ -1,0 +1,83 @@
+{
+    "Elements__Meta": {
+        "Meta__FileName"    : "Elements__Vectors__.json",
+        "Meta__Description" : "The vectors drawn on the sheet by hand - construction lines, hatch boundaries, gradient masks, the GFFL datum, section arrows. NOT the projected linework of a viewport, which is an SVG file in 02__Viewports__Vector and is never an element. Authoring keys unchanged, so a Shape here is byte for byte the Shape that was in the sheet.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "23-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+        "Meta__LayerId"     : "Layer_004",
+        "Meta__LayerType"   : "vector",
+        "Meta__Count"       : 39,
+        "Meta__ExampleNote" : "DUMMY DATA. Four of the thirty-nine are written out."
+    },
+
+    "Elements__Vectors": [
+        {
+            "Shape__Id"           : "Shape_001",
+            "Shape__LayerId"      : "Layer_004",
+            "Shape__Points"       : [ [ 24.0, 241.02 ], [ 505.0, 241.02 ] ],
+            "Shape__Closed"       : false,
+            "Shape__Stroked"      : true,
+            "Shape__StrokeColour" : "#960000",
+            "Shape__StrokePt"     : 0.5,
+            "Shape__StrokeOpacity": 1,
+            "Shape__FillColour"   : null,
+            "Shape__FillOpacity"  : 1,
+            "Shape__LineStyle"    : "centre",
+            "Shape__Gradient"     : null,
+            "Shape__Note"         : "The GFFL datum line."
+        },
+        {
+            "Shape__Id"           : "Shape_002",
+            "Shape__LayerId"      : "Layer_004",
+            "Shape__Points"       : [ [ 24.0, 241.02 ], [ 29.2, 237.6 ], [ 29.2, 244.4 ] ],
+            "Shape__Closed"       : true,
+            "Shape__Stroked"      : true,
+            "Shape__StrokeColour" : "#960000",
+            "Shape__StrokePt"     : 0.5,
+            "Shape__StrokeOpacity": 1,
+            "Shape__FillColour"   : "#960000",
+            "Shape__FillOpacity"  : 1,
+            "Shape__LineStyle"    : null,
+            "Shape__Gradient"     : null,
+            "Shape__Note"         : "The GFFL triangle."
+        },
+        {
+            "Shape__Id"           : "Shape_018",
+            "Shape__LayerId"      : "Layer_004",
+            "Shape__Points"       : [ [ 31.0, 127.1 ], [ 505.0, 127.1 ], [ 505.0, 168.4 ], [ 31.0, 168.4 ] ],
+            "Shape__Closed"       : true,
+            "Shape__Stroked"      : false,
+            "Shape__StrokeColour" : null,
+            "Shape__StrokePt"     : 0,
+            "Shape__StrokeOpacity": 1,
+            "Shape__FillColour"   : "#ffffff",
+            "Shape__FillOpacity"  : 1,
+            "Shape__LineStyle"    : null,
+            "Shape__Gradient"     : {
+                "Gradient__Type"   : "linear",
+                "Gradient__AngleDeg": 90,
+                "Gradient__Stops"  : [
+                    { "Stop__At": 0,   "Stop__Colour": "#ffffff", "Stop__Opacity": 1 },
+                    { "Stop__At": 1,   "Stop__Colour": "#ffffff", "Stop__Opacity": 0 }
+                ]
+            },
+            "Shape__Note"         : "A gradient mask fading the top of the viewport into the paper. Published as the gradient it is, NOT baked into the viewport raster: an SVG gradient is one paint the reader already knows how to do, and baking it would force the raster to carry an alpha channel."
+        },
+        {
+            "Shape__Id"           : "Shape_129",
+            "Shape__LayerId"      : "Layer_004",
+            "Shape__Points"       : [ [ 412.0, 152.3 ], [ 464.0, 152.3 ], [ 464.0, 168.6 ], [ 412.0, 168.6 ] ],
+            "Shape__Closed"       : true,
+            "Shape__Stroked"      : true,
+            "Shape__StrokeColour" : "#172b3a",
+            "Shape__StrokePt"     : 0.35,
+            "Shape__StrokeOpacity": 1,
+            "Shape__FillColour"   : "#f2f4f5",
+            "Shape__FillOpacity"  : 1,
+            "Shape__LineStyle"    : null,
+            "Shape__Gradient"     : null,
+            "Shape__Note"         : "A note box behind Text_014."
+        }
+    ]
+}

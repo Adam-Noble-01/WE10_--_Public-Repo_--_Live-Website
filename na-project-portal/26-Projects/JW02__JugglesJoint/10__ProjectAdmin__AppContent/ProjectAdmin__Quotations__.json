@@ -1,0 +1,98 @@
+{
+    "quotations": [
+        {
+            "quotationRef": "QUO-JW02-2026-001",
+            "quotationName": "Main Quote",
+            "signatureRequired": true,
+            "quotationDate": "03-Oct-2026",
+            "projectAddress": "Juggles Joint, Highfield Farm, West Willoughby, Lincolnshire, NG32 3SJ",
+            "projectDescription": "Drone photogrammetry survey, existing elevations, outline plan and whitecard 3D blockout model of the stone barn at Highfield Farm, to test its division into three homes. This work is a favour, so the total is £0. It still runs through the normal quotation system for two reasons. The hours are allocated in-house, so this job has a fixed budget of 40 hours within my schedule alongside every other project. And the value of the work is on record: each hour is priced at the full rate, and the Friends & Family Discount at the foot removes the whole amount. Anything beyond this scope would be quoted separately.",
+            "clientDataStorage": "cloudflare-r2-encrypted",
+            "status": "draft",
+            "lineItems": [
+                {
+                    "description": "Drone Photogrammetry Site Survey & Travel",
+                    "itemDescription": "1. On-site drone photogrammetry survey on 26-Sep-2026, including travel.\n2. Temporary ground control points set out on site. These are not tied to any fixed site datum.",
+                    "quantity": 4.5,
+                    "unit": "Hours",
+                    "rate": 40,
+                    "group": "Building Survey : Feasibility Survey & Blockout Model"
+                },
+                {
+                    "description": "Photogrammetry Processing",
+                    "itemDescription": "1. Processing the drone images into a textured 3D survey model.\n2. Scaling and aligning the model to the temporary control points.",
+                    "quantity": 3,
+                    "unit": "Hours",
+                    "rate": 40,
+                    "group": "Building Survey : Feasibility Survey & Blockout Model"
+                },
+                {
+                    "description": "Orthographic Photo Preparation",
+                    "itemDescription": "1. Square-on orthographic photographs of the North, East, South and West elevations.\n2. These are the base the existing elevations are drawn from, and the elevations are the base for the model.",
+                    "quantity": 4.5,
+                    "unit": "Hours",
+                    "rate": 40,
+                    "group": "Building Survey : Feasibility Survey & Blockout Model"
+                },
+                {
+                    "description": "Existing Elevations & Outline Plan",
+                    "itemDescription": "1. North, East, South and West elevations drawn from the orthographic photographs.\n2. Outline plan of the barn footprint.",
+                    "quantity": 10,
+                    "unit": "Hours",
+                    "rate": 40,
+                    "group": "Building Survey : Feasibility Survey & Blockout Model"
+                },
+                {
+                    "description": "Whitecard 3D Blockout Model",
+                    "itemDescription": "1. Massing model of the existing barn, built from the elevations and outline plan.\n2. A sketch medium for testing the division into three units.",
+                    "quantity": 10,
+                    "unit": "Hours",
+                    "rate": 40,
+                    "group": "Building Survey : Feasibility Survey & Blockout Model"
+                },
+                {
+                    "description": "Area Plans : Gross Floor Area Per Unit",
+                    "itemDescription": "1. Approximate gross floor area of each of the three units.\n2. Overall areas only, to help settle the split between the units.",
+                    "quantity": 4,
+                    "unit": "Hours",
+                    "rate": 40,
+                    "group": "Building Survey : Feasibility Survey & Blockout Model"
+                },
+                {
+                    "description": "Finalisation of TrueVision Experience & Distribution",
+                    "itemDescription": "1. Model and drawings published to the project portal.",
+                    "quantity": 2,
+                    "unit": "Hours",
+                    "rate": 40,
+                    "group": "Building Survey : Feasibility Survey & Blockout Model"
+                },
+                {
+                    "description": "Coordination & Admin",
+                    "itemDescription": "",
+                    "quantity": 2,
+                    "unit": "Hours",
+                    "rate": 40,
+                    "group": "Building Survey : Feasibility Survey & Blockout Model"
+                },
+                {
+                    "description": "Friends & Family Discount",
+                    "itemDescription": "1. The full value of the work above, 40 hours at £40 per hour, provided free of charge.",
+                    "quantity": 1,
+                    "unit": "Discount",
+                    "rate": -1600,
+                    "group": "Friends & Family : **Discount Applied!!"
+                }
+            ],
+            "totals": {
+                "subtotal": 0,
+                "vatApplicable": true,
+                "vatRate": 20,
+                "vat": 0,
+                "grandTotal": 0
+            },
+            "additionalTerms": "The Friends & Family Discount covers the 40 hours set out above. Work beyond them will be quoted separately before it starts.",
+            "createdDate": "03-Oct-2026 at 13:28",
+            "lastModified": "03-Oct-2026 at 13:28"
+        }
+    ]
+}

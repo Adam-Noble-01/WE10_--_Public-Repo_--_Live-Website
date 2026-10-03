@@ -1,0 +1,31 @@
+{
+    "projectCode": "JW02",
+    "projectName": "Juggles Joint",
+    "projectBriefConcise": "Drone photogrammetry survey, existing elevations, outline plan and whitecard 3D blockout model of the stone barn at Highfield Farm, to test its division into three homes.",
+    "projectBriefFull": "## Project Overview And Goals\nThe barn at Highfield Farm, West Willoughby, is a two-storey Lincolnshire stone range on an L-shaped plan, with single-storey agricultural ranges and later sheds around a central courtyard. It belongs to Laura's parents, the Sharpe family, whose home sits immediately to the west.\n\nThe aim is to divide the two-storey barn into three homes:\n\n- **Unit 1 - Juggles Joint.** The central section, with its five brick arches, which we hope to keep as a feature, and the hay barn-style projection at the centre of the long elevation. This becomes James and Laura's home. The north side between the arches would be glazed to form the main kitchen, looking out over the fall of around 30 metres towards the valley.\n- **Unit 2 - Boutique holiday let.** The eastern flank, where the barn returns around the corner. Restored oak kingpost trusses and double-height spaces, with the large double-height barn opening on the east elevation infilled with a large arched glazed screen. It would be let as a source of income for the Sharpe and Watchorn households.\n- **Unit 3 - Cottage.** The smallest unit, at the west end, for sale. If funds are tight it could be left as a watertight shell for later fit-out or sale.\n\nThe split between the three units is not fixed. James will settle it once the area plans show the approximate gross floor area of each unit.\n\n## Scope Of This Appointment\nOn 26th September 2026 I surveyed the site by drone photogrammetry. From that survey Noble Architecture is preparing:\n\n- Orthographic photographs of the North, East, South and West elevations.\n- Existing elevations and an outline plan.\n- A whitecard 3D blockout model of the barn, shared through TrueVision.\n- Area plans giving the approximate gross floor area of each unit.\n\nThese are for early feasibility only: massing, overall areas and early costing. James is taking the concept design, planning application and building regulations stages forward himself.\n\n## Buildings Proposed For Removal\n- The timber-clad agricultural barn with the asbestos cement roof, at the south-east of the courtyard.\n- The open-sided vehicle store with the corrugated roof, between that barn and the courtyard.\n- The single-storey range along the west side. Two-thirds of it is slate-roofed and part of the original barn, so the planners may prefer to see that part converted rather than demolished. It could make good kitchen accommodation for the third unit, looking into the courtyard. This will be looked into.\n\n## Key Constraints\n- **Planning status.** The barn's use class has not yet been looked into. As a working assumption it is in agricultural use, which sits outside the Use Classes Order, and turning it into homes is a change of use to Use Class C3 (dwellinghouses). The planning route, the planning history and whether any heritage designation applies are still to be checked with South Kesteven District Council.\n- **Electricity transformer.** A transformer on a tall pole north of the barn sits in the view from the north elevation, and trees there would need to come out. Moving the transformer needs a specialist, and possibly the electricity network operator, to advise. Its ownership and the cost of moving it are unknown.\n- **The courtyard.** The courtyard is heavily overgrown. The drone could not see through the vegetation, so the survey there is approximate. It needs clearing back and resurveying.\n- **Survey accuracy.** The survey is tied to temporary control points with no fixed datum. A full measured survey and existing conditions report will be needed before a planning application.",
+    "specialNotes": "Drone Survey 26-Sep-2026\n- Favour for James (colleague and friend). Budget up to 40 hours.\n- Quoted at £40/hour, then a 100% Friends & Family Discount. Total £0. No invoices to raise.\n- James has said he will pay for any substantial work beyond this. Quote that separately.\n- Laura Watchorn (née Sharpe), James's wife. Not a named client. The barn is owned by her parents, the Sharpes, in the Sharpe Residence next door.\n- James works at Vale Garden Houses. Very experienced with UK planning, no personal build experience.\n- James's home address not known yet, near Sleaford. Placeholders in R2. Email still to get from James.\n- If the project goes ahead, James and Laura may live with the Sharpes next door during the works.\n- Use class in the brief is an estimate, not researched.\n- Contracts: General + Surveying only. James is doing concept, planning and building regs himself.\n- \"Juggles Joint\" is a working name, a joke on \"Jimmy Juggles\". May change to something more serious.",
+    "projectPin": "sha256:5dec2555aa54ac568f403b140af7d6fcd39f041a3b7f2b69e283fd7d29a73a1c",
+    "clientDataStorage": "cloudflare-r2-encrypted",
+    "contracts": {
+        "general-business": {
+            "enabled": true,
+            "signed": false,
+            "signatureRef": null,
+            "signedDate": null,
+            "specialTermsEnabled": true
+        },
+        "building-surveying": {
+            "enabled": true,
+            "signed": false,
+            "signatureRef": null,
+            "signedDate": null,
+            "specialTermsEnabled": true
+        }
+    },
+    "documents": {
+        "quotation": true,
+        "specialTerms": true
+    },
+    "createdDate": "03-Oct-2026",
+    "lastModified": "03-Oct-2026 at 13:28"
+}

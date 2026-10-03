@@ -1,0 +1,121 @@
+{
+    "ShareLinks__Meta" : {
+        "Meta__FileName"  : "PublishedDocuments__ShareLinks__.json",
+        "Meta__Version"   : 1,
+        "Meta__Note"      : "Every document of this project a person can be sent, and the link its Share button hands out - recorded when the project was published, so a link already sent keeps working when the app's rules, the folders or the numbering change. The Share buttons read Share__Url from here; the app reads Share__Target to know what a link opens, and falls back on its own rules only for a key not listed. Whether a drawing is published is NOT recorded: the index says that. Written by 51__System__LayoutEditor/66__Feature__DocumentSharing.",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments",
+        "Meta__ExampleNote": "WORKED EXAMPLE, hand-made like everything in this folder. A real record has no ExampleNote. The statement entry is illustrative: AA00 has no statements folder."
+    },
+    "ShareLinks__Project" : {
+        "Project__Code"   : "AA00",
+        "Project__Folder" : "26-Projects/AA00__ExampleProjectStructure"
+    },
+    "ShareLinks__Publish" : {
+        "Publish__SchemaVersion" : 1,
+        "Publish__AtIso"         : "2026-09-29T18:00:00.000Z",
+        "Publish__AtEpochMs"     : 1790704800000,
+        "Publish__ByApp"         : "TrueVision3D Layout Editor",
+        "Publish__ByAppVersion"  : "v2.166.0",
+        "Publish__Reason"        : "drawings",
+        "Publish__DocumentCount" : 8
+    },
+    "ShareLinks__Resolver" : {
+        "Resolver__BaseUrl"      : "https://www.noble-architecture.com/s/",
+        "Resolver__QueryPattern" : "?{projectCode}&open={documentKey}",
+        "Resolver__OpenParam"    : "open",
+        "Resolver__Note"         : "What the addresses above were built against. s/index.html at the website root looks the project code up in q/index.json and opens the project with the key handed through; that page must never move, and must go on answering every form listed in a record like this one."
+    },
+    "ShareLinks__Documents" : [
+        {
+            "Share__Key"         : "Sheet_005",
+            "Share__Kind"        : "drawing",
+            "Share__Url"         : "https://www.noble-architecture.com/s/?AA00&open=Sheet_005",
+            "Share__Label"       : "D01 - Project Introduction",
+            "Share__Target"      : {
+                "Target__SheetId"    : "Sheet_005",
+                "Target__DocumentId" : "AA00_T02_D01",
+                "Target__Number"     : "D01"
+            },
+            "Share__RecordedIso" : "2026-09-29T18:00:00.000Z"
+        },
+        {
+            "Share__Key"         : "Sheet_001",
+            "Share__Kind"        : "drawing",
+            "Share__Url"         : "https://www.noble-architecture.com/s/?AA00&open=Sheet_001",
+            "Share__Label"       : "D02 - Front Elevation",
+            "Share__Target"      : {
+                "Target__SheetId"    : "Sheet_001",
+                "Target__DocumentId" : "AA00_T02_D02",
+                "Target__Number"     : "D02"
+            },
+            "Share__RecordedIso" : "2026-09-29T18:00:00.000Z"
+        },
+        {
+            "Share__Key"         : "Sheet_004",
+            "Share__Kind"        : "drawing",
+            "Share__Url"         : "https://www.noble-architecture.com/s/?AA00&open=Sheet_004",
+            "Share__Label"       : "D03 - Rear Elevation",
+            "Share__Target"      : {
+                "Target__SheetId"    : "Sheet_004",
+                "Target__DocumentId" : "AA00_T02_D03",
+                "Target__Number"     : "D03"
+            },
+            "Share__RecordedIso" : "2026-09-29T18:00:00.000Z"
+        },
+        {
+            "Share__Key"         : "Sheet_003",
+            "Share__Kind"        : "drawing",
+            "Share__Url"         : "https://www.noble-architecture.com/s/?AA00&open=Sheet_003",
+            "Share__Label"       : "D04 - West Elevation",
+            "Share__Target"      : {
+                "Target__SheetId"    : "Sheet_003",
+                "Target__DocumentId" : "AA00_T02_D04",
+                "Target__Number"     : "D04"
+            },
+            "Share__RecordedIso" : "2026-09-29T18:00:00.000Z"
+        },
+        {
+            "Share__Key"         : "Sheet_006",
+            "Share__Kind"        : "drawing",
+            "Share__Url"         : "https://www.noble-architecture.com/s/?AA00&open=Sheet_006",
+            "Share__Label"       : "D06 - Ground Floor Plan",
+            "Share__Target"      : {
+                "Target__SheetId"    : "Sheet_006",
+                "Target__DocumentId" : "AA00_T02_D06",
+                "Target__Number"     : "D06"
+            },
+            "Share__RecordedIso" : "2026-09-29T18:00:00.000Z"
+        },
+        {
+            "Share__Key"         : "Specification",
+            "Share__Kind"        : "specification",
+            "Share__Url"         : "https://www.noble-architecture.com/s/?AA00&open=Specification",
+            "Share__Label"       : "Project Specification",
+            "Share__Target"      : {},
+            "Share__RecordedIso" : "2026-09-29T18:00:00.000Z"
+        },
+        {
+            "Share__Key"         : "Register",
+            "Share__Kind"        : "register",
+            "Share__Url"         : "https://www.noble-architecture.com/s/?AA00&open=Register",
+            "Share__Label"       : "Document Register",
+            "Share__Target"      : {},
+            "Share__RecordedIso" : "2026-09-29T18:00:00.000Z"
+        },
+        {
+            "Share__Key"         : "Statement_1",
+            "Share__Kind"        : "statement",
+            "Share__Url"         : "https://www.noble-architecture.com/s/?AA00&open=Statement_1",
+            "Share__Label"       : "Design and Access Statement",
+            "Share__Target"      : {
+                "Target__StatementId" : 1,
+                "Target__Folder"      : "01__PlanningApplication__Statement",
+                "Target__File"        : "AA00_T02_S01__DesignAndAccessStatement__.md"
+            },
+            "Share__RecordedIso" : "2026-09-29T18:00:00.000Z"
+        }
+    ],
+    "ShareLinks__Aliases" : {
+        "Aliases__Note" : "Reserved. An old key listed here as \"old key\" : \"current key\" goes on opening the current key's document. Carried from record to record, never rebuilt; nothing writes one yet."
+    }
+}

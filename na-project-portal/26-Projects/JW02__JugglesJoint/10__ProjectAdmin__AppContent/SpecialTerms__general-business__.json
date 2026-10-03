@@ -1,0 +1,24 @@
+{
+    "contractId": "general-business",
+    "contractName": "General Business Terms",
+    "sectionTitle": "Special Terms - General Terms",
+    "introduction": "The following special conditions apply to this contract.",
+    "terms": [
+        {
+            "id": 1,
+            "title": "Limitation of Noble Architecture's Appointment",
+            "content": "**Noble Architecture**'s appointment on this project is limited to the feasibility survey and blockout model set out in the quotation. **James Watchorn** is taking the concept design, the planning application, the building regulations application and the delivery of the works forward himself. Responsibility for those stages, and for the design, statutory and construction decisions made in them, rests with him and whoever he appoints."
+        },
+        {
+            "id": 2,
+            "title": "Planning Status Not Yet Investigated",
+            "content": "The barn's current use class, its planning history and whether any heritage designation applies have not been investigated. Where the documents refer to the barn's agricultural use, or to its conversion to homes in Use Class C3, these are working assumptions to be confirmed with **South Kesteven District Council**."
+        },
+        {
+            "id": 3,
+            "title": "Free of Charge Work And Future Instructions",
+            "content": "The work in the quotation is provided free of charge under a Friends & Family Discount. It is priced in full so that its value is on record and the hours stay within a fixed in-house budget. Any work beyond that scope, including a full measured survey, design, planning or building regulations work, is a new instruction and will be quoted separately before it starts."
+        }
+    ],
+    "lastUpdated": "03-Oct-2026 at 13:28"
+}

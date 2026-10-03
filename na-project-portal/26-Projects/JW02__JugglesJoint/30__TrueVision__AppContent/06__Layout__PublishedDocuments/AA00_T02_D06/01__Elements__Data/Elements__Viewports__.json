@@ -1,0 +1,56 @@
+{
+    "Elements__Meta": {
+        "Meta__FileName"    : "Elements__Viewports__.json",
+        "Meta__Description" : "The plan's single viewport. Note Viewport__RotationDeg: a turned viewport is published turned, as one number on the frame, and the raster and the SVG inside it are baked in the viewport's OWN unrotated space. The reader turns one group. Baking the rotation into the pixels would make every dimension attached to that viewport wrong.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "23-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+        "Meta__LayerId"     : "Layer_001",
+        "Meta__LayerType"   : "viewport",
+        "Meta__ExampleNote" : "DUMMY DATA. Hand-written to show the shape."
+    },
+
+    "Elements__Viewports": [
+        {
+            "Viewport__Id"              : "Viewport_001",
+            "Viewport__Kind"            : "2d",
+            "Viewport__Name"            : "Ground Floor Plan",
+            "Viewport__LayerId"         : "Layer_001",
+            "Viewport__FrameMm"         : { "X": 24, "Y": 46.4, "WidthMm": 494, "HeightMm": 397 },
+            "Viewport__RotationDeg"     : 0,
+            "Viewport__ScaleDenominator": 50,
+            "Viewport__ScaleLabel"      : "1:50",
+            "Viewport__ShowScaleLabel"  : true,
+            "Viewport__ShowFrame"       : false,
+
+            "Viewport__Vector": {
+                "Vector__File"        : "02__Viewports__Vector/Viewport_001__Linework__b93e5407ac.svg",
+                "Vector__WidthMm"     : 494,
+                "Vector__HeightMm"    : 397,
+                "Vector__PathCount"   : 5,
+                "Vector__SegmentCount": 41206
+            },
+
+            "Viewport__Rasters": [
+                { "Tier__Id": "Tier01", "Tier__File": "03__Viewports__Raster/Viewport_001__Tier01__Fit__b93e5407ac.webp",    "Tier__PixelW": 988,  "Tier__PixelH": 794  },
+                { "Tier__Id": "Tier02", "Tier__File": "03__Viewports__Raster/Viewport_001__Tier02__Read__b93e5407ac.webp",   "Tier__PixelW": 2964, "Tier__PixelH": 2382 },
+                { "Tier__Id": "Tier03", "Tier__File": "03__Viewports__Raster/Viewport_001__Tier03__Detail__b93e5407ac.webp", "Tier__PixelW": 5120, "Tier__PixelH": 4115 },
+                { "Tier__Id": "Print",  "Tier__File": "03__Viewports__Raster/Viewport_001__Print__b93e5407ac.png",           "Tier__PixelW": 8192, "Tier__PixelH": 6583 }
+            ],
+
+            "Viewport__RasterOpaque" : true,
+            "Viewport__BakedLayers"  : [ "baseImage", "whitecard", "enhanceWhitecard" ],
+            "Viewport__PaintOrder"   : [ "raster", "vector" ],
+
+            "Viewport__ScaleBar": {
+                "ScaleBar__Shown"    : true,
+                "ScaleBar__XMm"      : 425.6,
+                "ScaleBar__YMm"      : 434.2,
+                "ScaleBar__LengthMm" : 100,
+                "ScaleBar__Divisions": [ 0, 1000, 2000, 3000, 4000, 5000 ],
+                "ScaleBar__Labels"   : [ "0", "1m", "2m", "3m", "4m", "5m" ],
+                "ScaleBar__Note"     : "Published as the bar it prints as - positions, divisions and labels resolved - and drawn to the RIGHT of the drawing title. The reader draws rectangles and strings; it does not know what a scale is."
+            }
+        }
+    ]
+}

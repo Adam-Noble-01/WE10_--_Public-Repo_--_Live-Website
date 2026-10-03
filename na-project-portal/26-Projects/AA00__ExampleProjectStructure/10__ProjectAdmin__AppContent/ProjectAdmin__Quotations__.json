@@ -1,0 +1,98 @@
+{
+    "quotations": [
+        {
+            "quotationRef": "QUO-AA00-2026-001",
+            "quotationName": "Main Quote",
+            "signatureRequired": true,
+            "quotationDate": "31-Jan-2026",
+            "projectAddress": "123 Example Street, Nottingham, NG1 1AA",
+            "projectDescription": "This is an example quotation demonstrating the format and structure of project quotations in the Noble Architecture Project Admin system. This includes multiple phases, line items, and calculated totals.",
+            "clientDataStorage": "cloudflare-r2-encrypted",
+            "status": "draft",
+            "lineItems": [
+                {
+                    "description": "Initial Site Survey and Assessment",
+                    "itemDescription": "",
+                    "quantity": 1,
+                    "unit": "visit",
+                    "rate": 350,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Concept Design Development",
+                    "itemDescription": "",
+                    "quantity": 1,
+                    "unit": "package",
+                    "rate": 1500,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Measured Survey Coordination",
+                    "itemDescription": "",
+                    "quantity": 1,
+                    "unit": "item",
+                    "rate": 450,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Planning Application Drawings",
+                    "itemDescription": "",
+                    "quantity": 1,
+                    "unit": "set",
+                    "rate": 2500,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Design & Access Statement",
+                    "itemDescription": "",
+                    "quantity": 1,
+                    "unit": "document",
+                    "rate": 500,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Planning Application Submission Support",
+                    "itemDescription": "",
+                    "quantity": 4,
+                    "unit": "hours",
+                    "rate": 85,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Building Regulations Drawings",
+                    "itemDescription": "",
+                    "quantity": 1,
+                    "unit": "set",
+                    "rate": 3500,
+                    "group": "Design Phase - 03 : Building Regulations"
+                },
+                {
+                    "description": "Structural Coordination",
+                    "itemDescription": "",
+                    "quantity": 8,
+                    "unit": "hours",
+                    "rate": 85,
+                    "group": "Design Phase - 03 : Building Regulations"
+                },
+                {
+                    "description": "Specification Schedule",
+                    "itemDescription": "",
+                    "quantity": 1,
+                    "unit": "document",
+                    "rate": 750,
+                    "group": "Design Phase - 03 : Building Regulations"
+                }
+            ],
+            "totals": {
+                "subtotal": 10570,
+                "vatApplicable": true,
+                "vatRate": 20,
+                "vat": 2114,
+                "grandTotal": 12684
+            },
+            "additionalTerms": "This quotation is based on a standard domestic project. Complex or listed building projects may require additional fees.",
+            "createdDate": "31-Jan-2026",
+            "lastModified": "31-Jan-2026"
+        }
+    ]
+}

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="4mm" height="4mm"
+     viewBox="0 0 4 4"
+     data-na-pattern="Masonry__StoneRubble"
+     data-na-space="paper-mm"
+     data-na-tile="4 x 4 mm">
+    <!--
+      A SHARED HATCH TILE - dummy example.
+
+      One tile per pattern per project, published at the published-documents
+      root and referenced by every shape on every document that uses it. The
+      reader wraps it in an SVG <pattern> and fills a boundary with it: one
+      paint per shape, whatever the hatched area, instead of a thousand
+      little line elements.
+
+      The tile is authored in paper millimetres at the pattern's stated scale,
+      so the reader sets no scale and does no seam arithmetic. The seam rules
+      and the blue-noise placement that the authoring side works out live
+      HERE, baked into the tile.
+    -->
+    <g fill="none" stroke="#8a8a8a" stroke-width="0.18" stroke-linecap="round">
+        <path d="M0,0.9 L1.6,0.9 M1.6,0.9 L1.6,2.1 M1.6,2.1 L3.4,2.1 M3.4,2.1 L3.4,0.4 M3.4,0.4 L4,0.4" />
+        <path d="M0,2.6 L0.8,2.6 M0.8,2.6 L0.8,4 M2.3,2.1 L2.3,4 M3.4,3.1 L4,3.1" />
+    </g>
+</svg>

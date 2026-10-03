@@ -1,0 +1,118 @@
+{
+    "ProjectSpecification__Description": "Project specification notes for the TrueVision drawings. Groups hold notes in order; a note’s code is its group’s prefix and its place in the group (GN01, EE02), so the order is the truth and Note__Code is written for readers and recomputed on every load. Specification bubbles on the Layout Editor sheets link to notes by Note__Id. General groups are listed on every sheet’s notes margin, after the notes that sheet’s bubbles link to. LastIdNumber only ever goes up, so no id is used twice.",
+    "ProjectSpecification__Version": 1,
+    "ProjectSpecification__ProjectCode": "JW02",
+    "ProjectSpecification__UpdatedIso": "2026-10-03T12:28:33.795Z",
+    "ProjectSpecification__NumberDigits": 2,
+    "ProjectSpecification__LastIdNumber": 16,
+    "ProjectSpecification__Revision": "A",
+    "ProjectSpecification__DocumentNumber": "",
+    "ProjectSpecification__Groups": [
+        {
+            "Group__Id": "SpecGroup_002",
+            "Group__Prefix": "SP",
+            "Group__Title": "Site Plan",
+            "Group__IsGeneral": false,
+            "Group__Notes": [
+                {
+                    "Note__Id": "SpecNote_003",
+                    "Note__Code": "SP01",
+                    "Note__Title": "Proposed Unit 1",
+                    "Note__Body": "Working name Juggles Joint: planned home of James and Laura. Central section of the two-storey Lincolnshire stone barn, including the hay-barn-style front extension at the centre of the long elevation. Five brick arches; retention intended.",
+                    "Note__UpdatedIso": "2026-10-03T12:28:33.795Z"
+                },
+                {
+                    "Note__Id": "SpecNote_004",
+                    "Note__Code": "SP02",
+                    "Note__Title": "Proposed Unit 2",
+                    "Note__Body": "Working name Boutique Airbnb: short-term let providing rental income for the Sharpe and Watchorn households. East flank of the two-storey barn, the section that returns around the corner. Oak king-post trusses to be restored; double-height spaces. Existing double-height barn opening in the east elevation to be infilled with a large arched glazed opening.",
+                    "Note__UpdatedIso": "2026-10-03T12:28:33.795Z"
+                },
+                {
+                    "Note__Id": "SpecNote_005",
+                    "Note__Code": "SP03",
+                    "Note__Title": "Proposed Unit 3",
+                    "Note__Body": "Smallest unit, at the west end of the barn: cottage for sale. If funds are limited, option to complete as a watertight shell for later use or sale. Size unknown until the division with Unit 1 is set; James to decide from the area plans showing approximate gross floor area of each unit.",
+                    "Note__UpdatedIso": "2026-10-03T12:28:33.795Z"
+                },
+                {
+                    "Note__Id": "SpecNote_006",
+                    "Note__Code": "SP04",
+                    "Note__Title": "Sharpe Residence",
+                    "Note__Body": "Original farmhouse of the farmstead, home of the Sharpe family. A substantial existing dwelling.",
+                    "Note__UpdatedIso": "2026-10-03T12:28:33.795Z"
+                },
+                {
+                    "Note__Id": "SpecNote_007",
+                    "Note__Code": "SP05",
+                    "Note__Title": "Timber-clad agricultural barn",
+                    "Note__Body": "TO BE REMOVED. Simple framed agricultural barn with timber cladding and an asbestos-cement roof. Roof: dual-pitched section and lean-to, split approximately one-third and two-thirds of the length. Large central opening for agricultural machinery.",
+                    "Note__UpdatedIso": "2026-10-03T12:28:33.795Z"
+                },
+                {
+                    "Note__Id": "SpecNote_008",
+                    "Note__Code": "SP06",
+                    "Note__Title": "Open-sided vehicle barn",
+                    "Note__Body": "TO BE REMOVED. Large open barn, used mainly for vehicle storage. Low-pitched roof of rusted corrugated sheeting. Stone walls enclose the east side; open to the courtyard on the west side.",
+                    "Note__UpdatedIso": "2026-10-03T12:28:33.795Z"
+                },
+                {
+                    "Note__Id": "SpecNote_009",
+                    "Note__Code": "SP07",
+                    "Note__Title": "Single-storey west range",
+                    "Note__Body": "TO BE REMOVED. Single-storey range of agricultural sheds and stores, running north to south along the west flank of the barn. Two-thirds slate-roofed to match the two-storey barn; one-third dilapidated, near-flat corrugated sheeting. Structure failing. Unlike SP05 and SP06, part of the original barn. Ask the LPA whether conversion of at least the slate-roofed part is preferred. That part could give Unit 3 courtyard-facing kitchen accommodation if James takes more of the central courtyard.",
+                    "Note__UpdatedIso": "2026-10-03T12:28:33.795Z"
+                },
+                {
+                    "Note__Id": "SpecNote_010",
+                    "Note__Code": "SP08",
+                    "Note__Title": "View north from arches",
+                    "Note__Body": "View north from the arches of the barn's north elevation. Ground falls approximately 30 m towards the main road, with a view into the valley; fall to be confirmed by survey. Trees and the transformer at SP09 obstruct the view: tree removal and relocation of the transformer discussed. Glazing proposed between the arches, to the Unit 1 main kitchen.",
+                    "Note__UpdatedIso": "2026-10-03T12:28:33.795Z"
+                },
+                {
+                    "Note__Id": "SpecNote_011",
+                    "Note__Code": "SP09",
+                    "Note__Title": "Electrical transformer",
+                    "Note__Body": "Approximate location of the existing electrical transformer, mounted on a tall pylon. Not surveyed by Noble Architecture. Ownership, public or private, and extent of the infrastructure unknown. Engage a specialist before any relocation; costs may be significant. Noble Architecture accepts no responsibility for its location or for any consequences of removing or relocating it.",
+                    "Note__UpdatedIso": "2026-10-03T12:28:33.795Z"
+                },
+                {
+                    "Note__Id": "SpecNote_012",
+                    "Note__Code": "SP10",
+                    "Note__Title": "Main farm access",
+                    "Note__Body": "Main access road into the central farmstead; the farm holding is much larger. This end stretch runs east to west around the corner of the barn, then north to south past the Sharpe Residence to a parking area.",
+                    "Note__UpdatedIso": "2026-10-03T12:28:33.795Z"
+                },
+                {
+                    "Note__Id": "SpecNote_013",
+                    "Note__Code": "SP11",
+                    "Note__Title": "Overgrown courtyard",
+                    "Note__Body": "Courtyard between the barn ranges: heavily overgrown and derelict. Strip back and clear the whole area. Survey unreliable here: vegetation blocked the photogrammetry images, so much of this area is estimated. Resurvey the whole area after clearance.",
+                    "Note__UpdatedIso": "2026-10-03T12:28:33.795Z"
+                },
+                {
+                    "Note__Id": "SpecNote_014",
+                    "Note__Code": "SP12",
+                    "Note__Title": "Driveway past Sharpe Residence",
+                    "Note__Body": "Driveway running north to south along the east side of the Sharpe Residence, between the house and the barn's single-storey west range at SP07. Continues down to SP13 and SP14.",
+                    "Note__UpdatedIso": "2026-10-03T12:28:33.795Z"
+                },
+                {
+                    "Note__Id": "SpecNote_015",
+                    "Note__Code": "SP13",
+                    "Note__Title": "Sharpe Residence parking",
+                    "Note__Body": "Main driveway and parking for the Sharpe Residence.",
+                    "Note__UpdatedIso": "2026-10-03T12:28:33.795Z"
+                },
+                {
+                    "Note__Id": "SpecNote_016",
+                    "Note__Code": "SP14",
+                    "Note__Title": "Auxiliary agricultural building",
+                    "Note__Body": "Tall agricultural barn, presumed still in active use; use unknown. Outside the proposed works. Marked for reference only; no measurements taken.",
+                    "Note__UpdatedIso": "2026-10-03T12:28:33.795Z"
+                }
+            ]
+        }
+    ]
+}

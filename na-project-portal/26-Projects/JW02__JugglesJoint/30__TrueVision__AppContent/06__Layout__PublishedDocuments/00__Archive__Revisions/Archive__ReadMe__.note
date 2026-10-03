@@ -1,0 +1,24 @@
+PUBLISHED REVISION ARCHIVE
+==========================
+
+One zip per superseded revision of one document, named
+<document id>__Revision__<letter>.zip - the whole document folder as it stood
+when that revision was current.
+
+A zip is made ONLY when the revision letter CHANGES. Re-publishing the same
+revision overwrites the document folder in place and archives nothing, so an
+unissued revision that is worked on all afternoon leaves one folder and no
+zips, and an issued revision can never be lost.
+
+The zip is written by the local server, not by the browser: Python's zipfile,
+one call, and no zip library to vendor into the app.
+
+THIS FOLDER IS LOCAL. It starts with 00__, and the R2 sync skips every folder
+whose name starts with 00__ (SKIP_FOLDER_PREFIXES in
+CloudflareR2__ModelSync__Main__.py), so no archive zip ever reaches the bucket,
+the CDN or a client. Only the latest revision of each document is published.
+
+A past revision is therefore recoverable on this machine and nowhere else. If
+past revisions are ever wanted on the live site they go in a sibling folder
+that does not start with 00__, and PublishedDocuments__Index__.json already has
+a place to name them (PublishedDocuments__Superseded).

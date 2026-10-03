@@ -1,0 +1,29 @@
+{
+    "na-project-data-library": {
+        "project-details": {
+            "project-name": "Juggles Joint",
+            "project-name-nickname": "Juggles Joint",
+            "project-address": "Juggles Joint, Highfield Farm, West Willoughby, Lincolnshire, NG32 3SJ",
+            "project-description": "Drone photogrammetry survey, existing elevations, outline plan and whitecard 3D blockout model of the stone barn at Highfield Farm, to test its division into three homes.",
+            "client-name": ""
+        },
+        "project-phase-config": {
+            "active-design-phase": "DesignPhase01",
+            "available-phases": [
+                "DesignPhase01"
+            ],
+            "phase-last-updated": "03-Oct-2026"
+        },
+        "project-documentation": {
+            "phase-content": {
+                "DesignPhase01": {
+                    "phase-folder": "DesignPhase01__ConceptDesign__Content",
+                    "folder-structure": []
+                }
+            }
+        },
+        "design-access-statement": {
+            "das-enabled": false
+        }
+    }
+}

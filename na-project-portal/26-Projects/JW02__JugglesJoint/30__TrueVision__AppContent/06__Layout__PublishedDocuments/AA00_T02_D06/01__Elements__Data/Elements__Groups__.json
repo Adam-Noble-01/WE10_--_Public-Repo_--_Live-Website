@@ -1,0 +1,35 @@
+{
+    "Elements__Meta": {
+        "Meta__FileName"    : "Elements__Groups__.json",
+        "Meta__Description" : "Which elements were grouped when the plan was built. Not drawn, not needed to paint a sheet - published so the document is a complete record and reads back into the editor grouped as it left.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "23-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+        "Meta__LayerId"     : null,
+        "Meta__LayerType"   : "group",
+        "Meta__Count"       : 10,
+        "Meta__ExampleNote" : "DUMMY DATA. Two of the ten are written out."
+    },
+
+    "Elements__Groups": [
+        {
+            "Group__Id"     : "Group_001",
+            "Group__Name"   : "Dimensions - south side",
+            "Group__Members": [
+                { "kind": "dimension", "id": "Dim_001" },
+                { "kind": "dimension", "id": "Dim_002" },
+                { "kind": "dimension", "id": "Dim_019" },
+                { "kind": "dimension", "id": "Dim_045" }
+            ]
+        },
+        {
+            "Group__Id"     : "Group_004",
+            "Group__Name"   : "Demolition overlay",
+            "Group__Members": [
+                { "kind": "shape", "id": "Shape_112" },
+                { "kind": "shape", "id": "Shape_113" },
+                { "kind": "text",  "id": "Text_061"  }
+            ]
+        }
+    ]
+}

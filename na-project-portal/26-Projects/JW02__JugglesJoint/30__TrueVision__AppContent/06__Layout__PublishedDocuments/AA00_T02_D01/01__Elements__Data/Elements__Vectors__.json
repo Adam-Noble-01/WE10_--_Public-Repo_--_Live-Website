@@ -1,0 +1,44 @@
+{
+    "Elements__Meta": {
+        "Meta__FileName"    : "Elements__Vectors__.json",
+        "Meta__Description" : "The sheet's rules, panels and dividers.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "23-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+        "Meta__LayerId"     : "Layer_004",
+        "Meta__LayerType"   : "vector",
+        "Meta__Count"       : 31,
+        "Meta__ExampleNote" : "DUMMY DATA. Two of the thirty-one are written out."
+    },
+
+    "Elements__Vectors": [
+        {
+            "Shape__Id"           : "Shape_001",
+            "Shape__LayerId"      : "Layer_004",
+            "Shape__Points"       : [ [ 20.0, 150.0 ], [ 400.0, 150.0 ] ],
+            "Shape__Closed"       : false,
+            "Shape__Stroked"      : true,
+            "Shape__StrokeColour" : "#555041",
+            "Shape__StrokePt"     : 1,
+            "Shape__StrokeOpacity": 1,
+            "Shape__FillColour"   : null,
+            "Shape__FillOpacity"  : 1,
+            "Shape__LineStyle"    : null,
+            "Shape__Gradient"     : null
+        },
+        {
+            "Shape__Id"           : "Shape_012",
+            "Shape__LayerId"      : "Layer_004",
+            "Shape__Points"       : [ [ 20.0, 16.0 ], [ 400.0, 16.0 ], [ 400.0, 28.0 ], [ 20.0, 28.0 ] ],
+            "Shape__Closed"       : true,
+            "Shape__Stroked"      : false,
+            "Shape__StrokeColour" : null,
+            "Shape__StrokePt"     : 0,
+            "Shape__StrokeOpacity": 1,
+            "Shape__FillColour"   : "#f2f4f5",
+            "Shape__FillOpacity"  : 1,
+            "Shape__LineStyle"    : null,
+            "Shape__Gradient"     : null
+        }
+    ]
+}

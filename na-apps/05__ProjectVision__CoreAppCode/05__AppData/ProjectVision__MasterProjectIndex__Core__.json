@@ -132,6 +132,17 @@
                 "planVision": true,
                 "trueVision": true
             }
+        },
+        "JW02": {
+            "projectCode": "JW02",
+            "projectName": "Juggles Joint",
+            "projectFolder": "JW02__JugglesJoint",
+            "projectYear": "26",
+            "subApps": {
+                "projectAdmin": true,
+                "planVision": false,
+                "trueVision": true
+            }
         }
     }
 }

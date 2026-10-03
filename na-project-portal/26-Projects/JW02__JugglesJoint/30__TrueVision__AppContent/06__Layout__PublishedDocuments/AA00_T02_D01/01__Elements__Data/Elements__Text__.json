@@ -1,0 +1,50 @@
+{
+    "Elements__Meta": {
+        "Meta__FileName"    : "Elements__Text__.json",
+        "Meta__Description" : "The introduction notes. A long block of prose is published as the LINES IT PRINTS AS, measured at publish with the real font, so a phone that has not finished loading a webfont still lays the sheet out correctly on the first paint instead of reflowing it a moment later.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "23-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+        "Meta__LayerId"     : "Layer_002",
+        "Meta__LayerType"   : "annotation",
+        "Meta__Count"       : 38,
+        "Meta__ExampleNote" : "DUMMY DATA. Two of the thirty-eight are written out."
+    },
+
+    "Elements__Text": [
+        {
+            "Annotation__Id"        : "Text_001",
+            "Annotation__LayerId"   : "Layer_002",
+            "Annotation__Text"      : "IN01  THE EXISTING BUILDING",
+            "Annotation__Lines"     : [ "IN01  THE EXISTING BUILDING" ],
+            "Annotation__PosXMm"    : 20.0,
+            "Annotation__PosYMm"    : 156.0,
+            "Annotation__SizeMm"    : 3.2,
+            "Annotation__FontWeight": 700,
+            "Annotation__Colour"    : "#172b3a",
+            "Annotation__Align"     : "left",
+            "Annotation__LeaderXMm" : null,
+            "Annotation__LeaderYMm" : null
+        },
+        {
+            "Annotation__Id"        : "Text_002",
+            "Annotation__LayerId"   : "Layer_002",
+            "Annotation__Text"      : "The property is a detached stone farmhouse of two storeys under a pitched clay tile roof, set back from the lane behind a mature hedge and occupying the western part of a large plot.",
+            "Annotation__Lines"     : [
+                "The property is a detached stone farmhouse of two",
+                "storeys under a pitched clay tile roof, set back from",
+                "the lane behind a mature hedge and occupying the",
+                "western part of a large plot."
+            ],
+            "Annotation__PosXMm"    : 20.0,
+            "Annotation__PosYMm"    : 162.4,
+            "Annotation__SizeMm"    : 2.4,
+            "Annotation__FontWeight": 400,
+            "Annotation__Colour"    : "#172b3a",
+            "Annotation__Align"     : "left",
+            "Annotation__WrapWidthMm": 88,
+            "Annotation__LeaderXMm" : null,
+            "Annotation__LeaderYMm" : null
+        }
+    ]
+}

@@ -1,0 +1,82 @@
+{
+    "Elements__Meta": {
+        "Meta__FileName"    : "Elements__Images__.json",
+        "Meta__Description" : "The pictures on this sheet - CGIs, photographs, a location plan. THE PICTURES THEMSELVES ARE NOT COPIED HERE. They already live in 05__Layout__DrawingDocs__Images under this document's id, already on R2, already immutably named after their own content hash, and already cached by the service worker. Publishing copies a picture nowhere and re-encodes nothing; it writes down where the picture is, which part of it shows, and where on the paper it goes.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "23-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+        "Meta__LayerId"     : "Layer_007",
+        "Meta__LayerType"   : "image",
+        "Meta__Count"       : 2,
+        "Meta__ExampleNote" : "DUMMY DATA. Both are written out."
+    },
+
+    "Elements__Images": [
+        {
+            "Shape__Id"           : "Shape_003",
+            "Shape__LayerId"      : "Layer_007",
+            "Shape__Points"       : [ [ 20.0, 34.0 ], [ 216.0, 34.0 ], [ 216.0, 144.0 ], [ 20.0, 144.0 ] ],
+            "Shape__Closed"       : true,
+            "Shape__Stroked"      : false,
+            "Shape__FillColour"   : null,
+            "Shape__FillOpacity"  : 1,
+            "Shape__Image": {
+                "Image__File"     : "AA00_T02_V10__FrontFacade__SouthElevation__23-Sep-2026__f305e28510.webp",
+                "Image__Folder"   : "AA00_T02_D01",
+                "Image__Source"   : "/../05__Layout__DrawingDocs__Images/AA00_T02_D01/AA00_T02_V10__FrontFacade__SouthElevation__23-Sep-2026__f305e28510.webp",
+                "Image__PixelW"   : 2560,
+                "Image__PixelH"   : 1437,
+                "Image__SourceW"  : 3840,
+                "Image__SourceH"  : 2160,
+                "Image__Crop"     : { "L": 0, "T": 0.04, "R": 0, "B": 0.04 },
+                "Image__Alpha"    : false,
+                "Image__Name"     : "Front facade CGI",
+                "Image__SourceNote": "A path beginning /.. leaves the published-documents folder and stays inside 30__TrueVision__AppContent. It is written out in full so the reader's URL builder needs no special case for pictures - one builder, one project-relative path, R2 first and the repository copy as the fallback of last resort, exactly as today."
+            },
+            "Shape__Frame": {
+                "Frame__Shown"        : true,
+                "Frame__Colour"       : "#555041",
+                "Frame__WidthPt"      : 1.5,
+                "Frame__Shadow"       : true,
+                "Frame__ShadowColour" : "#1f1d18",
+                "Frame__ShadowOpacity": 0.3,
+                "Frame__ShadowBlurMm" : 1.6,
+                "Frame__ShadowOffsetXMm": 0,
+                "Frame__ShadowOffsetYMm": 0.9,
+                "Frame__ShadowNote"   : "Published as the blur it is, not as a pre-rendered transparent PNG. On screen it is one SVG filter; the PDF pre-renders it as it does today. Baking it to a PNG here would put a transparent image on the sheet, and a transparent layer over paper is exactly the thing this whole design is trying to stop shipping to phones."
+            }
+        },
+        {
+            "Shape__Id"           : "Shape_004",
+            "Shape__LayerId"      : "Layer_007",
+            "Shape__Points"       : [ [ 228.0, 34.0 ], [ 400.0, 34.0 ], [ 400.0, 130.0 ], [ 228.0, 130.0 ] ],
+            "Shape__Closed"       : true,
+            "Shape__Stroked"      : false,
+            "Shape__FillColour"   : null,
+            "Shape__FillOpacity"  : 1,
+            "Shape__Image": {
+                "Image__File"     : "AA00_T02_V11__RearCgi__NorthElevation__23-Sep-2026__0a982a8998.webp",
+                "Image__Folder"   : "AA00_T02_D01",
+                "Image__Source"   : "/../05__Layout__DrawingDocs__Images/AA00_T02_D01/AA00_T02_V11__RearCgi__NorthElevation__23-Sep-2026__0a982a8998.webp",
+                "Image__PixelW"   : 2260,
+                "Image__PixelH"   : 1261,
+                "Image__SourceW"  : 3840,
+                "Image__SourceH"  : 2160,
+                "Image__Crop"     : null,
+                "Image__Alpha"    : false,
+                "Image__Name"     : "Rear CGI"
+            },
+            "Shape__Frame": {
+                "Frame__Shown"  : true,
+                "Frame__Colour" : "#555041",
+                "Frame__WidthPt": 1.5,
+                "Frame__Shadow" : true,
+                "Frame__ShadowColour": "#1f1d18",
+                "Frame__ShadowOpacity": 0.3,
+                "Frame__ShadowBlurMm": 1.6,
+                "Frame__ShadowOffsetXMm": 0,
+                "Frame__ShadowOffsetYMm": 0.9
+            }
+        }
+    ]
+}
