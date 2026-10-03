@@ -192,7 +192,8 @@
 
     "CompanyDetails": {
         "companyName"                          : "Noble Architecture",
-        "companyAddress"                       : "Concept Design Service Team",
+        "companyContactName"                   : "Adam Noble",
+        "companyAddress"                       : "",
         "companyEmail"                         : "Billing@noble-architecture.com",
         "companyPhone"                         : "",
         "companyWebsite"                       : "https://www.noble-architecture.com",

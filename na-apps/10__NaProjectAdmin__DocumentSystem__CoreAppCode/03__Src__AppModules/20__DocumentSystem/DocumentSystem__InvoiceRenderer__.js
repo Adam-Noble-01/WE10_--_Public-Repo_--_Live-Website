@@ -262,7 +262,8 @@
                         <div class="na-doc-address__title">From</div>
                         <div class="na-doc-address__content">
                             <strong>${companyDetails?.companyName || 'Noble Architecture'}</strong><br>
-                            ${companyDetails?.companyAddress || 'Nottingham, UK'}<br>
+                            ${companyDetails?.companyContactName ? `${companyDetails.companyContactName}<br>` : ''}
+                            ${companyDetails?.companyAddress ? `${companyDetails.companyAddress}<br>` : ''}
                             ${companyDetails?.companyEmail || ''}
                         </div>
                     </div>
@@ -359,8 +360,8 @@
                             </td>
                             <td class="na-doc-table__qty" data-label="Qty">${displayQty}</td>
                             <td class="na-doc-table__unit" data-label="Unit">${item.unit || '-'}</td>
-                            <td class="na-doc-table__rate" data-label="Rate">${currencySymbol}${QuotationRenderer.formatNumber(item.rate || 0)}</td>
-                            <td class="na-doc-table__amount" data-label="Amount">${currencySymbol}${QuotationRenderer.formatNumber(amount)}</td>
+                            <td class="na-doc-table__rate" data-label="Rate">${QuotationRenderer.formatMoney(currencySymbol, item.rate || 0)}</td>
+                            <td class="na-doc-table__amount" data-label="Amount">${QuotationRenderer.formatMoney(currencySymbol, amount)}</td>
                         </tr>
                     `;
                 });
@@ -370,7 +371,7 @@
                         <tr class="quote-table__phase-subtotal">
                             <td colspan="4"></td>
                             <td class="na-doc-table__amount" style="font-weight: 600; border-top: 1px solid #ddd;">
-                                ${currencySymbol}${QuotationRenderer.formatNumber(phaseSubtotal)}
+                                ${QuotationRenderer.formatMoney(currencySymbol, phaseSubtotal)}
                             </td>
                         </tr>
                     `;
@@ -438,7 +439,7 @@
         // FUNCTION | Render Totals
         // ------------------------------------------------------------
         function renderTotals(totals, currencySymbol, showVat, phaseSubtotals) {
-            const formatNumber = window.NaProjectAdmin.QuotationRenderer.formatNumber;
+            const formatMoney = window.NaProjectAdmin.QuotationRenderer.formatMoney;
 
             let html = `<div class="na-doc-totals">`;
 
@@ -447,7 +448,7 @@
                     html += `
                     <div class="na-doc-totals__row na-doc-totals__row--phase">
                         <span>${phase.name}</span>
-                        <span>${currencySymbol}${formatNumber(phase.subtotal)}</span>
+                        <span>${formatMoney(currencySymbol, phase.subtotal)}</span>
                     </div>
                     `;
                 });
@@ -458,7 +459,7 @@
             html += `
                     <div class="na-doc-totals__row">
                         <span>Subtotal</span>
-                        <span>${currencySymbol}${formatNumber(totals.subtotal)}</span>
+                        <span>${formatMoney(currencySymbol, totals.subtotal)}</span>
                     </div>
             `;
 
@@ -466,7 +467,7 @@
                 html += `
                     <div class="na-doc-totals__row">
                         <span>VAT (${totals.vatRate}%)</span>
-                        <span>${currencySymbol}${formatNumber(totals.vat)}</span>
+                        <span>${formatMoney(currencySymbol, totals.vat)}</span>
                     </div>
                 `;
             }
@@ -474,7 +475,7 @@
             html += `
                     <div class="na-doc-totals__row na-doc-totals__row--grand">
                         <span>Total Due</span>
-                        <span>${currencySymbol}${formatNumber(totals.grandTotal)}</span>
+                        <span>${formatMoney(currencySymbol, totals.grandTotal)}</span>
                     </div>
                 </div>
             `;
@@ -550,7 +551,7 @@
         function renderNoteSection(data, invoiceConfig) {
             const personalNote = data.personalNote || '';
             const standardNote = invoiceConfig?.standardNote ||
-                'Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.';
+                'Thank you for your business. I hope you are satisfied with the service you have received.';
 
             const noteText = personalNote || standardNote;
 

@@ -302,7 +302,8 @@
                         <div class="address-block__title">From</div>
                         <div class="address-block__content">
                             <strong>${companyDetails?.companyName || 'Noble Architecture'}</strong><br>
-                            ${companyDetails?.companyAddress || 'Nottingham, UK'}<br>
+                            ${companyDetails?.companyContactName ? `${companyDetails.companyContactName}<br>` : ''}
+                            ${companyDetails?.companyAddress ? `${companyDetails.companyAddress}<br>` : ''}
                             ${companyDetails?.companyEmail || ''}
                         </div>
                     </div>
@@ -403,8 +404,8 @@
                             </td>
                             <td class="quote-table__qty" data-label="Qty">${displayQty}</td>
                             <td class="quote-table__unit" data-label="Unit">${item.unit || '-'}</td>
-                            <td class="quote-table__rate" data-label="Rate">${currencySymbol}${formatNumber(item.rate || 0)}</td>
-                            <td class="quote-table__amount" data-label="Amount">${currencySymbol}${formatNumber(amount)}</td>
+                            <td class="quote-table__rate" data-label="Rate">${formatMoney(currencySymbol, item.rate || 0)}</td>
+                            <td class="quote-table__amount" data-label="Amount">${formatMoney(currencySymbol, amount)}</td>
                         </tr>
                     `;
                 });
@@ -415,7 +416,7 @@
                         <tr class="quote-table__phase-subtotal">
                             <td colspan="4"></td>
                             <td class="quote-table__amount" style="font-weight: 600; border-top: 1px solid #ddd;">
-                                ${currencySymbol}${formatNumber(phaseSubtotal)}
+                                ${formatMoney(currencySymbol, phaseSubtotal)}
                             </td>
                         </tr>
                     `;
@@ -537,7 +538,7 @@
                     html += `
                     <div class="quote-totals__row quote-totals__row--phase">
                         <span>${phase.name}</span>
-                        <span>${currencySymbol}${formatNumber(phase.subtotal)}</span>
+                        <span>${formatMoney(currencySymbol, phase.subtotal)}</span>
                     </div>
                     `;
                 });
@@ -550,7 +551,7 @@
             html += `
                     <div class="quote-totals__row">
                         <span>Subtotal</span>
-                        <span>${currencySymbol}${formatNumber(totals.subtotal)}</span>
+                        <span>${formatMoney(currencySymbol, totals.subtotal)}</span>
                     </div>
             `;
 
@@ -558,7 +559,7 @@
                 html += `
                     <div class="quote-totals__row">
                         <span>VAT (${totals.vatRate}%)</span>
-                        <span>${currencySymbol}${formatNumber(totals.vat)}</span>
+                        <span>${formatMoney(currencySymbol, totals.vat)}</span>
                     </div>
                 `;
             }
@@ -566,7 +567,7 @@
             html += `
                     <div class="quote-totals__row quote-totals__row--grand">
                         <span>Total</span>
-                        <span>${currencySymbol}${formatNumber(totals.grandTotal)}</span>
+                        <span>${formatMoney(currencySymbol, totals.grandTotal)}</span>
                     </div>
                 </div>
             `;
@@ -590,7 +591,7 @@
                     <ul>
                         <li>This quotation is valid for ${validityDays} days from the date of issue${validUntil ? ` (until ${validUntil})` : ''}.</li>
                         <li>Prices are exclusive of VAT unless otherwise stated.</li>
-                        <li>Payment terms: As per our Terms & Conditions.</li>
+                        <li>Payment terms: As per the Terms & Conditions.</li>
                         ${data.additionalTerms ? `<li>${data.additionalTerms}</li>` : ''}
                     </ul>
                 </div>
@@ -675,6 +676,17 @@
         }
         // ---------------------------------------------------------------
 
+        // FUNCTION | Format Money - Sign Before the Currency Symbol
+        // ------------------------------------------------------------
+        // A discount line prints as -£1,600.00, not £-1,600.00.
+        // ------------------------------------------------------------
+        function formatMoney(currencySymbol, num) {
+            const value = parseFloat(num) || 0;
+            const sign  = value < 0 ? '-' : '';
+            return `${sign}${currencySymbol}${formatNumber(Math.abs(value))}`;
+        }
+        // ---------------------------------------------------------------
+
         // API EXPORT | Public Interface
         // ------------------------------------------------------------
         window.NaProjectAdmin = window.NaProjectAdmin || {};
@@ -685,7 +697,8 @@
             fetchClientData          : fetchClientDataFromCloudflare,
             calculateTotals          : calculateTotals,
             calculateLineAmount      : calculateLineAmount,
-            formatNumber             : formatNumber
+            formatNumber             : formatNumber,
+            formatMoney              : formatMoney
         };
 
         // Mark module as loaded

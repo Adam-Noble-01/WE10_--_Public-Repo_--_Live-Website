@@ -452,7 +452,7 @@
                 <div class="cover-letter__section">
                     <p class="cover-letter__section-heading"><strong>Moving Forward</strong></p>
                     
-                    <p>Once you have reviewed and signed all required documents, we will be in touch to discuss the next steps for your project.</p>
+                    <p>Once you have reviewed and signed all required documents, I will be in touch to discuss the next steps for your project.</p>
                 </div>
             `;
         }

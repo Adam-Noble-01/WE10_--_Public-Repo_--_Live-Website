@@ -172,7 +172,7 @@
                 return `
                     <div class="document cover-letter">
                         <h1>Welcome</h1>
-                        <p>Thank you for enquiring about our architectural design services.</p>
+                        <p>Thank you for enquiring about my architectural design services.</p>
                         <p><strong>Project:</strong> ${projectName}</p>
                         <p>Please use the navigation menu to view your quotation and review the terms and conditions.</p>
                     </div>
