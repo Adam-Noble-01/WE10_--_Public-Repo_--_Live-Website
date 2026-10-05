@@ -1,6 +1,14 @@
-# HTML Component Library — Outlook-Safe
+# HTML Component Library — Outlook-Safe (Formal-Letter Look)
 
-Every Noble Architecture email is built from these components. Copy them
+> **Scope.** This file is for the *formal letter* look (the PS02 LDC example).
+> Covering emails in the NA look (the NP03 gold standard: planning applications,
+> pre-apps) are not hand-built from this file. Write them as Markdown and build
+> them with `scripts/build_email.py`, which applies the same Outlook rules
+> (inline styles, tables for layout, no `<style>` block). The one deliberate
+> difference: the NA look loads the logo and signature images from the brand
+> asset library on GitHub, as the gold standard always has.
+
+Every formal letter is built from these components. Copy them
 verbatim and change the text. Do not invent new styling — consistency across
 letters is the whole point of this file.
 

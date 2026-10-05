@@ -3,11 +3,128 @@
 Identify the type first. Each has a mandatory structure. Follow it rather than
 inventing one.
 
+In every NA covering email, a house divider separates **every** section from the
+next, and the draft `.md` carries the house header and signature blocks, so it looks
+like the email it will become (SKILL.md, *The draft looks like the email*).
+
+**The gold standard for every email to a council is RB05** (`assets/examples/pre-app-enquiry/`,
+sent 05-Oct-2026): its format, section order, tone, and the rule that the first
+correspondence says nothing negative. NP03 (`assets/examples/planning-application/`) is
+the **secondary reference**: use it for what is specific to a planning application (the
+statutory submission line, payment instructions, the appointment ending at
+validation), written the RB05 way.
+
 ---
 
-## 1. LPA submission — application pack
+## 1a. Planning application covering email
 
-**Trigger:** submitting an LDC, householder or full application to a council.
+**Trigger:** submitting a householder or full planning application to a council by email.
+
+**Gold standard:** RB05 (`assets/examples/pre-app-enquiry/`) for format, order and tone. **Secondary reference:** NP03 (`assets/examples/planning-application/`, 31-Mar-2026) for the planning-application sections. Read both READMEs first.
+**Template:** `assets/templates/planning-application__template.md`
+
+**Sources to read before writing:** the Design and Access Statement (its summary blocks give the proposal paragraphs; its `DrawingSchedule` gives the schedule), the application form (applicant name as signed, application type), the pack folder in `10__ContentDelivered\`, and the client's contact details from the project admin data.
+
+**Structure:**
+
+```
+House header      Planning Application Covering Letter / Subject: CODE | Site - Planning Documents Pack / Date
+#### Dear {Council} Planning Team,
+[optional] resubmission note, and how the pack is split across emails (1 of 3...)
+Opening           two short paragraphs, no bold: the statutory {type} submission for {site} on behalf of
+                  {applicant} / what is provided and where
+---
+The Proposal      two or three short paragraphs from the DAS, positive only (proposal, design, neighbours);
+                  a constraints line only if every finding is favourable
+---
+Downloading The Documents     (only when too big to attach) as RB05
+---
+Supporting Documentation      DrawingSchedule; N/A in cells that do not apply
+---
+Fees And Payment  applicant pays direct; council sends instructions, reference, payment link to the applicant;
+                  bold: Noble Architecture pays nothing, ask it for nothing
+---
+Confirmation Of Receipt       (a) received complete, (b) the application reference once validated
+---
+Agent Role Handover           appointment ends at validation; everything after to the applicant; contact panel
+---
+TrueVisionHub     the project in 3D
+---
+Closing lines     thanks; access problems to Adam; everything else to the applicant
+House signature
+```
+
+**Must contain:**
+- A proposal taken from the DAS, positive only. Never a claim the DAS does not make, and nothing negative (SKILL.md rule 9).
+- A schedule that agrees with the files being attached (`--pack`).
+- The handover with the client's details, so the council's system is updated before validation.
+
+**Never:**
+- Link to PlanVision / ProjectVision, or call anything a "Project Portal".
+- Claim the application will be granted.
+- List the covering email among its own attachments.
+- "Please do not hesitate to contact me" (NP03 as sent): say who to contact and why, as RB05's closing lines do.
+
+---
+
+## 1b. Pre-application enquiry (GOLD STANDARD)
+
+**Trigger:** asking a council for pre-application advice.
+
+**Gold standard:** `assets/examples/pre-app-enquiry/` (RB05, Adam's own edit, signed off and sent 05-Oct-2026). Read its README first.
+**Template:** `assets/templates/pre-app-enquiry__template.md`
+
+**Sources:** the pre-application statement (TrueVision Statement Writer, `10__StatementDocs\01__PreApp__Statement\`), its `DrawingSchedule`, the filled request form, the pack folder, and the council's own pre-application advice page for the service name and fee. Never quote a fee from memory.
+
+**Structure:**
+
+```
+House header      Pre-Application Covering Letter / Subject: CODE | Site - Pre-Application Enquiry / Date
+#### Dear {Council} Development Management Team,
+Opening           two short paragraphs, no bold: on behalf of the applicants, at the site address, under the
+                  council's service / what is provided and where to find it
+---
+The Proposal      TWO short paragraphs: the house, then the grounds. Positive only.
+---
+Downloading The Documents     (only when too big to attach) WeTransfer + Google Drive, button AND plain URL each
+---
+Pre-Application Pack          DrawingSchedule; N/A in cells that do not apply
+---
+Fees And Payment  applicant pays all; council contacts applicant; bold: Noble Architecture pays nothing, ask it for nothing
+---
+Confirmation Of Receipt       (a) received / downloaded and complete, (b) reference; the only reply required
+---
+Agent Role Handover           role ends at sending + receipt; applicant is the contact; panel; record on system
+---
+TrueVisionHub     the project in 3D
+---
+On-Site Meeting   (when wanted) dates, arranged with the applicant
+---
+Closing lines     thanks; access problems to Adam; everything else to the applicant
+House signature
+```
+
+**Must contain:**
+- A proposal that only presents. **Say nothing negative in the first correspondence.**
+- The fee position stated so plainly that the practice is never invoiced.
+- The handover to the applicant, unless Adam says he stays the contact.
+
+**Never:**
+- A constraints paragraph that lists anything against the scheme (flood risk, TPOs, heritage records, priority habitat, countryside policy), a floorspace or size comparison, woodland or tree removals, or policy tests. All of that is in the statement, in context.
+- The list of questions on which advice is sought. The statement's own section holds it.
+- Vivid or loaded words where plain ones do: "earmarked for removal" not "removed", "swimming pool" not "infinity edge pool".
+
+---
+
+## 1c. LDC / permitted development submission
+
+**Trigger:** submitting an LDC (s.192) or prior approval pack to a council.
+
+**Worked example:** `assets/examples/pd-submission/` (a formal letter in the `html-components.md` style). For a new one, use the 1a template and shell (header, hub, schedule, signature), and carry over the content below.
+
+## 1. LPA submission — application pack (formal letter, PS02 style)
+
+**Trigger:** submitting an LDC, householder or full application to a council as a formal letter.
 
 **Worked example:** `assets/examples/pd-submission/`
 

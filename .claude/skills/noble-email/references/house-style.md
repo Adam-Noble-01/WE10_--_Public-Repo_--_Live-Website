@@ -23,6 +23,29 @@ professional who knows the rules and expects to be taken at his word.
 - Apologising for asking for something you are entitled to ask for.
 - Hedging a fact you have verified. If the drawing proves it, assert it.
 
+## The first correspondence presents; it never argues
+
+A covering email to a council says **nothing negative**. Adam (05-Oct-2026, RB05): "There's literally no point in saying anything bad in that email." Each negative you volunteer is a can of worms handed to the officer before they have read a page. The statement deals with every one of them, in its context, and that is where they stay.
+
+- Describe the proposal plainly and positively: what is replaced, what replaces it, its character, its materials, where it stands, its principal dimensions. Two short paragraphs, not four.
+- No size comparisons (existing against proposed floorspace, percentages), no constraints that count against the scheme (flood risk, Tree Preservation Orders, heritage records, priority habitat, countryside or green belt policy), no tree or woodland removals, no policy tests, no list of the questions put to the council.
+- A constraints line belongs only where every finding is favourable ("Flood Zone 1, no protected trees, not in a conservation area").
+- Choose the unremarkable word: "earmarked for removal", not "removed"; "swimming pool", not "infinity edge pool"; "auxiliary building" where a grander name invites a question.
+- Candour lives in the statement. The statement must stay honest; the email simply does not repeat its difficulties.
+
+## Two looks, and which one to use
+
+| Look | Used for | Built how |
+|---|---|---|
+| **NA covering email** (the RB05 gold standard; NP03 secondary) | Planning applications, pre-application enquiries, and by default every new email to a council | Markdown master + `scripts/build_email.py`. Open Sans, olive headings, thin grey dividers, logo header, `####` salutation, unnumbered `###` section headings, "Warm Regards," with the signature images, TrueVision hub in the drawings' blue. |
+| **Formal letter** (the PS02 LDC example) | A letter whose argument is a numbered legal case: LDC, compliance tables, statutory citations | Hand-built from `html-components.md`. Calibri, navy, numbered sections, "Yours faithfully". |
+
+Where the two disagree (numbered or unnumbered sections, sign-off, typeface), follow the look you are using. The voice rules in this file apply to both.
+
+**Dividers between every section (NA covering email).** Every section is separated from the next by the house divider: after the opening, between each `###` section, around the hub and the schedule, and before the closing line. A reader skimming fifty emails finds a section by its divider. Without them the email is hard to read (Adam, 05-Oct-2026). In the `.md` the divider is the house `Horizontal Page Divider Line` block, so the draft shows it too; the build turns it into a rule.
+
+**Order.** The salutation, the opening paragraph, then the proposal. Practical matters (how the documents are sent, the pack, fees, receipt, handover) follow it, then the TrueVision hub, any meeting request and the closing lines. See the pre-app gold standard (`assets/examples/pre-app-enquiry/`).
+
 ## British English and conventions
 
 | Item | House form |
@@ -38,6 +61,7 @@ professional who knows the rules and expects to be taken at his word.
 | Telephone | `+44 7707 445405` |
 | Time | `12:16`, 24-hour |
 | Sign-off | `Yours faithfully,` to "Dear Sir or Madam"; `Yours sincerely,` to a named person |
+| A table cell that does not apply | `N/A` (not applicable). Never an em dash or a blank. |
 
 Never mix the `mm` and `m` conventions within one document. A letter uses metres
 throughout; a drawing uses millimetres throughout. They must describe the same

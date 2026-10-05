@@ -2,7 +2,7 @@
     "Statement__Description": "TrueVision Statement Writer - the project's written documents. Each entry names a folder under 10__StatementDocs and the one markdown file in it that IS the statement. The words live in that markdown file, not here.",
     "Statement__Version": "1.0.0",
     "Statement__Project": "RB05",
-    "Statement__UpdatedIso": "2026-09-30T00:55:43.265Z",
+    "Statement__UpdatedIso": "2026-10-05T19:35:50.547Z",
     "Statement__LastId": 1,
     "Statement__Documents": [
         {
@@ -14,7 +14,7 @@
             "Doc__Revision": "A",
             "Doc__CreatedIso": "2026-09-20T22:07:02.430Z",
             "Doc__UpdatedIso": "2026-09-30T00:19:32.859Z",
-            "Doc__PublishedIso": "2026-09-30T00:55:43.264Z",
+            "Doc__PublishedIso": "2026-10-05T19:35:50.547Z",
             "Doc__PublishedUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/10__StatementDocs/01__PreApp__Statement/RB05_T01_S01__WestFarm__PreApplicationStatement__.html",
             "Doc__Images": [
                 {
