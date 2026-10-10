@@ -13,12 +13,21 @@
 // - Builds navigation menu dynamically based on available project files
 // - Manages sidebar toggle functionality
 // - Handles navigation state and active items
-// - Integrates Editor Tools when running on localhost Flask server
+// - Integrates Editor Tools when running on a localhost Flask server that
+//   serves them (port 8081, or the Project Vision Studio on 8090)
 // - Multi-contract system support with per-contract menu items
 //
 // -----
 //
 // DEVELOPMENT LOG:
+// 10-Oct-2026 - Version 2.3.0
+// - Editor Tools in the Studio
+//   - detectLocalDevMode() also accepts any server whose /api/health lists the
+//     'projectadmin-editor-tools' capability, so the Project Vision Studio on
+//     port 8090 shows the Editor Tools, not only the port 8081 server
+//   - A server that does not list it (a Studio process started before this)
+//     keeps the client's view rather than offering editors that could not save
+//
 // 10-Oct-2026 - Version 2.2.0
 // - Vector Menu Icons
 //   - Emoji replaced with house-style SVG line icons in 07__AppAssets__NaProjectAdmin
@@ -63,6 +72,7 @@
         let sidebarOpen              = true;                         // <-- Sidebar state (true = open)
         let projectData              = null;                         // <-- Loaded project data
         let isLocalDevMode           = null;                         // <-- Local Flask server mode
+        const EDITOR_TOOLS_CAPABILITY = 'projectadmin-editor-tools'; // <-- Listed in /api/health by every server with the editor routes
         let activeEditorFrame        = null;                         // <-- Currently loaded editor iframe
 
         // CONSTANTS | Menu Icons
@@ -202,7 +212,9 @@
                 if (response.ok) {
                     const data = await response.json();
                     isLocalDevMode = data.status === 'ok' && 
-                                    data.service === 'na-projectadmin-local-dev';
+                                    (data.service === 'na-projectadmin-local-dev' ||       // <-- The port 8081 server, before it listed capabilities
+                                     (Array.isArray(data.capabilities) &&
+                                      data.capabilities.includes(EDITOR_TOOLS_CAPABILITY))); // <-- Any server with the editor routes: 8081, or the Studio on 8090
                     console.log('[Navigation] Local dev mode:', isLocalDevMode);
                     return isLocalDevMode;
                 }

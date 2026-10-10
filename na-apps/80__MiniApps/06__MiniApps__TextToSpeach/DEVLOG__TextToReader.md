@@ -106,6 +106,29 @@ DEVELOPMENT LOG
   - RELEASE RULE: with each release, set every ?v= in Main__.html to the new
     version, next to NaMiniApp__Version in the AppConfig.
 
+----------------------------------------------------------------
+1.5.2 - 10-Oct-2026 |  Phone List Numbers
+  - Phones (768 px and narrower): ordered-list numbers were off screen in
+    Read and clipped away in Simple's Output box. The shared utility
+    stylesheet pulls lists 1.75 rem left and 0.75 rem right on phones, for
+    browser-drawn markers. These lists draw their own numbers 7 mm left of
+    each item, so at 390 px "1." sat at -22 px. The pull also added up per
+    nesting level: third-level items ran 23 px past the right edge of the
+    screen, losing words at line ends.
+  - Fix, MarkdownStyle phone block, Simple and Read: no pull. Numbers and
+    bullets start on the paragraph text edge; a nested number starts on its
+    parent item's text. Columns are in em so they follow the type (Read
+    8.5 pt, Simple 11 pt): 1.75 em fits "10.", 2.25 em "1.10", 3 em "1.1.10".
+    Bullets use 1.75 em too, so bullet and number text line up.
+  - Any width: a numbered list inside a bullet list took the bullet's marker
+    style (0.6 em, bullet brown). The bullet rule is now ul > li::before.
+    That is the only desktop change; the A4 layout is otherwise untouched.
+  - Checked in headless Edge 154 at 320, 360, 390 and 768 px, Simple and
+    Read: every number and bullet fully on screen, no list text past the
+    paragraph's right edge, at least 3 px from number to text.
+  - The stylesheet change was committed and pushed early, inside 05a583f
+    (1.5.1). This entry, NaMiniApp__Version and the ?v= tokens are 1.5.2.
+
 
 =================================================
 FILE STRUCTURE

@@ -13,7 +13,8 @@
 # - Serves static files with CORS support for local development
 # - Serves the shared project launcher at the server root (localhost only)
 # - Auto-opens browser to that launcher on startup
-# - Provides API endpoints for editor tools integration
+# - Provides API endpoints for editor tools integration (the shared
+#   ProjectVision__ProjectAdminEditors__Api__.py blueprint)
 # - Supports hot-reloading in debug mode
 #
 # USAGE:
@@ -24,6 +25,15 @@
 # -----
 #
 # DEVELOPMENT LOG:
+# 10-Oct-2026 - Version 2.2.0
+# - The Editor Tools API moved into a blueprint the Project Vision Studio
+#   server registers as well: na-apps/ProjectVision__ProjectAdminEditors__Api__.py
+#   - The same routes and the same code: a saved file is byte-identical
+#   - /api/health lists the 'projectadmin-editor-tools' capability, which is
+#     what the app's menu and the editors now look for
+#   - The Studio (port 8090, started with Windows) therefore shows the Editor
+#     Tools and saves through them too; this server is no longer needed to edit
+#
 # 07-Sep-2026 - Version 2.1.0
 # - Added the shared local dev project launcher
 #   - GET /                 - Card view of every project (was: redirect to JS01)
@@ -92,6 +102,13 @@ except ImportError:
     print("=" * 60 + "\n")
     sys.exit(1)
 
+# Editor Tools file routes, shared with the Project Vision Studio server (port 8090).
+from ProjectVision__ProjectAdminEditors__Api__ import (
+    project_admin_editors_api,
+    EDITOR_TOOLS_CAPABILITY,
+    DEFAULT_YEAR_CONFIG_KEY
+)
+
 # endregion -----
 
 
@@ -151,6 +168,8 @@ CORS(app, resources={
     }
 })
 
+app.register_blueprint(project_admin_editors_api)                     # <-- /api/project/..., /api/projects/scan, /api/config/project-index
+
 # endregion -----
 
 
@@ -203,7 +222,8 @@ def health_check():
         'status'         : 'ok',
         'service'        : 'na-projectadmin-local-dev',
         'port'           : PORT,
-        'repoRoot'       : REPO_ROOT
+        'repoRoot'       : REPO_ROOT,
+        'capabilities'   : [EDITOR_TOOLS_CAPABILITY]                 # <-- The app shows its Editor Tools when this is listed
     })
 
 
@@ -224,616 +244,12 @@ def get_config_endpoint():
 # #region -----
 # REGION | Project API Endpoints
 # -----
-
-def get_project_portal_path():
-    """Get the path to na-project-portal directory."""
-    return os.path.join(REPO_ROOT, 'na-project-portal')
-
-
-def get_project_path(year, code):
-    """Get the path to a specific project folder."""
-    portal_path = get_project_portal_path()
-    year_folder = f"{year}-Projects"
-    
-    # First check if we have an index mapping
-    index_path = os.path.join(
-        REPO_ROOT, 
-        'na-apps', 
-        '10__NaProjectAdmin__DocumentSystem__CoreAppCode',
-        '03__Src__AppModules',
-        '02__AppData',
-        'AppConfiguration__ProjectKeysIndex__.json'
-    )
-    
-    folder_name = None
-    if os.path.exists(index_path):
-        try:
-            with open(index_path, 'r', encoding='utf-8') as f:
-                index = json.load(f)
-                folder_name = index.get(year, {}).get(code.upper())
-        except Exception:
-            pass
-    
-    if folder_name:
-        project_path = os.path.join(portal_path, year_folder, folder_name)
-        if os.path.exists(project_path):
-            return project_path
-    
-    # Fallback: scan year folder for matching project
-    year_path = os.path.join(portal_path, year_folder)
-    if os.path.exists(year_path):
-        for folder in os.listdir(year_path):
-            if folder.upper().startswith(code.upper()):
-                return os.path.join(year_path, folder)
-    
-    return None
-
-
-def get_admin_content_path(year, code):
-    """Get the path to a project's 10__ProjectAdmin__AppContent folder."""
-    project_path = get_project_path(year, code)
-    if project_path:
-        admin_path = os.path.join(project_path, '10__ProjectAdmin__AppContent')
-        if os.path.exists(admin_path):
-            return admin_path
-    return None
-
-
-@app.route('/api/project/<year>/<code>/files')
-def list_project_files(year, code):
-    """List all files in a project's admin content folder."""
-    admin_path = get_admin_content_path(year, code)
-    
-    if not admin_path:
-        return jsonify({
-            'success'    : False,
-            'error'      : f'Project {code} not found for year {year}'
-        }), 404
-    
-    try:
-        files = []
-        for filename in os.listdir(admin_path):
-            filepath = os.path.join(admin_path, filename)
-            if os.path.isfile(filepath):
-                stat = os.stat(filepath)
-                files.append({
-                    'name'       : filename,
-                    'size'       : stat.st_size,
-                    'modified'   : datetime.fromtimestamp(stat.st_mtime).isoformat()
-                })
-        
-        return jsonify({
-            'success'    : True,
-            'projectCode': code.upper(),
-            'year'       : year,
-            'path'       : admin_path,
-            'files'      : files
-        })
-    except Exception as e:
-        return jsonify({
-            'success'    : False,
-            'error'      : str(e)
-        }), 500
-
-
-@app.route('/api/project/<year>/<code>/<filename>', methods=['GET', 'PUT'])
-def project_file(year, code, filename):
-    """Read or write a specific project file."""
-    admin_path = get_admin_content_path(year, code)
-    
-    # For PUT requests, create path if it doesn't exist
-    if request.method == 'PUT' and not admin_path:
-        project_path = get_project_path(year, code)
-        if project_path:
-            admin_path = os.path.join(project_path, '10__ProjectAdmin__AppContent')
-            os.makedirs(admin_path, exist_ok=True)
-    
-    if not admin_path:
-        return jsonify({
-            'success'    : False,
-            'error'      : f'Project {code} not found for year {year}'
-        }), 404
-    
-    filepath = os.path.join(admin_path, filename)
-    
-    # Validate filename (prevent directory traversal)
-    if '..' in filename or '/' in filename or '\\' in filename:
-        return jsonify({
-            'success'    : False,
-            'error'      : 'Invalid filename'
-        }), 400
-    
-    if request.method == 'GET':
-        # Read file
-        if not os.path.exists(filepath):
-            return jsonify({
-                'success'    : False,
-                'error'      : f'File {filename} not found'
-            }), 404
-        
-        try:
-            with open(filepath, 'r', encoding='utf-8') as f:
-                content = f.read()
-            
-            # Try to parse as JSON
-            try:
-                data = json.loads(content)
-                return jsonify({
-                    'success'    : True,
-                    'filename'   : filename,
-                    'path'       : filepath,
-                    'data'       : data,
-                    'isJson'     : True
-                })
-            except json.JSONDecodeError:
-                return jsonify({
-                    'success'    : True,
-                    'filename'   : filename,
-                    'path'       : filepath,
-                    'content'    : content,
-                    'isJson'     : False
-                })
-        except Exception as e:
-            return jsonify({
-                'success'    : False,
-                'error'      : str(e)
-            }), 500
-    
-    else:  # PUT
-        # Write file
-        try:
-            data = request.get_json()
-            
-            if data is None:
-                return jsonify({
-                    'success'    : False,
-                    'error'      : 'No JSON data provided'
-                }), 400
-            
-            # Format JSON with indentation
-            content = json.dumps(data, indent=4, ensure_ascii=False)
-            
-            with open(filepath, 'w', encoding='utf-8') as f:
-                f.write(content)
-                f.write('\n')  # <-- Add trailing newline
-            
-            return jsonify({
-                'success'    : True,
-                'filename'   : filename,
-                'path'       : filepath,
-                'message'    : f'File {filename} saved successfully'
-            })
-        except Exception as e:
-            return jsonify({
-                'success'    : False,
-                'error'      : str(e)
-            }), 500
-
-
-@app.route('/api/project/create', methods=['POST'])
-def create_project():
-    """Create a new project with full folder structure."""
-    try:
-        data = request.get_json()
-        
-        if not data:
-            return jsonify({
-                'success'    : False,
-                'error'      : 'No JSON data provided'
-            }), 400
-        
-        # Extract required fields
-        code         = data.get('projectCode', '').upper()
-        project_name = data.get('projectName', '')
-        client_name  = data.get('clientName', '')
-        year         = data.get('year', DEFAULT_YEAR)
-        
-        # Validate project code format (XX00)
-        if not re.match(r'^[A-Z]{2}\d{2}$', code):
-            return jsonify({
-                'success'    : False,
-                'error'      : 'Invalid project code format. Must be 2 letters + 2 digits (e.g., JS01)'
-            }), 400
-        
-        if not project_name:
-            return jsonify({
-                'success'    : False,
-                'error'      : 'Project name is required'
-            }), 400
-        
-        # Create folder name
-        folder_name = f"{code}__{project_name.replace(' ', '')}"
-        
-        # Check if project already exists
-        portal_path = get_project_portal_path()
-        year_folder = f"{year}-Projects"
-        year_path = os.path.join(portal_path, year_folder)
-        project_path = os.path.join(year_path, folder_name)
-        
-        if os.path.exists(project_path):
-            return jsonify({
-                'success'    : False,
-                'error'      : f'Project {code} already exists at {project_path}'
-            }), 409
-        
-        # Create year folder if needed
-        os.makedirs(year_path, exist_ok=True)
-        
-        # Create folder structure
-        folders_to_create = [
-            '01__Archive',
-            '10__ProjectAdmin__AppContent',
-            '20__PlanVision__AppContent',
-            '30__TrueVision__AppContent'
-        ]
-        
-        for folder in folders_to_create:
-            os.makedirs(os.path.join(project_path, folder), exist_ok=True)
-        
-        # Create placeholder files
-        placeholders = {
-            '01__Archive/OldVersion__FilesHere__.txt': 
-                'This folder contains archived/old versions of project files.',
-            '20__PlanVision__AppContent/PlanVisionContent__FilesHere__.txt': 
-                'This folder contains PlanVision application content.',
-            '30__TrueVision__AppContent/TrueVisionContent__FilesHere__.txt': 
-                'This folder contains TrueVision application content.'
-        }
-        
-        for rel_path, content in placeholders.items():
-            filepath = os.path.join(project_path, rel_path)
-            with open(filepath, 'w', encoding='utf-8') as f:
-                f.write(content)
-        
-        # Create project config JSON
-        now_uk = datetime.now().strftime('%d-%b-%Y')
-        now_uk_time = datetime.now().strftime('%d-%b-%Y at %H:%M')
-        
-        # NOTE: PII (address, email, phone) stored in encrypted R2, not here
-        project_config = {
-            'projectCode'    : code,
-            'projectName'    : project_name,
-            'clientName'     : client_name or 'Client Name',
-            'projectPin'     : '1234',
-            'contracts'      : {                                         # <-- Multi-contract system v0.5.0
-                'general-business': {
-                    'enabled'        : True,
-                    'signed'         : False,
-                    'signatureRef'   : None,
-                    'signedDate'     : None,
-                    'specialTermsFile': None
-                },
-                'concept-design': {
-                    'enabled'        : True,
-                    'signed'         : False,
-                    'signatureRef'   : None,
-                    'signedDate'     : None,
-                    'specialTermsFile': None
-                }
-            },
-            'documents'      : {
-                'quotation'      : True
-            },
-            'clientDataId'   : f'{code}_{year}',                         # <-- Reference to R2 encrypted data
-            'createdDate'    : now_uk,
-            'lastModified'   : now_uk_time
-        }
-        
-        config_path = os.path.join(project_path, '10__ProjectAdmin__AppContent', 
-                                   'ProjectAdmin__ProjectConfig__.json')
-        with open(config_path, 'w', encoding='utf-8') as f:
-            json.dump(project_config, f, indent=4)
-            f.write('\n')
-        
-        # Create quotation template
-        # NOTE: Client address/email/phone stored in encrypted R2, not here
-        quotation = {
-            'quotationRef'       : f'QUO-{code}-{datetime.now().year}-001',
-            'quotationDate'      : now_uk,
-            'projectAddress'     : '',                                   # <-- Site address from R2
-            'projectDescription' : 'Project description goes here',
-            'clientDetails'      : {
-                'name'           : client_name or 'Client Name'
-                # Address, email, phone fetched from R2 at render time
-            },
-            'lineItems'          : [
-                {
-                    'description': 'Initial design consultation',
-                    'quantity'   : 1,
-                    'unit'       : 'item',
-                    'rate'       : 0,
-                    'group'      : 'Design Phase'
-                }
-            ],
-            'totals'             : {
-                'subtotal'       : 0,
-                'vatRate'        : 0,
-                'vat'            : 0,
-                'grandTotal'     : 0
-            },
-            'additionalTerms'    : '',
-            'createdDate'        : now_uk_time
-        }
-        
-        quotation_path = os.path.join(project_path, '10__ProjectAdmin__AppContent',
-                                      'ProjectAdmin__Quotation__.json')
-        with open(quotation_path, 'w', encoding='utf-8') as f:
-            json.dump(quotation, f, indent=4)
-            f.write('\n')
-        
-        # Create special terms template
-        special_terms = {
-            'sectionTitle'   : 'Special Terms for This Project',
-            'introduction'   : 'The following special conditions apply to this project.',
-            'terms'          : [
-                {
-                    'title'      : 'Payment Schedule',
-                    'content'    : 'Payment terms to be agreed.'
-                }
-            ],
-            'lastUpdated'    : now_uk_time
-        }
-        
-        terms_path = os.path.join(project_path, '10__ProjectAdmin__AppContent',
-                                  'ProjectAdmin__SpecialTerms__.json')
-        with open(terms_path, 'w', encoding='utf-8') as f:
-            json.dump(special_terms, f, indent=4)
-            f.write('\n')
-        
-        # Create empty invoices file
-        invoices_data = {
-            'invoices'   : []
-        }
-        
-        invoices_path = os.path.join(project_path, '10__ProjectAdmin__AppContent',
-                                     'ProjectAdmin__Invoices__.json')
-        with open(invoices_path, 'w', encoding='utf-8') as f:
-            json.dump(invoices_data, f, indent=4)
-            f.write('\n')
-        
-        # Update project index
-        index_path = os.path.join(
-            REPO_ROOT,
-            'na-apps',
-            '10__NaProjectAdmin__DocumentSystem__CoreAppCode',
-            '03__Src__AppModules',
-            '02__AppData',
-            'AppConfiguration__ProjectKeysIndex__.json'
-        )
-        
-        try:
-            if os.path.exists(index_path):
-                with open(index_path, 'r', encoding='utf-8') as f:
-                    index = json.load(f)
-            else:
-                index = {}
-            
-            if year not in index:
-                index[year] = {}
-            
-            index[year][code] = folder_name
-            
-            with open(index_path, 'w', encoding='utf-8') as f:
-                json.dump(index, f, indent=4)
-                f.write('\n')
-        except Exception as e:
-            print(f"Warning: Could not update project index: {e}")
-        
-        return jsonify({
-            'success'        : True,
-            'projectCode'    : code,
-            'projectName'    : project_name,
-            'folderName'     : folder_name,
-            'path'           : project_path,
-            'message'        : f'Project {code} created successfully'
-        })
-        
-    except Exception as e:
-        return jsonify({
-            'success'    : False,
-            'error'      : str(e)
-        }), 500
-
-
-@app.route('/api/project/<year>/<code>', methods=['DELETE'])
-def delete_project(year, code):
-    """Delete a project folder from local disk."""
-    project_path = get_project_path(year, code)
-
-    if not project_path:
-        return jsonify({
-            'success'    : False,
-            'error'      : f'Project {code} not found for year {year}'
-        }), 404
-
-    portal_path = get_project_portal_path()
-    project_path_abs = os.path.abspath(project_path)
-    portal_path_abs = os.path.abspath(portal_path)
-
-    if not project_path_abs.startswith(portal_path_abs):
-        return jsonify({
-            'success'    : False,
-            'error'      : 'Refusing to delete outside project portal'
-        }), 400
-
-    try:
-        shutil.rmtree(project_path_abs)
-        return jsonify({
-            'success'    : True,
-            'projectCode': code.upper(),
-            'year'       : year,
-            'path'       : project_path_abs,
-            'message'    : 'Project folder deleted'
-        })
-    except Exception as e:
-        return jsonify({
-            'success'    : False,
-            'error'      : str(e)
-        }), 500
-
-
-@app.route('/api/project-folder/<year>/<folder>', methods=['DELETE'])
-def delete_project_by_folder(year, folder):
-    """Delete a project folder by exact folder name (local disk)."""
-    if '..' in folder or '/' in folder or '\\' in folder:
-        return jsonify({
-            'success'    : False,
-            'error'      : 'Invalid folder name'
-        }), 400
-
-    portal_path = get_project_portal_path()
-    year_folder = f"{year}-Projects"
-    project_path = os.path.join(portal_path, year_folder, folder)
-
-    if not os.path.exists(project_path):
-        return jsonify({
-            'success'    : False,
-            'error'      : f'Project folder not found: {folder}'
-        }), 404
-
-    project_path_abs = os.path.abspath(project_path)
-    portal_path_abs = os.path.abspath(portal_path)
-
-    if not project_path_abs.startswith(portal_path_abs):
-        return jsonify({
-            'success'    : False,
-            'error'      : 'Refusing to delete outside project portal'
-        }), 400
-
-    try:
-        shutil.rmtree(project_path_abs)
-        return jsonify({
-            'success'    : True,
-            'folder'     : folder,
-            'year'       : year,
-            'path'       : project_path_abs,
-            'message'    : 'Project folder deleted'
-        })
-    except Exception as e:
-        return jsonify({
-            'success'    : False,
-            'error'      : str(e)
-        }), 500
-
-
-@app.route('/api/projects/scan')
-def scan_projects():
-    """Scan na-project-portal for all projects."""
-    portal_path = get_project_portal_path()
-    
-    if not os.path.exists(portal_path):
-        return jsonify({
-            'success'    : False,
-            'error'      : f'Project portal not found at {portal_path}'
-        }), 404
-    
-    try:
-        projects = {}
-        
-        # Iterate through year folders
-        for year_folder in os.listdir(portal_path):
-            year_match = re.match(r'^(\d{2})-Projects$', year_folder)
-            if not year_match:
-                continue
-            
-            year = year_match.group(1)
-            year_path = os.path.join(portal_path, year_folder)
-            
-            if not os.path.isdir(year_path):
-                continue
-            
-            projects[year] = {}
-            
-            # Iterate through project folders
-            for project_folder in os.listdir(year_path):
-                project_path = os.path.join(year_path, project_folder)
-                
-                if not os.path.isdir(project_path):
-                    continue
-                
-                # Try to find project config
-                config_path = os.path.join(
-                    project_path, 
-                    '10__ProjectAdmin__AppContent',
-                    'ProjectAdmin__ProjectConfig__.json'
-                )
-                
-                project_data = {
-                    'folder'     : project_folder,
-                    'clientName' : 'Unknown'
-                }
-                
-                if os.path.exists(config_path):
-                    try:
-                        with open(config_path, 'r', encoding='utf-8') as f:
-                            config = json.load(f)
-                        project_data['clientName'] = config.get('clientName', 'Unknown')
-                        project_data['projectName'] = config.get('projectName', '')
-                        code = config.get('projectCode', '').upper()
-                        
-                        if code:
-                            projects[year][code] = project_data
-                    except Exception:
-                        # Extract code from folder name
-                        code_match = re.match(r'^([A-Z]{2}\d{2})', project_folder.upper())
-                        if code_match:
-                            projects[year][code_match.group(1)] = project_data
-                else:
-                    # Extract code from folder name
-                    code_match = re.match(r'^([A-Z]{2}\d{2})', project_folder.upper())
-                    if code_match:
-                        projects[year][code_match.group(1)] = project_data
-        
-        return jsonify({
-            'success'    : True,
-            'portalPath' : portal_path,
-            'projects'   : projects
-        })
-        
-    except Exception as e:
-        return jsonify({
-            'success'    : False,
-            'error'      : str(e)
-        }), 500
-
-
-@app.route('/api/config/project-index', methods=['PUT'])
-def update_project_index():
-    """Update the ProjectKeysIndex.json file."""
-    try:
-        data = request.get_json()
-        
-        if not data:
-            return jsonify({
-                'success'    : False,
-                'error'      : 'No JSON data provided'
-            }), 400
-        
-        index_path = os.path.join(
-            REPO_ROOT,
-            'na-apps',
-            '10__NaProjectAdmin__DocumentSystem__CoreAppCode',
-            '03__Src__AppModules',
-            '02__AppData',
-            'AppConfiguration__ProjectKeysIndex__.json'
-        )
-        
-        with open(index_path, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=4)
-            f.write('\n')
-        
-        return jsonify({
-            'success'    : True,
-            'path'       : index_path,
-            'message'    : 'Project index updated successfully'
-        })
-        
-    except Exception as e:
-        return jsonify({
-            'success'    : False,
-            'error'      : str(e)
-        }), 500
-
+#
+# The Editor Tools routes - /api/project/<year>/<code>/..., /api/project/create,
+# /api/project-folder/<year>/<folder>, /api/projects/scan and
+# /api/config/project-index - live in na-apps/ProjectVision__ProjectAdminEditors__Api__.py,
+# registered above, so the Project Vision Studio server serves the very same code.
+#
 # endregion -----
 
 
@@ -1053,6 +469,7 @@ def parse_arguments():
 def main():
     """Main entry point for the development server."""
     args = parse_arguments()
+    app.config[DEFAULT_YEAR_CONFIG_KEY] = DEFAULT_YEAR                   # <-- --year: where a project created without one goes
     
     # Verify repo root exists
     if not os.path.exists(REPO_ROOT):

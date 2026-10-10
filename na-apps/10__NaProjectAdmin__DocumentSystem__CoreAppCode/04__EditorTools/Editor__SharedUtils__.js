@@ -19,6 +19,11 @@
 // -----
 //
 // DEVELOPMENT LOG:
+// 10-Oct-2026 - Version 1.4.0
+// - isLocalDevServer() also accepts any server whose /api/health lists the
+//   'projectadmin-editor-tools' capability: the editors load and save inside
+//   the Project Vision Studio (port 8090) as well as on the port 8081 server
+//
 // 01-Feb-2026 - Version 1.3.0
 // - Updated saveClientDataToCloudflare() to accept projectName
 //   - Enables fallback path construction for new projects
@@ -58,6 +63,7 @@
     const FLASK_API_BASE             = '';                              // <-- Relative to current origin
     const DEFAULT_PROJECT            = 'JS01';                          // <-- Default project code
     const DEFAULT_YEAR               = '26';                            // <-- Default year
+    const EDITOR_TOOLS_CAPABILITY    = 'projectadmin-editor-tools';     // <-- Listed in /api/health by every server with the editor routes
 
     // endregion -----
 
@@ -113,7 +119,9 @@
             if (response.ok) {
                 const data = await response.json();
                 isFlaskServer = data.status === 'ok' && 
-                               data.service === 'na-projectadmin-local-dev';
+                               (data.service === 'na-projectadmin-local-dev' ||       // <-- The port 8081 server, before it listed capabilities
+                                (Array.isArray(data.capabilities) &&
+                                 data.capabilities.includes(EDITOR_TOOLS_CAPABILITY))); // <-- Any server with the editor routes: 8081, or the Studio on 8090
                 console.log('[EditorUtils] Flask server detected:', isFlaskServer);
                 return isFlaskServer;
             }

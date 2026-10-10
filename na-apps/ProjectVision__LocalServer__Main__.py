@@ -23,6 +23,12 @@
 #   one), so a crash mid-save can never leave a project file half written
 # - Registers the TrueVision user config routes (the spelling dictionary in
 #   30__TrueVision__CoreAppCode/50__TrueVision__UserConfig)
+# - Registers Project Admin's Editor Tools routes (/api/project/...) from
+#   ProjectVision__ProjectAdminEditors__Api__.py, the blueprint the Project
+#   Admin dev server on port 8081 registers too, and lists their capability in
+#   /api/health: Project Admin opened in the Studio shows its Editor Tools
+#   (Project Config, Quotation, Invoice and Contract Managers, Project Manager)
+#   and saves through them, with no second server to start
 # - Keeps the last copies of every project JSON it overwrites, outside the
 #   repository (see PROJECT_BACKUP_ROOT), and refuses a drawings save from a
 #   window that loaded an older copy of the drawings than the one on disk
@@ -69,6 +75,7 @@ from ProjectVision__TrueVisionStatements__Api__ import truevision_statements_api
 from ProjectVision__TrueVisionSheetImages__Api__ import truevision_sheet_images_api   # <-- TrueVision Layout Editor pictures, filed by document id
 from ProjectVision__TrueVisionPublished__Api__ import truevision_published_api   # <-- TrueVision published drawings: baked files, revision archive, prune
 from ProjectVision__TrueVisionUserConfig__Api__ import truevision_user_config_api, write_text_atomic   # <-- TrueVision user config: the spelling dictionary; and the atomic write every JSON save uses
+from ProjectVision__ProjectAdminEditors__Api__ import project_admin_editors_api, EDITOR_TOOLS_CAPABILITY, DEFAULT_YEAR_CONFIG_KEY   # <-- Project Admin's Editor Tools: load, save, create, scan; shared with the port 8081 server
 
 try:
     from flask import Flask, send_from_directory, jsonify, abort, request
@@ -236,6 +243,7 @@ app.register_blueprint(truevision_statements_api)                # <-- /api/true
 app.register_blueprint(truevision_sheet_images_api)              # <-- /api/truevision/sheet-images... Layout Editor pictures (05__Layout__DrawingDocs__Images)
 app.register_blueprint(truevision_published_api)                 # <-- /api/truevision/published... published drawings (06__Layout__PublishedDocuments); restart to pick up new routes
 app.register_blueprint(truevision_user_config_api)               # <-- /api/truevision/user-config/spellings... the spelling dictionary (50__TrueVision__UserConfig)
+app.register_blueprint(project_admin_editors_api)                # <-- /api/project/..., /api/projects/scan, /api/config/project-index: Project Admin's Editor Tools
 
 # endregion -------------------------------------------------------------------
 
@@ -641,7 +649,8 @@ def health_check():
         'status'         : 'ok',
         'service'        : 'na-projectvision-local-dev',
         'port'           : PORT,
-        'repoRoot'       : REPO_ROOT
+        'repoRoot'       : REPO_ROOT,
+        'capabilities'   : [EDITOR_TOOLS_CAPABILITY]                 # <-- Project Admin shows its Editor Tools when this is listed
     })
 
 
@@ -1045,6 +1054,7 @@ def print_banner():
     print(f"    - Drawing notes:  GET/POST /api/projects/<code>/files/TrueVision__DrawingNotes__.json")
     print(f"    - Fingerprint:    GET /api/projects/<code>/drawings-fingerprint")
     print(f"    - Backups:        GET /api/projects/<code>/backups")
+    print(f"    - Admin editors:  GET/PUT /api/project/<year>/<code>/<file>, GET /api/projects/scan  (Project Admin's Editor Tools)")
     print(f"\n  Project file backups: the last {PROJECT_BACKUP_KEEP} copies of each file it overwrites, under")
     print(f"    {PROJECT_BACKUP_ROOT}")
 
@@ -1172,6 +1182,7 @@ def parse_arguments():
 def main():
     """Main entry point for the development server."""
     args = parse_arguments()
+    app.config[DEFAULT_YEAR_CONFIG_KEY] = DEFAULT_YEAR                   # <-- --year: where a project created without one goes
 
     if not os.path.exists(REPO_ROOT):
         print(f"\n  ERROR: Repository root not found: {REPO_ROOT}")

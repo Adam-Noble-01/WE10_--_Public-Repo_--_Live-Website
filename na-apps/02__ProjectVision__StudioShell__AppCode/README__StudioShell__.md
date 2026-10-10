@@ -18,6 +18,7 @@ this. Nothing in this folder is referenced by the public site.
 | Open straight into one project | `Launch__ProjectVision__StudioApp__.bat PS01` |
 | Have the server running from login | Shortcut `Start__ProjectVision__WindowsStartUp__Silent__8090__.bat` into `shell:startup` |
 | Develop, with the request log visible | `ProjectVision__LocalServer__Main__.bat` |
+| Edit a project's config, quotations, invoices or contracts | Nothing extra: open the project's **Admin** in the Studio; the **Editor Tools** are at the foot of its menu |
 
 The launcher starts the server itself when the server is not already answering,
 so it works whether or not the silent startup server is up. It never starts a
@@ -174,6 +175,27 @@ entry, in whichever of the two quotation file names that project uses.
 Each file keeps the line endings it already had: the build script writes LF, the
 Project Admin app writes CRLF, and rewriting one in the other style would change
 every line of it in git.
+
+---
+
+## Project Admin's Editor Tools
+
+Project Admin opened in the Studio is the editing side of the portal. Below the
+client's own menu it shows **Editor Tools** - Edit Project Config, Quotation
+Manager, Invoice Manager, Contract Manager and Project Manager - and they save
+straight into the project's `10__ProjectAdmin__AppContent` folder. The live
+website shows the same app read-only, exactly as the client sees it.
+
+The editors' load and save routes are a blueprint,
+`na-apps/ProjectVision__ProjectAdminEditors__Api__.py`, which this server and the
+older Project Admin server on port 8081 (`start_local_server.bat`) both register,
+so a file saved from either is byte-identical. The 8081 server still works, but
+nothing needs it any more.
+
+The app shows the Editor Tools only where `/api/health` lists the
+`projectadmin-editor-tools` capability. **If the Studio shows Project Admin
+without them, the server is older than the editor routes:** end `pythonw.exe`,
+run the launcher again, and reload the Admin page.
 
 ---
 

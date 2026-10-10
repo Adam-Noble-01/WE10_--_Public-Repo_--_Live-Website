@@ -3,6 +3,29 @@
 
 # =============================================================================
 
+## Admin & Doc System - Version 0.7.7 - 10-Oct-2026
+
+### Fixed
+
+- **Editor Tools missing in the Studio** - Project Admin opened from a project hub in the Noble Architecture Studio showed only the client's view
+  - In the Studio (the Project Vision local server on port 8090, which starts with Windows) the sidebar had no Editor Tools section: no Edit Project Config, Quotation Manager, Invoice Manager, Contract Manager or Project Manager. Editing meant also running `start_local_server.bat` and working on port 8081
+  - Root cause: the menu (`detectLocalDevMode()`) and the editors (`isLocalDevServer()`) only accepted a server whose `/api/health` answered `na-projectadmin-local-dev`, the port 8081 server's name. The Studio answers `na-projectvision-local-dev`, and it had none of the editor routes either: every load was a 404 and every save a 405
+  - The editor routes moved out of `start_local_server.py` into `na-apps/ProjectVision__ProjectAdminEditors__Api__.py`, a Flask blueprint both servers now register. The code is unchanged: run against the old server on a scratch portal, all 20 editor calls gave the same answers and every file written was byte-identical (four-space JSON, CRLF)
+  - Both servers' `/api/health` list the `projectadmin-editor-tools` capability, and the menu and the editors show and enable the Editor Tools wherever it is listed. The port 8081 server's old name is still accepted, so a copy of it that is already running keeps working
+  - A server that does not list the capability keeps the client's view rather than offering editors whose saves would fail. That means a Studio process started before this change: restart it once, then reload the Admin page
+  - Verified in the Studio on AA00: all five Editor Tools in the menu, the Invoice Manager "Flask Server Connected", and a save through it written to disk byte-identical
+  - Nothing new needs to start with Windows: the Studio server already does. `start_local_server.bat` still works, but is no longer needed to edit
+
+#### Files Modified
+
+- `03__Src__AppModules/10__UserInterface/UserInterface__Navigation__.js` - v2.3.0, `detectLocalDevMode()` accepts the capability
+- `04__EditorTools/Editor__SharedUtils__.js` - v1.4.0, `isLocalDevServer()` accepts the capability
+- `start_local_server.py` - v2.2.0, registers the shared blueprint; `/api/health` lists the capability
+- `../ProjectVision__ProjectAdminEditors__Api__.py` - new, the editor routes (moved, unchanged)
+- `../ProjectVision__LocalServer__Main__.py` - registers the blueprint; `/api/health` lists the capability (Project Vision 0.5.0)
+
+# =============================================================================
+
 ## Admin & Doc System - Version 0.7.6 - 10-Oct-2026
 
 ### Changed
@@ -34,7 +57,7 @@
   - Root cause: `validatePin()` in `AppCore__Main__.js` performed a plain string comparison (`enteredPin === projectConfig.projectPin`), which always failed when the stored PIN used the `sha256:` prefix format
   - Fix: Inline SHA-256 hash comparison using `crypto.subtle.digest` when stored PIN starts with `sha256:`
   - Plain text PINs still supported for development use
-  - Verified: PIN "2604" correctly validates against stored hash for EB03 (The Firs)
+  - Verified: hashed-PIN login works for EB03 (The Firs) - the client's PIN validates correctly against its stored hash (PIN deliberately not recorded)
 
 ### Added
 

@@ -27,12 +27,12 @@
         {
             "id": 5,
             "title": "Statutory Application Fee",
-            "content": "The Householder Planning Application fee is set by Government and paid to **Rushcliffe Borough Council**. It is £548.00 under the fee schedule in force from 1 April 2026. Government has proposed new planning fees from 8 December 2026, and the fee payable is the one in force on the day of submission. The fee is a pass-through expense, not part of Noble Architecture's fee, and must be transferred to **Noble Architecture** and cleared at least one working day before submission."
+            "content": "The Householder Planning Application fee is set by Government and paid to **Rushcliffe Borough Council**. It is £548.00 under the fee schedule in force from 1 April 2026. Government has proposed new planning fees from 8 December 2026, and the fee payable is the one in force on the day of submission. For this project the Client will pay the fee directly to the council, on its website or by phone, using the reference the council issues once it has received the application. The fee does not pass through **Noble Architecture**, and the standard term requiring funds to be transferred to Noble Architecture before submission does not apply unless the Client chooses the Planning Portal. The council will not validate the application until the fee is paid."
         },
         {
             "id": 6,
-            "title": "Method Of Submission & Planning Portal Service Charge",
-            "content": "Rushcliffe Borough Council accepts planning applications by email, and **Noble Architecture** intends to submit that way unless the Client asks otherwise. Submitting through the national Planning Portal adds the Portal's service charge, which for a householder application is now £149.00 including VAT. This figure replaces the one given in the standard Planning terms."
+            "title": "Method Of Submission - Paper Form, Not The Planning Portal",
+            "content": "**Noble Architecture** will submit the application on the council's paper householder application form, sent directly to **Rushcliffe Borough Council**, and not through the national Planning Portal. This takes Noble Architecture about an extra hour, included in the quoted fee, and avoids the Portal's service charge, which for a householder application is £149.00 including VAT. The Portal can sometimes shorten validation by two or three days. If the Client asks for the Portal to be used instead, the Portal's service charge and the council's fee must be transferred to Noble Architecture and cleared at least one working day before submission."
         },
         {
             "id": 7,
@@ -40,5 +40,5 @@
             "content": "The optional Managed Planning Application (£500.00 plus VAT) must be agreed in writing before the application is submitted. **Noble Architecture** will then be named as the Client's agent and will manage all dialogue with the Local Planning Authority through to the decision, with the design fees adjusted accordingly."
         }
     ],
-    "lastUpdated": "10-Oct-2026 at 16:32"
+    "lastUpdated": "10-Oct-2026 at 17:28"
 }

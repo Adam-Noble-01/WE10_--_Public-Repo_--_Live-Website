@@ -132,8 +132,8 @@
                 },
                 {
                     "description": "Planning Application Forms & Submission",
-                    "itemDescription": "1. Householder planning application forms completed and submitted to Rushcliffe Borough Council.\n2. My role as agent ends when the council validates the application. See the Planning Approval contract.",
-                    "quantity": 2,
+                    "itemDescription": "1. The council's paper householder application form completed and sent directly to Rushcliffe Borough Council, not through the Planning Portal.\n2. Takes about an hour longer than the Portal and saves you its £149 charge.\n3. My role as agent ends when the council validates the application. See the Planning Approval contract.",
+                    "quantity": 3,
                     "unit": "Hours",
                     "rate": 25,
                     "group": "Design Phase - 02 : Planning Approval"
@@ -141,7 +141,7 @@
                 {
                     "description": "Coordination & Admin",
                     "itemDescription": "",
-                    "quantity": 4,
+                    "quantity": 3,
                     "unit": "Hours",
                     "rate": 25,
                     "group": "Design Phase - 02 : Planning Approval"
@@ -180,7 +180,7 @@
                 },
                 {
                     "description": "Planning Portal Fee",
-                    "itemDescription": "1. The national Planning Portal's service charge for a householder application: £149.00 including VAT.\n2. Optional. Rushcliffe Borough Council accepts applications by email, which avoids it.\n3. See the Planning Approval contract.",
+                    "itemDescription": "1. The national Planning Portal's service charge for a householder application: £149.00 including VAT.\n2. Not recommended. I'll send the paper application form to Rushcliffe Borough Council instead, which avoids this charge. See my letter.\n3. If you choose the Portal, the council's fee and this charge must be paid through me before submission. See the Planning Approval contract.",
                     "quantity": 0,
                     "unit": "Optional",
                     "rate": 149,
@@ -188,7 +188,7 @@
                 },
                 {
                     "description": "Householder Planning Application Fee",
-                    "itemDescription": "1. Set by Government and paid to Rushcliffe Borough Council.\n2. £548.00 from 1 April 2026. Government has proposed new planning fees from 8 December 2026; the fee due is the one in force on the day of submission.\n3. Paid to Noble Architecture and cleared at least one working day before submission. See the Planning Approval contract.",
+                    "itemDescription": "1. Set by Government and paid to Rushcliffe Borough Council.\n2. £548.00 from 1 April 2026. Government has proposed new planning fees from 8 December 2026; the fee due is the one in force on the day of submission.\n3. Paid by you directly to the council, on its website or by phone, using the reference it issues once it has the application. See the Planning Approval contract.",
                     "quantity": 0,
                     "unit": "item",
                     "rate": 548,
@@ -196,7 +196,7 @@
                 },
                 {
                     "description": "OS Mapping Data",
-                    "itemDescription": "1. Required for the site location and block plans.\n2. Ordnance Survey data bought from MapServe.\n3. Also used to set the side boundary against your title plan.",
+                    "itemDescription": "1. Required for the site location and block plans.\n2. Ordnance Survey data bought from MapServe. I buy it and invoice you the cost.\n3. Also used to set the side boundary against your title plan.",
                     "quantity": 0,
                     "unit": "item",
                     "rate": 40,
@@ -236,7 +236,7 @@
             },
             "additionalTerms": "The fee is based on the floor areas and scope agreed on site on 05-Oct-2026: about 25 m² of new ground floor and 30 m² of new first floor. If, before design work starts, the floor area or the complexity of the scheme is reduced, the fee will be adjusted fairly. Changes made after a design option has been drawn do not reduce the fee.",
             "createdDate": "10-Oct-2026 at 16:26",
-            "lastModified": "10-Oct-2026 at 16:32"
+            "lastModified": "10-Oct-2026 at 17:28"
         }
     ]
 }

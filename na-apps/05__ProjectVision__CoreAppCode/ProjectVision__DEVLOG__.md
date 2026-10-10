@@ -6,6 +6,50 @@
 
 # -----------------------------------------------------------------------------
 
+## Project Vision - Version 0.5.0 - 10-Oct-2026
+
+### Added - Project Admin's Editor Tools work inside the Studio
+
+#### Why
+- The Studio is the editing side of the system and the live website the client's side, yet
+  Project Admin opened from a project hub in the Studio looked exactly like the live site: no
+  Editor Tools in its menu, so no Project Config, Quotation, Invoice or Contract Manager. Editing
+  meant also starting the separate Project Admin server on port 8081 and working there.
+- Two causes. The admin app showed its editors only to a server whose `/api/health` answered
+  `na-projectadmin-local-dev` (port 8081's name), and this server had none of the editors'
+  routes: every load answered 404 and every save 405. Even `/api/projects/scan` answered 400,
+  because `/api/projects/<project_code>` took "scan" for a project code.
+
+#### Local server (`na-apps/ProjectVision__LocalServer__Main__.py`)
+- Registers `project_admin_editors_api` from the new `ProjectVision__ProjectAdminEditors__Api__.py`:
+  `GET /api/project/<year>/<code>/files`, `GET`/`PUT /api/project/<year>/<code>/<filename>`,
+  `POST /api/project/create`, `DELETE /api/project/<year>/<code>` and
+  `/api/project-folder/<year>/<folder>`, `GET /api/projects/scan`, `PUT /api/config/project-index`.
+- The routes moved out of the port 8081 server (`start_local_server.py`), which registers the
+  same blueprint, so there is one copy of the code. Their behaviour is unchanged: run against
+  the old server on a scratch portal, all 20 editor calls gave the same answers and every file
+  written was byte-identical (four-space JSON, CRLF).
+- They are the only new routes: the server's URL map gains exactly these seven and nothing else
+  moves. `/api/projects/scan` is a fixed path, so it wins over `/api/projects/<project_code>`.
+- `/api/health` lists `capabilities: ["projectadmin-editor-tools"]`. The admin app (Navigation
+  v2.3.0, Editor SharedUtils v1.4.0) shows and enables its Editor Tools wherever that is listed.
+  The service name is unchanged, so the launchers and TrueVision still recognise this server.
+- `--year` also sets the year a project created without one goes into, as it does on port 8081.
+- CORS is unchanged (GET, POST, OPTIONS). The editors are same-origin, so their PUT and DELETE
+  need no CORS, and another website still cannot send either to this server.
+
+#### Operational
+- **A running server needs one restart.** Routes are fixed when the process starts, so a Studio
+  server started before this change does not list the capability, and Project Admin keeps the
+  client's view until the server restarts. Then reload the Admin page.
+- Nothing new goes in the Windows Startup folder. The silent startup server is this server, so
+  the Editor Tools are there from login. `start_local_server.bat` (port 8081) still works, but is
+  no longer needed to edit.
+- Verified in the Studio on AA00: the five Editor Tools in the menu, the Invoice Manager
+  "Flask Server Connected", and a save through it written to disk byte-identical.
+
+# -----------------------------------------------------------------------------
+
 ## Project Vision - Version 0.4.2 - 21-Sep-2026
 
 ### Fixed - A push is a sync: R2 now loses the GLBs the project folders lost

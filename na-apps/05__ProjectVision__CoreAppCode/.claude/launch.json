@@ -21,6 +21,18 @@
       ],
       "port": 8646,
       "url": "http://app.localhost:8646"
+    },
+    {
+      "name": "pv-studio-admin-editors-8096",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-B",
+        "D:/WE10_--_Public-Repo_--_Live-Website/na-apps/ProjectVision__LocalServer__Main__.py",
+        "--no-browser",
+        "--port",
+        "8096"
+      ],
+      "port": 8096
     }
   ]
 }
