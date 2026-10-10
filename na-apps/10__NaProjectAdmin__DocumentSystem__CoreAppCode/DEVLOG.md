@@ -3,6 +3,29 @@
 
 # =============================================================================
 
+## Admin & Doc System - Version 0.7.6 - 10-Oct-2026
+
+### Changed
+
+- **Vector Menu Icons** - The sidebar's emoji are replaced by house-style SVG line icons
+  - 21 icons in `07__AppAssets__NaProjectAdmin/UiIcons__MenuIcons__NaAdminMenu/` (`Icon__NaAdminMenu__<Name>__.svg`)
+  - Drawn with the vector-graphic-artist skill: ink #172b3a, round caps, stroke 60/1024 so the lines match the 15 px labels at 22 px
+  - Each contract type has its own icon (`CONTRACT_ICONS`): General Terms - signed sheet, Concept Design - light bulb, Planning - approval stamp, Building Regs - brick wall, Project Mgmt - hard hat, Surveying - level on a tripod, PlanVision - set square, TrueVision - cube, ProjectVision - dashboard
+  - Unknown contract ids and the legacy Terms & Conditions item use the generic Contract icon
+  - Download PDF is an arrow into a tray (was a floppy disk)
+  - Icons are `<img>` files; on the active (brown) row a CSS filter turns them white
+  - The icon column keeps the old 1.6em line box, so row heights are unchanged
+  - The Authenticated padlock in the sidebar footer stays an emoji, on purpose
+  - Editable sources and QA proofs live with the vector-graphic-artist skill (`01__ProductionFiles`)
+
+#### Files Modified
+
+- `03__Src__AppModules/10__UserInterface/UserInterface__Navigation__.js` - icon name per item, `CONTRACT_ICONS`, `getMenuIconUrl()`, `<img>` in `createMenuItem()`
+- `01__StyleSheets__AppStyles/StyleSheet__Main__.css` - `.nav-menu__icon` flex box, `.nav-menu__icon-img`, white icon on `.active`
+- `07__AppAssets__NaProjectAdmin/UiIcons__MenuIcons__NaAdminMenu/` - new, 21 SVG files
+
+# =============================================================================
+
 ## Admin & Doc System - Version 0.7.5 - 11-Apr-2026
 
 ### Fixed

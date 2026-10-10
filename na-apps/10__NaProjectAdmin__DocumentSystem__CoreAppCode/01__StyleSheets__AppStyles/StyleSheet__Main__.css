@@ -276,9 +276,23 @@
 
     .nav-menu__icon {
         width                      : 24px;
+        height                     : 1.6em;                  /* <-- The old emoji line box: row height unchanged */
         margin-right               : var(--App_SpacingSm);
-        text-align                 : center;
         font-size                  : 1.125rem;
+        display                    : flex;
+        align-items                : center;
+        justify-content            : center;
+        flex-shrink                : 0;
+    }
+
+    .nav-menu__icon-img {
+        width                      : 22px;
+        height                     : 22px;
+        display                    : block;
+    }
+
+    .nav-menu__link.active .nav-menu__icon-img {
+        filter                     : brightness(0) invert(1);   /* <-- House-ink icon turns white on the active row */
     }
 
     .nav-menu__text {

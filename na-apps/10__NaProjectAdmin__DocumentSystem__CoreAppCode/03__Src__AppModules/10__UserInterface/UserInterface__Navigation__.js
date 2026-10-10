@@ -19,6 +19,12 @@
 // -----
 //
 // DEVELOPMENT LOG:
+// 10-Oct-2026 - Version 2.2.0
+// - Vector Menu Icons
+//   - Emoji replaced with house-style SVG line icons in 07__AppAssets__NaProjectAdmin
+//   - One icon per contract type via CONTRACT_ICONS; unknown ids fall back to Contract
+//   - Icons render as <img>; the stylesheet turns them white on the active row
+//
 // 01-Feb-2026 - Version 2.1.0
 // - Cover Letter System (v0.6.0)
 //   - Added "Welcome" menu item as first item
@@ -58,6 +64,21 @@
         let projectData              = null;                         // <-- Loaded project data
         let isLocalDevMode           = null;                         // <-- Local Flask server mode
         let activeEditorFrame        = null;                         // <-- Currently loaded editor iframe
+
+        // CONSTANTS | Menu Icons
+        // ------------------------------------------------------------
+        const MENU_ICON_FOLDER       = '07__AppAssets__NaProjectAdmin/UiIcons__MenuIcons__NaAdminMenu/';
+        const CONTRACT_ICONS         = {                             // <-- ContractRegistry id -> icon name
+            'general-business'       : 'Contract',
+            'concept-design'         : 'ConceptDesign',
+            'planning-approval'      : 'PlanningApproval',
+            'building-regulations'   : 'BuildingRegulations',
+            'project-management'     : 'ProjectManagement',
+            'building-surveying'     : 'BuildingSurveying',
+            'planvision-app'         : 'PlanVisionApp',
+            'truevision-app'         : 'TrueVisionApp',
+            'project-vision'         : 'ProjectVisionApp'
+        };
 
         // FUNCTION | Initialise Navigation
         // ------------------------------------------------------------
@@ -238,7 +259,7 @@
                 items.push({
                     id                   : 'welcome',
                     label                : 'Welcome',
-                    icon                 : '&#127968;',              // <-- Home icon
+                    icon                 : 'Welcome',                // <-- House
                     action               : 'showCoverLetter'
                 });
             }
@@ -251,7 +272,7 @@
                 items.push({
                     id                   : 'quotation',
                     label                : hasMultiple ? 'Quotations' : 'Quotation',
-                    icon                 : '&#128196;',              // <-- Document icon
+                    icon                 : 'Quotation',              // <-- Sheet with a pound sign
                     action               : hasMultiple ? 'showQuotationPicker' : 'showQuotation',
                     badge                : await checkQuotationSigned() ? 'Signed' : null,
                     badgeClass           : 'nav-menu__badge'
@@ -267,7 +288,7 @@
                 items.push({
                     id                   : 'invoices',
                     label                : 'Invoices',
-                    icon                 : '&#128209;',              // <-- Document pages icon
+                    icon                 : 'Invoices',               // <-- Receipt
                     action               : 'showInvoice',
                     badge                : invoiceNavStatus.badge      || null,
                     badgeClass           : invoiceNavStatus.badgeClass || null
@@ -301,7 +322,7 @@
                         items.push({
                             id               : 'terms',
                             label            : 'Terms & Conditions',
-                            icon             : '&#128220;',          // <-- Scroll icon
+                            icon             : 'Contract',           // <-- Signed sheet
                             action           : 'showTerms',
                             badge            : await checkTermsSigned() ? 'Signed' : null,
                             badgeClass       : 'nav-menu__badge'
@@ -314,7 +335,7 @@
                         items.push({
                             id               : `contract_${contractId}`,
                             label            : contractDef?.shortName || contractDef?.name || contractId,
-                            icon             : '&#128220;',          // <-- Scroll icon
+                            icon             : CONTRACT_ICONS[contractId] || 'Contract', // <-- Per contract type
                             action           : 'showContract',
                             actionData       : contractId,
                             badge            : isSigned ? 'Signed' : 'Pending',
@@ -335,7 +356,7 @@
                 items.push({
                     id                   : 'signatures',
                     label                : 'Signature Status',
-                    icon                 : '&#9998;',                // <-- Pen icon
+                    icon                 : 'SignatureStatus',        // <-- Pen and signature
                     action               : 'showSignatureStatus',
                     badge                : signatureStatus.badge,
                     badgeClass           : signatureStatus.badgeClass
@@ -352,7 +373,7 @@
             items.push({
                 id                       : 'download-pdf',
                 label                    : 'Download PDF',
-                icon                     : '&#128190;',              // <-- Floppy disk / save icon
+                icon                     : 'DownloadPdf',            // <-- Arrow into a tray
                 action                   : 'downloadPdf'
             });
 
@@ -360,7 +381,7 @@
             items.push({
                 id                       : 'print',
                 label                    : 'Print Documents',
-                icon                     : '&#128424;',              // <-- Printer icon
+                icon                     : 'PrintDocuments',         // <-- Printer
                 action                   : 'printDocuments'
             });
 
@@ -368,7 +389,7 @@
             items.push({
                 id                       : 'logout',
                 label                    : 'Logout',
-                icon                     : '&#128682;',              // <-- Door icon
+                icon                     : 'Logout',                 // <-- Door frame and exit arrow
                 action                   : 'logout'
             });
 
@@ -392,7 +413,7 @@
                 items.push({
                     id                   : 'edit-config',
                     label                : 'Edit Project Config',
-                    icon                 : '&#9881;',                // <-- Gear icon
+                    icon                 : 'EditProjectConfig',      // <-- Gear
                     action               : 'editProjectConfig',
                     badge                : 'Dev',
                     badgeClass           : 'nav-menu__badge nav-menu__badge--dev'
@@ -402,7 +423,7 @@
                 items.push({
                     id                   : 'edit-quotation',
                     label                : 'Quotation Manager',
-                    icon                 : '&#128221;',              // <-- Memo icon
+                    icon                 : 'QuotationManager',       // <-- Quotation sheet and pencil
                     action               : 'editQuotation',
                     badge                : 'Dev',
                     badgeClass           : 'nav-menu__badge nav-menu__badge--dev'
@@ -412,7 +433,7 @@
                 items.push({
                     id                   : 'edit-invoices',
                     label                : 'Invoice Manager',
-                    icon                 : '&#128179;',              // <-- Money icon
+                    icon                 : 'InvoiceManager',         // <-- Receipt and pencil
                     action               : 'editInvoices',
                     badge                : 'Dev',
                     badgeClass           : 'nav-menu__badge nav-menu__badge--dev'
@@ -422,7 +443,7 @@
                 items.push({
                     id                   : 'edit-contracts',
                     label                : 'Contract Manager',
-                    icon                 : '&#128203;',              // <-- Clipboard icon
+                    icon                 : 'ContractManager',        // <-- Contract sheet and pencil
                     action               : 'editContracts',
                     badge                : 'Dev',
                     badgeClass           : 'nav-menu__badge nav-menu__badge--dev'
@@ -432,7 +453,7 @@
                 items.push({
                     id                   : 'project-manager',
                     label                : 'Project Manager',
-                    icon                 : '&#128193;',              // <-- Folder icon
+                    icon                 : 'ProjectManager',         // <-- Folder
                     action               : 'openProjectManager',
                     badge                : 'Dev',
                     badgeClass           : 'nav-menu__badge nav-menu__badge--dev'
@@ -608,6 +629,13 @@
         }
         // ---------------------------------------------------------------
 
+        // FUNCTION | Get Menu Icon Url
+        // ------------------------------------------------------------
+        function getMenuIconUrl(iconName) {
+            return `${MENU_ICON_FOLDER}Icon__NaAdminMenu__${iconName}__.svg`;   // <-- Relative to index.html
+        }
+        // ---------------------------------------------------------------
+
         // FUNCTION | Create Menu Item
         // ------------------------------------------------------------
         function createMenuItem(item) {
@@ -638,7 +666,7 @@
             }
 
             a.innerHTML = `
-                <span class="nav-menu__icon">${item.icon || ''}</span>
+                <span class="nav-menu__icon">${item.icon ? `<img class="nav-menu__icon-img" src="${getMenuIconUrl(item.icon)}" alt="">` : ''}</span>
                 <span class="nav-menu__text">${item.label}</span>
                 ${item.badge ? `<span class="${item.badgeClass || 'nav-menu__badge'}">${item.badge}</span>` : ''}
             `;
