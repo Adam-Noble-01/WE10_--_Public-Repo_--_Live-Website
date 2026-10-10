@@ -164,10 +164,10 @@
                 },
                 {
                     "description": "Planning Portal Fee",
-                    "itemDescription": "1. Not specifically mandatory, but in some cases it speeds up the process and can decrease validation time.\n2. Planning Portal upload service charge, currently £70.83 + VAT (£85.00).\n3. See the Planning Approval contract for more details.",
+                    "itemDescription": "1. Not specifically mandatory, but in some cases it speeds up the process and can decrease validation time.\n2. Planning Portal service charge for this application type: £149 including VAT (Band 2).\n3. See the Planning Approval contract for more details.",
                     "quantity": 0,
                     "unit": "Optional",
-                    "rate": 85,
+                    "rate": 149,
                     "group": "Additional Extras : **For Discussion & Consideration!!"
                 },
                 {
@@ -196,7 +196,7 @@
             },
             "additionalTerms": "",
             "createdDate": "17-Aug-2026 at 17:15",
-            "lastModified": "17-Aug-2026 at 18:40"
+            "lastModified": "10-Oct-2026 at 16:28"
         }
     ]
 }

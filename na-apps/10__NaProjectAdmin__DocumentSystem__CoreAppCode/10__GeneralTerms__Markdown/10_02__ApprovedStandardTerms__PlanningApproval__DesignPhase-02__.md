@@ -3,7 +3,7 @@
 Noble Architecture - Design Phase 02
 
 - These terms apply to all Planning Permission application services.
-- Last updated 01-Feb-2026
+- Last updated 10-Oct-2026
 - Terms start after the dividers and will be loaded in sequence and assigned sequential numbers.
 
 ---
@@ -22,13 +22,19 @@ Application fees are set by the Government. **Noble Architecture** will calculat
 | **Change of Use** | £610 |
 | **Full Application (Fewer than 10 dwellings)** | £610 per dwelling |
 | **Non-Material Amendment** | £44 (Householder) / £298 (Other) |
-| **Planning Portal Upload Service Charge** | £70.83 + VAT (£85.00) |
+| **Planning Portal Upload Service Charge** | £0, £99 or £149 including VAT, by application type |
 
 #### Planning Portal Upload Service Charge
 
 When submitting your application online via the national Planning Portal, an administrative service charge applies. This fee is levied directly by the Planning Portal (the national submission platform) to cover the costs of operating their system and processing payments. It is not a council fee or a fee charged by **Noble Architecture**.
 
-Currently, the service charge is **£70.83 + VAT (£85.00)** and applies to all planning applications where the base statutory planning fee exceeds £100. This charge is payable at the time of submission alongside the main council application fee.
+Since 3 September 2026 the charge has depended on the type of application, in three bands:
+
+- **Band 0 - £0:** application types with no charge, such as listed building consent and tree works.
+- **Band 1 - £99 including VAT:** less complex application types, such as householder prior approval, or a householder application for work within or along the boundary of an existing dwelling.
+- **Band 2 - £149 including VAT:** more complex application types, such as a householder application to enlarge, improve or alter an existing dwelling, for example an extension.
+
+Full planning permission and lawful development certificates (existing or proposed use) fall in Band 1 or Band 2, depending on the type and scale of development. The charge applies only where the statutory planning fee is over £100, and is payable at the time of submission alongside the main council application fee.
 
 #### Ordnance Survey (OS) Data
 
