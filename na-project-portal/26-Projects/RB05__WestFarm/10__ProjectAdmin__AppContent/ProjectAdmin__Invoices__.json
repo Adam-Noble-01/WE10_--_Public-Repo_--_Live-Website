@@ -244,6 +244,83 @@
                 "vatRate": 0
             },
             "paidDate": "07-Sep-2026"
+        },
+        {
+            "clientDataStorage": "cloudflare-r2-encrypted",
+            "createdDate": "10/10/2026, 18:06:52",
+            "dueDate": "17-Oct-2026",
+            "invoiceDate": "10-Oct-2026",
+            "invoiceRef": "INV-RB05-2026-003",
+            "lastModified": "10/10/2026, 18:06:52",
+            "lineItems": [
+                {
+                    "description": "Sat 19-Sep-2026 - 2h",
+                    "group": "Session 04  |  Pre-Application  |  September 2026",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 2,
+                    "rate": 25,
+                    "unit": "Hours"
+                },
+                {
+                    "description": "Sun 20-Sep-2026 - 9h 15m",
+                    "group": "Session 04  |  Pre-Application  |  September 2026",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 9.25,
+                    "rate": 25,
+                    "unit": "Hours"
+                },
+                {
+                    "description": "Mon 21-Sep-2026 - 15h 36m",
+                    "group": "Session 04  |  Pre-Application  |  September 2026",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)\n- Worked through to 02:45 on Tue 22-Sep-2026",
+                    "quantity": 15.6,
+                    "rate": 25,
+                    "unit": "Hours"
+                },
+                {
+                    "description": "Wed 23-Sep-2026 - 4h 15m",
+                    "group": "Session 04  |  Pre-Application  |  September 2026",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)\n- Includes a session from 02:45 to 04:15",
+                    "quantity": 4.25,
+                    "rate": 25,
+                    "unit": "Hours"
+                },
+                {
+                    "description": "Tue 29-Sep-2026 - 15h 12m",
+                    "group": "Session 04  |  Pre-Application  |  September 2026",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)\n- Worked through to 02:00 on Wed 30-Sep-2026",
+                    "quantity": 15.2,
+                    "rate": 25,
+                    "unit": "Hours"
+                },
+                {
+                    "description": "Rounding to the whole hour - 42m",
+                    "group": "Session 04  |  Pre-Application  |  September 2026",
+                    "itemDescription": "- 46h 18m recorded across the five days above, rounded up to 47h",
+                    "quantity": 0.7,
+                    "rate": 25,
+                    "unit": "Hours"
+                },
+                {
+                    "description": "Friends & Family Discount - 8h",
+                    "group": "Session 04  |  Pre-Application  |  September 2026",
+                    "itemDescription": "-> 8 hours deducted from the 47 hours above\n-> The pre-application pack needed far more checking than I would normally carry out, with several sessions running into the early hours\n-> Given the size of the job, 8 hours of that checking time have been written off",
+                    "quantity": -8,
+                    "rate": 25,
+                    "unit": "Hours"
+                }
+            ],
+            "personalNote": "This invoice covers the pre-application sessions in September 2026. The pack called for a far more detailed level of checking than is normally carried out, with several sessions running into the early hours, so 8 hours have been deducted as a friends and family discount. Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.",
+            "projectAddress": "",
+            "projectDescription": "Pre-application planning documents for the Period style Georgian Home scheme at West Farm, covering the September 2026 sessions.",
+            "status": "unpaid",
+            "totals": {
+                "grandTotal": 975,
+                "subtotal": 975,
+                "vat": 0,
+                "vatApplicable": false,
+                "vatRate": 0
+            }
         }
     ]
 }
