@@ -156,6 +156,21 @@ DEVELOPMENT LOG
   - Tested in headless Edge 154: 29 new checks (PC, phone, phone with no
     voices) plus the 37-check suite from 1.5.
 
+----------------------------------------------------------------
+1.6.1 - 10-Oct-2026 |  Built-In Read Aloud Removed (Back To Edge's Own)
+  - At Adam's request, the app's own read aloud (1.5.0 - 1.6.0) is gone. On
+    his Android phone it could not use Steffan: Edge on Android gives web
+    pages no voices, so it read in the phone's robot voice, and its press and
+    hold menu replaced the browser's. Edge's own Read aloud does have Steffan
+    on both his PC and his phone, and works on this page as before.
+  - Back to the pre-1.5.0 app: Main__.js, Style__.css, the AppConfig and the
+    page are as they were (the browser's own right-click and press and hold
+    menus, selectable text on phones). The ReadAloud__ and ReadMenu__ modules
+    are deleted.
+  - Kept: the phone list numbers (1.5.2), and the versioned file URLs (1.5.1),
+    now ?v=1.6.1. They make every browser fetch the restored files rather than
+    a 4-hour cached copy of the read aloud code.
+
 
 =================================================
 FILE STRUCTURE
@@ -176,8 +191,6 @@ FILE STRUCTURE
           +-- ...__CsvTable__.js        Detect ```csv``` blocks, build tables
           +-- ...__FileUpload__.js      Load a local .md / .txt file
           +-- ...__MarkdownRender__.js  WhatsApp -> CSV -> Marked.js pipeline
-          +-- ...__ReadAloud__.js       Speech, voice choice, sentence / word highlights
-          +-- ...__ReadMenu__.js        Read view context menu, press and hold
 
 
 =================================================

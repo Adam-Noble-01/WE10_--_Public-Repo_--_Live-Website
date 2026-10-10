@@ -10,15 +10,10 @@
   DESCRIPTION:
   - Paste or upload Markdown, WhatsApp chat text, or ```csv``` blocks.
   - Three views: Simple (quick paste and render), Edit (full-page Markdown),
-    and Read (full-page article, read aloud from a right-click or press and hold).
-  - Read aloud uses the browser's own voices: in Edge on a computer, the same
-    Microsoft Natural voices as Edge's Read aloud. Voice and speed are picked
-    in the menu and remembered on each device.
+    and Read (full-page article for browser read-aloud).
   - WhatsApp timestamp/sender prefixes are stripped and converted to a list.
   - CSV fenced blocks become accessible HTML tables.
-  - All processing is local — the app sends no data to any server. Edge's
-    Natural voices are an online service of the browser's, so the text being
-    read goes to Microsoft, exactly as it does with Edge's own Read aloud.
+  - All processing is local — no data is sent to any server.
 
   MODULES:
   - 01__AppModules/MiniApp__TextToReader__Main__.js            (controller)
@@ -27,8 +22,6 @@
   - 01__AppModules/MiniApp__TextToReader__CsvTable__.js        (CSV to tables)
   - 01__AppModules/MiniApp__TextToReader__FileUpload__.js      (local file load)
   - 01__AppModules/MiniApp__TextToReader__MarkdownRender__.js  (render pipeline)
-  - 01__AppModules/MiniApp__TextToReader__ReadAloud__.js       (speech + highlights)
-  - 01__AppModules/MiniApp__TextToReader__ReadMenu__.js        (Read view context menu)
   - MiniApp__TextToReader__MarkdownStyle__.css                 (A4 Markdown document styles)
   - MiniApp__TextToReader__AppConfig__.json                    (config source)
 
@@ -54,9 +47,9 @@
         <link rel="stylesheet"
               href="../../../assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_30_-_STYL_-_Core-Default-Web-Utility-App-Stylesheet.css" />
         <!-- ?v= : see REGION | Versioned App Files at the foot of the body -->
-        <link rel="stylesheet" href="MiniApp__TextToReader__Style__.css?v=1.6.0" />
+        <link rel="stylesheet" href="MiniApp__TextToReader__Style__.css?v=1.6.1" />
         <!-- @delegate: MiniApp__TextToReader__MarkdownStyle__.css -->
-        <link rel="stylesheet" href="MiniApp__TextToReader__MarkdownStyle__.css?v=1.6.0" />
+        <link rel="stylesheet" href="MiniApp__TextToReader__MarkdownStyle__.css?v=1.6.1" />
     </head>
 <!-- endregion -------------------------------------------------------- -->
 
@@ -185,85 +178,6 @@
         </div>
 
         <!-- ------------------------------------------------------------- -->
-        <!-- REGION | Read Aloud Menu                                      -->
-        <!-- Replaces the browser's context menu on the Read view:         -->
-        <!-- right-click on a computer, press and hold on a phone.         -->
-        <!-- Shift + right-click still gives the browser's own menu.       -->
-        <!-- ------------------------------------------------------------- -->
-            <!-- @delegate: 01__AppModules/MiniApp__TextToReader__ReadMenu__.js -->
-            <div id="js__readMenu"
-                 class="TTR__read-menu TTR__chrome"
-                 role="dialog"
-                 aria-label="Read aloud"
-                 hidden>
-                <button id="js__readMenuRead"
-                        class="TTR__read-menu-item"
-                        type="button">
-                    <svg class="TTR__read-menu-icon"
-                         viewBox="0 0 24 24"
-                         fill="none"
-                         stroke="currentColor"
-                         stroke-width="1.75"
-                         stroke-linecap="round"
-                         stroke-linejoin="round"
-                         focusable="false"
-                         aria-hidden="true">
-                        <path d="M11 5 6 9H3v6h3l5 4z" />
-                        <path d="M15.5 8.5a5 5 0 0 1 0 7" />
-                        <path d="M18.5 5.5a9 9 0 0 1 0 13" />
-                    </svg>
-                    <span class="TTR__read-menu-text">
-                        <span id="js__readMenuReadLabel" class="TTR__read-menu-label">Read aloud</span>
-                        <span id="js__readMenuReadHint"  class="TTR__read-menu-hint">From here</span>
-                    </span>
-                </button>
-                <button id="js__readMenuStop"
-                        class="TTR__read-menu-item"
-                        type="button"
-                        hidden>
-                    <svg class="TTR__read-menu-icon"
-                         viewBox="0 0 24 24"
-                         fill="currentColor"
-                         stroke="none"
-                         focusable="false"
-                         aria-hidden="true">
-                        <rect x="6" y="6" width="12" height="12" rx="2" />
-                    </svg>
-                    <span class="TTR__read-menu-text">
-                        <span id="js__readMenuStopLabel" class="TTR__read-menu-label">Stop</span>
-                    </span>
-                </button>
-
-                <!-- Voice and speed: remembered on this device -->
-                <div class="TTR__read-menu-settings">
-                    <div class="TTR__read-menu-row">
-                        <label id="js__readMenuVoiceLabel"
-                               class="TTR__read-menu-row-label"
-                               for="js__readMenuVoiceSelect">Voice</label>
-                        <select id="js__readMenuVoiceSelect"
-                                class="TTR__read-menu-select"></select>
-                    </div>
-                    <div class="TTR__read-menu-row">
-                        <span id="js__readMenuSpeedLabel" class="TTR__read-menu-row-label">Speed</span>
-                        <div class="TTR__read-menu-stepper"
-                             role="group"
-                             aria-labelledby="js__readMenuSpeedLabel">
-                            <button id="js__readMenuSlower"
-                                    class="TTR__read-menu-step"
-                                    type="button"
-                                    aria-label="Slower">&minus;</button>
-                            <span id="js__readMenuSpeedValue" class="TTR__read-menu-speed">1.5×</span>
-                            <button id="js__readMenuFaster"
-                                    class="TTR__read-menu-step"
-                                    type="button"
-                                    aria-label="Faster">+</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        <!-- endregion ---------------------------------------------------- -->
-
-        <!-- ------------------------------------------------------------- -->
         <!-- REGION | Versioned App Files                                  -->
         <!-- Cloudflare tells browsers to keep JS and CSS for 4 hours      -->
         <!-- (HTML and JSON: 10 minutes), and straight after a deploy its  -->
@@ -277,18 +191,16 @@
             <script type="importmap">
             {
                 "imports": {
-                    "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js"       : "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js?v=1.6.0",
-                    "./01__AppModules/MiniApp__TextToReader__FileUpload__.js"     : "./01__AppModules/MiniApp__TextToReader__FileUpload__.js?v=1.6.0",
-                    "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js" : "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js?v=1.6.0",
-                    "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js" : "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js?v=1.6.0",
-                    "./01__AppModules/MiniApp__TextToReader__CsvTable__.js"       : "./01__AppModules/MiniApp__TextToReader__CsvTable__.js?v=1.6.0",
-                    "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js"      : "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js?v=1.6.0",
-                    "./01__AppModules/MiniApp__TextToReader__ReadMenu__.js"       : "./01__AppModules/MiniApp__TextToReader__ReadMenu__.js?v=1.6.0"
+                    "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js"       : "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js?v=1.6.1",
+                    "./01__AppModules/MiniApp__TextToReader__FileUpload__.js"     : "./01__AppModules/MiniApp__TextToReader__FileUpload__.js?v=1.6.1",
+                    "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js" : "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js?v=1.6.1",
+                    "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js" : "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js?v=1.6.1",
+                    "./01__AppModules/MiniApp__TextToReader__CsvTable__.js"       : "./01__AppModules/MiniApp__TextToReader__CsvTable__.js?v=1.6.1"
                 }
             }
             </script>
 
-            <script type="module" src="01__AppModules/MiniApp__TextToReader__Main__.js?v=1.6.0"></script>
+            <script type="module" src="01__AppModules/MiniApp__TextToReader__Main__.js?v=1.6.1"></script>
         <!-- endregion ---------------------------------------------------- -->
     </body>
 <!-- endregion -------------------------------------------------------- -->

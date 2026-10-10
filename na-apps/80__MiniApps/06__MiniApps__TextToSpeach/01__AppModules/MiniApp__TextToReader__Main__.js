@@ -30,18 +30,6 @@ import {
     Na__TextToReader__BuildErrorHtml
 } from "./MiniApp__TextToReader__MarkdownRender__.js";
 
-// @delegate: ./MiniApp__TextToReader__ReadAloud__.js
-import {
-    Na__TextToReader__InitialiseReadAloud,
-    Na__TextToReader__ResetReadAloud
-} from "./MiniApp__TextToReader__ReadAloud__.js";
-
-// @delegate: ./MiniApp__TextToReader__ReadMenu__.js
-import {
-    Na__TextToReader__InitialiseReadMenu,
-    Na__TextToReader__CloseReadMenu
-} from "./MiniApp__TextToReader__ReadMenu__.js";
-
 // endregion -------------------------------------------------------------------
 
 
@@ -71,22 +59,6 @@ import {
      Na__OutputHeading     : document.getElementById("js__outputHeading"),
      Na__Output            : document.getElementById("js__output"),
      Na__PageFooter        : document.getElementById("js__pageFooter")
- };
-
- // Read aloud menu. Optional: a cached page without it still boots, with the browser's own menu.
- const Na__TextToReader__ReadMenuDom = {
-     Na__Menu              : document.getElementById("js__readMenu"),
-     Na__ReadItem          : document.getElementById("js__readMenuRead"),
-     Na__ReadLabel         : document.getElementById("js__readMenuReadLabel"),
-     Na__ReadHint          : document.getElementById("js__readMenuReadHint"),
-     Na__StopItem          : document.getElementById("js__readMenuStop"),
-     Na__StopLabel         : document.getElementById("js__readMenuStopLabel"),
-     Na__VoiceLabel        : document.getElementById("js__readMenuVoiceLabel"),
-     Na__VoiceSelect       : document.getElementById("js__readMenuVoiceSelect"),
-     Na__SpeedLabel        : document.getElementById("js__readMenuSpeedLabel"),
-     Na__SlowerItem        : document.getElementById("js__readMenuSlower"),
-     Na__SpeedValue        : document.getElementById("js__readMenuSpeedValue"),
-     Na__FasterItem        : document.getElementById("js__readMenuFaster")
  };
 
 // endregion -------------------------------------------------------------------
@@ -197,10 +169,6 @@ function Na__TextToReader__ApplyPanelVisibility(Na__Mode) {
 function Na__TextToReader__RenderCurrentInput() {
     const Na__UiText = Na__TextToReader__AppConfig.NaMiniApp__UiText;
 
-    // The article is about to be replaced: stop reading it first.
-    Na__TextToReader__CloseReadMenu();
-    Na__TextToReader__ResetReadAloud();
-
     if (!Na__TextToReader__MarkedParse) {
         Na__TextToReader__ShowOutputError(Na__UiText.NaMiniApp__ErrorMarkedMissing);
         return false;
@@ -247,8 +215,6 @@ function Na__TextToReader__HandleRenderClick(Na__Event) {
 function Na__TextToReader__HandleClearClick() {
     const Na__UiText = Na__TextToReader__AppConfig.NaMiniApp__UiText;
 
-    Na__TextToReader__ResetReadAloud();
-
     Na__TextToReader__Dom.Na__InputText.value                    = "";
     Na__TextToReader__Dom.Na__Output.innerHTML                   = "";
     Na__TextToReader__Dom.Na__UploadFileStatus.textContent       = "";
@@ -285,11 +251,6 @@ function Na__TextToReader__HandleFileLoaded() {
 // ------------------------------------------------------------
 function Na__TextToReader__HandleModeChange(Na__Mode) {
     Na__TextToReader__ApplyPanelVisibility(Na__Mode);
-
-    if (Na__Mode !== "read") {
-        Na__TextToReader__CloseReadMenu();
-        Na__TextToReader__ResetReadAloud();   // reading stops when the article leaves the screen
-    }
 
     if (Na__Mode === "read") {
         Na__TextToReader__RenderCurrentInput();
@@ -334,25 +295,6 @@ function Na__TextToReader__RegisterEventListeners() {
         uiText              : Na__UiText,
         onFileLoaded        : Na__TextToReader__HandleFileLoaded
     });
-
-    // @delegate: ./MiniApp__TextToReader__ReadAloud__.js
-    const Na__ReadAloud    = Na__TextToReader__AppConfig.NaMiniApp__ReadAloud || {};
-    const Na__CanReadAloud = Na__TextToReader__InitialiseReadAloud({
-        article  : Na__TextToReader__Dom.Na__Output,
-        settings : Na__ReadAloud
-    });
-
-    // @delegate: ./MiniApp__TextToReader__ReadMenu__.js
-    // No speech in this browser: leave its own context menu alone.
-    if (Na__CanReadAloud) {
-        Na__TextToReader__InitialiseReadMenu({
-            dom         : Na__TextToReader__ReadMenuDom,
-            scope       : document.querySelector(".FULL__page-app-container"),
-            isActive    : () => Na__TextToReader__GetActiveMode() === "read",
-            uiText      : Na__UiText,
-            longPressMs : Na__ReadAloud.NaMiniApp__LongPressMs
-        });
-    }
 }
 // ------------------------------------------------------------
 
