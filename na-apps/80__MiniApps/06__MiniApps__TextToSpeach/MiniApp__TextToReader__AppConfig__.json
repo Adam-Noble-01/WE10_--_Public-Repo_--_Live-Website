@@ -3,7 +3,7 @@
         "NaMiniApp__AppTitle"    : "Text To Reader",
         "NaMiniApp__AppSubTitle" : "Reader Utils",
         "NaMiniApp__Created"     : "19-Sep-2026",
-        "NaMiniApp__Version"     : "1.4.3"
+        "NaMiniApp__Version"     : "1.5.0"
     },
 
     "NaMiniApp__Assets" : {
@@ -14,6 +14,21 @@
         "NaMiniApp__AcceptedFileExtensions" : [".md", ".markdown", ".txt"],
         "NaMiniApp__MobileScrollBreakpoint" : 768,
         "NaMiniApp__DefaultView"            : "simple"
+    },
+
+    "NaMiniApp__ReadAloud" : {
+        "NaMiniApp__PreferredVoices" : [
+                                           "Microsoft Steffan Online (Natural) - English (United States)",
+                                           "Microsoft Sonia Online (Natural) - English (United Kingdom)",
+                                           "Microsoft Libby Online (Natural) - English (United Kingdom)",
+                                           "Microsoft Ryan Online (Natural) - English (United Kingdom)"
+                                       ],
+        "NaMiniApp__PreferredLang"   : "en-GB",
+        "NaMiniApp__Rate"            : 1.5,
+        "NaMiniApp__Pitch"           : 1.0,
+        "NaMiniApp__MaxChunkChars"   : 900,
+        "NaMiniApp__FollowPauseMs"   : 4000,
+        "NaMiniApp__LongPressMs"     : 450
     },
 
     "NaMiniApp__WhatsApp" : {
@@ -44,6 +59,11 @@
         "NaMiniApp__ErrorEmptyCsv"           : "Error: Empty CSV data.",
         "NaMiniApp__ErrorMissingDom"         : "Error: Essential HTML elements are missing.",
         "NaMiniApp__ErrorConfigLoad"         : "Unable to load app configuration.",
-        "NaMiniApp__CsvTableAriaLabel"       : "CSV Data Table"
+        "NaMiniApp__CsvTableAriaLabel"       : "CSV Data Table",
+        "NaMiniApp__ReadMenuRead"            : "Read aloud",
+        "NaMiniApp__ReadMenuReadFromHere"    : "Read from here",
+        "NaMiniApp__ReadMenuHintHere"        : "From here",
+        "NaMiniApp__ReadMenuHintSelection"   : "Selected text",
+        "NaMiniApp__ReadMenuStop"            : "Stop"
     }
 }

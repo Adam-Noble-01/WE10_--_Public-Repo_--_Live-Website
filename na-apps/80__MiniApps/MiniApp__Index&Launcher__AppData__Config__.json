@@ -130,9 +130,10 @@
             "MiniApp__RelativePath"      : "06__MiniApps__TextToSpeach",
             "MiniApp__Title"             : "Text To Reader",
             "MiniApp__Description"       : "Paste or upload WhatsApp chat exports, Markdown, or CSV code blocks and render them as clean, readable HTML. Built for mobile as well as desktop — upload a .md or .txt file instead of copy-pasting.",
-            "MiniApp__Notes"             : "Ported from sn-apps/SN10_01_-_UTIL_-_Text-To-Reader-App (legacy v1.3.0) into modular HTML/CSS/JS with AppConfig JSON. v1.4.0 adds Simple / Edit / Read tabs, a compact header, and a header file-upload icon. Category folder keeps the TextToSpeach name; the app itself is Text To Reader.",
+            "MiniApp__Notes"             : "Ported from sn-apps/SN10_01_-_UTIL_-_Text-To-Reader-App (legacy v1.3.0) into modular HTML/CSS/JS with AppConfig JSON. v1.4.0 adds Simple / Edit / Read tabs, a compact header, and a header file-upload icon. v1.5.0 adds its own Read aloud on the Read tab (right-click, or press and hold on a phone) using Edge's free Microsoft Natural voices. Category folder keeps the TextToSpeach name; the app itself is Text To Reader.",
             "MiniApp__KeyWords"          : [
                                                 "Text To Reader",
+                                                "Read Aloud",
                                                 "WhatsApp",
                                                 "Markdown",
                                                 "CSV",

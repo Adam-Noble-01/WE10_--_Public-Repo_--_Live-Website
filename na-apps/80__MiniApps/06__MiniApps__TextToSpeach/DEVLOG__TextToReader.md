@@ -60,6 +60,33 @@ DEVELOPMENT LOG
   - Cut the 1 rem main-column gap and card margins so Simple no longer wastes
     a grey band between Input, Actions and Output.
 
+----------------------------------------------------------------
+1.5.0 - 10-Oct-2026 |  Built-In Read Aloud
+  - Read view: right-click (computer) or press and hold (phone) now opens the
+    app's own menu instead of the browser's. It has one big Read aloud button,
+    opened under the pointer, so right-click then click in place reads. While
+    reading, the menu offers Read from here and Stop. Shift + right-click still
+    gives the browser's menu; Esc stops reading. Tabs and Simple / Edit keep
+    the browser's menu.
+  - Speech uses window.speechSynthesis. Edge gives its own Read aloud voices
+    ("Microsoft ... Online (Natural)") to it for free, so no paid voice is
+    needed. Default: Steffan at 1.5x, the voice and speed set in Adam's Edge
+    Read aloud. Voices, speed and timings live in NaMiniApp__ReadAloud in the
+    AppConfig. Other browsers use their best voice (iPhone: Apple's en-GB
+    voices, Premium / Enhanced first).
+  - Reads from the sentence under the pointer to the end of the article, or
+    only the selection when the right-click is on selected text.
+  - One utterance per paragraph: each new utterance costs 200-400 ms in Edge
+    154 (measured 10-Oct-2026). Word boundary events drive a sentence wash and
+    a word highlight (CSS Custom Highlight API, so the article DOM is never
+    touched), and the page scrolls to follow unless you have just scrolled.
+  - Stop leaves the stopped sentence marked grey; Read from here on it carries
+    on. Leaving the Read tab, rendering again or Clear stops reading.
+  - Phones: Read view text is no longer selectable, so press and hold gives
+    Read aloud instead of the selection callout.
+  - New modules: MiniApp__TextToReader__ReadAloud__.js (speech, highlights,
+    voice choice) and MiniApp__TextToReader__ReadMenu__.js (menu, long press).
+
 
 =================================================
 FILE STRUCTURE
@@ -80,6 +107,8 @@ FILE STRUCTURE
           +-- ...__CsvTable__.js        Detect ```csv``` blocks, build tables
           +-- ...__FileUpload__.js      Load a local .md / .txt file
           +-- ...__MarkdownRender__.js  WhatsApp -> CSV -> Marked.js pipeline
+          +-- ...__ReadAloud__.js       Speech, voice choice, sentence / word highlights
+          +-- ...__ReadMenu__.js        Read view context menu, press and hold
 
 
 =================================================
