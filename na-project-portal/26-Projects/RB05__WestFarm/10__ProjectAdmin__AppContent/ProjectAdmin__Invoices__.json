@@ -251,36 +251,68 @@
             "dueDate": "17-Oct-2026",
             "invoiceDate": "10-Oct-2026",
             "invoiceRef": "INV-RB05-2026-003",
-            "lastModified": "10/10/2026, 18:38:53",
+            "lastModified": "10/10/2026, 18:58:48",
             "lineItems": [
                 {
-                    "description": "Week commencing 14-Sep-2026 - 11h 15m",
+                    "description": "Sat 19-Sep-2026 - 2h",
                     "group": "Session 04  |  Pre-Application  |  September 2026",
-                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)\n- Sat 19 and Sun 20 September",
-                    "quantity": 11.25,
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 2,
                     "rate": 25,
                     "unit": "Hours"
                 },
                 {
-                    "description": "Week commencing 21-Sep-2026 - 19h 51m",
+                    "description": "Sun 20-Sep-2026 - 9h 15m",
                     "group": "Session 04  |  Pre-Application  |  September 2026",
-                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)\n- Mon 21 to Wed 23 September",
-                    "quantity": 19.85,
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 9.25,
                     "rate": 25,
                     "unit": "Hours"
                 },
                 {
-                    "description": "Week commencing 28-Sep-2026 - 15h 12m",
+                    "description": "Mon 21-Sep-2026 - 12h 51m",
                     "group": "Session 04  |  Pre-Application  |  September 2026",
-                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)\n- Tue 29 and Wed 30 September",
-                    "quantity": 15.2,
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 12.85,
+                    "rate": 25,
+                    "unit": "Hours"
+                },
+                {
+                    "description": "Tue 22-Sep-2026 - 2h 45m",
+                    "group": "Session 04  |  Pre-Application  |  September 2026",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 2.75,
+                    "rate": 25,
+                    "unit": "Hours"
+                },
+                {
+                    "description": "Wed 23-Sep-2026 - 4h 15m",
+                    "group": "Session 04  |  Pre-Application  |  September 2026",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 4.25,
+                    "rate": 25,
+                    "unit": "Hours"
+                },
+                {
+                    "description": "Tue 29-Sep-2026 - 13h 12m",
+                    "group": "Session 04  |  Pre-Application  |  September 2026",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 13.2,
+                    "rate": 25,
+                    "unit": "Hours"
+                },
+                {
+                    "description": "Wed 30-Sep-2026 - 2h",
+                    "group": "Session 04  |  Pre-Application  |  September 2026",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
+                    "quantity": 2,
                     "rate": 25,
                     "unit": "Hours"
                 },
                 {
                     "description": "Rounding to the whole hour - 42m",
                     "group": "Session 04  |  Pre-Application  |  September 2026",
-                    "itemDescription": "- 46h 18m recorded across the three weeks above, rounded up to 47h",
+                    "itemDescription": "- 46h 18m recorded across the seven days above, rounded up to 47h",
                     "quantity": 0.7,
                     "rate": 25,
                     "unit": "Hours"
