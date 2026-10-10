@@ -11,8 +11,9 @@
   - Paste or upload Markdown, WhatsApp chat text, or ```csv``` blocks.
   - Three views: Simple (quick paste and render), Edit (full-page Markdown),
     and Read (full-page article, read aloud from a right-click or press and hold).
-  - Read aloud uses the browser's own voices: in Edge, the same Microsoft
-    Natural voices as Edge's Read aloud.
+  - Read aloud uses the browser's own voices: in Edge on a computer, the same
+    Microsoft Natural voices as Edge's Read aloud. Voice and speed are picked
+    in the menu and remembered on each device.
   - WhatsApp timestamp/sender prefixes are stripped and converted to a list.
   - CSV fenced blocks become accessible HTML tables.
   - All processing is local — the app sends no data to any server. Edge's
@@ -53,9 +54,9 @@
         <link rel="stylesheet"
               href="../../../assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_30_-_STYL_-_Core-Default-Web-Utility-App-Stylesheet.css" />
         <!-- ?v= : see REGION | Versioned App Files at the foot of the body -->
-        <link rel="stylesheet" href="MiniApp__TextToReader__Style__.css?v=1.5.2" />
+        <link rel="stylesheet" href="MiniApp__TextToReader__Style__.css?v=1.6.0" />
         <!-- @delegate: MiniApp__TextToReader__MarkdownStyle__.css -->
-        <link rel="stylesheet" href="MiniApp__TextToReader__MarkdownStyle__.css?v=1.5.2" />
+        <link rel="stylesheet" href="MiniApp__TextToReader__MarkdownStyle__.css?v=1.6.0" />
     </head>
 <!-- endregion -------------------------------------------------------- -->
 
@@ -192,13 +193,12 @@
             <!-- @delegate: 01__AppModules/MiniApp__TextToReader__ReadMenu__.js -->
             <div id="js__readMenu"
                  class="TTR__read-menu TTR__chrome"
-                 role="menu"
+                 role="dialog"
                  aria-label="Read aloud"
                  hidden>
                 <button id="js__readMenuRead"
                         class="TTR__read-menu-item"
-                        type="button"
-                        role="menuitem">
+                        type="button">
                     <svg class="TTR__read-menu-icon"
                          viewBox="0 0 24 24"
                          fill="none"
@@ -220,7 +220,6 @@
                 <button id="js__readMenuStop"
                         class="TTR__read-menu-item"
                         type="button"
-                        role="menuitem"
                         hidden>
                     <svg class="TTR__read-menu-icon"
                          viewBox="0 0 24 24"
@@ -234,7 +233,33 @@
                         <span id="js__readMenuStopLabel" class="TTR__read-menu-label">Stop</span>
                     </span>
                 </button>
-                <div id="js__readMenuVoice" class="TTR__read-menu-voice"></div>
+
+                <!-- Voice and speed: remembered on this device -->
+                <div class="TTR__read-menu-settings">
+                    <div class="TTR__read-menu-row">
+                        <label id="js__readMenuVoiceLabel"
+                               class="TTR__read-menu-row-label"
+                               for="js__readMenuVoiceSelect">Voice</label>
+                        <select id="js__readMenuVoiceSelect"
+                                class="TTR__read-menu-select"></select>
+                    </div>
+                    <div class="TTR__read-menu-row">
+                        <span id="js__readMenuSpeedLabel" class="TTR__read-menu-row-label">Speed</span>
+                        <div class="TTR__read-menu-stepper"
+                             role="group"
+                             aria-labelledby="js__readMenuSpeedLabel">
+                            <button id="js__readMenuSlower"
+                                    class="TTR__read-menu-step"
+                                    type="button"
+                                    aria-label="Slower">&minus;</button>
+                            <span id="js__readMenuSpeedValue" class="TTR__read-menu-speed">1.5×</span>
+                            <button id="js__readMenuFaster"
+                                    class="TTR__read-menu-step"
+                                    type="button"
+                                    aria-label="Faster">+</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         <!-- endregion ---------------------------------------------------- -->
 
@@ -252,18 +277,18 @@
             <script type="importmap">
             {
                 "imports": {
-                    "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js"       : "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js?v=1.5.2",
-                    "./01__AppModules/MiniApp__TextToReader__FileUpload__.js"     : "./01__AppModules/MiniApp__TextToReader__FileUpload__.js?v=1.5.2",
-                    "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js" : "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js?v=1.5.2",
-                    "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js" : "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js?v=1.5.2",
-                    "./01__AppModules/MiniApp__TextToReader__CsvTable__.js"       : "./01__AppModules/MiniApp__TextToReader__CsvTable__.js?v=1.5.2",
-                    "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js"      : "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js?v=1.5.2",
-                    "./01__AppModules/MiniApp__TextToReader__ReadMenu__.js"       : "./01__AppModules/MiniApp__TextToReader__ReadMenu__.js?v=1.5.2"
+                    "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js"       : "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js?v=1.6.0",
+                    "./01__AppModules/MiniApp__TextToReader__FileUpload__.js"     : "./01__AppModules/MiniApp__TextToReader__FileUpload__.js?v=1.6.0",
+                    "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js" : "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js?v=1.6.0",
+                    "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js" : "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js?v=1.6.0",
+                    "./01__AppModules/MiniApp__TextToReader__CsvTable__.js"       : "./01__AppModules/MiniApp__TextToReader__CsvTable__.js?v=1.6.0",
+                    "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js"      : "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js?v=1.6.0",
+                    "./01__AppModules/MiniApp__TextToReader__ReadMenu__.js"       : "./01__AppModules/MiniApp__TextToReader__ReadMenu__.js?v=1.6.0"
                 }
             }
             </script>
 
-            <script type="module" src="01__AppModules/MiniApp__TextToReader__Main__.js?v=1.5.2"></script>
+            <script type="module" src="01__AppModules/MiniApp__TextToReader__Main__.js?v=1.6.0"></script>
         <!-- endregion ---------------------------------------------------- -->
     </body>
 <!-- endregion -------------------------------------------------------- -->

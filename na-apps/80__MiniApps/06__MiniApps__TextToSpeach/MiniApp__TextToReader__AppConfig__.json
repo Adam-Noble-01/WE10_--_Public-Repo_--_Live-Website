@@ -3,7 +3,7 @@
         "NaMiniApp__AppTitle"    : "Text To Reader",
         "NaMiniApp__AppSubTitle" : "Reader Utils",
         "NaMiniApp__Created"     : "19-Sep-2026",
-        "NaMiniApp__Version"     : "1.5.2"
+        "NaMiniApp__Version"     : "1.6.0"
     },
 
     "NaMiniApp__Assets" : {
@@ -25,6 +25,9 @@
                                        ],
         "NaMiniApp__PreferredLang"   : "en-GB",
         "NaMiniApp__Rate"            : 1.5,
+        "NaMiniApp__RateMin"         : 0.5,
+        "NaMiniApp__RateMax"         : 3.0,
+        "NaMiniApp__RateStep"        : 0.1,
         "NaMiniApp__Pitch"           : 1.0,
         "NaMiniApp__MaxChunkChars"   : 900,
         "NaMiniApp__FollowPauseMs"   : 4000,
@@ -64,6 +67,13 @@
         "NaMiniApp__ReadMenuReadFromHere"    : "Read from here",
         "NaMiniApp__ReadMenuHintHere"        : "From here",
         "NaMiniApp__ReadMenuHintSelection"   : "Selected text",
-        "NaMiniApp__ReadMenuStop"            : "Stop"
+        "NaMiniApp__ReadMenuStop"            : "Stop",
+        "NaMiniApp__ReadMenuVoice"           : "Voice",
+        "NaMiniApp__ReadMenuSpeed"           : "Speed",
+        "NaMiniApp__ReadMenuSlower"          : "Slower",
+        "NaMiniApp__ReadMenuFaster"          : "Faster",
+        "NaMiniApp__ReadMenuGroupNatural"    : "Microsoft Natural",
+        "NaMiniApp__ReadMenuGroupDevice"     : "On this device",
+        "NaMiniApp__ReadMenuGroupPhone"      : "Phone voice"
     }
 }

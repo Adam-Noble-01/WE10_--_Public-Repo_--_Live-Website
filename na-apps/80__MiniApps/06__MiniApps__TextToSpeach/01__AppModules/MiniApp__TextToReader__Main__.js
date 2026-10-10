@@ -81,7 +81,12 @@ import {
      Na__ReadHint          : document.getElementById("js__readMenuReadHint"),
      Na__StopItem          : document.getElementById("js__readMenuStop"),
      Na__StopLabel         : document.getElementById("js__readMenuStopLabel"),
-     Na__VoiceLine         : document.getElementById("js__readMenuVoice")
+     Na__VoiceLabel        : document.getElementById("js__readMenuVoiceLabel"),
+     Na__VoiceSelect       : document.getElementById("js__readMenuVoiceSelect"),
+     Na__SpeedLabel        : document.getElementById("js__readMenuSpeedLabel"),
+     Na__SlowerItem        : document.getElementById("js__readMenuSlower"),
+     Na__SpeedValue        : document.getElementById("js__readMenuSpeedValue"),
+     Na__FasterItem        : document.getElementById("js__readMenuFaster")
  };
 
 // endregion -------------------------------------------------------------------

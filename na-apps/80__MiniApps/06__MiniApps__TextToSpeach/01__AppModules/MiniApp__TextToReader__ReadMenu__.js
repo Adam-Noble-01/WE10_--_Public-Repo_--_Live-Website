@@ -11,6 +11,9 @@
 // NOTES   : - Shift + right-click still opens the browser's own menu.
 //           - A mouse menu opens with its Read aloud button under the pointer, so
 //             right-click then left-click without moving reads.
+//           - Under the buttons: Voice (a native select, so phones get their own
+//             picker) and Speed (- / +). Both are remembered per device and,
+//             mid-read, restart the current sentence.
 //           - iOS never fires contextmenu for a long press, so touch presses are
 //             timed here. Android does fire it; that duplicate is swallowed.
 //           - Esc closes the menu, or stops reading when the menu is shut.
@@ -29,7 +32,12 @@ import {
     Na__TextToReader__StartReadAloud,
     Na__TextToReader__StopReadAloud,
     Na__TextToReader__IsReadingAloud,
-    Na__TextToReader__GetReadAloudVoiceLabel
+    Na__TextToReader__GetReadAloudVoiceOptions,
+    Na__TextToReader__SetReadAloudVoice,
+    Na__TextToReader__GetReadAloudRate,
+    Na__TextToReader__GetReadAloudRateLimits,
+    Na__TextToReader__StepReadAloudRate,
+    Na__TextToReader__OnReadAloudVoicesChanged
 } from "./MiniApp__TextToReader__ReadAloud__.js";
 
 // endregion -------------------------------------------------------------------
@@ -44,16 +52,24 @@ import {
      Na__ReadFromHere  : "Read from here",
      Na__HintHere      : "From here",
      Na__HintSelection : "Selected text",
-     Na__Stop          : "Stop"
+     Na__Stop          : "Stop",
+     Na__Voice         : "Voice",
+     Na__Speed         : "Speed",
+     Na__Slower        : "Slower",
+     Na__Faster        : "Faster",
+     Na__GroupNatural  : "Microsoft Natural",
+     Na__GroupDevice   : "On this device",
+     Na__GroupPhone    : "Phone voice"
  };
 
- let Na__TextToReader__MenuDom         = null;    // { Na__Menu, Na__ReadItem, Na__ReadLabel, Na__ReadHint, Na__StopItem, Na__StopLabel, Na__VoiceLine }
+ let Na__TextToReader__MenuDom         = null;    // { Na__Menu, Na__ReadItem, Na__ReadLabel, Na__ReadHint, Na__StopItem, Na__StopLabel, Na__VoiceSelect, ... }
  let Na__TextToReader__MenuScope       = null;    // the area whose browser menu is replaced
  let Na__TextToReader__MenuIsActive    = () => false;
  let Na__TextToReader__MenuText        = { ...Na__TextToReader__MenuDefaultText };
  let Na__TextToReader__MenuStart       = null;    // where Read aloud starts, fixed when the menu opens
  let Na__TextToReader__MenuArmed       = false;   // a press has landed on the menu since it opened
  let Na__TextToReader__MenuPrevFocus   = null;
+ let Na__TextToReader__MenuOpenWidth   = 0;       // a phone's toolbar resize must not close it; turning it round does
  let Na__TextToReader__LongPress       = null;    // { Na__Id, Na__X, Na__Y, Na__Timer }
  let Na__TextToReader__LongPressMs     = 450;
  let Na__TextToReader__SwallowUntil    = 0;       // ignore Android's own long-press contextmenu until then
@@ -86,40 +102,116 @@ function Na__TextToReader__IsReadTarget(Na__Target) {
 // ------------------------------------------------------------
 
 
-// FUNCTION | Place the menu: under a mouse pointer, or above a finger so the thumb never hides it
+// FUNCTION | Lay the menu out (flipped = growing upward, Read aloud last) and measure it
 // ------------------------------------------------------------
-function Na__TextToReader__PlaceMenu(Na__X, Na__Y, Na__Source) {
+function Na__TextToReader__MeasureMenu(Na__Flip) {
     const Na__Menu = Na__TextToReader__MenuDom.Na__Menu;
-    const Na__Gap  = 8;
+    const Na__Read = Na__TextToReader__MenuDom.Na__ReadItem;
 
+    if (Na__Flip) {
+        Na__Menu.setAttribute("data-ttr-flip", "up");
+    } else {
+        Na__Menu.removeAttribute("data-ttr-flip");
+    }
     Na__Menu.style.left = "0px";
     Na__Menu.style.top  = "0px";
 
-    const Na__Box      = Na__Menu.getBoundingClientRect();
+    const Na__Box  = Na__Menu.getBoundingClientRect();
+    const Na__Icon = (Na__Read.querySelector("svg") || Na__Read).getBoundingClientRect();
+    return {
+        Na__Box,
+        Na__IconX : Na__Icon.left - Na__Box.left + (Na__Icon.width / 2),
+        Na__IconY : Na__Icon.top - Na__Box.top + (Na__Icon.height / 2)
+    };
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | Place the menu with Read aloud nearest the pointer or finger
+// ------------------------------------------------------------
+// Mouse: the pointer lands on the Read aloud icon; near the bottom of the window
+// the menu grows upward instead (Read aloud last), so it is still under the pointer.
+// Finger: above it, Read aloud nearest the thumb; with no room above, below it.
+function Na__TextToReader__PlaceMenu(Na__X, Na__Y, Na__Source) {
+    const Na__Menu     = Na__TextToReader__MenuDom.Na__Menu;
+    const Na__Gap      = 8;
     const Na__ViewW    = document.documentElement.clientWidth;
     const Na__ViewH    = document.documentElement.clientHeight;
     const Na__HasPoint = Number.isFinite(Na__X) && Number.isFinite(Na__Y) && (Na__X !== 0 || Na__Y !== 0);
 
-    let Na__Left = (Na__ViewW - Na__Box.width) / 2;
-    let Na__Top  = (Na__ViewH - Na__Box.height) / 2;
+    let Na__Fit       = Na__TextToReader__MeasureMenu(false);
+    let Na__Left      = (Na__ViewW - Na__Fit.Na__Box.width) / 2;
+    let Na__Top       = (Na__ViewH - Na__Fit.Na__Box.height) / 2;
+    let Na__BottomGap = Na__Gap;
 
     if (Na__HasPoint && Na__Source === "touch") {
-        Na__Left = Na__X - (Na__Box.width / 2);
-        Na__Top  = Na__Y - Na__Box.height - 28;
-        if (Na__Top < Na__Gap) Na__Top = Na__Y + 36;
+        Na__Fit  = Na__TextToReader__MeasureMenu(true);
+        Na__Left = Na__X - (Na__Fit.Na__Box.width / 2);
+        Na__Top  = Na__Y - Na__Fit.Na__Box.height - 28;
+        if (Na__Top < Na__Gap) {
+            Na__Fit = Na__TextToReader__MeasureMenu(false);
+            Na__Top = Na__Y + 36;
+        }
     } else if (Na__HasPoint) {
-        // Put the pointer on the Read aloud icon.
-        const Na__Icon = Na__TextToReader__MenuDom.Na__ReadItem.querySelector("svg") || Na__TextToReader__MenuDom.Na__ReadItem;
-        const Na__Spot = Na__Icon.getBoundingClientRect();
-        Na__Left = Na__X - (Na__Spot.left - Na__Box.left + (Na__Spot.width / 2));
-        Na__Top  = Na__Y - (Na__Spot.top - Na__Box.top + (Na__Spot.height / 2));
+        Na__Left = Na__X - Na__Fit.Na__IconX;
+        Na__Top  = Na__Y - Na__Fit.Na__IconY;
+        if (Na__Top + Na__Fit.Na__Box.height > Na__ViewH - Na__Gap) {
+            Na__Fit       = Na__TextToReader__MeasureMenu(true);
+            Na__Left      = Na__X - Na__Fit.Na__IconX;
+            Na__Top       = Na__Y - Na__Fit.Na__IconY;
+            Na__BottomGap = 2;   // right at the bottom edge, keep Read aloud under the pointer
+        }
     }
 
-    Na__Left = Math.min(Math.max(Na__Gap, Na__Left), Na__ViewW - Na__Box.width - Na__Gap);
-    Na__Top  = Math.min(Math.max(Na__Gap, Na__Top),  Na__ViewH - Na__Box.height - Na__Gap);
+    Na__Left = Math.min(Math.max(Na__Gap, Na__Left), Na__ViewW - Na__Fit.Na__Box.width - Na__Gap);
+    Na__Top  = Math.min(Math.max(Na__Gap, Na__Top),  Na__ViewH - Na__Fit.Na__Box.height - Na__BottomGap);
 
     Na__Menu.style.left = `${Math.round(Na__Left)}px`;
     Na__Menu.style.top  = `${Math.round(Na__Top)}px`;
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | Fill the Voice select from the voices the browser offers now
+// ------------------------------------------------------------
+function Na__TextToReader__FillVoiceSelect() {
+    const Na__Select = Na__TextToReader__MenuDom.Na__VoiceSelect;
+    if (!Na__Select) return;
+
+    const Na__Text    = Na__TextToReader__MenuText;
+    const Na__Titles  = { natural: Na__Text.Na__GroupNatural, device: Na__Text.Na__GroupDevice, phone: Na__Text.Na__GroupPhone };
+    const Na__Options = Na__TextToReader__GetReadAloudVoiceOptions();
+
+    Na__Select.textContent = "";
+    Na__Options.Na__Groups.forEach((Na__Group) => {
+        const Na__Holder = document.createElement("optgroup");
+        Na__Holder.label = Na__Titles[Na__Group.Na__Key] || Na__Group.Na__Key;
+
+        Na__Group.Na__Options.forEach((Na__Each) => {
+            const Na__Option       = document.createElement("option");
+            Na__Option.value       = Na__Each.Na__Id;
+            Na__Option.textContent = Na__Each.Na__Label;
+            Na__Holder.appendChild(Na__Option);
+        });
+        Na__Select.appendChild(Na__Holder);
+    });
+    Na__Select.value = Na__Options.Na__SelectedId;
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | Show the speed ("1.5×") and grey out - or + at the limits
+// ------------------------------------------------------------
+function Na__TextToReader__ShowRate() {
+    const Na__Dom = Na__TextToReader__MenuDom;
+    if (!Na__Dom.Na__SpeedValue) return;
+
+    const Na__Rate   = Na__TextToReader__GetReadAloudRate();
+    const Na__Limits = Na__TextToReader__GetReadAloudRateLimits();
+
+    Na__Dom.Na__SpeedValue.textContent = `${Number.isInteger(Na__Rate) ? Na__Rate.toFixed(1) : String(Na__Rate)}×`;
+    if (Na__Dom.Na__SlowerItem) Na__Dom.Na__SlowerItem.disabled = Na__Rate <= Na__Limits.Na__Min + 1e-9;
+    if (Na__Dom.Na__FasterItem) Na__Dom.Na__FasterItem.disabled = Na__Rate >= Na__Limits.Na__Max - 1e-9;
 }
 // ------------------------------------------------------------
 
@@ -141,14 +233,20 @@ function Na__TextToReader__OpenReadMenu(Na__X, Na__Y, Na__Source) {
     Na__Dom.Na__ReadLabel.textContent = (Na__Reading && !Na__IsSelection) ? Na__Text.Na__ReadFromHere : Na__Text.Na__Read;
     Na__Dom.Na__ReadHint.textContent  = Na__IsSelection ? Na__Text.Na__HintSelection : (Na__Reading ? "" : Na__Text.Na__HintHere);
     Na__Dom.Na__StopItem.hidden       = !Na__Reading;
-    if (Na__Dom.Na__VoiceLine) Na__Dom.Na__VoiceLine.textContent = Na__TextToReader__GetReadAloudVoiceLabel();
+    Na__TextToReader__FillVoiceSelect();
+    Na__TextToReader__ShowRate();
 
     if (!Na__TextToReader__MenuIsOpen()) Na__TextToReader__MenuPrevFocus = document.activeElement;
 
+    Na__TextToReader__MenuOpenWidth = window.innerWidth;
     Na__Dom.Na__Menu.setAttribute("data-ttr-source", Na__Source);
     Na__Dom.Na__Menu.hidden = false;
     Na__TextToReader__PlaceMenu(Na__X, Na__Y, Na__Source);
-    Na__Dom.Na__ReadItem.focus({ preventScroll: true });   // Enter reads, Esc closes
+
+    // Mouse and keyboard: focus Read aloud, so Enter reads and Esc closes. Not for a
+    // finger: lifting it after the hold focuses the article, and that focus leaving
+    // the menu would close it.
+    if (Na__Source !== "touch") Na__Dom.Na__ReadItem.focus({ preventScroll: true });
     return true;
 }
 // ------------------------------------------------------------
@@ -249,9 +347,63 @@ function Na__TextToReader__HandleOutsidePress(Na__Event) {
 
 // FUNCTION | A press on the menu itself arms its buttons and keeps the page's selection
 // ------------------------------------------------------------
+// Not on the Voice select: cancelling its press would stop it opening.
 function Na__TextToReader__HandleMenuPress(Na__Event) {
     Na__TextToReader__MenuArmed = true;
+
+    const Na__Target = Na__Event.target;
+    if (Na__Target && Na__Target.closest && Na__Target.closest("select")) return;
     Na__Event.preventDefault();
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | Voice picked: remember it; the menu stays open for Read aloud
+// ------------------------------------------------------------
+function Na__TextToReader__HandleVoiceChange() {
+    Na__TextToReader__SetReadAloudVoice(Na__TextToReader__MenuDom.Na__VoiceSelect.value);
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | Speed - and +: one step each press; the menu stays open
+// ------------------------------------------------------------
+function Na__TextToReader__HandleSpeedClick(Na__Event, Na__Direction) {
+    if (!Na__TextToReader__MenuArmed && Na__Event.detail !== 0) return;
+
+    Na__TextToReader__StepReadAloudRate(Na__Direction);
+    Na__TextToReader__ShowRate();
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | Focus moved to something outside the menu (Tab, or a click elsewhere): close it
+// ------------------------------------------------------------
+function Na__TextToReader__HandleMenuFocusOut(Na__Event) {
+    const Na__Next = Na__Event.relatedTarget;
+    if (Na__Next && !Na__TextToReader__MenuDom.Na__Menu.contains(Na__Next)) Na__TextToReader__CloseReadMenu();
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | The window lost focus: close, unless the Voice picker opened (phones give it the focus)
+// ------------------------------------------------------------
+function Na__TextToReader__HandleWindowBlur() {
+    if (!Na__TextToReader__MenuIsOpen()) return;
+    if (Na__TextToReader__MenuDom.Na__Menu.contains(document.activeElement)) return;
+
+    Na__TextToReader__CloseReadMenu();
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | Resized: close only when the width changed (a phone's toolbar sliding is not a reason)
+// ------------------------------------------------------------
+function Na__TextToReader__HandleResize() {
+    if (!Na__TextToReader__MenuIsOpen()) return;
+    if (window.innerWidth === Na__TextToReader__MenuOpenWidth) return;
+
+    Na__TextToReader__CloseReadMenu();
 }
 // ------------------------------------------------------------
 
@@ -297,19 +449,19 @@ function Na__TextToReader__HandleKeyDown(Na__Event) {
 
     if (!Na__TextToReader__MenuIsOpen()) return;
 
+    // Arrows move between Read aloud and Stop; on the Voice select they keep their own job.
     if (Na__Event.key === "ArrowDown" || Na__Event.key === "ArrowUp") {
         const Na__Items = [Na__TextToReader__MenuDom.Na__ReadItem, Na__TextToReader__MenuDom.Na__StopItem]
             .filter((Na__Item) => Na__Item && !Na__Item.hidden);
         const Na__Now   = Na__Items.indexOf(document.activeElement);
+        if (Na__Now < 0) return;
+
         const Na__Step  = Na__Event.key === "ArrowDown" ? 1 : -1;
         const Na__Next  = Na__Items[(Na__Now + Na__Step + Na__Items.length) % Na__Items.length];
 
         Na__Event.preventDefault();
         if (Na__Next) Na__Next.focus({ preventScroll: true });
-        return;
     }
-
-    if (Na__Event.key === "Tab") Na__TextToReader__CloseReadMenu();
 }
 // ------------------------------------------------------------
 
@@ -375,16 +527,30 @@ export function Na__TextToReader__InitialiseReadMenu(Na__Config) {
     Na__TextToReader__MenuIsActive = typeof isActive === "function" ? isActive : () => false;
     if (Number(longPressMs) > 0) Na__TextToReader__LongPressMs = Number(longPressMs);
 
-    const Na__UiText = uiText || {};
+    const Na__UiText  = uiText || {};
+    const Na__Default = Na__TextToReader__MenuDefaultText;
     Na__TextToReader__MenuText = {
-        Na__Read          : Na__UiText.NaMiniApp__ReadMenuRead          || Na__TextToReader__MenuDefaultText.Na__Read,
-        Na__ReadFromHere  : Na__UiText.NaMiniApp__ReadMenuReadFromHere  || Na__TextToReader__MenuDefaultText.Na__ReadFromHere,
-        Na__HintHere      : Na__UiText.NaMiniApp__ReadMenuHintHere      || Na__TextToReader__MenuDefaultText.Na__HintHere,
-        Na__HintSelection : Na__UiText.NaMiniApp__ReadMenuHintSelection || Na__TextToReader__MenuDefaultText.Na__HintSelection,
-        Na__Stop          : Na__UiText.NaMiniApp__ReadMenuStop          || Na__TextToReader__MenuDefaultText.Na__Stop
+        Na__Read          : Na__UiText.NaMiniApp__ReadMenuRead          || Na__Default.Na__Read,
+        Na__ReadFromHere  : Na__UiText.NaMiniApp__ReadMenuReadFromHere  || Na__Default.Na__ReadFromHere,
+        Na__HintHere      : Na__UiText.NaMiniApp__ReadMenuHintHere      || Na__Default.Na__HintHere,
+        Na__HintSelection : Na__UiText.NaMiniApp__ReadMenuHintSelection || Na__Default.Na__HintSelection,
+        Na__Stop          : Na__UiText.NaMiniApp__ReadMenuStop          || Na__Default.Na__Stop,
+        Na__Voice         : Na__UiText.NaMiniApp__ReadMenuVoice         || Na__Default.Na__Voice,
+        Na__Speed         : Na__UiText.NaMiniApp__ReadMenuSpeed         || Na__Default.Na__Speed,
+        Na__Slower        : Na__UiText.NaMiniApp__ReadMenuSlower        || Na__Default.Na__Slower,
+        Na__Faster        : Na__UiText.NaMiniApp__ReadMenuFaster        || Na__Default.Na__Faster,
+        Na__GroupNatural  : Na__UiText.NaMiniApp__ReadMenuGroupNatural  || Na__Default.Na__GroupNatural,
+        Na__GroupDevice   : Na__UiText.NaMiniApp__ReadMenuGroupDevice   || Na__Default.Na__GroupDevice,
+        Na__GroupPhone    : Na__UiText.NaMiniApp__ReadMenuGroupPhone    || Na__Default.Na__GroupPhone
     };
-    if (dom.Na__StopLabel) dom.Na__StopLabel.textContent = Na__TextToReader__MenuText.Na__Stop;
-    dom.Na__Menu.setAttribute("aria-label", Na__TextToReader__MenuText.Na__Read);
+
+    const Na__Text = Na__TextToReader__MenuText;
+    if (dom.Na__StopLabel)  dom.Na__StopLabel.textContent  = Na__Text.Na__Stop;
+    if (dom.Na__VoiceLabel) dom.Na__VoiceLabel.textContent = Na__Text.Na__Voice;
+    if (dom.Na__SpeedLabel) dom.Na__SpeedLabel.textContent = Na__Text.Na__Speed;
+    if (dom.Na__SlowerItem) dom.Na__SlowerItem.setAttribute("aria-label", Na__Text.Na__Slower);
+    if (dom.Na__FasterItem) dom.Na__FasterItem.setAttribute("aria-label", Na__Text.Na__Faster);
+    dom.Na__Menu.setAttribute("aria-label", Na__Text.Na__Read);
 
     document.addEventListener("contextmenu", Na__TextToReader__HandleContextMenu);
     document.addEventListener("pointerdown", Na__TextToReader__HandleOutsidePress, true);
@@ -397,12 +563,23 @@ export function Na__TextToReader__InitialiseReadMenu(Na__Config) {
     document.addEventListener("pointerup", Na__TextToReader__CancelLongPress, { passive: true });
     document.addEventListener("pointercancel", Na__TextToReader__CancelLongPress, { passive: true });
 
-    window.addEventListener("resize", Na__TextToReader__CloseReadMenu);
-    window.addEventListener("blur", Na__TextToReader__CloseReadMenu);
+    window.addEventListener("resize", Na__TextToReader__HandleResize);
+    window.addEventListener("blur", Na__TextToReader__HandleWindowBlur);
 
     dom.Na__Menu.addEventListener("pointerdown", Na__TextToReader__HandleMenuPress);
+    dom.Na__Menu.addEventListener("focusout", Na__TextToReader__HandleMenuFocusOut);
     dom.Na__ReadItem.addEventListener("click", Na__TextToReader__HandleReadClick);
     dom.Na__StopItem.addEventListener("click", Na__TextToReader__HandleStopClick);
+
+    if (dom.Na__VoiceSelect) dom.Na__VoiceSelect.addEventListener("change", Na__TextToReader__HandleVoiceChange);
+    if (dom.Na__SlowerItem)  dom.Na__SlowerItem.addEventListener("click", (Na__Event) => Na__TextToReader__HandleSpeedClick(Na__Event, -1));
+    if (dom.Na__FasterItem)  dom.Na__FasterItem.addEventListener("click", (Na__Event) => Na__TextToReader__HandleSpeedClick(Na__Event, 1));
+
+    // Voices can arrive after the menu first opens (Edge on a computer: the Natural
+    // ones a moment after load; Android: perhaps only after the first speech).
+    Na__TextToReader__OnReadAloudVoicesChanged(() => {
+        if (Na__TextToReader__MenuIsOpen() && document.activeElement !== dom.Na__VoiceSelect) Na__TextToReader__FillVoiceSelect();
+    });
     return true;
 }
 // ------------------------------------------------------------

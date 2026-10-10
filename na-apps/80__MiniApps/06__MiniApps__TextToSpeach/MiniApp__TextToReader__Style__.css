@@ -44,10 +44,12 @@
     --TTR_Col_ReadMenuPress              : #e6e2d8;
     --TTR_Col_ReadMenuIcon               : var(--color-brand);
     --TTR_Col_ReadMenuRule               : var(--color-gray-300);
-    --TTR_Size_ReadMenuWidth             : 14.50rem;
-    --TTR_Size_ReadMenuWidthTouch        : 16.50rem;
+    --TTR_Size_ReadMenuWidth             : 16.50rem;
+    --TTR_Size_ReadMenuWidthTouch        : 18.50rem;
     --TTR_Size_ReadMenuItem              : 03.25rem;
     --TTR_Size_ReadMenuItemTouch         : 03.75rem;
+    --TTR_Size_ReadMenuControl           : 02.00rem;
+    --TTR_Size_ReadMenuControlTouch      : 02.75rem;
 }
 
 html,
@@ -456,21 +458,109 @@ body[data-ttr-mode="edit"] .FORM__textarea {
     line-height                          : 1.20;
 }
 
-.TTR__read-menu-voice {
-    margin-top                           : 00.10rem;
-    margin-right                         : 00.30rem;
-    margin-bottom                        : 00.05rem;
-    margin-left                          : 00.30rem;
-    padding-top                          : 00.35rem;
-    border-top                           : 01px solid var(--TTR_Col_ReadMenuRule);
-    color                                : var(--TTR_Col_ReadMenuHint);
-    font-size                            : 00.68rem;
-    line-height                          : 1.30;
+.TTR__read-menu-hint:empty {
+    display                              : none;
 }
 
-.TTR__read-menu-hint:empty,
-.TTR__read-menu-voice:empty {
-    display                              : none;
+/* Voice and speed, under the buttons */
+.TTR__read-menu-settings {
+    display                              : flex;
+    flex-direction                       : column;
+    gap                                  : 00.35rem;
+    margin-top                           : 00.10rem;
+    margin-right                         : 00.30rem;
+    margin-bottom                        : 00.10rem;
+    margin-left                          : 00.30rem;
+    padding-top                          : 00.45rem;
+    border-top                           : 01px solid var(--TTR_Col_ReadMenuRule);
+}
+
+.TTR__read-menu-row {
+    display                              : flex;
+    align-items                          : center;
+    gap                                  : 00.60rem;
+}
+
+.TTR__read-menu-row-label {
+    flex                                 : 0 0 02.90rem;
+    color                                : var(--TTR_Col_ReadMenuHint);
+    font-size                            : 00.75rem;
+    line-height                          : 1.20;
+}
+
+.TTR__read-menu-select {
+    flex                                 : 1 1 auto;
+    min-width                            : 0;
+    height                               : var(--TTR_Size_ReadMenuControl);
+    padding-top                          : 0;
+    padding-right                        : 00.40rem;
+    padding-bottom                       : 0;
+    padding-left                         : 00.40rem;
+    border                               : 01px solid var(--TTR_Col_ReadMenuBorder);
+    border-radius                        : 00.40rem;
+    background-color                     : var(--TTR_Col_ReadMenuBg);
+    color                                : var(--TTR_Col_ReadMenuText);
+    font-family                          : var(--font-regular);
+    font-size                            : 00.85rem;
+    cursor                               : pointer;
+}
+
+.TTR__read-menu-stepper {
+    display                              : flex;
+    align-items                          : center;
+    gap                                  : 00.45rem;
+}
+
+.TTR__read-menu-step {
+    width                                : var(--TTR_Size_ReadMenuControl);
+    height                               : var(--TTR_Size_ReadMenuControl);
+    padding                              : 0;
+    border                               : 01px solid var(--TTR_Col_ReadMenuBorder);
+    border-radius                        : 00.40rem;
+    background-color                     : var(--TTR_Col_ReadMenuBg);
+    color                                : var(--TTR_Col_ReadMenuText);
+    font-family                          : var(--font-semibold);
+    font-size                            : 01.10rem;
+    line-height                          : 1;
+    cursor                               : pointer;
+    -webkit-tap-highlight-color          : transparent;
+}
+
+.TTR__read-menu-step:hover:not(:disabled),
+.TTR__read-menu-step:focus-visible {
+    background-color                     : var(--TTR_Col_ReadMenuHover);
+    outline                              : none;
+}
+
+.TTR__read-menu-step:active:not(:disabled) {
+    background-color                     : var(--TTR_Col_ReadMenuPress);
+}
+
+.TTR__read-menu-step:disabled {
+    opacity                              : 0.40;
+    cursor                               : default;
+}
+
+.TTR__read-menu-speed {
+    min-width                            : 02.75rem;
+    text-align                           : center;
+    font-family                          : var(--font-semibold);
+    font-size                            : 00.90rem;
+    font-weight                          : 600;
+    font-variant-numeric                 : tabular-nums;
+}
+
+/* Flipped (near the bottom, or above a finger): grows upward, Read aloud last,
+   nearest the pointer or thumb; Voice and Speed on top */
+.TTR__read-menu[data-ttr-flip="up"] {
+    flex-direction                       : column-reverse;
+}
+
+.TTR__read-menu[data-ttr-flip="up"] .TTR__read-menu-settings {
+    padding-top                          : 0;
+    padding-bottom                       : 00.45rem;
+    border-top                           : none;
+    border-bottom                        : 01px solid var(--TTR_Col_ReadMenuRule);
 }
 
 /* Opened by a finger: bigger targets */
@@ -484,6 +574,28 @@ body[data-ttr-mode="edit"] .FORM__textarea {
 
 .TTR__read-menu[data-ttr-source="touch"] .TTR__read-menu-label {
     font-size                            : 01.125rem;
+}
+
+.TTR__read-menu[data-ttr-source="touch"] .TTR__read-menu-row-label {
+    flex-basis                           : 03.40rem;
+    font-size                            : 00.85rem;
+}
+
+/* 16 px text: phones do not zoom the page when the select is tapped */
+.TTR__read-menu[data-ttr-source="touch"] .TTR__read-menu-select {
+    height                               : var(--TTR_Size_ReadMenuControlTouch);
+    font-size                            : 01.00rem;
+}
+
+.TTR__read-menu[data-ttr-source="touch"] .TTR__read-menu-step {
+    width                                : var(--TTR_Size_ReadMenuControlTouch);
+    height                               : var(--TTR_Size_ReadMenuControlTouch);
+    font-size                            : 01.35rem;
+}
+
+.TTR__read-menu[data-ttr-source="touch"] .TTR__read-menu-speed {
+    min-width                            : 03.25rem;
+    font-size                            : 01.05rem;
 }
 
 /* Sentence and word being spoken (CSS Custom Highlight API: the DOM is untouched) */

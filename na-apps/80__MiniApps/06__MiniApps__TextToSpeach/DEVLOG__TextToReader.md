@@ -129,6 +129,33 @@ DEVELOPMENT LOG
   - The stylesheet change was committed and pushed early, inside 05a583f
     (1.5.1). This entry, NaMiniApp__Version and the ?v= tokens are 1.5.2.
 
+----------------------------------------------------------------
+1.6.0 - 10-Oct-2026 |  Voice And Speed In The Read Aloud Menu
+  - Under Read aloud the menu now has Voice (a dropdown) and Speed (- / +,
+    0.1 steps, 0.5x to 3x). Both are remembered on each device (localStorage
+    "NaTextToReader__ReadAloud__Prefs"); the AppConfig gives the defaults
+    (Steffan, 1.5x). Changing either mid-read restarts the sentence being
+    read in the new voice or speed, once, 450 ms after the last tap.
+  - Voice list: every English voice the browser offers. Edge on a computer:
+    "Microsoft Natural" (46) then "On this device", UK first, then US.
+  - Edge on Android gives web pages NO voices: getVoices() stays empty (Adam's
+    phone showed no voice line in 1.5.2; reported to Microsoft in 2024). So
+    1.5.x read in the phone's default voice and Steffan cannot be offered
+    there. The list now offers "Phone voice" by accent (UK, US, Australia,
+    Ireland, India), which steers the phone's own speech engine. Lists that
+    do arrive later (voiceschanged) replace it. Chrome-style lists (one voice
+    per language, en_GB) and Google's per-voice names are handled, online
+    ("network") voices first.
+  - Placement: Read aloud stays under the mouse pointer; near the bottom of the
+    window the menu grows upward (Read aloud last). On a phone it opens above
+    the finger with Read aloud nearest the thumb, or below the finger near the
+    top. Phone controls are 44 px; the select uses 16 px text so phones do not
+    zoom.
+  - A menu opened by touch no longer takes focus: lifting the finger focuses
+    the article, and the menu now closes when focus leaves it (Tab out).
+  - Tested in headless Edge 154: 29 new checks (PC, phone, phone with no
+    voices) plus the 37-check suite from 1.5.
+
 
 =================================================
 FILE STRUCTURE

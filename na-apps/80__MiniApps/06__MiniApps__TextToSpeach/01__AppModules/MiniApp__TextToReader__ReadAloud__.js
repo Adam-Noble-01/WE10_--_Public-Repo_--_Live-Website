@@ -21,6 +21,10 @@
 //             which iOS insists on.
 //           Highlights use the CSS Custom Highlight API, so the article's DOM is
 //           never changed.
+//           Voice and speed are picked in the menu and remembered per device
+//           (localStorage); the AppConfig gives the defaults. Edge on Android
+//           gives pages NO voices (getVoices() is empty; reported to Microsoft in
+//           2024), so there the phone's own voice reads, steered by language.
 //
 // =============================================================================
 
@@ -36,6 +40,19 @@
  const Na__TextToReader__FallbackClass     = "TTR__read-block--active";
  const Na__TextToReader__NoveltyVoice      = /eloquence|com\.apple\.speech\.synthesis|\b(Albert|Bad News|Bahh|Bells|Boing|Bubbles|Cellos|Good News|Jester|Organ|Superstar|Trinoids|Whisper|Wobble|Zarvox|Fred|Junior|Kathy|Ralph)\b/i;
  const Na__TextToReader__FallbackErrors    = ["network", "synthesis-failed", "synthesis-unavailable", "voice-unavailable", "language-unavailable"];
+ const Na__TextToReader__PrefsKey          = "NaTextToReader__ReadAloud__Prefs";   // this device's voice and speed
+ const Na__TextToReader__PhoneVoicePrefix  = "lang:";                              // a voice id that is only a language
+ const Na__TextToReader__RegionOrder       = ["GB", "US", "IE", "AU", "NZ", "CA", "IN", "ZA"];
+
+ // Offered when the browser lists no voices at all (Edge on Android): the phone's
+ // own voice, steered by language, which picks the accent.
+ const Na__TextToReader__PhoneLanguages = [
+     ["en-GB", "English (UK)"],
+     ["en-US", "English (US)"],
+     ["en-AU", "English (Australia)"],
+     ["en-IE", "English (Ireland)"],
+     ["en-IN", "English (India)"]
+ ];
 
  let Na__TextToReader__Article             = null;
  let Na__TextToReader__Session             = null;    // the reading in progress, or null
@@ -44,11 +61,17 @@
  let Na__TextToReader__FallbackBlock       = null;    // block lit when the Highlight API is missing
  let Na__TextToReader__LastUserScroll      = 0;
  let Na__TextToReader__LastAutoScroll      = 0;
+ let Na__TextToReader__Prefs               = { Na__VoiceId: null, Na__Rate: null };
+ let Na__TextToReader__RestartTimer        = 0;
+ let Na__TextToReader__VoiceListeners      = [];
 
  const Na__TextToReader__ReadSettings = {
      Na__PreferredVoices : [],
      Na__PreferredLang   : "en-GB",
      Na__Rate            : 1,
+     Na__RateMin         : 0.5,
+     Na__RateMax         : 3,
+     Na__RateStep        : 0.1,
      Na__Pitch           : 1,
      Na__MaxChunkChars   : 900,
      Na__FollowPauseMs   : 4000
@@ -437,6 +460,7 @@ function Na__TextToReader__ScoreVoice(Na__Voice) {
     else if (Na__Lang.split("-")[0] === Na__Wanted.split("-")[0]) Na__Score += 50;
     else                                                          Na__Score -= 2000;
 
+    if (/network|neural/i.test(Na__Ident))              Na__Score += 150;   // Android's online voices
     if (Na__TextToReader__NoveltyVoice.test(Na__Ident)) Na__Score -= 400;
     if (Na__Voice.default)                              Na__Score += 5;
     return Na__Score;
@@ -444,15 +468,103 @@ function Na__TextToReader__ScoreVoice(Na__Voice) {
 // ------------------------------------------------------------
 
 
-// FUNCTION | The best voice on offer right now (local voices only, when asked)
+// FUNCTION | A voice's id for the menu and the saved choice
+// ------------------------------------------------------------
+function Na__TextToReader__VoiceIdOf(Na__Voice) {
+    return Na__Voice.voiceURI || Na__Voice.name;
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | "UK", "US", "AU"... from a language tag
+// ------------------------------------------------------------
+function Na__TextToReader__RegionOf(Na__Lang) {
+    const Na__Part = String(Na__Lang || "").replace("_", "-").split("-")[1];
+    if (!Na__Part) return "";
+
+    const Na__Code = Na__Part.toUpperCase();
+    return Na__Code === "GB" ? "UK" : Na__Code;
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | Short menu name: "Steffan (US)", "George (UK)", or the browser's own name
+// ------------------------------------------------------------
+function Na__TextToReader__VoiceLabel(Na__Voice) {
+    const Na__Region = Na__TextToReader__RegionOf(Na__Voice.lang);
+    const Na__Suffix = Na__Region ? ` (${Na__Region})` : "";
+
+    const Na__Natural = /^Microsoft\s+(.+?)\s+Online\s+\(Natural\)/.exec(Na__Voice.name || "");
+    if (Na__Natural) return `${Na__Natural[1]}${Na__Suffix}`;
+
+    const Na__Desktop = /^Microsoft\s+(.+?)\s+-\s+/.exec(Na__Voice.name || "");
+    if (Na__Desktop) return `${Na__Desktop[1]}${Na__Suffix}`;
+
+    return Na__Voice.name || Na__Voice.lang || "Voice";
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | Read and write this device's choices (private windows may refuse storage)
+// ------------------------------------------------------------
+function Na__TextToReader__LoadPrefs() {
+    try {
+        const Na__Saved = JSON.parse(window.localStorage.getItem(Na__TextToReader__PrefsKey) || "{}");
+        return {
+            Na__VoiceId : typeof Na__Saved.Na__VoiceId === "string" ? Na__Saved.Na__VoiceId : null,
+            Na__Rate    : Number(Na__Saved.Na__Rate) > 0 ? Number(Na__Saved.Na__Rate) : null
+        };
+    } catch (Na__Error) {
+        return { Na__VoiceId: null, Na__Rate: null };
+    }
+}
+
+function Na__TextToReader__SavePrefs() {
+    try {
+        window.localStorage.setItem(Na__TextToReader__PrefsKey, JSON.stringify(Na__TextToReader__Prefs));
+    } catch (Na__Error) {
+        // Not stored: the choice still holds until the page closes.
+    }
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | The speed in force: this device's choice, else the AppConfig default
+// ------------------------------------------------------------
+function Na__TextToReader__CurrentRate() {
+    const Na__Settings = Na__TextToReader__ReadSettings;
+    const Na__Rate     = Na__TextToReader__Prefs.Na__Rate || Number(Na__Settings.Na__Rate) || 1;
+    return Math.min(Na__Settings.Na__RateMax, Math.max(Na__Settings.Na__RateMin, Na__Rate));
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | Language for an utterance with no voice object: the chosen phone language, else the default
+// ------------------------------------------------------------
+function Na__TextToReader__ChosenLang() {
+    const Na__Id = Na__TextToReader__Prefs.Na__VoiceId || "";
+    if (Na__Id.startsWith(Na__TextToReader__PhoneVoicePrefix)) return Na__Id.slice(Na__TextToReader__PhoneVoicePrefix.length);
+    return Na__TextToReader__ReadSettings.Na__PreferredLang;
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | The best voice on offer right now: this device's choice first (local voices only, when asked)
 // ------------------------------------------------------------
 function Na__TextToReader__PickVoice(Na__LocalOnly) {
     if (!Na__TextToReader__CanSpeak()) return null;
 
+    const Na__Voices = window.speechSynthesis.getVoices() || [];
+    const Na__Chosen = Na__TextToReader__Prefs.Na__VoiceId;
+    if (Na__Chosen && Na__LocalOnly !== true) {
+        const Na__Match = Na__Voices.find((Na__Voice) => Na__TextToReader__VoiceIdOf(Na__Voice) === Na__Chosen);
+        if (Na__Match) return Na__Match;
+    }
+
     let Na__Best      = null;
     let Na__BestScore = -Infinity;
 
-    (window.speechSynthesis.getVoices() || []).forEach((Na__Voice) => {
+    Na__Voices.forEach((Na__Voice) => {
         if (Na__LocalOnly === true && Na__Voice.localService === false) return;
 
         const Na__Score = Na__TextToReader__ScoreVoice(Na__Voice);
@@ -592,8 +704,8 @@ function Na__TextToReader__SpeakChunk(Na__Session) {
     const Na__Utterance = new window.SpeechSynthesisUtterance(Na__Run.Na__Text.slice(Na__Chunk.Na__Start, Na__Chunk.Na__End));
 
     if (Na__Voice) Na__Utterance.voice = Na__Voice;
-    Na__Utterance.lang  = Na__Voice ? Na__Voice.lang : Na__Settings.Na__PreferredLang;
-    Na__Utterance.rate  = Number(Na__Settings.Na__Rate)  || 1;
+    Na__Utterance.lang  = Na__Voice ? Na__Voice.lang : Na__TextToReader__ChosenLang();
+    Na__Utterance.rate  = Na__TextToReader__CurrentRate();
     Na__Utterance.pitch = Number(Na__Settings.Na__Pitch) || 1;
 
     const Na__IsLive = () => Na__TextToReader__Session === Na__Session && Na__Session.Na__Utterance === Na__Utterance;
@@ -671,6 +783,42 @@ function Na__TextToReader__FinishSession(Na__Session) {
 }
 // ------------------------------------------------------------
 
+
+// FUNCTION | Start again from the sentence being read, in the new voice or speed
+// ------------------------------------------------------------
+// An utterance's voice and rate are fixed once it starts, so a change mid-read
+// restarts the current sentence. A selection still stops at its own end.
+function Na__TextToReader__RestartFromCurrentSentence() {
+    const Na__Session = Na__TextToReader__Session;
+    if (!Na__Session) return;
+
+    const Na__From  = Na__Session.Na__SentenceRange || Na__Session.Na__Start.Na__Range;
+    const Na__Range = document.createRange();
+    try {
+        Na__Range.setStart(Na__From.startContainer, Na__From.startOffset);
+        if (Na__Session.Na__Start.Na__Kind === "selection") {
+            const Na__Whole = Na__Session.Na__Start.Na__Range;
+            Na__Range.setEnd(Na__Whole.endContainer, Na__Whole.endOffset);
+        }
+    } catch (Na__Error) {
+        return;
+    }
+
+    Na__TextToReader__StartReadAloud({ Na__Kind: Na__Session.Na__Start.Na__Kind, Na__Range });
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | Restart once the taps stop, so five quick "+" presses restart once
+// ------------------------------------------------------------
+function Na__TextToReader__ScheduleRestart() {
+    if (!Na__TextToReader__Session) return;
+
+    window.clearTimeout(Na__TextToReader__RestartTimer);
+    Na__TextToReader__RestartTimer = window.setTimeout(Na__TextToReader__RestartFromCurrentSentence, 450);
+}
+// ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -696,12 +844,35 @@ export function Na__TextToReader__InitialiseReadAloud(Na__Config) {
     if (Number(Na__Settings.NaMiniApp__Pitch) > 0)              Na__Target.Na__Pitch           = Number(Na__Settings.NaMiniApp__Pitch);
     if (Number(Na__Settings.NaMiniApp__MaxChunkChars) > 40)     Na__Target.Na__MaxChunkChars   = Number(Na__Settings.NaMiniApp__MaxChunkChars);
     if (Number(Na__Settings.NaMiniApp__FollowPauseMs) >= 0)     Na__Target.Na__FollowPauseMs   = Number(Na__Settings.NaMiniApp__FollowPauseMs);
+    if (Number(Na__Settings.NaMiniApp__RateMin)  > 0)           Na__Target.Na__RateMin         = Number(Na__Settings.NaMiniApp__RateMin);
+    if (Number(Na__Settings.NaMiniApp__RateMax)  > 0)           Na__Target.Na__RateMax         = Number(Na__Settings.NaMiniApp__RateMax);
+    if (Number(Na__Settings.NaMiniApp__RateStep) > 0)           Na__Target.Na__RateStep        = Number(Na__Settings.NaMiniApp__RateStep);
+
+    Na__TextToReader__Prefs = Na__TextToReader__LoadPrefs();
 
     if (!Na__TextToReader__Article || !Na__TextToReader__CanSpeak()) return false;
 
-    // Voices load asynchronously (Edge's Natural voices after its local ones): ask now.
-    window.speechSynthesis.cancel();   // a reload can inherit speech still playing
-    window.speechSynthesis.getVoices();
+    // Voices load asynchronously (Edge's Natural voices after its local ones; on
+    // Android perhaps only after the first speech): ask now, and tell the menu
+    // whenever the list changes.
+    const Na__Synth  = window.speechSynthesis;
+    const Na__Notify = () => {
+        Na__TextToReader__VoiceListeners.forEach((Na__Listener) => {
+            try {
+                Na__Listener();
+            } catch (Na__Error) {
+                console.warn("Text To Reader: voice list listener failed.", Na__Error);
+            }
+        });
+    };
+    if (typeof Na__Synth.addEventListener === "function") {
+        Na__Synth.addEventListener("voiceschanged", Na__Notify);
+    } else {
+        Na__Synth.onvoiceschanged = Na__Notify;
+    }
+
+    Na__Synth.cancel();   // a reload can inherit speech still playing
+    Na__Synth.getVoices();
 
     // A scroll we did not start means the reader is looking elsewhere: stop following for a while.
     document.addEventListener("scroll", () => {
@@ -811,10 +982,12 @@ export function Na__TextToReader__StartReadAloud(Na__Start) {
     // Replace any reading in progress. The old session is dropped before cancel(),
     // so its "interrupted" error is ignored.
     Na__TextToReader__Session = null;
+    window.clearTimeout(Na__TextToReader__RestartTimer);
     window.speechSynthesis.cancel();
     Na__TextToReader__ClearHighlights(true);
 
     const Na__Session = {
+        Na__Start,
         Na__Chunks,
         Na__Index         : 0,
         Na__Voice,
@@ -868,19 +1041,115 @@ export function Na__TextToReader__IsReadingAloud() {
 // ------------------------------------------------------------
 
 
-// FUNCTION | Short name of the voice that will read, e.g. "Steffan · Microsoft Natural · 1.5×"
+// FUNCTION | Voices for the menu, grouped, with the one that will read selected
 // ------------------------------------------------------------
-export function Na__TextToReader__GetReadAloudVoiceLabel() {
-    const Na__Voice = Na__TextToReader__Session ? Na__TextToReader__Session.Na__Voice : Na__TextToReader__PickVoice(false);
-    if (!Na__Voice) return "";
+// Groups: "natural" (Microsoft Natural - Edge on a computer), "device" (voices of
+// this computer or phone) and, only when the browser lists none at all (Edge on
+// Android), "phone": the phone's own voice by language.
+export function Na__TextToReader__GetReadAloudVoiceOptions() {
+    const Na__Voices  = Na__TextToReader__CanSpeak() ? (window.speechSynthesis.getVoices() || []) : [];
+    const Na__Wanted  = String(Na__TextToReader__ReadSettings.Na__PreferredLang || "en-GB").split("-")[0].toLowerCase();
+    const Na__Natural = [];
+    const Na__Device  = [];
 
-    const Na__Microsoft = /^Microsoft\s+(.+?)\s+(?:Multilingual\s+)?Online\s+\(Natural\)/.exec(Na__Voice.name);
-    const Na__Name      = Na__Microsoft
-        ? `${Na__Microsoft[1]} · Microsoft Natural`
-        : Na__Voice.name.replace(/\s+-\s+.*$/, "");
+    Na__Voices.forEach((Na__Voice) => {
+        const Na__Lang = String(Na__Voice.lang || "").replace("_", "-");
+        if (Na__Lang.split("-")[0].toLowerCase() !== Na__Wanted) return;
+        if (Na__TextToReader__NoveltyVoice.test(`${Na__Voice.name} ${Na__Voice.voiceURI || ""}`)) return;
 
-    const Na__Rate = Number(Na__TextToReader__ReadSettings.Na__Rate) || 1;
-    return Na__Rate !== 1 ? `${Na__Name} · ${Na__Rate}×` : Na__Name;
+        const Na__Entry = {
+            Na__Id     : Na__TextToReader__VoiceIdOf(Na__Voice),
+            Na__Label  : Na__TextToReader__VoiceLabel(Na__Voice),
+            Na__Region : (Na__Lang.split("-")[1] || "").toUpperCase()   // GB, US... for the sort order
+        };
+        (/\bNatural\b/.test(Na__Voice.name || "") ? Na__Natural : Na__Device).push(Na__Entry);
+    });
+
+    const Na__Rank = (Na__Region) => {
+        const Na__At = Na__TextToReader__RegionOrder.indexOf(Na__Region);
+        return Na__At >= 0 ? Na__At : Na__TextToReader__RegionOrder.length;
+    };
+    const Na__Sort = (Na__List) => Na__List.sort((Na__A, Na__B) =>
+        (Na__Rank(Na__A.Na__Region) - Na__Rank(Na__B.Na__Region)) ||
+        Na__A.Na__Region.localeCompare(Na__B.Na__Region) ||
+        Na__A.Na__Label.localeCompare(Na__B.Na__Label)
+    );
+
+    const Na__Groups = [];
+    if (Na__Natural.length > 0) Na__Groups.push({ Na__Key: "natural", Na__Options: Na__Sort(Na__Natural) });
+    if (Na__Device.length > 0)  Na__Groups.push({ Na__Key: "device",  Na__Options: Na__Sort(Na__Device) });
+
+    if (Na__Groups.length > 0) {
+        const Na__Picked = Na__TextToReader__PickVoice(false);
+        const Na__Listed = Na__Groups.some((Na__Group) => Na__Group.Na__Options.some((Na__Option) =>
+            Na__Picked && Na__Option.Na__Id === Na__TextToReader__VoiceIdOf(Na__Picked)
+        ));
+        return {
+            Na__Groups,
+            Na__SelectedId : Na__Listed ? Na__TextToReader__VoiceIdOf(Na__Picked) : Na__Groups[0].Na__Options[0].Na__Id
+        };
+    }
+
+    const Na__Phone = Na__TextToReader__PhoneLanguages.map(([Na__Lang, Na__Label]) => ({
+        Na__Id    : `${Na__TextToReader__PhoneVoicePrefix}${Na__Lang}`,
+        Na__Label
+    }));
+    const Na__Lang  = Na__TextToReader__ChosenLang();
+    if (!Na__Phone.some((Na__Option) => Na__Option.Na__Id === `${Na__TextToReader__PhoneVoicePrefix}${Na__Lang}`)) {
+        Na__Phone.unshift({ Na__Id: `${Na__TextToReader__PhoneVoicePrefix}${Na__Lang}`, Na__Label: Na__Lang });
+    }
+
+    return {
+        Na__Groups     : [{ Na__Key: "phone", Na__Options: Na__Phone }],
+        Na__SelectedId : `${Na__TextToReader__PhoneVoicePrefix}${Na__Lang}`
+    };
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | Choose the voice (an id from the menu), remember it, apply it at once
+// ------------------------------------------------------------
+export function Na__TextToReader__SetReadAloudVoice(Na__Id) {
+    Na__TextToReader__Prefs.Na__VoiceId = Na__Id ? String(Na__Id) : null;
+    Na__TextToReader__SavePrefs();
+    Na__TextToReader__ScheduleRestart();
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | The speed in force, and its limits for the menu's - and + buttons
+// ------------------------------------------------------------
+export function Na__TextToReader__GetReadAloudRate() {
+    return Na__TextToReader__CurrentRate();
+}
+
+export function Na__TextToReader__GetReadAloudRateLimits() {
+    return {
+        Na__Min : Na__TextToReader__ReadSettings.Na__RateMin,
+        Na__Max : Na__TextToReader__ReadSettings.Na__RateMax
+    };
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | One step slower (-1) or faster (+1); remembered and applied at once
+// ------------------------------------------------------------
+export function Na__TextToReader__StepReadAloudRate(Na__Direction) {
+    const Na__Settings = Na__TextToReader__ReadSettings;
+    const Na__Next     = Math.round((Na__TextToReader__CurrentRate() + (Na__Direction * Na__Settings.Na__RateStep)) * 100) / 100;
+
+    Na__TextToReader__Prefs.Na__Rate = Math.min(Na__Settings.Na__RateMax, Math.max(Na__Settings.Na__RateMin, Na__Next));
+    Na__TextToReader__SavePrefs();
+    Na__TextToReader__ScheduleRestart();
+    return Na__TextToReader__Prefs.Na__Rate;
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | Call back whenever the browser's voice list changes
+// ------------------------------------------------------------
+export function Na__TextToReader__OnReadAloudVoicesChanged(Na__Callback) {
+    if (typeof Na__Callback === "function") Na__TextToReader__VoiceListeners.push(Na__Callback);
 }
 // ------------------------------------------------------------
 
