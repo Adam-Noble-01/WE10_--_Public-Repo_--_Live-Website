@@ -1,0 +1,44 @@
+{
+    "contractId": "planning-approval",
+    "contractName": "Planning Approval Stage",
+    "sectionTitle": "Special Terms - Planning",
+    "introduction": "The following special conditions apply specifically to this project and supplement the standard terms.",
+    "terms": [
+        {
+            "id": 1,
+            "title": "Householder Planning Application - Preparation & Submission Only",
+            "content": "**Noble Architecture** will prepare a Householder Planning Application for the agreed scheme and submit it to **Rushcliffe Borough Council**. Noble Architecture's role as agent ends when the council confirms the application is valid. From then on the Client is responsible for the application, including all correspondence and negotiation with the planning officer, chasing, and any further reports or information the council asks for."
+        },
+        {
+            "id": 2,
+            "title": "Correspondence After Validation - Charged Hourly",
+            "content": "If the Client or the Local Planning Authority asks **Noble Architecture** to deal with the application after validation, that time will be charged at £50.00 per hour, unless the optional Managed Planning Application has been agreed. Minor amendments needing less than two hours remain free of charge, as set out in the standard terms. Any further design or drawing work the council requires will be quoted separately and agreed in writing before it starts."
+        },
+        {
+            "id": 3,
+            "title": "No Loft Conversion",
+            "content": "This appointment does not include a loft conversion, and none will be shown on the planning application. Loft conversions are specialist engineering work that needs a specialist roof survey, and this has not been priced. If the Client wants to explore converting the loft, this must be raised before the quotation is accepted, as it changes the survey, the design, the planning application and the fee."
+        },
+        {
+            "id": 4,
+            "title": "New Boundary Fence Included In The Application",
+            "content": "The existing hedge along the road is to be removed and a new fence put up on the boundary. A fence over one metre high next to a road used by vehicles is not permitted development under Class A of Part 2 of Schedule 2 to the Town and Country Planning (General Permitted Development) (England) Order 2015. The new fence will therefore be shown on, and included in, the Householder Planning Application."
+        },
+        {
+            "id": 5,
+            "title": "Statutory Application Fee",
+            "content": "The Householder Planning Application fee is set by Government and paid to **Rushcliffe Borough Council**. It is £548.00 under the fee schedule in force from 1 April 2026. Government has proposed new planning fees from 8 December 2026, and the fee payable is the one in force on the day of submission. The fee is a pass-through expense, not part of Noble Architecture's fee, and must be transferred to **Noble Architecture** and cleared at least one working day before submission."
+        },
+        {
+            "id": 6,
+            "title": "Method Of Submission & Planning Portal Service Charge",
+            "content": "Rushcliffe Borough Council accepts planning applications by email, and **Noble Architecture** intends to submit that way unless the Client asks otherwise. Submitting through the national Planning Portal adds the Portal's service charge, which for a householder application is now £149.00 including VAT. This figure replaces the one given in the standard Planning terms."
+        },
+        {
+            "id": 7,
+            "title": "Optional Agency Services - **Optional Add-On",
+            "content": "The optional Managed Planning Application (£500.00 plus VAT) must be agreed in writing before the application is submitted. **Noble Architecture** will then be named as the Client's agent and will manage all dialogue with the Local Planning Authority through to the decision, with the design fees adjusted accordingly."
+        }
+    ],
+    "lastUpdated": "10-Oct-2026 at 16:32"
+}

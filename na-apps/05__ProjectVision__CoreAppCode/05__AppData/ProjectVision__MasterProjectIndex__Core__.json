@@ -143,6 +143,17 @@
                 "planVision": false,
                 "trueVision": true
             }
+        },
+        "SK02": {
+            "projectCode": "SK02",
+            "projectName": "Ascott Gardens",
+            "projectFolder": "SK02__AscottGardens",
+            "projectYear": "26",
+            "subApps": {
+                "projectAdmin": true,
+                "planVision": false,
+                "trueVision": false
+            }
         }
     }
 }

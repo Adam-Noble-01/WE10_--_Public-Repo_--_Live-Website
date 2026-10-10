@@ -1,0 +1,29 @@
+{
+    "contractId": "building-surveying",
+    "contractName": "Building Surveying Service",
+    "sectionTitle": "Special Terms - Surveying",
+    "introduction": "The following special conditions apply specifically to this project and supplement the standard terms.",
+    "terms": [
+        {
+            "id": 1,
+            "title": "Survey Method",
+            "content": "**Noble Architecture** will carry out a measured survey of the whole house and plot on a return visit, by LiDAR scanning and drone photogrammetry, to the standard set out in the standard Building Surveying terms. The quick drone photogrammetry model and pre-survey made on 5ᵗʰ October 2026 were for the initial consultation only and are not a measured survey. The survey is weather dependent and may be rescheduled at short notice."
+        },
+        {
+            "id": 2,
+            "title": "Side Boundary Position",
+            "content": "The side boundary along the road will be shown on the drawings on the line of the Ordnance Survey data, aligned to the Client's HM Land Registry title plan and to the scan. On 5ᵗʰ October 2026 the Client obtained the title plan while **Noble Architecture** was on site, and it was compared with the MapServe preview of the Ordnance Survey data. Both show the boundary in broadly the same place, in a straighter line along the road than the existing hedge, which angles in towards the house. Title plans show general boundaries only. The line on the drawings is Noble Architecture's best fit of the title plan and the Ordnance Survey data to the scan, not a legal determination of the boundary. The Client must be satisfied with the line before the hedge is removed and the new fence is put up, and should take advice from a boundary surveyor or solicitor if in any doubt. Noble Architecture accepts no liability for the legal position of the boundary."
+        },
+        {
+            "id": 3,
+            "title": "Side Extension Width & Clearance To The Fence",
+            "content": "The side extension will be set out from the existing side wall of the house and will extend to approximately 200 mm short of the boundary line, leaving room to clear leaves and debris. The new fence will continue the line of the existing boundary along the road. The final width depends on the boundary line accepted by the Client and on planning permission."
+        },
+        {
+            "id": 4,
+            "title": "No Loft Conversion",
+            "content": "The survey records the roof form for the 3D model only. It does not include the specialist roof structure survey that a loft conversion needs, and no loft conversion has been priced. A loft conversion would need that survey as an additional instruction and fee."
+        }
+    ],
+    "lastUpdated": "10-Oct-2026 at 16:32"
+}

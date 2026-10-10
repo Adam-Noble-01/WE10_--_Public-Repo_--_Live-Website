@@ -1,0 +1,69 @@
+{
+    "contractId": "building-regulations",
+    "contractName": "Building Regulations Stage",
+    "sectionTitle": "Special Terms - Building Regs",
+    "introduction": "The following special conditions apply specifically to this project and supplement the standard terms.",
+    "terms": [
+        {
+            "id": 1,
+            "title": "Limitation Of Noble Architecture's Appointment",
+            "content": "It is explicitly agreed that **Noble Architecture's** scope of services concludes at submission of the Householder Planning Application, unless the quotation and written appointment explicitly include \"Design Phase 03 – Building Regulations Compliance\" (or equivalent wording confirming a Building Regulations technical design stage). No such stage is included in the current appointment."
+        },
+        {
+            "id": 2,
+            "title": "Transfer Of Technical Responsibility After Planning",
+            "content": "**Sukhi Home Solutions** will take responsibility for all technical aspects, construction methods, specification, coordination of technical design and Building Regulations compliance immediately after the Planning Approval stage. Planning drawings produced by Noble Architecture are illustrative concept documents for planning purposes only and must not be relied on for fabrication, procurement, setting-out or construction."
+        },
+        {
+            "id": 3,
+            "title": "Principal Designer (Building Regulations Dutyholder) Transfer",
+            "content": "In accordance with the Building Safety Act 2022 and the Building Regulations etc. (Amendment) (England) Regulations 2023, the statutory role of \"Principal Designer\" for Building Regulations compliance is phase-specific and attaches only to the party in control of the design work for the relevant phase. Unless **Noble Architecture** is specifically retained in writing for the Building Regulations technical phase, Noble Architecture's statutory role as Principal Designer automatically concludes upon submission of the Householder Planning Application. Where the Domestic Client does not formally appoint a replacement Principal Designer in writing, the Principal Designer role transfers to the person or organisation in control of the building work, being **Sukhi Home Solutions** for this project unless otherwise appointed."
+        },
+        {
+            "id": 4,
+            "title": "Building Control Route",
+            "content": "**Sukhi Home Solutions** will choose the Building Control route. If a Building Notice is used, no detailed technical plans are approved before work starts, and the Building Control Body approves the work through site inspections. This can be quicker than a Full Plans application but carries more financial risk: if an inspector rejects a detail on site, the work may have to be altered, removed or rebuilt at the Client's or Contractor's expense. Noble Architecture accepts no liability for remedial works, abortive works or additional costs arising from Building Control decisions under either route."
+        },
+        {
+            "id": 5,
+            "title": "Structural Engineers & Independent Verification",
+            "content": "**Sukhi Home Solutions** must appoint their own independent Structural Engineer. Structural design of the new openings in the rear wall, the removal of the conservatory, moving the lounge wall into the hallway, any change to the stairs, the two storey side extension and its first floor rear projection, the garage conversion and all foundations sits outside Noble Architecture's appointment. Nothing issued by Noble Architecture constitutes a structural design. The measured survey is for concept design and planning only; all engineers and specialists must take their own site measurements and verify all key dimensions before ordering, fabrication or construction."
+        },
+        {
+            "id": 6,
+            "title": "Design Suggestions Are Not Specifications",
+            "content": "During the site visit **Noble Architecture** suggested a roof light over the kitchen island, multi-folding doors across the back of the extension, and underfloor heating. These are design suggestions, not technical specifications. Large areas of glazing may need to be justified by calculation under Part L of the Building Regulations. The specification, thermal performance, glazing, heating design and any calculations are the responsibility of **Sukhi Home Solutions**."
+        },
+        {
+            "id": 7,
+            "title": "Existing Solar Panels",
+            "content": "The house has a solar panel (photovoltaic) system on its roof. Where the works affect it, for example where the side extension's roof meets the main roof, its removal, relocation, rewiring and recommissioning are the responsibility of **Sukhi Home Solutions** and a qualified installer, and sit outside Noble Architecture's appointment."
+        },
+        {
+            "id": 8,
+            "title": "Demolition Of The Conservatory & Conversion Of The Garage",
+            "content": "Demolition of the existing conservatory, making good the rear wall, and the assessment of any existing foundation, slab or structure that is kept or built on, including the garage floor, walls and foundations, are the responsibility of **Sukhi Home Solutions**. **Noble Architecture** has not inspected these and gives no opinion on whether any part is suitable for reuse."
+        },
+        {
+            "id": 9,
+            "title": "Drainage And Existing Services",
+            "content": "The measured survey does not trace below ground drainage or services, and the position of drain runs, inspection chambers and services beneath or next to the extensions is not known. Investigation of the existing drainage, any diversion, and any Build Over Agreement with the water company are the responsibility of **Sukhi Home Solutions** and are not included in Noble Architecture's appointment."
+        },
+        {
+            "id": 10,
+            "title": "Party Wall Matters",
+            "content": "Where the works fall within the Party Wall etc. Act 1996, for example foundations dug within 3 metres of the neighbour's house, serving notices and appointing a party wall surveyor are for the Client and **Sukhi Home Solutions**, and sit outside Noble Architecture's appointment."
+        },
+        {
+            "id": 11,
+            "title": "No Loft Conversion",
+            "content": "No loft conversion is included or designed. Loft conversions are specialist engineering work, and any later loft conversion would need a specialist roof survey and structural design as a new instruction, with its own quotation."
+        },
+        {
+            "id": 12,
+            "title": "Re-Engagement Of Noble Architecture For A Technical Package",
+            "content": "If the Client or Contractor later requires a Building Regulations technical design package, including detailed cross-sections, thermal details and pre-approval submissions, this is a new instruction. It will be subject to a fresh quotation, quotations are valid for 30 days, and the Client acknowledges that **Noble Architecture** typically requires a minimum lead time of 6 weeks before starting new technical drawing work. The Client must factor this into the construction programme to avoid delays."
+        }
+    ],
+    "lastUpdated": "10-Oct-2026 at 16:32"
+}

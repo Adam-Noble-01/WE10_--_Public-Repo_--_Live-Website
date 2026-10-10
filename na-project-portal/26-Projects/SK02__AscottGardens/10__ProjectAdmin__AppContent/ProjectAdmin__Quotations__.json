@@ -1,0 +1,242 @@
+{
+    "quotations": [
+        {
+            "quotationRef": "QUO-SK02-2026-001",
+            "quotationName": "Main Quote",
+            "signatureRequired": true,
+            "quotationDate": "10-Oct-2026",
+            "projectAddress": "32 Ascott Gardens, West Bridgford, Nottingham, NG2 7TH",
+            "projectDescription": "Two Storey Side Extension on the corner side with a First Floor Rear Projection, Single Storey Rear Extension across the full width of the house replacing the Existing Conservatory to form an open plan Kitchen and Dining Room, conversion of the Existing Garage, a remodelled Entrance Hall and Staircase, a wider Lounge, and a new Boundary Fence along the road. My fee is £3,400 plus VAT. As I didn't mention VAT on site, I'm covering half of it, so you pay £3,740.00 in total rather than £4,080.00. See the Goodwill Gesture at the foot of the quotation.",
+            "clientDataStorage": "cloudflare-r2-encrypted",
+            "status": "draft",
+            "lineItems": [
+                {
+                    "description": "Initial Design Consultation",
+                    "itemDescription": "1. A full-day design consultation on site on 05-Oct-2026, provided free of charge.\n2. Early sketch options for the kitchen extension, the side extension and the first floor.\n3. A first check of the side boundary against your title plan and the Ordnance Survey preview.",
+                    "quantity": 8,
+                    "unit": "Free",
+                    "rate": 0,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Building Survey & Travel",
+                    "itemDescription": "1. A return visit to scan the whole house, inside and out, with LiDAR, and the roof and plot by drone photogrammetry.\n2. Includes the side boundary, the hedge and the road edge.\n3. Includes travel to and from site.",
+                    "quantity": 8,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Boundary Alignment : Title Plan & OS Data",
+                    "itemDescription": "1. The Ordnance Survey data and your HM Land Registry title plan aligned to the scan.\n2. Sets the line of the new fence along the road, and the width of the side extension.\n3. A best fit of the information available, not a legal boundary determination. See the Building Surveying contract.",
+                    "quantity": 3,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Model Existing Site Conditions",
+                    "itemDescription": "1. A 3D model of the house and plot, built from the scan.\n2. The base every existing and proposed drawing is taken from.",
+                    "quantity": 22,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Prepare Design Proposal & Design Development",
+                    "itemDescription": "1. The two storey side extension with its first floor rear projection, and the full-width single storey kitchen extension.\n2. The hallway, stairs and wider lounge, and the garage, utility and side rooms.\n3. First floor bedroom and en-suite options, including your daughter's suite.",
+                    "quantity": 24,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Design Review Meeting",
+                    "itemDescription": "1. A walk-through of the concept in TrueVision with you and your daughter.\n2. Changes agreed at the meeting are made to the concept.",
+                    "quantity": 3,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Finalisation of TrueVision Experience & Distribution",
+                    "itemDescription": "1. The agreed concept published in TrueVision, to walk around in 3D and share with Sukhi Home Solutions.",
+                    "quantity": 6,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Coordination & Admin",
+                    "itemDescription": "",
+                    "quantity": 2,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 01 : Concept Design"
+                },
+                {
+                    "description": "Drawing : Introduction Page",
+                    "itemDescription": "1. Features CGIs of the scheme.\n2. Not mandated, but it usually heads off frustrating requests for material specifications, as everything is shown and described on this one sheet.\n3. Size  = Iso A2",
+                    "quantity": 3,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Drawing : Site & Block Plans",
+                    "itemDescription": "1. Mandatory Drawing Required by the Local Planning Authority.\n2. Shows the boundary line and the new fence along the road.\n3. Scale = 1:500 & 1:1250\n4. Size  = Iso A2",
+                    "quantity": 5,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Drawing : Existing Floor Plans",
+                    "itemDescription": "1. Mandatory Drawing Required by the Local Planning Authority.\n2. Scale = 1:50\n3. Size  = Iso A2",
+                    "quantity": 8,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Drawing : Proposed Floor Plans",
+                    "itemDescription": "1. Mandatory Drawing Required by the Local Planning Authority.\n2. Scale = 1:50\n3. Size  = Iso A2",
+                    "quantity": 12,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Drawing : Existing Elevations",
+                    "itemDescription": "1. Mandatory Drawing Required by the Local Planning Authority.\n2. All four elevations. Two of them face the road on this corner plot.\n3. Scale = 1:50\n4. Size  = Iso A2",
+                    "quantity": 8,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Drawing : Proposed Elevations",
+                    "itemDescription": "1. Mandatory Drawing Required by the Local Planning Authority.\n2. All four elevations. Two of them face the road on this corner plot.\n3. Scale = 1:50\n4. Size  = Iso A2",
+                    "quantity": 12,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Production Of CGIs",
+                    "itemDescription": "1. Final CGIs for the Introduction Page.\n2. Not mandatory, but they boost the chances greatly and reduce requests for information from the council.",
+                    "quantity": 14,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Planning Application Forms & Submission",
+                    "itemDescription": "1. Householder planning application forms completed and submitted to Rushcliffe Borough Council.\n2. My role as agent ends when the council validates the application. See the Planning Approval contract.",
+                    "quantity": 2,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Coordination & Admin",
+                    "itemDescription": "",
+                    "quantity": 4,
+                    "unit": "Hours",
+                    "rate": 25,
+                    "group": "Design Phase - 02 : Planning Approval"
+                },
+                {
+                    "description": "Goodwill Gesture - Half The VAT Covered",
+                    "itemDescription": "1. On site I quoted my fee as £3,400 and forgot to mention VAT.\n2. Full price: £3,400 + VAT at 20% (£680.00) = £4,080.00.\n3. As that was my oversight, I am covering half of the VAT, saving you £340.00.\n4. This line takes £283.33 off my fee. VAT at 20% on the reduced fee is £623.33, so you pay £3,740.00 in total.\n5. Every invoice will show VAT at the full 20%.",
+                    "quantity": 1,
+                    "unit": "Discount",
+                    "rate": -283.33,
+                    "group": "Goodwill Gesture : **Discount Applied!!"
+                },
+                {
+                    "description": "Document : Design & Access Statement",
+                    "itemDescription": "1. To the same standard as the statement I showed you on the day. That one was £400; yours is about 70% of the work, as the house isn't in the Green Belt.\n2. Not mandatory for a householder application, but it is where the case is made for the side extension and for protecting your neighbour's light and privacy.\n3. Strongly advised for this scheme.",
+                    "quantity": 0,
+                    "unit": "Optional",
+                    "rate": 200,
+                    "group": "Additional Extras : **For Discussion & Consideration!!"
+                },
+                {
+                    "description": "Managed Planning Application (See Contract)",
+                    "itemDescription": "1. I act as your agent through to the decision, handling every call and email with the council for you.\n2. I always offer it, but on this job I don't think it's good value for you, and I wouldn't take it if I were you.\n3. Must be agreed in writing before the application is submitted.",
+                    "quantity": 0,
+                    "unit": "Optional",
+                    "rate": 500,
+                    "group": "Additional Extras : **For Discussion & Consideration!!"
+                },
+                {
+                    "description": "Design Phase 03 - Building Regulations",
+                    "itemDescription": "1. Not needed. Sukhi Home Solutions will produce the Building Regulations information and hold the legal duties for it under the Building Safety Act 2022.\n2. Shown because I always offer it. Indicative figure only.\n3. See the Building Regulations contract.",
+                    "quantity": 0,
+                    "unit": "Optional",
+                    "rate": 3000,
+                    "group": "Additional Extras : **For Discussion & Consideration!!"
+                },
+                {
+                    "description": "Planning Portal Fee",
+                    "itemDescription": "1. The national Planning Portal's service charge for a householder application: £149.00 including VAT.\n2. Optional. Rushcliffe Borough Council accepts applications by email, which avoids it.\n3. See the Planning Approval contract.",
+                    "quantity": 0,
+                    "unit": "Optional",
+                    "rate": 149,
+                    "group": "Additional Extras : **For Discussion & Consideration!!"
+                },
+                {
+                    "description": "Householder Planning Application Fee",
+                    "itemDescription": "1. Set by Government and paid to Rushcliffe Borough Council.\n2. £548.00 from 1 April 2026. Government has proposed new planning fees from 8 December 2026; the fee due is the one in force on the day of submission.\n3. Paid to Noble Architecture and cleared at least one working day before submission. See the Planning Approval contract.",
+                    "quantity": 0,
+                    "unit": "item",
+                    "rate": 548,
+                    "group": "Third Party Fees - **Not Included!!"
+                },
+                {
+                    "description": "OS Mapping Data",
+                    "itemDescription": "1. Required for the site location and block plans.\n2. Ordnance Survey data bought from MapServe.\n3. Also used to set the side boundary against your title plan.",
+                    "quantity": 0,
+                    "unit": "item",
+                    "rate": 40,
+                    "group": "Third Party Fees - **Not Included!!"
+                },
+                {
+                    "description": "Structural Engineer Fees",
+                    "itemDescription": "1. Structural design of the new openings and beams, the lounge wall, any change to the stairs, the two storey side extension and all foundations.\n2. To be appointed by Sukhi Home Solutions. Not included in Noble Architecture's fee.",
+                    "quantity": 0,
+                    "unit": "By Others",
+                    "rate": 0,
+                    "group": "Third Party Fees - **Not Included!!"
+                },
+                {
+                    "description": "Building Regulations & Building Control Fees",
+                    "itemDescription": "1. The Building Control application, inspection fees and all technical submissions.\n2. Handled by Sukhi Home Solutions. Not included in Noble Architecture's fee.",
+                    "quantity": 0,
+                    "unit": "By Others",
+                    "rate": 0,
+                    "group": "Third Party Fees - **Not Included!!"
+                },
+                {
+                    "description": "Party Wall Surveyor (If Required)",
+                    "itemDescription": "1. If the foundations of the rear extension come within 3 metres of your neighbour's house, notices under the Party Wall etc. Act 1996 may be needed.\n2. For you and Sukhi Home Solutions to arrange. Not included in Noble Architecture's fee.",
+                    "quantity": 0,
+                    "unit": "By Others",
+                    "rate": 0,
+                    "group": "Third Party Fees - **Not Included!!"
+                }
+            ],
+            "totals": {
+                "subtotal": 3116.67,
+                "vatApplicable": true,
+                "vatRate": 20,
+                "vat": 623.33,
+                "grandTotal": 3740.0
+            },
+            "additionalTerms": "The fee is based on the floor areas and scope agreed on site on 05-Oct-2026: about 25 m² of new ground floor and 30 m² of new first floor. If, before design work starts, the floor area or the complexity of the scheme is reduced, the fee will be adjusted fairly. Changes made after a design option has been drawn do not reduce the fee.",
+            "createdDate": "10-Oct-2026 at 16:26",
+            "lastModified": "10-Oct-2026 at 16:32"
+        }
+    ]
+}

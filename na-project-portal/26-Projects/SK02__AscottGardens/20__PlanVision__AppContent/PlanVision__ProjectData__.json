@@ -1,0 +1,29 @@
+{
+    "na-project-data-library": {
+        "project-details": {
+            "project-name": "Ascott Gardens",
+            "project-name-nickname": "Ascott Gardens",
+            "project-address": "",
+            "project-description": "",
+            "client-name": ""
+        },
+        "project-phase-config": {
+            "active-design-phase": "DesignPhase01",
+            "available-phases": [
+                "DesignPhase01"
+            ],
+            "phase-last-updated": "10-Oct-2026"
+        },
+        "project-documentation": {
+            "phase-content": {
+                "DesignPhase01": {
+                    "phase-folder": "DesignPhase01__ConceptDesign__Content",
+                    "folder-structure": []
+                }
+            }
+        },
+        "design-access-statement": {
+            "das-enabled": false
+        }
+    }
+}
