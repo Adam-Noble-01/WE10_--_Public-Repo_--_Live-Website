@@ -69,6 +69,15 @@
    REGION | Application Bar
    ----------------------------------------------------------------------------- */
 
+    /* WINDOW CONTROLS OVERLAY | The installed Studio puts this bar in the
+       window title bar (display_override in the manifest), and Edge draws
+       its own buttons over the right-hand end: the key, the ... menu,
+       downloads, minimise, maximise and close. titlebar-area-x and
+       titlebar-area-width are the part of the bar those buttons leave
+       free, so the padding below stops the pills and the pop-out button
+       just short of them, and follows them when Edge adds or drops an
+       icon. Outside the installed app (an --app window, a browser tab)
+       neither is set and both sides are the plain 10px. */
     .nads-bar {
         position                 : fixed;
         top                      : 0;
@@ -79,6 +88,8 @@
         align-items              : center;
         gap                      : 6px;
         padding                  : 0 10px;
+        padding-left             : calc(10px + env(titlebar-area-x, 0px));
+        padding-right            : calc(10px + 100vw - env(titlebar-area-x, 0px) - env(titlebar-area-width, 100vw));
         box-sizing               : border-box;
         background               : var(--nads-surface);
         border-bottom            : 1px solid var(--nads-border);
@@ -274,6 +285,14 @@
         position                 : relative;
         flex                     : 0 1 auto;
         min-width                : 0;
+    }
+
+    /* The breadcrumb is the part of the bar that gives way when space runs
+       short - the title bar buttons above take about 250px of it in the
+       installed app - so a long project name ends in an ellipsis instead
+       of running on under the pills. */
+    .nads-switch > .nads-btn {
+        max-width                : 100%;
     }
 
     .nads-switch__menu {

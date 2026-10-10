@@ -6,6 +6,33 @@
 
 # -----------------------------------------------------------------------------
 
+## Project Vision - Version 0.5.1 - 10-Oct-2026
+
+### Fixed - The installed Studio hid its sub-app buttons under Edge's title bar buttons
+
+#### Why
+- The manifest asks for `window-controls-overlay`, so the installed Studio puts its bar in the
+  window's title bar, and Edge draws its own buttons over the right-hand end: the key, the ...
+  menu, downloads, minimise, maximise and close - about 250px at Adam's window size. The bar ran
+  the full width, so Admin, PlanVision, 3D and the pop-out button sat underneath them and only
+  Hub showed.
+
+#### Studio shell (`NaStudioShell__AppShell__Stylesheet__.css`)
+- `.nads-bar` pads its ends by `env(titlebar-area-x)` and by whatever `env(titlebar-area-width)`
+  leaves of the window, so the pills and the pop-out button stop just short of Edge's buttons and
+  follow them when Edge adds or drops an icon. Outside the installed app (an `--app` window, a
+  tab) the values are unset and the padding is the old 10px: that layout is pixel-for-pixel
+  what it was.
+- The breadcrumb button is capped at its slot (`.nads-switch > .nads-btn { max-width: 100% }`),
+  so a long project name ends in an ellipsis instead of running on under the pills.
+- Checked in real Edge at Adam's window size (1046 x 620 CSS px at 150%) with the overlay width
+  measured from his screenshot: every button ends at 788px against the overlay at 798px, for
+  AA00 and for PS02's "Musters Road - Official PD Pack", and at a 900px window. DevTools' own
+  overlay emulation could not stand in for the real window: headless, it draws its buttons
+  mid-bar and sets no `titlebar-area` values.
+
+# -----------------------------------------------------------------------------
+
 ## Project Vision - Version 0.5.0 - 10-Oct-2026
 
 ### Added - Project Admin's Editor Tools work inside the Studio

@@ -245,6 +245,14 @@ same-origin frame pushes an entry onto the top-level session history, so
 address hash is kept in step with `replaceState`, which updates the current
 entry rather than adding a second one beside the frame's.
 
+**Why the bar's right end is padded in the installed app.** The manifest asks
+for `window-controls-overlay`, so in the installed Studio the bar is the window's
+title bar, and Edge draws its own buttons - the key, the ... menu, downloads,
+minimise, maximise, close - over its right-hand end. The bar pads that end by
+the width Edge reports (`env(titlebar-area-width)`), so the pills and the pop-out
+button always stop just short of them. In an `--app` window or a tab the value is
+unset and the padding is the plain 10px.
+
 **Why there is no service worker.** A worker is not required for installability
 in current Edge or Chrome, and local app code is edited constantly. A caching
 worker is the known cause of a browser running yesterday's module. The shell
