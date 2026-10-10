@@ -251,44 +251,28 @@
             "dueDate": "17-Oct-2026",
             "invoiceDate": "10-Oct-2026",
             "invoiceRef": "INV-RB05-2026-003",
-            "lastModified": "10/10/2026, 18:06:52",
+            "lastModified": "10/10/2026, 18:38:53",
             "lineItems": [
                 {
-                    "description": "Sat 19-Sep-2026 - 2h",
+                    "description": "Week commencing 14-Sep-2026 - 11h 15m",
                     "group": "Session 04  |  Pre-Application  |  September 2026",
-                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
-                    "quantity": 2,
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)\n- Sat 19 and Sun 20 September",
+                    "quantity": 11.25,
                     "rate": 25,
                     "unit": "Hours"
                 },
                 {
-                    "description": "Sun 20-Sep-2026 - 9h 15m",
+                    "description": "Week commencing 21-Sep-2026 - 19h 51m",
                     "group": "Session 04  |  Pre-Application  |  September 2026",
-                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)",
-                    "quantity": 9.25,
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)\n- Mon 21 to Wed 23 September",
+                    "quantity": 19.85,
                     "rate": 25,
                     "unit": "Hours"
                 },
                 {
-                    "description": "Mon 21-Sep-2026 - 15h 36m",
+                    "description": "Week commencing 28-Sep-2026 - 15h 12m",
                     "group": "Session 04  |  Pre-Application  |  September 2026",
-                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)\n- Worked through to 02:45 on Tue 22-Sep-2026",
-                    "quantity": 15.6,
-                    "rate": 25,
-                    "unit": "Hours"
-                },
-                {
-                    "description": "Wed 23-Sep-2026 - 4h 15m",
-                    "group": "Session 04  |  Pre-Application  |  September 2026",
-                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)\n- Includes a session from 02:45 to 04:15",
-                    "quantity": 4.25,
-                    "rate": 25,
-                    "unit": "Hours"
-                },
-                {
-                    "description": "Tue 29-Sep-2026 - 15h 12m",
-                    "group": "Session 04  |  Pre-Application  |  September 2026",
-                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)\n- Worked through to 02:00 on Wed 30-Sep-2026",
+                    "itemDescription": "- Hourly Rate at reduced friends & family rate (£25 per hour)\n- Tue 29 and Wed 30 September",
                     "quantity": 15.2,
                     "rate": 25,
                     "unit": "Hours"
@@ -296,7 +280,7 @@
                 {
                     "description": "Rounding to the whole hour - 42m",
                     "group": "Session 04  |  Pre-Application  |  September 2026",
-                    "itemDescription": "- 46h 18m recorded across the five days above, rounded up to 47h",
+                    "itemDescription": "- 46h 18m recorded across the three weeks above, rounded up to 47h",
                     "quantity": 0.7,
                     "rate": 25,
                     "unit": "Hours"
