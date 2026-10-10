@@ -295,7 +295,8 @@ body[data-ttr-mode="read"] .MAIN__output > h1:first-child {
     line-height                          : 1.40;
 }
 
-.MAIN__output ul li::before {
+/* Child combinator: a numbered list inside a bullet list keeps full-size numbers */
+.MAIN__output ul > li::before {
     content                              : "\25A0";
     position                             : absolute;
     left                                 : 00.00mm;
@@ -557,7 +558,39 @@ body[data-ttr-mode="read"] .MAIN__output > h1:first-child {
     body[data-ttr-mode="read"] .MAIN__output ul,
     body[data-ttr-mode="read"] .MAIN__output ol {
         margin-bottom                    : 02.00mm;
-        padding-left                     : 05.00mm;
+    }
+
+    /* Lists, Simple and Read: markers start on the text edge.
+       The shared utility stylesheet pulls lists 1.75 rem left and 0.75 rem
+       right on phones, for browser-drawn markers. These lists draw their own,
+       so the numbers went off screen, and nested text ran past the right edge.
+       Number columns are in em so they follow the type (Read 8.5 pt, Simple 11 pt). */
+    .MAIN__output ul,
+    .MAIN__output ol,
+    .MAIN__output ol ol,
+    .MAIN__output ol ol ol {
+        margin-left                      : 00.00mm;
+        margin-right                     : 00.00mm;
+        padding-left                     : 00.00mm;
+    }
+
+    .MAIN__output ul > li,
+    .MAIN__output ol > li {
+        padding-left                     : 01.75em;
+    }
+
+    .MAIN__output ol ol > li {
+        padding-left                     : 02.25em;
+    }
+
+    .MAIN__output ol ol ol > li {
+        padding-left                     : 03.00em;
+    }
+
+    .MAIN__output ol > li::before,
+    .MAIN__output ol ol > li::before,
+    .MAIN__output ol ol ol > li::before {
+        left                             : 00.00mm;
     }
 }
 /* endregion ---------------------------------------------------------------- */

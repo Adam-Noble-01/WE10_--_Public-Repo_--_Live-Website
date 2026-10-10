@@ -170,7 +170,16 @@ and warns.
 
 **The link** is `https://www.noble-architecture.com/q/?{CODE}`, the same
 resolver the QR codes on the drawings use. The build errors if the code is not
-in `q/index.json`, because the link would open nothing.
+in `q/index.json`, because the link would open nothing. A new project is
+missing until the index is rebuilt; `na_new_project.py` does not add it. Fix:
+
+```bash
+python "D:/WE10_--_Public-Repo_--_Live-Website/na-apps/05__ProjectVision__CoreAppCode/ProjectVision__BuildScript__.py" --qr-index-only
+```
+
+Then commit and push `q/index.json` with Adam's say-so, and confirm the Pages
+deploy finished before sending. Every other website repo script, and who may
+run it, is in noble-admin's `references/website-scripts.md`.
 
 **No QR code in emails yet.** Outlook strips the inline SVG the statement draws.
 Without a hosted PNG the hub drops the "scan" words and keeps the button, as

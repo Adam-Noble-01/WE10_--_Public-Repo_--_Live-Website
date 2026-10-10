@@ -87,6 +87,25 @@ DEVELOPMENT LOG
   - New modules: MiniApp__TextToReader__ReadAloud__.js (speech, highlights,
     voice choice) and MiniApp__TextToReader__ReadMenu__.js (menu, long press).
 
+----------------------------------------------------------------
+1.5.1 - 10-Oct-2026 |  Versioned File URLs (1.5.0 Ran Old Code)
+  - Live 1.5.0 still showed Edge's own menu. The new page and config arrived,
+    but browsers ran the OLD Main__.js, so the read aloud menu never loaded.
+    Cloudflare gives JS and CSS "Cache-Control: max-age=14400" (4 hours),
+    while HTML and JSON get 600 (10 minutes). Straight after the deploy its
+    edge still served the previous Main__.js, and a browser that fetched it
+    keeps it for 4 hours. A hard refresh did not clear it. A fresh Edge eight
+    minutes after the deploy got the new file and passed every read aloud
+    check on the live site.
+  - Fix: every app file now loads by a versioned URL (?v=1.5.1). The page is
+    never held for long, so a release's new ?v= is a URL nothing has cached:
+      - the two app stylesheet links in the head;
+      - the Main__.js script tag;
+      - an import map giving each 01__AppModules/*.js its versioned URL, so the
+        import lines in the modules never change.
+  - RELEASE RULE: with each release, set every ?v= in Main__.html to the new
+    version, next to NaMiniApp__Version in the AppConfig.
+
 
 =================================================
 FILE STRUCTURE
