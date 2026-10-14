@@ -251,7 +251,7 @@
             "dueDate": "17-Oct-2026",
             "invoiceDate": "10-Oct-2026",
             "invoiceRef": "INV-RB05-2026-003",
-            "lastModified": "10/10/2026, 18:58:48",
+            "lastModified": "14/10/2026, 10:00:48",
             "lineItems": [
                 {
                     "description": "Sat 19-Sep-2026 - 2h",
@@ -329,14 +329,15 @@
             "personalNote": "This invoice covers the pre-application sessions in September 2026. The pack called for a far more detailed level of checking than is normally carried out, with several sessions running into the early hours, so 8 hours have been deducted as a friends and family discount. Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.",
             "projectAddress": "",
             "projectDescription": "Pre-application planning documents for the Period style Georgian Home scheme at West Farm, covering the September 2026 sessions.",
-            "status": "unpaid",
+            "status": "paid",
             "totals": {
                 "grandTotal": 975,
                 "subtotal": 975,
                 "vat": 0,
                 "vatApplicable": false,
                 "vatRate": 0
-            }
+            },
+            "paidDate": "12-Oct-2026"
         }
     ]
 }
