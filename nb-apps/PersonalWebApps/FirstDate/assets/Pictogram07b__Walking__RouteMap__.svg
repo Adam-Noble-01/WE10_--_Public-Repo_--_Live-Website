@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="A folded city map with a dotted walking route running to a map pin">
+  <title>Walking</title>
+  <style>
+    .na-ink{fill:none;stroke:var(--pictogram-ink,#9f1239);stroke-width:4.78;stroke-linecap:round;stroke-linejoin:round}
+    .na-dots{fill:none;stroke:var(--pictogram-ink,#9f1239);stroke-width:4.78;stroke-linecap:round;stroke-dasharray:0.1 15}
+  </style>
+  <g transform="translate(128 128) scale(1.15) translate(-128 -129)">
+    <g class="na-ink">
+      <path d="M28 72 L96 52 L164 72 L228 52 L228 186 L164 206 L96 186 L28 206 Z"/>
+      <path d="M96 52 L96 186"/>
+      <path d="M164 72 L164 206"/>
+      <circle cx="54" cy="184" r="5.5" fill="var(--pictogram-ink,#9f1239)"/>
+      <path d="M180 124 C180 124 198 104 198 94 C198 84 190 76 180 76 C170 76 162 84 162 94 C162 104 180 124 180 124 Z"/>
+      <circle cx="180" cy="93" r="7"/>
+    </g>
+    <path class="na-dots" d="M56 182 C76 172 90 154 106 140 C124 124 150 122 174 128"/>
+  </g>
+</svg>

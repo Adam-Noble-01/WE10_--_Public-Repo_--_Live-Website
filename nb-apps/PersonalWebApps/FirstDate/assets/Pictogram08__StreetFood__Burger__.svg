@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Artisan street-food burger in a brioche bun with a pennant flag skewer">
+  <title>Artisan Street Food</title>
+  <style>
+    .na-ink{fill:none;stroke:var(--pictogram-ink,#9f1239);stroke-width:5.2;stroke-linecap:round;stroke-linejoin:round}
+  </style>
+  <g class="na-ink" transform="translate(128 128) scale(1.06) translate(-128 -120)">
+    <path d="M128 26 L128 82"/>
+    <path d="M128 28 L178 35 L166 46 L178 57 L128 60"/>
+    <path d="M40 118 C40 78 74 56 128 56 C182 56 216 78 216 118"/>
+    <path d="M40 118 C72 128 184 128 216 118"/>
+    <path d="M82 88 L90 84"/>
+    <path d="M114 74 L122 72"/>
+    <path d="M150 80 L158 78"/>
+    <path d="M98 102 L106 99"/>
+    <path d="M170 98 L178 96"/>
+    <path d="M40 124 Q52 148 66 130 Q80 150 96 132 Q112 152 128 132 Q144 152 160 132 Q176 150 190 130 Q204 148 216 124"/>
+    <path d="M46 150 L210 150 C220 150 220 174 210 174 L46 174 C36 174 36 150 46 150 Z"/>
+    <path d="M70 158 L86 158"/>
+    <path d="M108 163 L126 163"/>
+    <path d="M150 158 L168 158"/>
+    <path d="M38 178 L218 178"/>
+    <path d="M38 178 C38 202 68 214 128 214 C188 214 218 202 218 178"/>
+  </g>
+</svg>
