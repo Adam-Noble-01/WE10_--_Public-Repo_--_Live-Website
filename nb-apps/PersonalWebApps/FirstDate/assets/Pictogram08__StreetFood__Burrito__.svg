@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="A foil-wrapped burrito with beans, peppers and herbs spilling from the open end">
+  <title>Artisan Street Food</title>
+  <style>
+    .na-ink{fill:none;stroke:var(--pictogram-ink,#9f1239);stroke-width:5.5;stroke-linecap:round;stroke-linejoin:round}
+  </style>
+  <g class="na-ink" transform="translate(66 83.95) rotate(38)">
+    <path d="M0 -43 L168 -43"/>
+    <path d="M0 43 L168 43"/>
+    <path d="M168 -43 C184 -43 188 -22 188 0 C188 22 184 43 168 43"/>
+    <path d="M-4 -40 C-16 -50 -32 -42 -29 -31 C-27 -25 -19 -25 -15 -31"/>
+    <path d="M-12 -6 C-26 -12 -36 -4 -30 4 C-27 8 -21 6 -19 1"/>
+    <path d="M-14 18 L-27 15"/>
+    <path d="M-13 26 L-25 29"/>
+    <ellipse cx="0" cy="0" rx="18" ry="43"/>
+    <ellipse cx="-1" cy="-25" rx="7" ry="5.5" transform="rotate(18 -1 -25)"/>
+    <ellipse cx="4" cy="-6" rx="7" ry="5.5" transform="rotate(-12 4 -6)"/>
+    <ellipse cx="-2" cy="12" rx="6.5" ry="5" transform="rotate(22 -2 12)"/>
+    <ellipse cx="3" cy="29" rx="6.5" ry="5" transform="rotate(-8 3 29)"/>
+    <path d="M96 -43 C84 -22 84 22 96 43"/>
+    <path d="M107 -42 C96 -22 96 22 107 42"/>
+    <path d="M126 -37 C118 -18 118 13 125 32"/>
+    <path d="M146 -33 C139 -17 139 9 145 27"/>
+    <path d="M163 -28 C157 -14 157 5 162 20"/>
+    <ellipse cx="32" cy="-18" rx="8" ry="5" transform="rotate(20 32 -18)"/>
+    <ellipse cx="58" cy="15" rx="7" ry="4.5" transform="rotate(-16 58 15)"/>
+    <ellipse cx="76" cy="-25" rx="6" ry="4" transform="rotate(30 76 -25)"/>
+  </g>
+</svg>

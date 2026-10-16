@@ -1,67 +1,51 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 344 266" width="344" height="266" role="img" aria-label="A clunky robot pigeon with a flapping riveted wing, spinning wind-up key and a letter in its beak">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 344 254" width="344" height="254" role="img" aria-label="A clunky wind-up robot pigeon with a flapping plated wing and a letter in its beak">
   <title>Clunky Pigeon</title>
   <style>
     .cp-ink{fill:none;stroke:var(--pictogram-ink,#9f1239);stroke-width:5.5;stroke-linecap:round;stroke-linejoin:round}
     .cp-sol{fill:var(--pictogram-ink,#9f1239);stroke:none}
 
     .cp-rig  {animation:cp-bob 1.05s steps(3,end) infinite}
-    .cp-wing {animation:cp-flap .46s steps(3,end) infinite alternate;transform-origin:148px 124px}
-    .cp-cog  {animation:cp-spin 2.4s steps(8,end) infinite;transform-origin:180px 152px}
+    .cp-wing {animation:cp-flap .46s steps(3,end) infinite alternate;transform-origin:152px 118px}
     .cp-key  {animation:cp-spinrev 1.9s steps(6,end) infinite;transform-origin:110px 106px}
     .cp-bulb {animation:cp-blink 1.1s steps(1,end) infinite}
     .cp-zap  {animation:cp-zap 1.1s steps(1,end) infinite}
     .cp-iris {animation:cp-look 3.4s steps(1,end) infinite}
-    .cp-bolt {animation:cp-drop 3.2s linear infinite;transform-origin:142px 212px}
+    .cp-bolt {animation:cp-drop 3.2s linear infinite;transform-box:fill-box;transform-origin:center}
     .cp-env  {animation:cp-swing 2.4s ease-in-out infinite;transform-origin:262px 68px}
-    .cp-puff {animation:cp-puff 2.1s ease-out infinite;transform-box:fill-box;transform-origin:center;opacity:0}
-    .cp-puff-b{animation-delay:.7s}
-    .cp-puff-c{animation-delay:1.4s}
     .cp-seal {animation:cp-seal 1.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
 
     @keyframes cp-bob     {0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
     @keyframes cp-flap    {from{transform:rotate(-7deg)}to{transform:rotate(25deg)}}
-    @keyframes cp-spin    {to{transform:rotate(360deg)}}
     @keyframes cp-spinrev {to{transform:rotate(-360deg)}}
     @keyframes cp-blink   {0%,45%{opacity:1}50%,100%{opacity:.18}}
     @keyframes cp-zap     {0%,45%{opacity:0}50%,100%{opacity:1}}
     @keyframes cp-look    {0%,40%{transform:translateX(0)}50%,92%{transform:translateX(5px)}100%{transform:translateX(0)}}
     @keyframes cp-swing   {0%,100%{transform:rotate(-4deg)}50%{transform:rotate(6deg)}}
     @keyframes cp-seal    {0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
-    @keyframes cp-puff    {0%{opacity:0;transform:translate(0,0) scale(.5)}18%{opacity:.95}100%{opacity:0;transform:translate(-26px,-58px) scale(1.6)}}
-    @keyframes cp-drop    {0%,38%{opacity:0;transform:translateY(0) rotate(0)}41%{opacity:1}94%,100%{opacity:0;transform:translateY(48px) rotate(260deg)}}
+    @keyframes cp-drop    {0%,38%{opacity:0;transform:translateY(0) rotate(0)}41%{opacity:1}88%,100%{opacity:0;transform:translateY(28px) rotate(260deg)}}
 
     @media (prefers-reduced-motion:reduce){
-      .cp-rig,.cp-wing,.cp-cog,.cp-key,.cp-bulb,.cp-zap,.cp-iris,.cp-bolt,.cp-env,.cp-puff,.cp-seal{animation:none}
-      .cp-puff{opacity:.5}
+      .cp-rig,.cp-wing,.cp-key,.cp-bulb,.cp-zap,.cp-iris,.cp-bolt,.cp-env,.cp-seal{animation:none}
     }
   </style>
-
-  <g class="cp-ink">
-    <circle class="cp-puff" cx="66" cy="82" r="6"/>
-    <circle class="cp-puff cp-puff-b" cx="66" cy="82" r="8.5"/>
-    <circle class="cp-puff cp-puff-c" cx="66" cy="82" r="5"/>
-  </g>
 
   <g class="cp-rig">
     <g class="cp-ink">
       <!-- tail plates -->
-      <path d="M76 150 L34 142 C26 141 26 193 34 192 L78 184"/>
-      <path d="M36 158 L76 160"/>
-      <path d="M36 177 L77 173"/>
-      <!-- exhaust stub -->
-      <path d="M92 106 L74 90"/>
-      <path d="M68 86 L80 96"/>
+      <path d="M76 150 L24 142 C17 141 17 193 24 192 L78 184"/>
+      <path d="M27 158 L76 160"/>
+      <path d="M27 177 L77 173"/>
       <!-- chassis -->
       <path d="M68 156 C68 118 100 94 142 94 C184 94 208 122 206 154 C204 186 176 204 138 202 C100 200 68 192 68 156 Z"/>
       <!-- legs -->
-      <path d="M126 201 L126 212 L135 216 L121 221 L135 226 L126 230 L126 240"/>
-      <path d="M126 240 L114 248"/>
-      <path d="M126 240 L126 250"/>
-      <path d="M126 240 L138 248"/>
-      <path d="M160 202 L160 213 L169 217 L155 222 L169 227 L160 231 L160 240"/>
-      <path d="M160 240 L148 248"/>
-      <path d="M160 240 L160 250"/>
-      <path d="M160 240 L172 248"/>
+      <path d="M126 201 L126 222"/>
+      <path d="M126 222 L115 231"/>
+      <path d="M126 222 L126 233"/>
+      <path d="M126 222 L137 231"/>
+      <path d="M160 202 L160 223"/>
+      <path d="M160 223 L149 232"/>
+      <path d="M160 223 L160 234"/>
+      <path d="M160 223 L171 232"/>
       <!-- neck struts -->
       <path d="M192 94 L192 101"/>
       <path d="M208 94 L208 100"/>
@@ -74,7 +58,7 @@
       <path d="M228 68 L256 68"/>
       <!-- eye -->
       <circle cx="198" cy="64" r="11"/>
-      <!-- antenna -->
+      <!-- aerial -->
       <path d="M196 38 L196 29"/>
       <circle class="cp-bulb" cx="196" cy="22" r="7"/>
       <g class="cp-zap">
@@ -88,28 +72,14 @@
         <circle cx="101" cy="76" r="9"/>
         <circle cx="119" cy="76" r="9"/>
       </g>
-      <!-- cog in its port -->
-      <circle cx="180" cy="152" r="20"/>
-      <g class="cp-cog">
-        <circle cx="180" cy="152" r="11"/>
-        <path d="M191 152 L198 152"/>
-        <path d="M187.8 159.8 L192.8 164.8"/>
-        <path d="M180 163 L180 170"/>
-        <path d="M172.2 159.8 L167.2 164.8"/>
-        <path d="M169 152 L162 152"/>
-        <path d="M172.2 144.2 L167.2 139.2"/>
-        <path d="M180 141 L180 134"/>
-        <path d="M187.8 144.2 L192.8 139.2"/>
-      </g>
       <!-- wing -->
       <g class="cp-wing">
-        <path d="M150 116 C126 116 100 126 84 144 C74 153 78 166 92 166 C116 168 142 154 154 136 Z"/>
-        <path d="M132 118 C136 126 138 134 137 142"/>
-        <path d="M112 122 C117 132 119 144 116 154"/>
-        <path d="M96 129 C101 139 103 151 100 161"/>
-        <circle cx="148" cy="124" r="6"/>
+        <path d="M156 114 C128 110 100 122 82 142 C74 151 78 162 90 162 C100 156 106 162 114 158 C122 152 128 158 136 152 C144 146 150 134 156 114 Z"/>
+        <path d="M112 130 C114 142 112 152 108 159"/>
+        <path d="M134 124 C136 136 134 146 130 153"/>
+        <circle cx="150" cy="120" r="6"/>
       </g>
-      <!-- bolt socket, and the bolt shaking loose -->
+      <!-- bolt socket, and the bolt working loose -->
       <circle cx="142" cy="201" r="4"/>
       <g class="cp-bolt">
         <circle cx="142" cy="213" r="6"/>
@@ -118,11 +88,9 @@
     </g>
     <g class="cp-sol">
       <circle class="cp-iris" cx="198" cy="64" r="4.5"/>
-      <circle cx="90" cy="114" r="3.5"/>
       <circle cx="124" cy="100" r="3.5"/>
-      <circle cx="196" cy="118" r="3.5"/>
-      <circle cx="196" cy="184" r="3.5"/>
-      <circle cx="112" cy="196" r="3.5"/>
+      <circle cx="198" cy="124" r="3.5"/>
+      <circle cx="112" cy="188" r="3.5"/>
       <circle cx="180" cy="48" r="3.5"/>
       <circle cx="180" cy="90" r="3.5"/>
     </g>

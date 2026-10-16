@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="A vinyl record on a turntable with the tonearm resting on it">
+  <title>Record Store</title>
+  <style>
+    .na-ink{fill:none;stroke:var(--pictogram-ink,#9f1239);stroke-width:5.75;stroke-linecap:round;stroke-linejoin:round}
+  </style>
+  <g class="na-ink">
+    <circle cx="127.4" cy="132" r="105"/>
+    <circle cx="127.4" cy="132" r="39.25"/>
+    <circle cx="127.4" cy="132" r="8"/>
+    <path d="M39.45 135.07 A88 88 0 0 1 130.47 44.05"/>
+    <path d="M55.44 134.51 A72 72 0 0 1 129.91 60.04"/>
+    <path d="M71.69 133.95 A55.75 55.75 0 0 1 129.35 76.29"/>
+    <path d="M227 14 L227 27"/>
+    <rect x="213.9" y="28.3" width="21.7" height="25.9" rx="5" transform="rotate(7.3 224.75 41.25)"/>
+    <path d="M223 54 C223 70 218 86 216 104 C214 122 211 142 207 153 C204 160 196 163 188 164"/>
+    <rect x="166.9" y="165.25" width="19" height="39.5" rx="3.5" transform="rotate(48 176.4 185)"/>
+    <path d="M175 192.5 L189 200"/>
+  </g>
+</svg>
