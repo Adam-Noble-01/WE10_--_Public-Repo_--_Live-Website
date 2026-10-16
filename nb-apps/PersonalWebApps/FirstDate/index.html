@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Adam & Caitlin's First Date</title>
+    <title>Adam & Alfie's First Date</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;600&display=block"
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600&display=block"
         rel="stylesheet">
     <link rel="preload" as="style"
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;600&display=block">
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600&display=block">
 
 
-    <!-- Link  = 
+    <!-- Link  =
     https://www.noble-architecture.com/nb-apps/PersonalWebApps/FirstDate
     -->
 
@@ -37,6 +37,9 @@
 
 
     <!-- region StyleSheet ------------------------------- -->
+    <!-- Note: no prefers-reduced-motion branches on purpose. Adam's studio PC reports
+         "reduce" (Windows animation effects off), which would freeze the pigeon and
+         every fade on the device he previews on. -->
     <style>
         /* Custom styles for the page */
         html {
@@ -65,6 +68,11 @@
             scroll-snap-type: y mandatory;
             overflow-y: scroll;
             height: 100vh;
+        }
+
+        /* Locked while the vendor pop-up is open */
+        .scroll-container.is-locked {
+            overflow-y: hidden;
         }
 
         /* Define scroll snap sections */
@@ -273,6 +281,35 @@
             }
         }
 
+        /* Address line under each place */
+        .place-link svg {
+            flex: none;
+            margin-top: 0.2em;
+        }
+
+        .place-link {
+            display: inline-flex;
+            align-items: flex-start;
+            white-space: nowrap;
+            gap: 0.3rem;
+            margin-top: 0.85rem;
+            font-size: 11px;
+            color: #f43f5e;
+            text-decoration: underline;
+            text-decoration-color: #fecdd3;
+            text-underline-offset: 3px;
+        }
+
+        .place-link:hover {
+            color: #be123c;
+        }
+
+        @media (min-width: 640px) {
+            .place-link {
+                font-size: 0.85rem;
+            }
+        }
+
         .fade-in-up {
             animation: fadeInUp 1s ease-out forwards;
             opacity: 0;
@@ -290,6 +327,11 @@
         .welcome-fade-in {
             opacity: 0;
             margin-top: 20vh;
+        }
+
+        /* The pigeon screen centres its content instead */
+        .pigeon-section .welcome-fade-in {
+            margin-top: 0;
         }
 
         .fonts-loaded .welcome-fade-in {
@@ -322,6 +364,42 @@
         /* Welcome screen arrow: fade in then bounce */
         .fonts-loaded .scroll-down-arrow.welcome-fade-in {
             animation: welcomeFadeIn 2s cubic-bezier(0.4, 0, 0.2, 1) forwards, bounceAndPulse 2s ease-in-out 2s infinite;
+        }
+
+        /* ClunkyPigeon.com opening screen. The "stamp" is white, so the pigeon's
+           white paper fill reads as pure linework */
+        .pigeon-section {
+            justify-content: center;
+            padding-bottom: 8rem;
+        }
+
+        .delivery-eyebrow {
+            font-style: italic;
+            font-size: 1.15rem;
+            color: #be123c;
+            margin-bottom: 1rem;
+        }
+
+        @media (min-width: 640px) {
+            .delivery-eyebrow {
+                font-size: 1.4rem;
+            }
+        }
+
+        .pigeon-stamp {
+            width: min(84vw, 460px);
+            margin: 0 auto;
+            padding: 0.6rem 0.9rem 0.35rem;
+            background: #ffffff;
+            border: 2px dashed #fda4af;
+            border-radius: 1.5rem;
+            box-shadow: 0 18px 40px -18px rgba(159, 18, 57, 0.4);
+        }
+
+        .pigeon-stamp img {
+            display: block;
+            width: 100%;
+            height: auto;
         }
 
         .rsvp-button {
@@ -404,6 +482,11 @@
             background-color: #EDF2F7;
         }
 
+        /* Opening screen in soft rose so the white stamp pops */
+        .scroll-section.pigeon-section {
+            background-color: #fff1f2;
+        }
+
         /* Animation container for RSVP result */
         .result-container {
             font-size: 3.5rem;
@@ -428,21 +511,133 @@
                 opacity: 1;
             }
         }
+
+        /* ---- Cutlery Works vendor pop-up ---------------------------------- */
+        .vendor-button {
+            margin-top: 1rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 9999px;
+            background: #f43f5e;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .vendor-button:hover {
+            background: #e11d48;
+        }
+
+        .vendor-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .vendor-modal[hidden] {
+            display: none;
+        }
+
+        .vendor-modal__backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(76, 5, 25, 0.38);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+        }
+
+        .vendor-modal__card {
+            position: relative;
+            width: 100%;
+            max-width: 470px;
+            max-height: calc(100vh - 2rem);
+            max-height: calc(100dvh - 2rem);
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            background: #ffffff;
+            border-radius: 1.5rem;
+            border: 1px solid #ffe4e6;
+            box-shadow: 0 25px 50px -12px rgba(76, 5, 25, 0.35);
+            padding: 1.5rem 1.25rem 1.25rem;
+            text-align: left;
+            animation: popIn 0.35s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        .vendor-modal__card:focus {
+            outline: none;
+        }
+
+        .vendor-modal__x {
+            position: absolute;
+            top: 0.6rem;
+            right: 0.6rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 9999px;
+            color: #9f1239;
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+
+        .vendor-modal__x:hover {
+            background: #fff1f2;
+        }
+
+        .vendor-list li {
+            display: flex;
+            flex-direction: column;
+            padding: 0.5rem 0.7rem;
+            border-radius: 0.75rem;
+        }
+
+        .vendor-list li + li {
+            margin-top: 0.15rem;
+        }
+
+        .vendor-list .vendor-name {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 0.9rem;
+        }
+
+        .vendor-list .vendor-food {
+            color: #6b7280;
+            font-size: 0.78rem;
+        }
+
+        .vendor-list li.is-pick {
+            background: #fff1f2;
+            border: 1px solid #fecdd3;
+        }
+
+        .vendor-badge {
+            display: inline-block;
+            margin-left: 0.35rem;
+            padding: 0.05rem 0.5rem;
+            border-radius: 9999px;
+            background: #f43f5e;
+            color: #ffffff;
+            font-size: 0.68rem;
+            font-weight: 600;
+            vertical-align: 1px;
+        }
     </style>
     <!-- endregion StyleSheet ------------------------------- -->
 
 
 
     <!-- region -------------------------------------------->
-    <!-- PNG Icon Mapping -->
+    <!-- Pictogram Mapping -->
     <script>
-        // Icon key to PNG file path mapping
+        // Icon key to pictogram file path mapping
         const iconPaths = {
-            'kitty': './assets/Pictogram01__CatCafe__.png',
-            'bratwurst': './assets/Pictogram02__ChristmasMarket__.png',
-            'hipster': './assets/Pictogram03__RecordStore__.png',
-            'houseplant': './assets/Pictogram04__Houseplant__.png',
-            'beer': './assets/Pictogram05__CraftBeer__.png'
+            'coffee': './assets/Pictogram06__CoffeeShop__.svg',
+            'walk': './assets/Pictogram07__Walking__RouteMap__.svg',
+            'arcade': './assets/Pictogram09__RecordStore__.svg',
+            'dinner': './assets/Pictogram08__StreetFood__Burrito__.svg'
         };
     </script>
     <!-- endregion ----------------------------------------- -->
@@ -452,17 +647,38 @@
 
     <div class="scroll-container">
 
+        <!-- ClunkyPigeon.com delivery: the opening screen -->
+        <section class="scroll-section pigeon-section text-rose-800">
+            <div class="welcome-fade-in">
+                <p class="delivery-eyebrow font-playfair">Special delivery for Alfie</p>
+                <div class="pigeon-stamp">
+                    <img src="./assets/Animation__ClunkyPigeon__.svg" width="340" height="260"
+                        alt="ClunkyPigeon.com: Clive's clockwork robot pigeon, flapping in with a love letter">
+                </div>
+                <p class="font-playfair font-bold text-3xl sm:text-4xl md:text-5xl mt-5">ClunkyPigeon.com</p>
+                <p class="text-sm sm:text-base font-medium text-rose-700 mt-2">Clive's finest (and only) messenger pigeon</p>
+            </div>
+            <p class="scroll-hint">Plz Scroll</p>
+            <div class="scroll-down-arrow welcome-fade-in">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 sm:h-8 sm:w-8 text-rose-300" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+            </div>
+        </section>
+
         <!-- Welcome Section -->
         <section class="scroll-section bg-rose-50 text-rose-800">
             <div class="welcome-fade-in">
-                <h1 class="font-playfair text-4xl sm:text-5xl md:text-7xl font-bold mb-4">Adam & Caitlin's</h1>
+                <h1 class="font-playfair text-4xl sm:text-5xl md:text-7xl font-bold mb-4">Adam & Alfie's</h1>
                 <p class="text-2xl sm:text-3xl md:text-5xl font-playfair mb-6">First Date</p>
                 <br>
                 <p class="text-lg sm:text-xl md:text-2xl bg-rose-200 text-rose-900 px-4 py-2 rounded-full inline-block">
-                    Saturday, 6th December
+                    Saturday, 17th October
                 </p>
+                <p class="mt-4 text-sm sm:text-base text-rose-700/80">2pm till about 5pm &middot; Kelham Island, Sheffield</p>
             </div>
-            <p class="scroll-hint">Plz Scroll</p>
+            <p class="scroll-hint">Scroll even more . . .</p>
             <div class="scroll-down-arrow welcome-fade-in">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 sm:h-8 sm:w-8 text-rose-300" fill="none"
                     viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -476,6 +692,30 @@
 
     </div>
 
+    <!-- Cutlery Works vendor pop-up -->
+    <div class="vendor-modal" id="vendorModal" hidden>
+        <div class="vendor-modal__backdrop" data-close></div>
+        <div class="vendor-modal__card" role="dialog" aria-modal="true" aria-labelledby="vendorTitle" tabindex="-1">
+            <button type="button" class="vendor-modal__x" data-close aria-label="Close">&times;</button>
+            <h2 id="vendorTitle" class="font-playfair text-2xl font-bold text-gray-900 pr-10 mb-1">What's cooking at Cutlery Works</h2>
+            <p class="text-sm text-gray-500 mb-3">Thirteen independent kitchens under one roof. Point at anything you fancy.</p>
+            <p class="text-sm text-rose-700 bg-rose-50 rounded-xl px-3 py-2 mb-3">
+                😋 There's a South Indian place, <strong>Flames of Deccan</strong>: dosas &amp; biryanis. Just saying.
+            </p>
+            <ul class="vendor-list" id="vendorList"></ul>
+            <p class="text-sm text-gray-600 mt-4 leading-relaxed">
+                Full disclosure: Adam can't promise he won't have more than one thing. He may go a lil crazy and
+                get multiple different things for us to share and try, plus everything you'd like, obviously.
+            </p>
+            <p class="text-sm text-gray-600 mt-2 leading-relaxed">Adam has been mindful to pick somewhere without pork.</p>
+            <div class="text-center mt-5">
+                <button type="button" class="rsvp-button bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 px-8 rounded-full" data-close>
+                    Sounds delicious
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Wait for fonts to load before showing content
         async function loadFonts() {
@@ -485,6 +725,7 @@
                     document.fonts.load('700 1em "Playfair Display"'),
                     document.fonts.load('300 1em "Poppins"'),
                     document.fonts.load('400 1em "Poppins"'),
+                    document.fonts.load('500 1em "Poppins"'),
                     document.fonts.load('600 1em "Poppins"')
                 ]);
                 document.documentElement.classList.add('fonts-loaded');
@@ -533,39 +774,118 @@
             }
         }
 
+        // The Cutlery Works line-up, shown in the pop-up
+        const vendors = [
+            ['Gimme That Kick', 'Southeast & East Asian street food'],
+            ['Butcher & Catch', 'Seafood, grilled meats & gourmet hot dogs'],
+            ['Dodo Chicken', 'Fried chicken, wings & American-style sauces'],
+            ['Leopard Pie', 'Neapolitan pizza & garlic butter rings'],
+            ['Fuego 1987', 'Mexican-Californian fusion, birria tacos'],
+            ["CJ's Brunch Club", 'Brunch, breakfast & light lunches'],
+            ['Greek Gods', 'Greek street food, gyros & souvlaki'],
+            ["Jimmy's Burgers", 'American-style smash burgers'],
+            ['Foundry Coffee', 'Speciality coffee & artisan roasting'],
+            ['Viet Da Nang', 'Vietnamese street food, bánh mì & noodles'],
+            ['Ma-Ba', 'Indian street food, curries & thalis'],
+            ['Inamo Sukoshi', 'Japanese & Asian fusion, bao, sushi & katsu'],
+            ['Flames of Deccan', 'South Indian cuisine, dosas & biryanis', 'South Indian 😋']
+        ];
+
+        function escapeHtml(text) {
+            return text.replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+        }
+
+        function mapsLink(place) {
+            return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(place);
+        }
+
+        // Vendor pop-up: open, close (X, backdrop, Escape, button), focus kept inside
+        function setupVendorModal() {
+            const modal = document.getElementById('vendorModal');
+            const card = modal.querySelector('.vendor-modal__card');
+            const list = document.getElementById('vendorList');
+            const scroller = document.querySelector('.scroll-container');
+            let opener = null;
+
+            list.innerHTML = vendors.map(([name, food, badge]) => `
+                <li class="${badge ? 'is-pick' : ''}">
+                    <span class="vendor-name">${escapeHtml(name)}${badge ? `<span class="vendor-badge">${escapeHtml(badge)}</span>` : ''}</span>
+                    <span class="vendor-food">${escapeHtml(food)}</span>
+                </li>`).join('');
+
+            function open(trigger) {
+                opener = trigger || null;
+                modal.hidden = false;
+                scroller.classList.add('is-locked');
+                card.scrollTop = 0;
+                card.focus();
+            }
+
+            function close() {
+                modal.hidden = true;
+                scroller.classList.remove('is-locked');
+                if (opener) opener.focus();
+            }
+
+            modal.addEventListener('click', (event) => {
+                if (event.target.closest('[data-close]')) close();
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (modal.hidden) return;
+                if (event.key === 'Escape') {
+                    close();
+                } else if (event.key === 'Tab') {
+                    const focusable = card.querySelectorAll('button');
+                    const first = focusable[0];
+                    const last = focusable[focusable.length - 1];
+                    if (event.shiftKey && (document.activeElement === first || document.activeElement === card)) {
+                        event.preventDefault(); last.focus();
+                    } else if (!event.shiftKey && document.activeElement === last) {
+                        event.preventDefault(); first.focus();
+                    }
+                }
+            });
+
+            return open;
+        }
+
         // Initialize app when DOM is ready
         function initializeApp() {
 
+            const openVendors = setupVendorModal();
+
             const itinerarySteps = [
                 {
-                    time: '12:00',
-                    activity: 'Cuddle Cute Cats',
-                    description: 'We\'ll ease into the day with a cosy herbal tea or hot chocolate at the Kitty Cafe, find a comfy spot, and have a gentle get-to-know-you chat while we\'re surrounded by ridiculously cute cats. With a bit of luck, a few of them will decide we\'re worthy of head boops, purrs, and maybe even some kitten cuddles on our laps.',
-                    iconKey: 'kitty'
-                },
-                {
-                    time: '13:00',
-                    activity: 'Peruse The Christmas Market',
-                    description: 'Then we\'ll wander over to the Nottingham Winter Wonderland and explore the German-style Christmas market together. We can tackle some Serious Sausage (bratwurst) and soak up the fairy lights and festive music, and maybe point out little gift ideas for each other as we go.',
-                    iconKey: 'bratwurst'
-                },
-                {
                     time: '14:00',
-                    activity: 'A Walk Through Hockley',
-                    description: 'Next, we\'ll stroll through Hockley and dip into some of the quirky thrift and indie shops. I\'ll take you to my favourite record store so you can witness me trying very hard to be sensible while also eyeing up vinyl I absolutely don\'t need but will probably fall in love with anyway.',
-                    iconKey: 'hipster'
+                    activity: 'Coffee at Gaard',
+                    description: "We'll ease into the afternoon at Gaard Coffee, a cool artisan speciality coffee house. Grab whatever you fancy, find a comfy corner and have a proper natter while the caffeine (or the hot chocolate) kicks in.",
+                    place: 'Gaard Coffee, 20-22 Burton Rd, Neepsend, Sheffield S3 8EP',
+                    label: '20-22 Burton Rd, S3 8EP',
+                    iconKey: 'coffee'
+                },
+                {
+                    time: '10 min walk',
+                    activity: 'A Little Wander',
+                    description: "Then a gentle ten-minute stroll through Kelham's old industrial streets. Plenty of time to keep chatting while Adam pretends he knows exactly where he's going. 🤫🤣",
+                    iconKey: 'walk'
                 },
                 {
                     time: '15:00',
-                    activity: 'Arrive At Hipster Heaven',
-                    description: 'After that, we\'ll wander down to Sneinton Avenues, a little pocket of cool independent businesses, I\'d love to show you "The Watered Garden", a gorgeous little houseplant boutique, and then introduce you to my favourite artisan chocolate shop, "Luisa\'s Chocolates", where we can sample some gluten free treats. There are plenty of cosy spots and studios around for us to browse and grab something tasty to share.',
-                    iconKey: 'houseplant'
+                    activity: 'Kelham Arcade',
+                    description: "Next, Kelham Arcade: an old industrial unit turned into a cluster of quirky independent shops. There is a record shop, so you may witness Adam trying very hard to be sensible around vinyl he absolutely doesn't need. Plus Art prints, bikes and a little bakery to nose around.",
+                    place: 'Kelham Arcade, 92 Burton Rd, Neepsend, Sheffield S3 8DA',
+                    label: '92 Burton Rd, S3 8DA',
+                    iconKey: 'arcade'
                 },
                 {
                     time: '16:00',
-                    activity: 'A Back-Street Brew',
-                    description: 'To round things off, we\'ll loop back towards the market square via a tucked-away craft beer bar I used to frequent. It\'s relaxed, a bit stylish, and has a great selection of local artisanal beers. We can clink glasses, savour something delicious, and toast to what I hope will be the first of many lovely dates together.',
-                    iconKey: 'beer'
+                    activity: 'Dinner at Cutlery Works',
+                    description: "To finish, a relaxed, casual dinner at Cutlery Works: a huge food hall in an old cutlery factory, home to loads of cool independent artisan vendors and a whole world of different cuisines. No fuss, lots to share.",
+                    place: 'Cutlery Works, 73-101 Neepsend Ln, Neepsend, Sheffield S3 8AT',
+                    label: '73-101 Neepsend Ln, S3 8AT',
+                    vendors: true,
+                    iconKey: 'dinner'
                 },
                 {
                     type: 'rsvp' // Special type for the final section
@@ -591,17 +911,33 @@
                 if (step.type === 'rsvp') {
                     card.innerHTML = `<div id="rsvp-content-${index}"></div>`; // Unique ID for RSVP content
                 } else {
-                    // Get the PNG icon path
+                    // Get the pictogram path
                     const iconPath = iconPaths[step.iconKey] || '';
+
+                    const placeHtml = step.place ? `
+                        <div><a class="place-link" href="${mapsLink(step.place)}" target="_blank" rel="noopener">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+                            ${escapeHtml(step.label || step.place)}
+                        </a></div>` : '';
+
+                    const vendorHtml = step.vendors ? `
+                        <button type="button" class="vendor-button rsvp-button">🍴 See what's cooking</button>` : '';
 
                     card.innerHTML = `
                         <div class="pictogram-placeholder">
-                            <img src="" alt="${step.activity}" style="opacity: 0;" />
+                            <img src="" alt="${escapeHtml(step.activity)}" style="opacity: 0;" />
                         </div>
                         <p class="text-lg sm:text-xl font-semibold text-rose-500 bg-rose-100 rounded-full px-4 py-1 inline-block mb-4">${step.time}</p>
                         <h2 class="text-2xl sm:text-3xl md:text-4xl font-playfair font-bold text-gray-900 mb-3">${step.activity}</h2>
-                        <p class="text-gray-600 leading-relaxed">${step.description}</p>
+                        <p class="text-gray-600 leading-relaxed">${escapeHtml(step.description)}</p>
+                        ${placeHtml}
+                        ${vendorHtml}
                     `;
+
+                    if (step.vendors) {
+                        const btn = card.querySelector('.vendor-button');
+                        btn.addEventListener('click', () => openVendors(btn));
+                    }
 
                     // Store reference to img element for sequential loading
                     const imgElement = card.querySelector('img');
@@ -632,8 +968,8 @@
                 if (step.type === 'rsvp') {
                     const rsvpContainer = document.getElementById(`rsvp-content-${index}`);
                     const originalRsvpHTML = `
-                        <h2 class="text-2xl sm:text-3xl md:text-4xl font-playfair font-bold text-gray-900 mb-3">So then Caitlin...</h2>
-                        <p class="text-xs text-gray-400 italic mb-4">(My Biggest & Most Admired Weirdo)</p>
+                        <h2 class="text-2xl sm:text-3xl md:text-4xl font-playfair font-bold text-gray-900 mb-3">So then Alfie...</h2>
+                        <p class="text-xs text-gray-400 italic mb-4">(13 Pigeons In A Trenchcoat)</p>
                         <p class="text-sm sm:text-base text-gray-600 leading-relaxed mb-8">Would you like to accept Adam's date offer?</p>
                         <div class="flex justify-center gap-4">
                             <button id="yesBtn-${index}" class="rsvp-button bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 px-6 sm:px-8 rounded-full">
@@ -714,7 +1050,9 @@
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
-                        entry.target.querySelector('.content-card').classList.add('fade-in-up');
+                        // The welcome section has no card, so guard against null
+                        const card = entry.target.querySelector('.content-card');
+                        if (card) card.classList.add('fade-in-up');
                     }
                 });
             }, {
