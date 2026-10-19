@@ -2,6 +2,205 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.183.0  -  19-Oct-2026
+### The Project Hub's Way Into the Drawings: Open=Drawings, and the 3D Model Waits for the 3D Tab
+
+**What Adam asked for**
+- PlanVision is being retired. The Project Hub's PlanVision card should link to TrueVision so that it "goes straight past
+  the 3D model into the first drawing in the drawings list in the drawings tab, opening the drawing viewer", once drawings
+  have been published from the layout editor. On the model: "Maybe it only gets loaded when you hop back to the 3D model
+  tab. Have a look and figure out the most efficient way of doing it so people can get to their plans fast."
+- The hub side is Project Vision 0.5.4 (`05__ProjectVision__CoreAppCode/02__Src__AppModules/ProjectVision__PlanVisionCard__.js`).
+
+**The Drawings key**
+- `?open=Drawings` (read back from `drawings` or `drawing` in any case) is a share key that names no one document: it
+  opens the first drawing of the Drawings menu that the published index says is published, so a client never lands on a
+  grey "not published yet" panel. A pack with nothing published opens its first drawing; an author gets the first drawing,
+  because the editor draws every sheet from the model. `/s/?JW02&open=Drawings` works too: the resolver passes keys on.
+- Share links 1.1.0: `KIND_DRAWINGS`, `KEY_DRAWINGS`, `KeyFor({ kind : 'drawings' })`. A key spelt like that used to be a
+  loose drawing key, looked for as a document id or number, and never found.
+- Share link record 1.1.0: `Na__LeShareMf__PublishedIds()`, the pack's published document ids, read as `DrawingState`
+  reads one drawing (R2 first on the live site, the repository first on localhost).
+
+**The model waits** (`01__AppCore/Na__AppFlow__ModelGate__.js`, new)
+- One gate between the drawings going out and the model files being asked for. Open unless a reader was sent straight to a
+  document: Share Open 1.1.0 arms it in the synchronous start of `Na__LeShareOpen__Initialize` (Index.html calls it in the
+  same run of its module body as the loading sequence, so the arm always lands first), keeps it shut once the document is
+  on screen with the loading screen lifted, and opens it on the 3D Model tab. The loading screen Share Open already put
+  back over a model still loading then covers it as it comes in.
+- Every other ending opens it at once: an author, `Open__LoadModelOnDemand` false (new in the sharing config, on), a key
+  that opened nothing, a pack with no drawings (the sheet model's first load), the layout editor switched off. An
+  undecided gate opens itself after 12 s. This applies to every shared link, not only the hub's: a planning officer sent
+  a drawing was downloading the model behind it.
+- The loading screen is now lifted only when a document actually opened; a key that opened nothing lifted it as well.
+
+**The loading sequence** (`Na__AppFlow__LoadingSequence.js` 1.5.0)
+- The model files and the sky dome (1.5 MB HDR) wait at the gate. The sky dome loads beside the model files instead of
+  before the project data: the materials pass is its only reader. The project data is asked for at once, beside the data
+  library, instead of after it and the sky dome; it is awaited where it always was.
+- The resize handler is attached after the model, as before, and is run once when the sequence waited at the gate, so a
+  phone turned while the reader was in the drawings gets the right 3D size.
+- What a client on JW02 downloads before reading D01: the project data, the data library, the 2 KB orbit cube, the
+  published files. Not the 650 KB model or the sky dome. On RB05 (52 MB of model files over its phases) and EB03
+  (100 MB) the saving is the whole model.
+
+**Files**
+- New: `01__AppCore/Na__AppFlow__ModelGate__.js`, `80__Testing__PrototypeEnvironment/Na__Test__ModelGate__.test.mjs`.
+- Changed: `Na__AppFlow__LoadingSequence.js` 1.5.0, `Na__LayoutEditor__Share__Open__.js` 1.1.0,
+  `Na__LayoutEditor__Share__Links__.js` 1.1.0, `Na__LayoutEditor__Share__Manifest__.js` 1.1.0,
+  `Na__LayoutEditor__Share__Config__.json` 1.1.0, `Na__Test__ShareLinks__.test.mjs` 1.1.0.
+- Service worker token: the -07 bump made for v2.182.0 covers this release too (a new module and new exports that
+  changed modules import), as agreed with that session. No other bump.
+
+**Tested**
+- `Na__Test__ModelGate__.test.mjs`: 46 checks. The gate as it ships (open, armed, kept, opened, refused once passed, the
+  cap, no cap once held), then the real opener with the real link rules and gate, the editor stood in for: the Drawings key
+  opens the first published drawing (D01 unpublished gives D02), a reader holds the gate until the 3D tab, a shared drawing
+  holds it too, an author never holds it and never asks the index, a missing drawing opens the register, no drawings and
+  no key and the setting off never hold it.
+- `Na__Test__ShareLinks__.test.mjs`: 76 checks (8 new). `Na__Verify__Exports__` and `Na__Verify__ModuleGraph__`: nothing
+  new failing (the measuring session's tools file and the Presentation Scenes editor string were already listed).
+- The real app on localhost, JW02, served read-only (Worker URL blanked, every write refused; none attempted). Reader
+  (`?authoring=off&open=Drawings`): the viewer opened on D01, gate held, only the orbit cube fetched; the 3D Model tab then
+  fetched the sky dome and all four model files and the model came up with its carousel. A plain visit loads the model at
+  once, project data first. An author (`?authoring=on&open=Drawings`) got the editor on D01 after the model. The test
+  origin's storage was cleared.
+- ValeVision: nothing to port (it has no web viewer or share links).
+
+# ---------------------------------------------------------
+## TrueVision3D v2.182.0  -  19-Oct-2026
+### Web Viewer Measuring: Snaps on the Live Site, Drawn Lines Only, Dimension Size, Undo and Redo
+
+**What Adam asked for**
+- With two D01 West Elevation screenshots: "The first snap point doesn't come up ... once the first snap is in place,
+  but then it still doesn't seem to want to find the other ones ... make it so it only detects on the line work
+  (projected lines) and ignores all of the other vectors present, because I sometimes use solid fills. If a solid fill
+  doesn't have any lines as well, make it undetectable ... Make sure none of the image composite layers, such as this
+  point cloud layer, are messing it up". Then three texts to remove ("Remove all that text. It's just distracting"),
+  "Add a slider for dimension size, and make the default size about 20% bigger than what it is currently. Make the
+  snapping points 50% bigger", and "add Ctrl+Z and Ctrl+Y support to undo and redo the 2D drawing client viewer
+  dimensions".
+
+**Why nothing snapped (fixed)**
+- The sheet paints each viewport's linework as an `<image>`, and an image asks for its file without CORS. The CDN (R2
+  behind cdn.noble-architecture.com) answers a request with no Origin without `Access-Control-Allow-Origin` and without
+  `Vary: Origin`, marked `public, max-age=31536000, immutable`, and the browser keeps that answer under the file's
+  address. v2.180.0's reader then fetched the same address with CORS, was handed the kept answer and was refused
+  ("Failed to fetch"). The live site does not serve the repository copy (the second address, 404), so every drawing
+  painted before the tools opened was measured without snapping. That is what the screenshots show: only the square
+  off the last point ("Horizontal") could be found, none of the drawing's own points.
+- The tools now ask for `<file>?na-measure=1`, an address only they use, which the CDN answers with CORS and the
+  browser keeps apart; each address the reader knows that way, then each plain address past the browser's cache
+  (`no-store`). The service worker's published-asset pattern already allows a query, so the keyed file is cached in
+  `tv-published` under its own key. A drawing that still cannot be read is measured without snapping and read again,
+  alone, the next time the menu opens or a tool is picked; why goes to the console only.
+
+**Only drawn lines**
+- A shape in a linework file counts only with a visible stroke: its own, its group's, the svg element's or its
+  `style=""`; not none, transparent or a colour with no alpha; wider than nothing; with some stroke opacity and opacity
+  (multiplied down the groups); not display none or hidden; not inside defs, a clip path, a mask, a symbol or a marker.
+  A fill with no line round it never snaps, however solid. A shape that says nothing of its stroke draws none (SVG's
+  default) and no longer counts either.
+- Every published file strokes its lines already (all 34 read exactly as before: 299 paths, 159,541 segments), so this
+  changes nothing today and keeps any fill a later publish writes out of the snaps.
+- The pictures under the linework (the raster tiers, a point cloud's second picture) and the rest of the sheet (areas,
+  hatches, text) were never read and still are not, so the point cloud layer cannot move a snap; and nothing over the
+  drawing stops a press or a hover reaching the tools (checked: no pointer handler there stops propagation).
+
+**Less text, bigger marks**
+- Gone: the menu's two notes ("Measured at each drawing's own scale ... nothing is saved, shared or printed." and
+  "Shift keeps a line square. Alt places a point without snapping. Esc stops.") and "Some lines could not be read, so
+  points there are placed without snapping". The one note left is "Reading the drawing lines to snap to (n of 4)" while
+  a sheet's lines are first on their way, and "Snapping is off" when the reader has switched it off.
+- Dimensions a fifth bigger by default (line 2.2 px, length labels 14.4 px, an area 16.2 px, sides and perimeter
+  12.6 px, ticks, dots, grips and the delete chip in step), and a Dimension size slider in the menu, 60% to 200% in
+  steps of 10, that scales them all; this browser remembers it (`na-layouteditor-viewer-measure-size`). Grips and the
+  chip answer as far out as they are drawn.
+- The snap marker half as big again, 18 to 27 px (the endpoint square draws at 15.8 px, was 10.5), its name moved out to
+  clear it. The slider leaves it be.
+
+**Undo and Redo**
+- Ctrl+Z, and Ctrl+Y or Ctrl+Shift+Z (Cmd on a Mac). Undo takes back the last point of a measurement being made; with
+  none being made, the last change to the kept ones: one kept, pulled by a grip, deleted, or Clear all (one Undo brings
+  them all back). Redo puts back what Undo took. Per sheet, 100 steps, for the session, kept across a trip round the
+  set; an id is never given twice, and a pull that ends where it began is not a change.
+- The keys work from the menu's slider and tick box; a box that takes text keeps its own.
+- The bar's Undo does the same (its tooltip says which: the last point or the last change), and a Redo appears once
+  something has been undone, for a phone. The bar is now centred across the whole window, and on a phone its buttons go
+  under the words together (375 px: the words on one line, Finish, Undo, Redo and Done under them; 75 px tall, where
+  four buttons would have squeezed the words to one a line, 146 px).
+
+**Files**
+- `52__System__Layout__PublishedDocuments`: `Na__PubDoc__Measure__.js` 1.1.0 (the fetch, the second reading, Undo, Redo,
+  History) and `Na__PubDoc__Measure__Linework__.js` 1.1.0 (drawn lines only); README rows.
+- `80__Feature__WebViewer`: `Na__LayoutEditor__WebViewer__Measure__.js`, `__Measure__Tool__.js` and
+  `__Measure__Overlay__.js` 1.1.0, and `Na__LayoutEditor__Styles__WebViewer__Measure__.css`.
+- `TrueVision__Pwa__ServiceWorker__Logic__.js` 1.16.0: token BUMPED to `2026-10-19-07`. `-06` went live with v2.180.0
+  (7a42496), and these modules gained exports that the changed tools and menu import, which an old cached copy lacks.
+  The bump also covers v2.181.0 and v2.183.0 should either still be unpushed.
+
+**Tested**
+- `Na__Test__ViewerMeasure__.test.mjs`, 93 checks (72 before): the stroke rules one by one; the store with fetch stubbed
+  as the live site answers (the CDN first, the repository copy 404, the plain CDN address refused): four files, four
+  keyed fetches, never the refused address; a file refused everywhere is tried four ways, read again alone by the next
+  Prepare, then never again; Undo and Redo through a pull, keeps, a delete, Clear all and Release, ids never reused.
+- The real app on localhost, JW02, served read-only (Worker URL blanked, every write refused; none attempted), as the web
+  viewer, with the reader pointed at the CDN alone (the live site's case). Once D02 and D01 were painted from the CDN, a
+  plain CORS fetch of their linework was refused (D01: four of four), and the tools read every drawing through
+  `?na-measure=1` (D01: 1,731, 516, 361 and 984 lines, none failed). On D01 the first hover over a corner showed
+  Endpoint at once, over the point cloud picture; two clicks made 11,674 mm, exact; Ctrl+Z, Ctrl+Y and Ctrl+Shift+Z took
+  it away and back, from the slider in the open menu too; the slider at 150% drew the label at 21.6 px and was
+  remembered after a reload; an area's corners undid and redid one at a time, Finish kept it and Ctrl+Z took it back
+  whole. The bar checked at 375, 713 and 1,280 px. The test origin's storage was cleared and the server stopped.
+- ValeVision: nothing to port (it has no web viewer).
+
+# ---------------------------------------------------------
+## TrueVision3D v2.181.0  -  19-Oct-2026
+### Web Viewer Dock: Symbols Alone on a Phone, New PDF and Share Icons
+
+**What Adam asked for**
+- "On mobile phone versions of TrueVision, just use the symbols and drop the text. We need to create a PDF document SVG,
+  and we need to create a share SVG. Then just eliminate the text when the screen gets narrow below a certain point."
+  His phone screenshot (about 430 px wide) showed the dock cut off at "PD", with Share out of sight.
+
+**The icons** (Adam's graphic designer skill, App Icon Assets, house style: #172b3a, stroke 34 per 1024, round caps)
+- `01__AppAssets__TrueVision/UiIcons__MenuIcons__ToolsMenu/Icon__ToolsMenu__PdfDocument__.svg`: the top of a page with
+  a folded corner, and PDF in monoline capitals across its foot, so the letters take the icon's full width and still read
+  at 20 px. Chosen over PDF written inside a whole page (letters 30% smaller).
+- `.../Icon__ToolsMenu__Share__.svg`: three nodes joined by two lines, the share mark on every platform. Chosen over the
+  phone share sheet's tray and rising arrow, which beside the PDF button can read as upload or export.
+- Both lint clean on the app icon profile; joins checked at 8x. Specs, QA proofs and register entries are in the skill's
+  `10__SvgFiles__Converted/01__ProductionFiles`, the variants in `15_TestOutputs/2026-10-19__ViewerDockIcons`.
+
+**The dock**
+- PDF and Share show their icon ahead of their word, at 20 px like the tape measure beside them.
+- Below 760 px (where the chrome already widens for a desk) every word in the dock goes: PDF, Share, Measure, Point
+  cloud and its figure. Each button keeps its words as its title and accessible name, and the point cloud panel still
+  shows the figure. The dock with all its words needs about 715 px, so it always fits from 760 px up.
+- Below 760 px a drawing's controls (Fit, the zoom keys, point cloud, measure, PDF, Share) are 36 px squares that may
+  narrow together to 30 px rather than scroll; the specification's Page up and Page down keep their words and width
+  (the actions row is marked `na-le-viewer__actions--drawing` for this).
+- Below 480 px the step keys come in from 46 px plus margins to 40 px and the gaps from 6 px to 4 px.
+- The two scattered 479 px rules that hid the point cloud and measure words are replaced by the one rule above.
+
+**Files**
+- `Na__LayoutEditor__WebViewer__.js` 1.5.0: the icon constants, `Na__LeVw__Button` takes an icon (the `<img>` is sized
+  20 px on the element too, so a stylesheet a release behind cannot draw it at 1024 px), and the drawing row's class.
+- `Na__LayoutEditor__Styles__WebViewer__.css`: icon buttons, and the new region The Dock on a Phone.
+- `Na__LayoutEditor__Styles__WebViewer__Measure__.css`: its own 479 px word rule removed (now in the region above).
+
+**Tested**
+- The real app on localhost, JW02, served read-only (Worker URL blanked, every write refused; none attempted), as the
+  web viewer (`?authoring=off`), D01 with point clouds and measuring: at 430, 390, 375 and 360 px every control fits
+  with nothing scrolled (squares 36, 35, 33 and 31 px); at 600 px icons only at full size; at 1000 px every word back.
+  The Share icon opens the Share box (link copied), the PDF icon hands over D01's published PDF, the point cloud panel
+  opens above its narrower button, the specification's page keys keep their width, and the register's dock fits.
+  The test origin's storage was cleared.
+- No service worker token bump: nothing new is imported, so a warm client pairing an old and a new file only shows the
+  old look once (the icon cannot render oversized either way).
+- ValeVision: nothing to port (it has no web viewer).
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.180.0  -  19-Oct-2026
 ### Web Viewer: Measuring Tools, Snapped to the Drawing's Own Vectors
 

@@ -17,6 +17,10 @@
 // - CONSTANT ON SCREEN. Lines, ticks, handles, glyphs and text are sized in
 //   screen pixels and written in millimetres at the zoom of the moment, so the
 //   overlay is redrawn when the zoom changes (a few dozen elements: nothing).
+// - THE READER SETS THE DIMENSIONS' SIZE (the menu's Dimension size slider,
+//   SetSize): one factor on every line, tick, grip, chip and label of a
+//   measurement. The snap marker keeps its own size, so it reads the same
+//   whatever the dimensions are set to.
 // - DIMENSION-LIKE LABELS. A length reads along its line, upright, just off it;
 //   a rectangle's width and height sit outside their edges; an area's value
 //   sits inside the shape (inside an L as well), with its perimeter under it.
@@ -41,6 +45,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.1.0
+// - Dimensions a fifth bigger by default, and SetSize for the reader's own
+//   size (Adam: "Add a slider for dimension size, and make the default size
+//   about 20% bigger"). The snap marker half as big again, 18 to 27 px ("Make
+//   the snapping points 50% bigger"), with its name moved out to clear it
+//   (TrueVision3D v2.182.0).
+//
 // 19-Oct-2026 - Version 1.0.0
 // - Initial implementation (TrueVision3D v2.180.0).
 //
@@ -66,21 +77,32 @@
 
     // MODULE CONSTANTS | Sizes on Screen, in CSS Pixels
     // ------------------------------------------------------------
+    // The dimensions' sizes (Line to Chip) are at the reader's size 1, a fifth
+    // over v2.180.0's (19-Oct-2026), and the reader's size multiplies them.
+    // The snap marker and the square off the last point are not dimensions:
+    // they keep their sizes.
+    // ------------------------------------------------------------
     const Na__LeVwMsOv__PX = Object.freeze({
-        Line        : 1.8,                                                       // <-- A measurement's line
-        Tick        : 5,                                                         // <-- Half a tick across each end of a length
-        Dot         : 2.6,                                                       // <-- A placed point
-        Handle      : 5.5,                                                       // <-- A selected measurement's grip
-        Label       : 12,                                                        // <-- A length
-        AreaLabel   : 13.5,                                                      // <-- An area's value
-        Small       : 10.5,                                                      // <-- A side of an area, a perimeter
-        Halo        : 3.4,                                                       // <-- The white edge round every label
-        Gap         : 9,                                                         // <-- Clear space between a line and its label
-        Glyph       : 18,                                                        // <-- The snap marker
-        Chip        : 9,                                                         // <-- The delete chip's radius
+        Line        : 2.2,                                                       // <-- A measurement's line
+        Tick        : 6,                                                         // <-- Half a tick across each end of a length
+        Dot         : 3.1,                                                       // <-- A placed point
+        Handle      : 6.6,                                                       // <-- A selected measurement's grip
+        Label       : 14.4,                                                      // <-- A length
+        AreaLabel   : 16.2,                                                      // <-- An area's value
+        Small       : 12.6,                                                      // <-- A side of an area, a perimeter
+        Halo        : 4.1,                                                       // <-- The white edge round every label
+        Gap         : 10.8,                                                      // <-- Clear space between a line and its label
+        Chip        : 10.8,                                                      // <-- The delete chip's radius
+        Glyph       : 27,                                                        // <-- The snap marker (not a dimension: the reader's size leaves it be)
+        Name        : 11,                                                        // <-- The snap's name beside it
         Guide       : 1.1,                                                       // <-- The square off the last point
         GuideRun    : 28                                                         // <-- ...and how far it runs on past the point
     });
+    // ------------------------------------------------------------
+
+    // MODULE CONSTANTS | The Reader's Dimension Size
+    // ------------------------------------------------------------
+    const Na__LeVwMsOv__SIZE = Object.freeze({ Min : 0.6, Max : 2, Default : 1 });
     // ------------------------------------------------------------
 
     // MODULE CONSTANTS | Which Glyph Each Kind of Snap Wears
@@ -93,9 +115,10 @@
     const Na__LeVwMsOv__CLASS = 'na-le-viewer-ms__overlay';
     // ------------------------------------------------------------
 
-    // MODULE VARIABLES | The Overlay Element
+    // MODULE VARIABLES | The Overlay Element, and the Reader's Dimension Size
     // ------------------------------------------------------------
-    let Na__LeVwMsOv__Svg = null;
+    let Na__LeVwMsOv__Svg  = null;
+    let Na__LeVwMsOv__Size = Na__LeVwMsOv__SIZE.Default;
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -379,9 +402,10 @@
         }
         markup += '<g class="na-le-viewer-ms__marker' + axisClass + '">' + Na__LeVwMsOv__Glyph(marker.Kind, marker.X, marker.Y, k) + '</g>';
         if (name) {
-            const size = 11 * k;
+            const size = Na__LeVwMsOv__PX.Name * k;
             const width = Na__LeVwMsOv__TextWidth(name, size) + 12 * k;
-            const x = marker.X + 11 * k, y = marker.Y + 12 * k;
+            const clear = (Na__LeVwMsOv__PX.Glyph / 2 + 3) * k;                  // <-- Below and right of the glyph, clear of it
+            const x = marker.X + clear, y = marker.Y + clear;
             markup += '<g class="na-le-viewer-ms__name"><rect x="' + Na__LeVwMsOv__N(x) + '" y="' + Na__LeVwMsOv__N(y) + '" width="' + Na__LeVwMsOv__N(width) + '" height="' + Na__LeVwMsOv__N(size * 1.55) + '" rx="' + Na__LeVwMsOv__N(3 * k) + '"/>' +
                       '<text x="' + Na__LeVwMsOv__N(x + 6 * k) + '" y="' + Na__LeVwMsOv__N(y + size * 0.78) + '" font-size="' + Na__LeVwMsOv__N(size) + '">' + Na__LeVwMsOv__Esc(name) + '</text></g>';
         }
@@ -447,16 +471,17 @@
         const svg = Na__LeVwMsOv__Svg;
         const hits = { Labels : [], Chip : null };
         if (!svg) return hits;
-        const k = Na__LeVwMsOv__MmPerPx();
+        const k  = Na__LeVwMsOv__MmPerPx();                                     // <-- The snap marker: its own size
+        const kd = k * Na__LeVwMsOv__Size;                                       // <-- The dimensions: at the reader's size
         const parts = [];
 
         for (const measure of (scene.Measures || [])) {
             const selected = measure.Id === scene.SelectedId;
-            const drawn = Na__LeVwMsOv__One(measure, k, { grips : selected, sides : selected });
+            const drawn = Na__LeVwMsOv__One(measure, kd, { grips : selected, sides : selected });
             const cls = 'na-le-viewer-ms__measure' + (selected ? ' na-le-viewer-ms__measure--selected' : '') + (measure.Id === scene.HoverId ? ' na-le-viewer-ms__measure--hover' : '');
             let markup = drawn.Markup;
             if (selected && drawn.Main) {
-                const chip = Na__LeVwMsOv__Chip(drawn.Main, k);
+                const chip = Na__LeVwMsOv__Chip(drawn.Main, kd);
                 markup += chip.Markup;
                 hits.Chip = { Id : measure.Id, X : chip.Hit.X, Y : chip.Hit.Y, R : chip.Hit.R };
             }
@@ -471,17 +496,17 @@
             const cursor = scene.Cursor;
             const waiting = (draft.Tool === 'area') || draft.Points.length < 2;
             if (cursor && waiting) live.Points.push({ X : cursor.X, Y : cursor.Y, Snap : cursor.Kind || 'none' });
-            const drawn = Na__LeVwMsOv__One(live, k, { grips : false, sides : true, open : draft.Tool === 'area' });
+            const drawn = Na__LeVwMsOv__One(live, kd, { grips : false, sides : true, open : draft.Tool === 'area' });
             let markup = drawn.Markup;
             if (draft.Tool === 'area' && live.Points.length >= 3) {                // <-- The closing side, faint, so the shape reads before it is closed
                 const a = live.Points[live.Points.length - 1], b = live.Points[0];
                 markup += '<path class="na-le-viewer-ms__closing" d="M' + Na__LeVwMsOv__N(a.X) + ' ' + Na__LeVwMsOv__N(a.Y) + 'L' + Na__LeVwMsOv__N(b.X) + ' ' + Na__LeVwMsOv__N(b.Y) + '"' +
-                          ' stroke-width="' + Na__LeVwMsOv__N(Na__LeVwMsOv__PX.Line * k) + '" stroke-dasharray="' + Na__LeVwMsOv__N(4 * k) + ' ' + Na__LeVwMsOv__N(4 * k) + '"/>';
+                          ' stroke-width="' + Na__LeVwMsOv__N(Na__LeVwMsOv__PX.Line * kd) + '" stroke-dasharray="' + Na__LeVwMsOv__N(4 * kd) + ' ' + Na__LeVwMsOv__N(4 * kd) + '"/>';
                 const values = Na__PubMsMath__Values(live);
                 const at = Na__PubMsMath__LabelPoint(live.Points);
-                markup += Na__LeVwMsOv__Label(Na__PubMsMath__FormatArea(values.Area, values.Exact), at.X, at.Y, Na__LeVwMsOv__PX.AreaLabel * k, 0, k, 'na-le-viewer-ms__label--area').Markup;
+                markup += Na__LeVwMsOv__Label(Na__PubMsMath__FormatArea(values.Area, values.Exact), at.X, at.Y, Na__LeVwMsOv__PX.AreaLabel * kd, 0, kd, 'na-le-viewer-ms__label--area').Markup;
             }
-            parts.push('<g class="na-le-viewer-ms__measure na-le-viewer-ms__measure--draft">' + markup + Na__LeVwMsOv__Points(draft.Points, k, false) + '</g>');
+            parts.push('<g class="na-le-viewer-ms__measure na-le-viewer-ms__measure--draft">' + markup + Na__LeVwMsOv__Points(draft.Points, kd, false) + '</g>');
         }
 
         parts.push(Na__LeVwMsOv__Marker(scene.Marker, scene.MarkerName, k));
@@ -498,6 +523,34 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | How Big a Grip Is Drawn, in Screen Pixels (its radius, at the reader's size)
+    // ------------------------------------------------------------
+    function Na__LeVwMsOv__GripPx() {
+        return Na__LeVwMsOv__PX.Handle * Na__LeVwMsOv__Size;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Set the Reader's Dimension Size (a factor, held to SIZE.Min..Max); returns the size set
+    // ------------------------------------------------------------
+    // The caller redraws.
+    // ------------------------------------------------------------
+    function Na__LeVwMsOv__SetSize(factor) {
+        const n = Number(factor);
+        Na__LeVwMsOv__Size = Number.isFinite(n) ? Math.max(Na__LeVwMsOv__SIZE.Min, Math.min(Na__LeVwMsOv__SIZE.Max, n)) : Na__LeVwMsOv__SIZE.Default;
+        return Na__LeVwMsOv__Size;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Reader's Dimension Size
+    // ------------------------------------------------------------
+    function Na__LeVwMsOv__GetSize() {
+        return Na__LeVwMsOv__Size;
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -506,11 +559,15 @@
 // -----------------------------------------------------------------------------
 
     export {
+        Na__LeVwMsOv__SIZE,
         Na__LeVwMsOv__Ensure,
         Na__LeVwMsOv__Remove,
         Na__LeVwMsOv__Render,
         Na__LeVwMsOv__MmPerPx,
-        Na__LeVwMsOv__Grips
+        Na__LeVwMsOv__Grips,
+        Na__LeVwMsOv__GripPx,
+        Na__LeVwMsOv__SetSize,
+        Na__LeVwMsOv__GetSize
     };
 
 // endregion -------------------------------------------------------------------

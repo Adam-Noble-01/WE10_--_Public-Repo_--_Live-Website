@@ -18166,8 +18166,8 @@
                         "Viewport__SnapshotAsset": {
                             "Asset__Path": "LayoutEditor/Snapshots/Sheet_004__Viewport_003__sqjonk.webp",
                             "Asset__Fingerprint": "sqjonk",
-                            "Asset__PixelWidth": 3810,
-                            "Asset__Samples": 4
+                            "Asset__PixelWidth": 4233,
+                            "Asset__Samples": 16
                         },
                         "Viewport__Locked": false,
                         "Viewport__ShowFrame": false,
@@ -18278,8 +18278,8 @@
                         "Viewport__SnapshotAsset": {
                             "Asset__Path": "LayoutEditor/Snapshots/Sheet_004__Viewport_005__1sx3277.webp",
                             "Asset__Fingerprint": "1sx3277",
-                            "Asset__PixelWidth": 2430,
-                            "Asset__Samples": 4
+                            "Asset__PixelWidth": 2700,
+                            "Asset__Samples": 16
                         },
                         "Viewport__Locked": false,
                         "Viewport__ImageZoom": 0.9,
@@ -18713,7 +18713,7 @@
             },
             "North__SetIso": "2026-10-19T13:13:36.963Z"
         },
-        "LayoutEditor__DrawingsData__SavedIso": "2026-10-19T19:01:29.712Z",
+        "LayoutEditor__DrawingsData__SavedIso": "2026-10-19T19:15:20.381Z",
         "LayoutEditor__DrawingsData__CommonClient": "Jimmy Jaws",
         "LayoutEditor__DrawingsData__CustomScaleDenominators": [
             500

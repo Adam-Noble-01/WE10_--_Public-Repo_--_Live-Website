@@ -33,6 +33,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.1.0
+// - The Drawings key (TrueVision3D v2.183.0): built, read back, never crossing
+//   another kind, shared as /s/?RB05&open=Drawings; the load-on-demand setting;
+//   PublishedIds read from a served index.
+//
 // 29-Sep-2026 - Version 1.0.0
 // - Created with TrueVision3D v2.166.0.
 //
@@ -215,6 +220,15 @@
         !K.Na__LeShareLink__SameKey('Sheet_4', 'Sheet_40') && !K.Na__LeShareLink__SameKey('Register', 'Specification') &&
         !K.Na__LeShareLink__SameKey('Statement_1', 'Sheet_001'));
 
+    // THE DRAWINGS KEY (v2.183.0) | The Project Hub's PlanVision card: the first drawing a reader can read
+    check('the drawings have one key, "Drawings"', K.Na__LeShareLink__KeyFor({ kind : 'drawings' }) === 'Drawings' && K.Na__LeShareLink__KEY_DRAWINGS === 'Drawings');
+    check('"drawings", "DRAWINGS", "Drawing" read back as the drawings, never as a loose drawing',
+        [ 'drawings', 'DRAWINGS', 'Drawing', 'drawing' ].every((one) => parsed(one) === 'drawings:Drawings'), [ 'drawings', 'Drawing' ].map(parsed));
+    check('the drawings key never crosses a drawing, the register or the specification',
+        K.Na__LeShareLink__SameKey('drawings', 'Drawings') && !K.Na__LeShareLink__SameKey('Drawings', 'Sheet_001') &&
+        !K.Na__LeShareLink__SameKey('Drawings', 'drawing-register') && !K.Na__LeShareLink__SameKey('Drawings', 'Specification') &&
+        parsed('drawing-register') === 'register:Register');
+
 // endregion -------------------------------------------------------------------
 
 
@@ -236,6 +250,9 @@
         K.Na__LeShareLink__UrlFor({ kind : 'specification' }) === 'https://www.noble-architecture.com/s/?RB05&open=Specification' &&
         K.Na__LeShareLink__UrlFor({ kind : 'register' }) === 'https://www.noble-architecture.com/s/?RB05&open=Register' &&
         K.Na__LeShareLink__UrlFor({ kind : 'statement', statementId : 1 }) === 'https://www.noble-architecture.com/s/?RB05&open=Statement_1');
+    check('the drawings share as /s/?RB05&open=Drawings', K.Na__LeShareLink__UrlFor({ kind : 'drawings' }) === 'https://www.noble-architecture.com/s/?RB05&open=Drawings');
+    check('a reader\'s model waits for the 3D Model tab: the setting is read from the config, and on by default',
+        setup.open.loadModelOnDemand === config['LayoutEditor__Share__Open']['Open__LoadModelOnDemand'] && config['LayoutEditor__Share__Open']['Open__LoadModelOnDemand'] === true);
     check('a pattern token with no value gives NO address', K.Na__LeShareLink__BuildUrl(setup.link, 'RB05', '') === '' && K.Na__LeShareLink__BuildUrl(setup.link, '', 'Register') === '');
     check('a code or a key that is not safe gives no address', K.Na__LeShareLink__BuildUrl(setup.link, 'RB05&x=1', 'Register') === '' && K.Na__LeShareLink__BuildUrl(setup.link, 'RB05', 'a b') === '');
     check('the key the app was opened with is read off the address', K.Na__LeShareLink__ReadOpenParam() === 'Sheet_004');
@@ -326,6 +343,22 @@
     check('an old key listed as an alias opens the document it now names', (Manifest.Na__LeShareMf__Find('Old_Front') || {})['Share__Key'] === 'Sheet_001');
     check('"spec" finds the specification', (Manifest.Na__LeShareMf__Find('spec') || {})['Share__Kind'] === 'specification');
     check('a key the record does not hold finds nothing', Manifest.Na__LeShareMf__Find('Sheet_099') === null && Manifest.Na__LeShareMf__Find('D02') === null);
+    check('the drawings key finds no single entry: the opener works it out', Manifest.Na__LeShareMf__Find('Drawings') === null);
+
+    // WHICH DRAWINGS ARE PUBLISHED (v2.183.0) | What the Drawings key opens the first of
+    S.served = {};
+    const noIndex = await Manifest.Na__LeShareMf__PublishedIds();
+    check('no index: nothing is published (an empty set, not "cannot tell")', noIndex instanceof Set && noIndex.size === 0);
+    S.served = { '06__Layout__PublishedDocuments/PublishedDocuments__Index__.json' : { 'PublishedDocuments__Documents' : [
+        { 'Document__Id' : 'RB05_T01_D01', 'Document__State' : 'unpublished', 'Document__Order' : 1 },
+        { 'Document__Id' : 'RB05_T01_D02', 'Document__State' : 'published',   'Document__Order' : 2 },
+        { 'Document__Id' : 'RB05_T01_D05', 'Document__State' : 'published',   'Document__Order' : 3 },
+        null
+    ] } };
+    const publishedIds = await Manifest.Na__LeShareMf__PublishedIds();
+    check('the index read through the reader\'s Urls: exactly the published drawings',
+        publishedIds instanceof Set && publishedIds.size === 2 && publishedIds.has('RB05_T01_D02') && publishedIds.has('RB05_T01_D05') && !publishedIds.has('RB05_T01_D01'),
+        publishedIds ? [ ...publishedIds ] : publishedIds);
 
     S.served = {};
     const none = await Manifest.Na__LeShareMf__Load(true);

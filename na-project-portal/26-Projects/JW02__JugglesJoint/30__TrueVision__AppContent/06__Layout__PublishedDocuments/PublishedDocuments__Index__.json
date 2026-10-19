@@ -11,11 +11,11 @@
     },
     "PublishedDocuments__Publish" : {
         "Publish__SchemaVersion"    : 1,
-        "Publish__AtIso"            : "2026-10-19T18:20:35.857Z",
-        "Publish__AtEpochMs"        : 1792434035857,
+        "Publish__AtIso"            : "2026-10-19T19:07:27.968Z",
+        "Publish__AtEpochMs"        : 1792436847968,
         "Publish__ByApp"            : "TrueVision3D Layout Editor",
         "Publish__ByAppVersion"     : "v2.176.0",
-        "Publish__LastPublishedIso" : "2026-10-19T18:20:35.857Z",
+        "Publish__LastPublishedIso" : "2026-10-19T19:07:27.968Z",
         "Publish__DocumentCount"    : 4,
         "Publish__UnpublishedCount" : 0,
         "Publish__ArchiveFolder"    : "00__Archive__Revisions"
@@ -80,7 +80,7 @@
             "Document__Status"         : null,
             "Document__State"          : "published",
             "Document__Folder"         : "JW02_T01_D01",
-            "Document__PublishedAtIso" : "2026-10-19T18:18:50.449Z",
+            "Document__PublishedAtIso" : "2026-10-19T19:05:44.227Z",
             "Document__HasViewports"   : true,
             "Document__HasPdf"         : true,
             "Document__Order"          : 1
@@ -104,7 +104,7 @@
             "Document__Status"         : null,
             "Document__State"          : "published",
             "Document__Folder"         : "JW02_T01_D02",
-            "Document__PublishedAtIso" : "2026-10-19T18:19:36.948Z",
+            "Document__PublishedAtIso" : "2026-10-19T19:06:26.991Z",
             "Document__HasViewports"   : true,
             "Document__HasPdf"         : true,
             "Document__Order"          : 2
@@ -128,7 +128,7 @@
             "Document__Status"         : null,
             "Document__State"          : "published",
             "Document__Folder"         : "JW02_T01_D03",
-            "Document__PublishedAtIso" : "2026-10-19T18:19:46.023Z",
+            "Document__PublishedAtIso" : "2026-10-19T19:06:37.171Z",
             "Document__HasViewports"   : true,
             "Document__HasPdf"         : true,
             "Document__Order"          : 3
@@ -152,7 +152,7 @@
             "Document__Status"         : null,
             "Document__State"          : "published",
             "Document__Folder"         : "JW02_T01_D04",
-            "Document__PublishedAtIso" : "2026-10-19T18:20:18.873Z",
+            "Document__PublishedAtIso" : "2026-10-19T19:07:09.053Z",
             "Document__HasViewports"   : true,
             "Document__HasPdf"         : true,
             "Document__Order"          : 4

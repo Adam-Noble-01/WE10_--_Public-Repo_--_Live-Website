@@ -152,7 +152,10 @@
     <!-- 2. Invoice Notification Module -->
     <script src="02__Src__AppModules/ProjectVision__InvoiceNotification__.js"></script>
 
-    <!-- 3. Application Initialization -->
+    <!-- 3. PlanVision Card Module: TrueVision's published drawings, legacy PlanVision, or nothing yet -->
+    <script src="02__Src__AppModules/ProjectVision__PlanVisionCard__.js"></script>
+
+    <!-- 4. Application Initialization -->
     <script>
     // =========================================================================
     // PROJECT VISION | Application Entry Point
@@ -243,6 +246,28 @@
             return `https://www.noble-architecture.com/na-apps/05__ProjectVision__CoreAppCode/index.html?${params.toString()}`;
         }
 
+
+        // HELPER | Invite Email Line Breaks
+        // -----------------------------------------------------------------
+        // The body text breaks at fixed phrase boundaries rather than wherever
+        // the reader's font happens to wrap. Non-breaking spaces keep a short
+        // project name whole and stop a single word being left on its own line
+        // when a narrow phone screen wraps a line anyway.
+        const INVITE_NAME_INLINE_MAX = 24;
+
+        function joinLastWords(html, count) {
+            const words = html.split(' ');
+            if (words.length <= count) return words.join('&nbsp;');
+            return words.slice(0, -count).join(' ') + ' ' + words.slice(-count).join('&nbsp;');
+        }
+
+        function buildInviteHubLine(projectNameRaw, projectName) {
+            if (projectNameRaw.length <= INVITE_NAME_INLINE_MAX) {
+                return `Project Vision hub for&nbsp;<strong>${projectName.split(' ').join('&nbsp;')}</strong>.`;
+            }
+            return `Project Vision hub for<br>\n                    <strong>${joinLastWords(projectName, 2)}</strong>.`;
+        }
+
         function buildInviteEmailHtml(projectData, inviteUrl) {
             const projectCode = escapeHtml(projectData.projectCode || '');
             const projectName = escapeHtml(projectData.projectName || projectCode);
@@ -250,6 +275,7 @@
             const titleText   = projectName === projectCode
                 ? projectCode
                 : `${projectCode} - ${projectName}`;
+            const hubLine     = buildInviteHubLine(String(projectData.projectName || projectData.projectCode || ''), projectName);
 
             return `<!DOCTYPE html>
 <!-- =============================================================================
@@ -281,12 +307,14 @@
             </td>
         </tr>
         <tr>
-            <td bgcolor="#ffffff" style="padding: 20px 30px 30px;">
+            <td bgcolor="#ffffff" style="padding: 20px 40px 30px;">
                 <p align="center" style="margin: 0 0 16px; color: #172b3a; font-size: 15px; line-height: 1.6;">
-                    You are invited to review your Project Vision hub for <strong>${projectName}</strong>.
+                    You are invited to review&nbsp;your<br>
+                    ${hubLine}
                 </p>
                 <p align="center" style="margin: 0 0 20px; color: #172b3a; font-size: 15px; line-height: 1.6;">
-                    Access your drawings, documents, and project information in one place.
+                    Access your drawings, documents,<br>
+                    and project information in&nbsp;one&nbsp;place.
                 </p>
                 <table cellpadding="0" cellspacing="0" border="0" style="width: 100%;">
                     <tr>
@@ -381,9 +409,23 @@
             const trueVisionUrl = UrlQuerySystem.buildSubAppUrl(
                 context.appsBase, 'trueVision', projectCode, projectFolder, projectYear);
 
+            // THE PLANVISION CARD | Drawings published from TrueVision first, then a
+            // legacy PlanVision job's own drawings, then Coming Soon. Asked live, so it
+            // lights up the moment a publish lands. @delegate: ProjectVision__PlanVisionCard__.js
+            const PlanVisionCard = window.NaProjectVision.PlanVisionCard;
+            const planVisionCard = await PlanVisionCard.resolve({
+                context       : context,
+                projectData   : projectData,
+                projectFolder : projectFolder,
+                projectYear   : projectYear || context.projectYear,
+                planVisionUrl : planVisionUrl,
+                trueVisionUrl : trueVisionUrl
+            });
+
             configureCard(elCardAdmin,      elBadgeAdmin,      subApps.projectAdmin,  adminUrl);
-            configureCard(elCardPlanVision, elBadgePlanVision, subApps.planVision,     planVisionUrl);
+            configureCard(elCardPlanVision, elBadgePlanVision, planVisionCard.route !== PlanVisionCard.ROUTES.none, planVisionCard.href);
             configureCard(elCardTrueVision, elBadgeTrueVision, subApps.trueVision,     trueVisionUrl);
+            elCardPlanVision.dataset.route = planVisionCard.route;
 
             if (context.isLocalDev) {
                 elDevTools.hidden = false;

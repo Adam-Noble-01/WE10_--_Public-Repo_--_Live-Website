@@ -11,8 +11,8 @@
     },
     "ShareLinks__Publish" : {
         "Publish__SchemaVersion" : 1,
-        "Publish__AtIso"         : "2026-10-19T18:20:35.903Z",
-        "Publish__AtEpochMs"     : 1792434035903,
+        "Publish__AtIso"         : "2026-10-19T19:07:27.983Z",
+        "Publish__AtEpochMs"     : 1792436847983,
         "Publish__ByApp"         : "TrueVision3D Layout Editor",
         "Publish__ByAppVersion"  : "v2.176.0",
         "Publish__Reason"        : "drawings",
@@ -35,7 +35,7 @@
                 "Target__DocumentId" : "JW02_T01_D01",
                 "Target__Number"     : "D01"
             },
-            "Share__RecordedIso" : "2026-10-19T18:20:35.903Z"
+            "Share__RecordedIso" : "2026-10-19T19:07:27.983Z"
         },
         {
             "Share__Key"    : "Sheet_002",
@@ -47,7 +47,7 @@
                 "Target__DocumentId" : "JW02_T01_D02",
                 "Target__Number"     : "D02"
             },
-            "Share__RecordedIso" : "2026-10-19T18:20:35.903Z"
+            "Share__RecordedIso" : "2026-10-19T19:07:27.983Z"
         },
         {
             "Share__Key"    : "Sheet_003",
@@ -59,7 +59,7 @@
                 "Target__DocumentId" : "JW02_T01_D03",
                 "Target__Number"     : "D03"
             },
-            "Share__RecordedIso" : "2026-10-19T18:20:35.903Z"
+            "Share__RecordedIso" : "2026-10-19T19:07:27.983Z"
         },
         {
             "Share__Key"    : "Sheet_004",
@@ -71,7 +71,7 @@
                 "Target__DocumentId" : "JW02_T01_D04",
                 "Target__Number"     : "D04"
             },
-            "Share__RecordedIso" : "2026-10-19T18:20:35.903Z"
+            "Share__RecordedIso" : "2026-10-19T19:07:27.983Z"
         },
         {
             "Share__Key"         : "Specification",
@@ -79,7 +79,7 @@
             "Share__Url"         : "https://www.noble-architecture.com/s/?JW02&open=Specification",
             "Share__Label"       : "Project Specification",
             "Share__Target"      : {},
-            "Share__RecordedIso" : "2026-10-19T18:20:35.903Z"
+            "Share__RecordedIso" : "2026-10-19T19:07:27.983Z"
         },
         {
             "Share__Key"         : "Register",
@@ -87,7 +87,7 @@
             "Share__Url"         : "https://www.noble-architecture.com/s/?JW02&open=Register",
             "Share__Label"       : "Document Register",
             "Share__Target"      : {},
-            "Share__RecordedIso" : "2026-10-19T18:20:35.903Z"
+            "Share__RecordedIso" : "2026-10-19T19:07:27.983Z"
         }
     ],
     "ShareLinks__Aliases" : {

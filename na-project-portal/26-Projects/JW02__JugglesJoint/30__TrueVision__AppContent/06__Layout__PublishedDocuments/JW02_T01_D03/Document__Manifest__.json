@@ -16,8 +16,8 @@
     },
     "PublishedDocument__Publish" : {
         "Publish__SchemaVersion"  : 1,
-        "Publish__AtIso"          : "2026-10-19T18:19:46.023Z",
-        "Publish__AtEpochMs"      : 1792433986023,
+        "Publish__AtIso"          : "2026-10-19T19:06:37.171Z",
+        "Publish__AtEpochMs"      : 1792436797171,
         "Publish__ByApp"          : "TrueVision3D Layout Editor",
         "Publish__ByAppVersion"   : "v2.176.0",
         "Publish__RevisionAction" : "overwritten",
@@ -26,8 +26,8 @@
     "PublishedDocument__Files" : {
         "Files__Sheet" : {
             "File__Path"   : "Document__Sheet__.json",
-            "File__Bytes"  : 29170,
-            "File__Sha256" : "ad6f4502d4"
+            "File__Bytes"  : 47574,
+            "File__Sha256" : "41b3009483"
         },
         "Files__Elements" : [
             {
@@ -37,8 +37,16 @@
                 ],
                 "File__Path"   : "01__Elements__Data/Elements__Text__.json",
                 "File__Count"  : 17,
-                "File__Bytes"  : 13494,
-                "File__Sha256" : "660a0c220e"
+                "File__Bytes"  : 37012,
+                "File__Sha256" : "e8f466e4c8"
+            },
+            {
+                "File__Type"   : "leader",
+                "File__Layers" : [],
+                "File__Path"   : "01__Elements__Data/Elements__Bubbles__.json",
+                "File__Count"  : 14,
+                "File__Bytes"  : 22334,
+                "File__Sha256" : "a33151da41"
             },
             {
                 "File__Type"   : "group",
@@ -67,7 +75,7 @@
                 "File__Path"   : "01__Elements__Data/Elements__Vectors__.json",
                 "File__Count"  : 34,
                 "File__Bytes"  : 39299,
-                "File__Sha256" : "59b98964c1"
+                "File__Sha256" : "6adae4fc5b"
             },
             {
                 "File__Type"   : "viewport",
@@ -95,11 +103,11 @@
             }
         ],
         "Files__Pdf" : {
-            "File__Path"   : "Document__Print__ea83990b69.pdf",
-            "File__Bytes"  : 1714830,
-            "File__Sha256" : "ea83990b69",
+            "File__Path"   : "Document__Print__ad8e40e1d0.pdf",
+            "File__Bytes"  : 1730253,
+            "File__Sha256" : "ad8e40e1d0",
             "File__Name"   : "JW02_T01_D03__ExistingConditionsSitePlan__A2__RevA__19-Oct-2026__.pdf"
         },
-        "Files__TotalBytes" : 1814356
+        "Files__TotalBytes" : 1894035
     }
 }

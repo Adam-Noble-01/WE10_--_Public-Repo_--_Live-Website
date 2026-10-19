@@ -32,6 +32,10 @@
 //     a statement     "Statement_" + its Doc__Id, which the statement index
 //                     hands out once and never reuses.
 //     the two singles "Specification" and "Register".
+//     the drawings    "Drawings": not one document but the way in to them, the
+//                     first drawing of the pack a reader can read. It is what
+//                     the Project Hub's PlanVision card opens (ProjectVision
+//                     0.5.4), so it never names a sheet that may go.
 //   THESE ARE RULES IN CODE, NOT SETTINGS. A key is what an already-sent link
 //   carries; if a file could rename it, editing that file would break links in
 //   inboxes nobody can reach.
@@ -65,6 +69,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.1.0
+// - THE DRAWINGS KEY (TrueVision3D v2.183.0): "Drawings", read back from
+//   "drawings" or "drawing" in any case, opens the first drawing of the pack a
+//   reader can read. KIND_DRAWINGS, KEY_DRAWINGS and KeyFor({ kind :
+//   'drawings' }). Before this a key spelt like that was a loose drawing key,
+//   looked for as a document id or a number, and never found.
+// - The sharing settings gain Open__LoadModelOnDemand (open.loadModelOnDemand,
+//   on by default): a reader opened on a document is not sent the 3D model
+//   until they go to the 3D Model tab.
+//
 // 29-Sep-2026 - Version 1.0.0
 // - Initial implementation (TrueVision3D v2.166.0).
 //
@@ -97,6 +111,7 @@
     const Na__LeShareLink__KIND_SPEC      = 'specification';
     const Na__LeShareLink__KIND_REGISTER  = 'register';
     const Na__LeShareLink__KIND_STATEMENT = 'statement';
+    const Na__LeShareLink__KIND_DRAWINGS  = 'drawings';                         // <-- Not one document: the first drawing of the pack a reader can read
     // ------------------------------------------------------------
 
     // MODULE CONSTANTS | The Keys, as They Are Built
@@ -106,6 +121,7 @@
     // ------------------------------------------------------------
     const Na__LeShareLink__KEY_SPEC         = 'Specification';
     const Na__LeShareLink__KEY_REGISTER     = 'Register';
+    const Na__LeShareLink__KEY_DRAWINGS     = 'Drawings';                        // <-- The Project Hub's PlanVision card links with it (ProjectVision 0.5.4)
     const Na__LeShareLink__PREFIX_STATEMENT = 'Statement_';
     const Na__LeShareLink__PREFIX_SHEET     = 'Sheet_';                          // <-- The sheet model's own id prefix (Na__LeRec__NextId)
     // ------------------------------------------------------------
@@ -130,7 +146,8 @@
         },
         open : {
             waitForSheetsMs   : 60000,
-            liftLoadingScreen : true
+            liftLoadingScreen : true,
+            loadModelOnDemand : true
         },
         labels : {}
     };
@@ -166,6 +183,7 @@
         const open = whole['LayoutEditor__Share__Open'] || {};
         if (Number.isFinite(Number(open['Open__WaitForSheetsMs'])) && Number(open['Open__WaitForSheetsMs']) > 0) setup.open.waitForSheetsMs = Number(open['Open__WaitForSheetsMs']);
         if (typeof open['Open__LiftLoadingScreen'] === 'boolean') setup.open.liftLoadingScreen = open['Open__LiftLoadingScreen'];
+        if (typeof open['Open__LoadModelOnDemand'] === 'boolean') setup.open.loadModelOnDemand = open['Open__LoadModelOnDemand'];
         const labels = whole['LayoutEditor__Share__Labels'];
         if (labels && typeof labels === 'object') setup.labels = Object.assign({}, labels);
         return setup;
@@ -224,6 +242,7 @@
     // ------------------------------------------------------------
     // target: { kind : 'drawing', sheetId } | { kind : 'specification' }
     //       | { kind : 'register' }         | { kind : 'statement', statementId }
+    //       | { kind : 'drawings' }
     // ------------------------------------------------------------
     function Na__LeShareLink__KeyFor(target) {
         const t = (target && typeof target === 'object') ? target : {};
@@ -233,6 +252,7 @@
         }
         if (t.kind === Na__LeShareLink__KIND_SPEC)     return Na__LeShareLink__KEY_SPEC;
         if (t.kind === Na__LeShareLink__KIND_REGISTER) return Na__LeShareLink__KEY_REGISTER;
+        if (t.kind === Na__LeShareLink__KIND_DRAWINGS) return Na__LeShareLink__KEY_DRAWINGS;
         if (t.kind === Na__LeShareLink__KIND_STATEMENT) {
             const id = Number(t.statementId);
             return (Number.isInteger(id) && id > 0) ? Na__LeShareLink__PREFIX_STATEMENT + id : '';
@@ -259,6 +279,9 @@
         }
         if (/^((document|drawing)[-_.]?)?register$/i.test(text)) {
             return { kind : Na__LeShareLink__KIND_REGISTER, key : Na__LeShareLink__KEY_REGISTER, id : null, loose : false };
+        }
+        if (/^drawings?$/i.test(text)) {
+            return { kind : Na__LeShareLink__KIND_DRAWINGS, key : Na__LeShareLink__KEY_DRAWINGS, id : null, loose : false };
         }
         let match = /^statement[-_.]?(\d{1,9})$/i.exec(text);
         if (match && parseInt(match[1], 10) > 0) {
@@ -397,8 +420,10 @@
         Na__LeShareLink__KIND_SPEC,
         Na__LeShareLink__KIND_REGISTER,
         Na__LeShareLink__KIND_STATEMENT,
+        Na__LeShareLink__KIND_DRAWINGS,
         Na__LeShareLink__KEY_SPEC,
         Na__LeShareLink__KEY_REGISTER,
+        Na__LeShareLink__KEY_DRAWINGS,
         Na__LeShareLink__PREFIX_STATEMENT,
         Na__LeShareLink__PREFIX_SHEET,
         Na__LeShareLink__KEY_PATTERN,

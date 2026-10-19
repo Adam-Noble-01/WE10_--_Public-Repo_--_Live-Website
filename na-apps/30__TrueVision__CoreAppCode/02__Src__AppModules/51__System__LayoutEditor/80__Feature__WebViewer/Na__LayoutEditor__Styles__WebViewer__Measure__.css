@@ -15,6 +15,11 @@
  *
  * - Ported from : none. TrueVision original.
  * - Created     : 19-Oct-2026 for TrueVision3D v2.180.0
+ * - 19-Oct-2026 : v2.182.0. The menu's Dimension size row; its two notes
+ *                 went, and their rule with them. The bar is centred across
+ *                 the whole window and its buttons (now four, with Redo) go
+ *                 under its words together on a phone, instead of squeezing
+ *                 the words to a word a line.
  */
 
 
@@ -41,7 +46,9 @@
 /* ----------------------------------------------------------------- */
 
 /* A dock button like the point cloud's: the tape measure and the word, the
-   word going on a phone. Ringed in blue while its menu is up or a tool is on. */
+   word going on a phone with every other word in the dock (below 760px, in
+   Na__LayoutEditor__Styles__WebViewer__.css since v2.181.0). Ringed in blue
+   while its menu is up or a tool is on. */
 
 .na-le-viewer__btn--ms {
     gap                                : 6px;
@@ -59,12 +66,6 @@
 .na-le-viewer__btn--ms[data-na-active="true"] {
     border-color                       : var(--Na_ViewerAccent);
     background                         : #eef5fb;
-}
-
-@media (max-width: 479px) {
-    .na-le-viewer__ms-label {
-        display                        : none;
-    }
 }
 
 /* endregion ------------------------------------------------------- */
@@ -246,6 +247,36 @@
     accent-color                       : var(--Na_ViewerAccent);
 }
 
+/* DIMENSION SIZE: the name, a slider a thumb can hold, and the percentage. */
+
+.na-le-viewer-ms__option--size {
+    gap                                : 10px;
+    margin-top                         : 0;
+    border-top                         : 0;
+    cursor                             : default;
+}
+
+.na-le-viewer-ms__option-name {
+    flex                               : 0 0 auto;
+}
+
+.na-le-viewer-ms__range {
+    flex                               : 1 1 auto;
+    min-width                          : 0;
+    height                             : 24px;
+    margin                             : 0;
+    accent-color                       : var(--Na_ViewerAccent);
+    cursor                             : pointer;
+}
+
+.na-le-viewer-ms__size-value {
+    flex                               : 0 0 auto;
+    min-width                          : 3.2em;
+    color                              : var(--Na_ViewerMuted);
+    font-variant-numeric               : tabular-nums;
+    text-align                         : right;
+}
+
 .na-le-viewer-ms__status {
     margin                             : 4px 6px 0;
     color                              : var(--Na_ViewerAccent);
@@ -256,12 +287,6 @@
     display                            : none;
 }
 
-.na-le-viewer-ms__note {
-    margin                             : 4px 6px 0;
-    color                              : var(--Na_ViewerMuted);
-    font-size                          : 0.72rem;
-}
-
 /* endregion ------------------------------------------------------- */
 
 
@@ -270,20 +295,27 @@
 /* ----------------------------------------------------------------- */
 
 /* Just above the dock, centred: the tool's icon, what to do next, and the
-   buttons a phone needs because it has no Escape key and no double click. */
+   buttons a phone needs because it has no Escape key, no double click and no
+   Ctrl+Z. Centred across the whole window (left and right 8px, auto margins,
+   as wide as it needs), so it may use all of a phone's width; the words keep
+   140px at least, and when the buttons will not fit beside them they go under
+   them, together, on the right. */
 
 .na-le-viewer-ms-bar {
     position                           : fixed;
-    left                               : 50%;
+    left                               : 8px;
+    right                              : 8px;
     bottom                             : calc(var(--Na_ViewerDockHeight) + env(safe-area-inset-bottom, 0px) + 10px);
     z-index                            : 1050;
     display                            : flex;
+    flex-wrap                          : wrap;
     align-items                        : center;
-    gap                                : 8px;
+    gap                                : 6px 8px;
     box-sizing                         : border-box;
+    width                              : fit-content;
     max-width                          : calc(100vw - 16px);
+    margin                             : 0 auto;
     padding                            : 6px 6px 6px 10px;
-    transform                          : translateX(-50%);
     background                         : var(--Na_ViewerPaper);
     border                             : 1px solid var(--Na_ViewerLine);
     border-radius                      : 10px;
@@ -306,9 +338,17 @@
 
 .na-le-viewer-ms-bar__words {
     display                            : flex;
-    flex                               : 1 1 auto;
+    flex                               : 1 1 140px;
     flex-direction                     : column;
     min-width                          : 0;
+}
+
+.na-le-viewer-ms-bar__btns {
+    display                            : flex;
+    flex                               : 0 0 auto;
+    align-items                        : center;
+    gap                                : 8px;
+    margin-left                        : auto;
 }
 
 .na-le-viewer-ms-bar__text {

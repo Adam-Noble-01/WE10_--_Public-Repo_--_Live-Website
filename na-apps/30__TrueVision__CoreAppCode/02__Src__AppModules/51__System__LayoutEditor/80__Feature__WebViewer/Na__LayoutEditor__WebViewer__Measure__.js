@@ -23,13 +23,20 @@
 // - THE MENU, above the button like the point cloud panel: Linear, Rectangle
 //   and Area, each with its own icon and one line saying what it measures;
 //   Clear all (a second press clears, so one slip cannot wipe the sheet);
-//   whether points snap to the drawing; and a note that nothing is saved.
-//   Opening it starts reading the sheet's linework, so snapping is ready by
-//   the time a tool is picked. Picking a tool closes it.
+//   whether points snap to the drawing; and the dimensions' size, a slider
+//   this browser remembers. Opening it starts reading the sheet's linework,
+//   so snapping is ready by the time a tool is picked. Picking a tool
+//   closes it.
 // - THE BAR, while a tool is on: just above the dock, the tool's icon, what to
-//   do next ("Click the first point", "Tap the next corner"), and Finish, Undo
-//   and Done. A finger has no Escape key and no double click, so the bar is
-//   how a phone closes an area and stops.
+//   do next ("Click the first point", "Tap the next corner"), and Finish,
+//   Undo, Redo and Done. A finger has no Escape key, no double click and no
+//   Ctrl+Z, so the bar is how a phone closes an area, takes something back
+//   and stops.
+// - AS LITTLE TEXT AS WILL DO (Adam, 19-Oct-2026: "Remove all that text.
+//   It's just distracting"). No notes on saving, keys or lines that could not
+//   be read: a drawing whose lines are still on their way, or could not be
+//   read, is measured without snapping and read again the next time the menu
+//   opens.
 // - Everything a reader measures stays on their screen for the session: the
 //   PDF and a share link are the drawing as issued.
 //
@@ -52,6 +59,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.1.0
+// - The menu's two notes (nothing is saved; Shift, Alt and Esc) and the
+//   "Some lines could not be read" line are gone.
+// - Dimension size: a slider in the menu, 60% to 200% of the new default,
+//   kept in this browser.
+// - The bar's Undo takes back a point, or with none being made the last
+//   change, and a Redo appears once something has been undone (Ctrl+Z and
+//   Ctrl+Y do the same). Ctrl+Z and Ctrl+Y reach the tools from the menu's
+//   slider and tick box (TrueVision3D v2.182.0).
+//
 // 19-Oct-2026 - Version 1.0.0
 // - Initial implementation (TrueVision3D v2.180.0).
 //
@@ -66,9 +83,10 @@
     import { Na__LeVwTouch__IsTouchDevice } from './Na__LayoutEditor__WebViewer__TouchControls__.js';
     import { Na__PubMs__Summary, Na__PubMs__Release } from '../../52__System__Layout__PublishedDocuments/Na__PubDoc__Measure__.js';
     import {
-        Na__LeVwMsTool__State, Na__LeVwMsTool__OnChange, Na__LeVwMsTool__Attach, Na__LeVwMsTool__Detach,
+        Na__LeVwMsTool__SIZE, Na__LeVwMsTool__State, Na__LeVwMsTool__OnChange, Na__LeVwMsTool__Attach, Na__LeVwMsTool__Detach,
         Na__LeVwMsTool__Start, Na__LeVwMsTool__Prepare, Na__LeVwMsTool__Stop, Na__LeVwMsTool__Finish,
-        Na__LeVwMsTool__Undo, Na__LeVwMsTool__ClearAll, Na__LeVwMsTool__SetSnap, Na__LeVwMsTool__OnTap
+        Na__LeVwMsTool__Undo, Na__LeVwMsTool__Redo, Na__LeVwMsTool__ClearAll, Na__LeVwMsTool__SetSnap,
+        Na__LeVwMsTool__SetSize, Na__LeVwMsTool__GetSize, Na__LeVwMsTool__OnTap
     } from './Na__LayoutEditor__WebViewer__Measure__Tool__.js';
 
 // endregion -------------------------------------------------------------------
@@ -153,6 +171,15 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Key Undo and Redo Are Held With: Cmd on a Mac, Ctrl Everywhere Else
+    // ------------------------------------------------------------
+    function Na__LeVwMs__ModKey() {
+        const platform = (typeof navigator !== 'undefined' && (navigator.userAgentData && navigator.userAgentData.platform || navigator.platform)) || '';
+        return /mac|iphone|ipad/i.test(String(platform)) ? 'Cmd' : 'Ctrl';
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Click or Tap, as the Reader Is Using the Page
     // ------------------------------------------------------------
     function Na__LeVwMs__Verb(state) {
@@ -180,18 +207,25 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | What the Linework Reading Means for Snapping, for the Bar and the Menu (null when there is nothing to say)
+    // HELPER FUNCTION | While the Sheet's Lines Are First Being Read, Say So (null otherwise)
+    // ------------------------------------------------------------
+    // Only the first reading: it is why a snap cannot be found yet. A drawing
+    // that could not be read is read again quietly; the console says why.
     // ------------------------------------------------------------
     function Na__LeVwMs__SnapNote(state) {
         const lines = state && state.Linework;
-        if (!lines || !lines.Asked) return null;
-        if (!lines.Ready) {
-            return lines.Total > 1
-                ? Na__LeCfg__FormatLabel('ViewerMeasureReading', 'Reading the drawing lines to snap to ({done} of {total})', { done : lines.Done, total : lines.Total })
-                : Na__LeCfg__GetLabel('ViewerMeasureReadingOne', 'Reading the drawing lines to snap to');
-        }
-        if (lines.Failed > 0) return Na__LeCfg__GetLabel('ViewerMeasureNoSnap', 'Some lines could not be read, so points there are placed without snapping');
-        return null;
+        if (!lines || !lines.Asked || lines.Ready) return null;
+        return lines.Total > 1
+            ? Na__LeCfg__FormatLabel('ViewerMeasureReading', 'Reading the drawing lines to snap to ({done} of {total})', { done : lines.Done, total : lines.Total })
+            : Na__LeCfg__GetLabel('ViewerMeasureReadingOne', 'Reading the drawing lines to snap to');
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Dimension Size as the Slider Shows It (a whole percentage of the default)
+    // ------------------------------------------------------------
+    function Na__LeVwMs__Percent(size) {
+        return Math.round((Number(size) || 1) * 100);
     }
     // ------------------------------------------------------------
 
@@ -285,6 +319,13 @@
         }
         const snap = menu.Root.querySelector('[data-na-ms="snap"]');
         if (snap) snap.checked = state.SnapOn !== false;
+        const range = menu.Root.querySelector('[data-na-ms="size"]');
+        const shown = menu.Root.querySelector('.na-le-viewer-ms__size-value');
+        if (range && document.activeElement !== range) {                        // <-- Never under a thumb that is moving it
+            const percent = Na__LeVwMs__Percent(Na__LeVwMsTool__GetSize());
+            range.value = String(percent);
+            if (shown) shown.textContent = percent + '%';
+        }
         const status = menu.Root.querySelector('.na-le-viewer-ms__status');
         if (status) {
             const note = Na__LeVwMs__SnapNote(state);
@@ -347,15 +388,25 @@
         option.appendChild(Na__LeVwMs__El('span', null, L('ViewerMeasureSnap', 'Snap to the drawing lines')));
         root.appendChild(option);
 
+        // DIMENSION SIZE: a percentage of the default, which is a fifth over
+        // the first release's. The drawing redraws as the slider moves.
+        const sizeRow = Na__LeVwMs__El('label', 'na-le-viewer-ms__option na-le-viewer-ms__option--size');
+        sizeRow.appendChild(Na__LeVwMs__El('span', 'na-le-viewer-ms__option-name', L('ViewerMeasureSize', 'Dimension size')));
+        const range = Na__LeVwMs__El('input', 'na-le-viewer-ms__range');
+        range.type = 'range';
+        range.min  = String(Na__LeVwMs__Percent(Na__LeVwMsTool__SIZE.Min));
+        range.max  = String(Na__LeVwMs__Percent(Na__LeVwMsTool__SIZE.Max));
+        range.step = '10';
+        range.value = String(Na__LeVwMs__Percent(Na__LeVwMsTool__GetSize()));
+        range.setAttribute('data-na-ms', 'size');
+        range.setAttribute('aria-label', L('ViewerMeasureSize', 'Dimension size'));
+        sizeRow.appendChild(range);
+        sizeRow.appendChild(Na__LeVwMs__El('output', 'na-le-viewer-ms__size-value', range.value + '%'));
+        root.appendChild(sizeRow);
+
         const status = Na__LeVwMs__El('p', 'na-le-viewer-ms__status');
         status.hidden = true;
         root.appendChild(status);
-        root.appendChild(Na__LeVwMs__El('p', 'na-le-viewer-ms__note',
-            L('ViewerMeasureNote', 'Measured at each drawing\'s own scale. On this screen only: nothing is saved, shared or printed.')));
-        if (!Na__LeVwTouch__IsTouchDevice()) {
-            root.appendChild(Na__LeVwMs__El('p', 'na-le-viewer-ms__note na-le-viewer-ms__note--keys',
-                L('ViewerMeasureKeys', 'Shift keeps a line square. Alt places a point without snapping. Esc stops.')));
-        }
 
         document.body.appendChild(root);
         return { Root : root, Anchor : anchor, DocumentId : documentId, Off : null, Confirm : false, ConfirmTimer : 0 };
@@ -397,6 +448,13 @@
         const onChange = (event) => {
             if (event.target && event.target.getAttribute && event.target.getAttribute('data-na-ms') === 'snap') Na__LeVwMsTool__SetSnap(event.target.checked);
         };
+        const onInput = (event) => {
+            const target = event.target;
+            if (!target || !target.getAttribute || target.getAttribute('data-na-ms') !== 'size') return;
+            const size = Na__LeVwMsTool__SetSize(Number(target.value) / 100);
+            const shown = menu.Root.querySelector('.na-le-viewer-ms__size-value');
+            if (shown) shown.textContent = Na__LeVwMs__Percent(size) + '%';
+        };
         const onPress = (event) => {
             const target = event.target;
             if (menu.Root.contains(target) || (menu.Anchor && menu.Anchor.contains && menu.Anchor.contains(target))) return;
@@ -404,11 +462,14 @@
         };
         const onKey = (event) => {
             if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); Na__LeVwMs__Close(); return; }
+            const key = String(event.key || '').toLowerCase();
+            if ((event.ctrlKey || event.metaKey) && (key === 'z' || key === 'y')) return;   // <-- Undo and Redo are the drawing's, wherever the focus is
             if (menu.Root.contains(event.target)) event.stopPropagation();       // <-- Keys in the menu are the menu's: the arrows never change the document
         };
         const onResize = () => Na__LeVwMs__Place(menu);
         menu.Root.addEventListener('click', onClick);
         menu.Root.addEventListener('change', onChange);
+        menu.Root.addEventListener('input', onInput);
         document.addEventListener('pointerdown', onPress, true);
         document.addEventListener('keydown', onKey, true);
         window.addEventListener('resize', onResize);
@@ -444,16 +505,19 @@
         words.appendChild(Na__LeVwMs__El('span', 'na-le-viewer-ms-bar__text'));
         words.appendChild(Na__LeVwMs__El('span', 'na-le-viewer-ms-bar__note'));
         bar.appendChild(words);
+        const buttons = Na__LeVwMs__El('span', 'na-le-viewer-ms-bar__btns');   // <-- One row: on a phone it goes under the words whole, never one button at a time
+        bar.appendChild(buttons);
         const button = (which, text, title) => {
             const b = Na__LeVwMs__El('button', 'na-le-viewer-ms-bar__btn na-le-viewer-ms-bar__btn--' + which, text);
             b.type = 'button';
             b.setAttribute('data-na-ms-bar', which);
             b.title = title;
-            bar.appendChild(b);
+            buttons.appendChild(b);
             return b;
         };
         button('finish', Na__LeCfg__GetLabel('ViewerMeasureFinish', 'Finish'), Na__LeCfg__GetLabel('ViewerMeasureFinishTitle', 'Close the shape and keep it'));
-        button('undo',   Na__LeCfg__GetLabel('ViewerMeasureUndo', 'Undo'),     Na__LeCfg__GetLabel('ViewerMeasureUndoTitle', 'Take back the last point'));
+        button('undo',   Na__LeCfg__GetLabel('ViewerMeasureUndo', 'Undo'),     '');
+        button('redo',   Na__LeCfg__GetLabel('ViewerMeasureRedo', 'Redo'),     Na__LeCfg__FormatLabel('ViewerMeasureRedoTitle', 'Put back what was undone ({key}+Y)', { key : Na__LeVwMs__ModKey() }));
         button('done',   Na__LeCfg__GetLabel('ViewerMeasureDone', 'Done'),     Na__LeCfg__GetLabel('ViewerMeasureDoneTitle', 'Stop measuring. What you measured stays on the drawing'));
         bar.addEventListener('click', (event) => {
             const target = event.target && event.target.closest ? event.target.closest('[data-na-ms-bar]') : null;
@@ -461,6 +525,7 @@
             const which = target.getAttribute('data-na-ms-bar');
             if (which === 'finish') Na__LeVwMsTool__Finish();
             if (which === 'undo')   Na__LeVwMsTool__Undo();
+            if (which === 'redo')   Na__LeVwMsTool__Redo();
             if (which === 'done')   Na__LeVwMsTool__Stop();
         });
         bar.addEventListener('pointerdown', (event) => event.stopPropagation());   // <-- A press on the bar is never a point on the drawing
@@ -491,8 +556,15 @@
         }
         const finish = bar.querySelector('[data-na-ms-bar="finish"]');
         const undo   = bar.querySelector('[data-na-ms-bar="undo"]');
+        const redo   = bar.querySelector('[data-na-ms-bar="redo"]');
         if (finish) finish.hidden = state.Tool !== 'area' || !state.CanFinish;
-        if (undo)   undo.hidden   = !state.CanUndo;
+        if (undo) {
+            undo.hidden = !state.CanUndo;
+            undo.title  = state.UndoPoint
+                ? Na__LeCfg__FormatLabel('ViewerMeasureUndoPointTitle', 'Take back the last point ({key}+Z)', { key : Na__LeVwMs__ModKey() })
+                : Na__LeCfg__FormatLabel('ViewerMeasureUndoTitle', 'Undo the last change to the measurements ({key}+Z)', { key : Na__LeVwMs__ModKey() });
+        }
+        if (redo) redo.hidden = !state.CanRedo;
     }
     // ------------------------------------------------------------
 

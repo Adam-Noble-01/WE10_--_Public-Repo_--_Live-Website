@@ -34,13 +34,29 @@
 //   put back if they go to the 3D Model tab before the model has arrived. A
 //   session that can AUTHOR waits for the model instead, because the editor
 //   renders its drawings from it.
+// - AND THE MODEL WAITS FOR THEM (v2.183.0). A reader opened on a document is
+//   not sent the 3D model at all until they go to the 3D Model tab. The gate
+//   the model files wait at (01__AppCore/Na__AppFlow__ModelGate__.js) is armed
+//   the moment a key is read, kept shut once the document is on screen with
+//   the loading screen lifted, and opened by the 3D Model tab. Every other
+//   ending opens it at once: an author, the setting off
+//   (Open__LoadModelOnDemand), nothing opened, a project with no drawings.
+// - THE DRAWINGS KEY. "Drawings" - what the Project Hub's PlanVision card
+//   opens - names no one document: it opens the first drawing of the Drawings
+//   menu that is published, so a reader lands on a drawing they can read
+//   rather than on a grey "not published yet" panel. A pack with none
+//   published opens its first drawing, which says so; an author, whose editor
+//   draws every sheet, gets the first drawing.
 // - ONCE. The key is honoured on the load that carries it and never again in
 //   that page; it stays in the address, so a reload opens the same document.
 //
 // INTEGRATION:
-// - Index.html calls Na__LeShareOpen__Initialize once the Layout Editor is
-//   ready, beside the tab strip. That call also starts the share link record's
-//   statement listener and fetches the sharing settings.
+// - Index.html calls Na__LeShareOpen__Initialize straight after asking the
+//   Layout Editor to start, in the same run of its module body as
+//   Na__AppFlow__StartLoadingSequence: the model gate is armed in its
+//   synchronous start, which is only certain to land before the loading
+//   sequence reaches the gate because of that. The call also starts the share
+//   link record's statement listener and fetches the sharing settings.
 // - Opens documents only through the mode controller's own entry points.
 //
 // -----------------------------------------------------------------------------
@@ -52,6 +68,18 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.1.0
+// - THE PROJECT HUB'S WAY IN (TrueVision3D v2.183.0). Adam: the PlanVision
+//   card should go "straight past the 3D model into the first drawing in the
+//   drawings list ... opening the drawing viewer", and "maybe it only gets
+//   loaded when you hop back to the 3D model tab". The Drawings key opens the
+//   first published drawing (FirstDrawing, through the share link record's
+//   PublishedIds), and a reader's model now waits at the model gate until the
+//   3D Model tab is pressed.
+// - The loading screen is lifted only when a document actually opened. A key
+//   that opened nothing used to lift it as well, showing the reader an empty
+//   page while the model loaded behind it.
+//
 // 29-Sep-2026 - Version 1.0.0
 // - Initial implementation (TrueVision3D v2.166.0).
 //
@@ -65,7 +93,7 @@
     // MODULE IMPORTS | The Mode Controller's Entry Points and What They Open
     // ------------------------------------------------------------
     import {
-        Na__LeMode__CHANGED_EVENT, Na__LeMode__Ready, Na__LeMode__IsEditable, Na__LeMode__Enter,
+        Na__LeMode__CHANGED_EVENT, Na__LeMode__Ready, Na__LeMode__IsEditable, Na__LeMode__IsActive, Na__LeMode__Enter,
         Na__LeMode__OpenSpecification, Na__LeMode__OpenRegister, Na__LeMode__OpenStatements
     } from '../05__Core__ModeController/Na__LayoutEditor__ModeController__.js';
     import {
@@ -82,10 +110,17 @@
     // ------------------------------------------------------------
     import {
         Na__LeShareLink__KIND_DRAWING, Na__LeShareLink__KIND_SPEC, Na__LeShareLink__KIND_REGISTER, Na__LeShareLink__KIND_STATEMENT,
-        Na__LeShareLink__PREFIX_SHEET, Na__LeShareLink__Ready, Na__LeShareLink__GetSetup, Na__LeShareLink__Label,
-        Na__LeShareLink__Parse, Na__LeShareLink__ReadOpenParam
+        Na__LeShareLink__KIND_DRAWINGS, Na__LeShareLink__PREFIX_SHEET, Na__LeShareLink__Ready, Na__LeShareLink__GetSetup,
+        Na__LeShareLink__Label, Na__LeShareLink__Parse, Na__LeShareLink__ReadOpenParam
     } from './Na__LayoutEditor__Share__Links__.js';
-    import { Na__LeShareMf__Load, Na__LeShareMf__Find, Na__LeShareMf__Initialize } from './Na__LayoutEditor__Share__Manifest__.js';
+    import {
+        Na__LeShareMf__Load, Na__LeShareMf__Find, Na__LeShareMf__Initialize, Na__LeShareMf__PublishedIds
+    } from './Na__LayoutEditor__Share__Manifest__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | The Model Gate: a Reader's 3D Model Waits for the 3D Model Tab
+    // ------------------------------------------------------------
+    import { Na__ModelGate__Arm, Na__ModelGate__Keep, Na__ModelGate__Open } from '../../01__AppCore/Na__AppFlow__ModelGate__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -193,6 +228,41 @@
     }
     // ------------------------------------------------------------
 
+
+    // HELPER FUNCTION | Let the Model Go When the Reader Goes to the 3D Model Tab
+    // ------------------------------------------------------------
+    // Once: the first time the editor closes, which is the 3D Model tab (or a
+    // pack left with no drawing to show). The loading screen the listener above
+    // puts back then covers the model as it loads, as it does a first visit.
+    // ------------------------------------------------------------
+    function Na__LeShareOpen__ReleaseOn3d() {
+        const onMode = (event) => {
+            if (event && event.detail && event.detail.isActive) return;
+            window.removeEventListener(Na__LeMode__CHANGED_EVENT, onMode);
+            Na__ModelGate__Open('the reader went to the 3D Model tab');
+        };
+        window.addEventListener(Na__LeMode__CHANGED_EVENT, onMode);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Project With No Drawings Wants Its Model Now
+    // ------------------------------------------------------------
+    // The opener waits a long while for sheets that may still be coming; the
+    // model need not. The first load the sheet model announces settles it: no
+    // sheets, and the gate opens. Opening early is always safe - holding the
+    // model is only ever an optimisation.
+    // ------------------------------------------------------------
+    function Na__LeShareOpen__ReleaseIfNoDrawings() {
+        const onModel = (event) => {
+            if (!event || !event.detail || event.detail.reason !== 'loaded') return;
+            window.removeEventListener(Na__LeModel__CHANGED_EVENT, onModel);
+            if (Na__LeModel__GetSheets().length === 0) Na__ModelGate__Open('the project has no drawings');
+        };
+        window.addEventListener(Na__LeModel__CHANGED_EVENT, onModel);
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -248,6 +318,28 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Drawing the Drawings Key Opens (null when the project has none)
+    // ------------------------------------------------------------
+    // The first sheet of the Drawings menu - the register's order - whose
+    // drawing the index says is published: the first one a reader can read.
+    // An author gets the first sheet, because the editor draws every sheet
+    // from the model. A pack with nothing published, or an index that cannot
+    // be read, opens its first sheet, which says honestly that it is not
+    // published yet.
+    // ------------------------------------------------------------
+    async function Na__LeShareOpen__FirstDrawing() {
+        const sheets = Na__LeModel__GetSheets();
+        if (!sheets.length) return null;
+        if (Na__LeMode__IsEditable()) return sheets[0];
+        const published = await Na__LeShareMf__PublishedIds();                   // <-- The index the reader opens next is fetched normally, so this read warms it
+        const first = (published && published.size > 0)
+            ? sheets.find((sheet) => published.has(Na__LeModel__GetDocumentId(sheet)))
+            : null;
+        return first || sheets[0];
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Open the Document a Key Names, in Its Read View
     // ------------------------------------------------------------
     // Resolves { Ok, Kind, Reason }. Never throws.
@@ -283,6 +375,11 @@
             if (record.Doc__Id !== statementId) Na__LeMode__OpenStatements({ statementId : record.Doc__Id, view : 'read' });   // <-- Found by its folder under a new id
             return { Ok : true, Kind : kind, Reason : null };
         }
+        if (kind === Na__LeShareLink__KIND_DRAWINGS) {
+            const first = await Na__LeShareOpen__FirstDrawing();
+            if (!first) return { Ok : false, Kind : kind, Reason : 'the project has no drawings' };   // <-- The model is shown, as it is for a concept-only job
+            return { Ok : Na__LeMode__Enter(first.Sheet__Id), Kind : kind, Reason : null };
+        }
 
         // A DRAWING
         const sheet = Na__LeShareOpen__FindSheet(parsed, entry);
@@ -313,6 +410,10 @@
     // share link record are asked for while the editor reads its own
     // configuration and the drawings arrive, so the document opens the moment
     // the sheets are known rather than a round trip or two later.
+    //
+    // THE MODEL GATE IS ARMED BEFORE THE FIRST AWAIT, and the try below opens
+    // it on every way out but one: a reader with a document on screen and the
+    // loading screen lifted off it, where the 3D Model tab opens it instead.
     // ------------------------------------------------------------
     async function Na__LeShareOpen__Initialize(options) {
         if (Na__LeShareOpen__Started) return null;
@@ -320,29 +421,43 @@
         Na__LeShareOpen__Toast   = (options && typeof options.showToast === 'function') ? options.showToast : null;
         window.addEventListener(Na__LeShareOpen__SCENE_READY_EVENT, () => { Na__LeShareOpen__SceneReady = true; });
 
-        const settings = Na__LeShareLink__Ready();                               // <-- Alongside the editor's own start
-        if (Na__LeShareLink__ReadOpenParam()) void Na__LeShareMf__Load();       // <-- The record, alongside the drawings (the built-in key name is enough to know there is a link)
-        const enabled = await Na__LeMode__Ready();
-        await settings;
-        if (!enabled) return null;
-        Na__LeShareMf__Initialize({ editable : Na__LeMode__IsEditable() });      // <-- A published statement's link is recorded the moment it goes out
+        const armed = !!Na__LeShareLink__ReadOpenParam() && Na__ModelGate__Arm('opened by a shared link');   // <-- Synchronous: the loading sequence is round trips short of the gate
+        if (armed) Na__LeShareOpen__ReleaseIfNoDrawings();
+        let kept = false;
+        try {
+            const settings = Na__LeShareLink__Ready();                           // <-- Alongside the editor's own start
+            if (Na__LeShareLink__ReadOpenParam()) void Na__LeShareMf__Load();   // <-- The record, alongside the drawings (the built-in key name is enough to know there is a link)
+            const enabled = await Na__LeMode__Ready();
+            await settings;
+            if (!enabled) return null;
+            Na__LeShareMf__Initialize({ editable : Na__LeMode__IsEditable() });  // <-- A published statement's link is recorded the moment it goes out
 
-        const key = Na__LeShareLink__ReadOpenParam();
-        if (!key) return null;
-        const setup = Na__LeShareLink__GetSetup();
-        console.info('[TrueVision3D Share] Opened by a shared link: ' + key);
+            const key = Na__LeShareLink__ReadOpenParam();
+            if (!key) return null;
+            const setup  = Na__LeShareLink__GetSetup();
+            const author = Na__LeMode__IsEditable();
+            if (author) Na__ModelGate__Open('an authoring session draws its sheets from the model');
+            else if (!setup.open.loadModelOnDemand) Na__ModelGate__Open('Open__LoadModelOnDemand is off');
+            console.info('[TrueVision3D Share] Opened by a shared link: ' + key);
 
-        const known = await Na__LeShareOpen__SheetsKnown(setup.open.waitForSheetsMs);
-        if (!known) {
-            console.warn('[TrueVision3D Share] The project\'s drawings did not arrive, so the link to ' + key + ' was not opened.');
-            return { Ok : false, Kind : null, Reason : 'no sheets' };
+            const known = await Na__LeShareOpen__SheetsKnown(setup.open.waitForSheetsMs);
+            if (!known) {
+                console.warn('[TrueVision3D Share] The project\'s drawings did not arrive, so the link to ' + key + ' was not opened.');
+                return { Ok : false, Kind : null, Reason : 'no sheets' };
+            }
+            if (author) await Na__LeShareOpen__ModelUp(setup.open.waitForSheetsMs);   // <-- The editor renders its drawings from the model
+
+            const result  = await Na__LeShareOpen__Open(key);
+            const reading = !author && Na__LeMode__IsActive();                   // <-- A document is on screen: lifting the loading screen off nothing would show an empty page
+            if (reading && setup.open.liftLoadingScreen) Na__LeShareOpen__LiftLoadingScreen();
+            if (reading && Na__LeShareOpen__Lifted && setup.open.loadModelOnDemand && Na__ModelGate__Keep('reading ' + key)) {
+                kept = true;
+                Na__LeShareOpen__ReleaseOn3d();
+            }
+            return result;
+        } finally {
+            if (armed && !kept) Na__ModelGate__Open('nothing for it to wait for');   // <-- A no-op when it opened already
         }
-        const author = Na__LeMode__IsEditable();
-        if (author) await Na__LeShareOpen__ModelUp(setup.open.waitForSheetsMs);   // <-- The editor renders its drawings from the model
-
-        const result = await Na__LeShareOpen__Open(key);
-        if (!author && setup.open.liftLoadingScreen) Na__LeShareOpen__LiftLoadingScreen();
-        return result;
     }
     // ------------------------------------------------------------
 

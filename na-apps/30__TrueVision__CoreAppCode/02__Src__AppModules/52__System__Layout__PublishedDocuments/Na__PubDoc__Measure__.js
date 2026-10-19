@@ -23,14 +23,29 @@
 //   tools costs nothing: the viewport records are already loaded with the
 //   drawing, and its linework files are fetched only by Prepare, the first
 //   time the tools open on that sheet. They are fetched together (they are
-//   immutable, content-hashed and usually already in the browser's cache from
-//   painting the sheet), then built one at a time with a breath between, so
-//   the largest plan never holds the page.
+//   immutable and content-hashed), then built one at a time with a breath
+//   between, so the largest plan never holds the page.
+// - FETCHED UNDER THE TOOLS' OWN ADDRESS. The sheet paints each linework file
+//   as an <image>, and an image asks for it without CORS. The CDN answers a
+//   request like that without Access-Control-Allow-Origin, marked immutable
+//   for a year, and the browser keeps that answer under the file's address. A
+//   fetch of the same address is handed the kept answer and refused, so on
+//   the live site (where the repository copy is not served) not one painted
+//   drawing could be snapped to. The tools ask for the same file with
+//   ?na-measure=1 on it: a request only they make, which the CDN answers with
+//   CORS and the browser keeps apart. Each address the reader knows is tried
+//   that way, then as it is, past the browser's cache.
+// - A DRAWING THAT COULD NOT BE READ IS ASKED FOR AGAIN. It is measured
+//   without snapping meanwhile, and the next Prepare (the menu opening, a
+//   tool picked) reads it again; the drawings already read are left alone.
 // - MEASUREMENTS LIVE FOR THE SESSION, per sheet. Coming back to a sheet shows
 //   what was measured on it; leaving the drawings drops nothing until the page
 //   goes. They are never saved, shared or printed: the PDF and a share link are
 //   the drawing as issued. Release lets a sheet's linework go (it is
 //   rebuilt from the cache on the next use) and keeps its measurements.
+// - EVERY CHANGE CAN BE UNDONE. Keeping, pulling, deleting and clearing
+//   measurements each remember the sheet's measurements as they were, so
+//   Undo and Redo step through them (Ctrl+Z, Ctrl+Y), per sheet.
 //
 // INTEGRATION:
 // - Na__LayoutEditor__WebViewer__Measure__ (the dock button and menu) asks
@@ -40,6 +55,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.1.0
+// - The linework is fetched under the tools' own address (?na-measure=1),
+//   each address in turn and then past the browser's cache: the sheet's own
+//   <image> left a CDN answer without CORS in the cache, and every painted
+//   drawing went unsnapped on the live site. A drawing that still cannot be
+//   read is read again on the next Prepare.
+// - Undo and Redo of kept measurements, per sheet (TrueVision3D v2.182.0).
+//
 // 19-Oct-2026 - Version 1.0.0
 // - Initial implementation (TrueVision3D v2.180.0).
 //
@@ -51,7 +74,7 @@
 // -----------------------------------------------------------------------------
 
     import { Na__PubDoc__LoadDocument } from './Na__PubDoc__Document__.js';
-    import { Na__PubDoc__Urls__Fetch } from './Na__PubDoc__Urls__.js';
+    import { Na__PubDoc__Urls__For } from './Na__PubDoc__Urls__.js';
     import { Na__PubSchema__Kind, Na__PubSchema__ResolveDocumentRef } from '../53__Data__Layout__PublishedSchema/Na__PublishedSchema__Paths__.js';
     import { Na__PubMsLw__Build, Na__PubMsLw__ReadRecord, Na__PubMsLw__FrameContains } from './Na__PubDoc__Measure__Linework__.js';
 
@@ -59,20 +82,39 @@
 
 
 // -----------------------------------------------------------------------------
-// REGION | Module State
+// REGION | Module Constants and State
 // -----------------------------------------------------------------------------
+
+    // MODULE CONSTANTS | Fetching the Linework
+    // ------------------------------------------------------------
+    // The tools' own key on a linework file's address: see FETCHED UNDER THE
+    // TOOLS' OWN ADDRESS above. The file is content-hashed, so the key never
+    // needs to change.
+    // ------------------------------------------------------------
+    const Na__PubMs__OWN_KEY    = 'na-measure=1';
+    const Na__PubMs__TIMEOUT_MS = 20000;                                         // <-- One address's chance; the largest plan is a few hundred kilobytes
+    // ------------------------------------------------------------
+
+    // MODULE CONSTANTS | Undo
+    // ------------------------------------------------------------
+    const Na__PubMs__HISTORY = 100;                                              // <-- Changes remembered per sheet
+    // ------------------------------------------------------------
 
     // MODULE STATE | One Entry per Sheet a Reader Has Measured or Asked About
     // ------------------------------------------------------------
     // documentId -> {
     //   Records  : [ { Id, Scale, SpinDeg, SitePlan, Frame, File, Record } ] in paint order, or null until read
     //   Layers   : Map id -> built layer (Na__PubMsLw__Build)
-    //   Prep     : the Prepare promise, once asked
-    //   Ready    : every layer built
+    //   Read     : Set of the ids whose linework has been read (or that have none to read)
+    //   Prep     : the latest Prepare promise
+    //   Busy     : a reading is in flight
+    //   Ready    : every drawing has a layer (with its linework, or without it for now)
     //   Progress : { Done, Total }
-    //   Failed   : [ { Id, Reason } ] linework that could not be read (measured without snapping)
+    //   Failed   : [ { Id, Reason } ] linework the latest reading could not read (measured without snapping until it can)
     //   Measures : [ measurement records ] (Na__PubDoc__Measure__Maths__ describes one)
     //   Next     : the next measurement number
+    //   Undo     : [ Measures as they were before each change ], oldest first
+    //   Redo     : [ Measures as they were before each undo ], newest last
     // }
     // ------------------------------------------------------------
     const Na__PubMs__Docs = new Map();
@@ -85,12 +127,26 @@
 // REGION | The Sheet's Drawings
 // -----------------------------------------------------------------------------
 
+    // HELPER FUNCTION | A Fresh Entry, Carrying a Sheet's Measurements and Their History When It Has Them
+    // ------------------------------------------------------------
+    function Na__PubMs__Fresh(kept) {
+        return {
+            Records  : null, Layers : new Map(), Read : new Set(), Prep : null, Busy : false, Ready : false,
+            Progress : { Done : 0, Total : 0 }, Failed : [],
+            Measures : kept ? kept.Measures : [], Next : kept ? kept.Next : 1,
+            Undo     : kept ? kept.Undo : [],     Redo : kept ? kept.Redo : [],
+            Released : false
+        };
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | A Sheet's Entry, Made When First Asked For
     // ------------------------------------------------------------
     function Na__PubMs__Doc(documentId) {
         let doc = Na__PubMs__Docs.get(documentId);
         if (!doc) {
-            doc = { Records : null, Layers : new Map(), Prep : null, Ready : false, Progress : { Done : 0, Total : 0 }, Failed : [], Measures : [], Next : 1, Released : false };
+            doc = Na__PubMs__Fresh(null);
             Na__PubMs__Docs.set(documentId, doc);
         }
         return doc;
@@ -152,12 +208,65 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Read and Index the Sheet's Linework, Once
+    // HELPER FUNCTION | An Address With the Tools' Own Key on It
+    // ------------------------------------------------------------
+    function Na__PubMs__Keyed(url) {
+        return url + (url.indexOf('?') === -1 ? '?' : '&') + Na__PubMs__OWN_KEY;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | One Try at One Address: { Ok, Text, Reason }, Never Throws
+    // ------------------------------------------------------------
+    // cacheMode 'default' lets the browser keep the answer (the keyed address
+    // is the tools' alone); 'no-store' goes past whatever it kept.
+    // ------------------------------------------------------------
+    async function Na__PubMs__Try(url, cacheMode) {
+        const controller = (typeof AbortController === 'function') ? new AbortController() : null;
+        const timer = controller ? setTimeout(() => controller.abort(), Na__PubMs__TIMEOUT_MS) : 0;
+        try {
+            const response = await fetch(url, { mode : 'cors', credentials : 'omit', cache : cacheMode, signal : controller ? controller.signal : undefined });
+            if (!response.ok) return { Ok : false, Text : '', Reason : response.status + ' from ' + url };
+            return { Ok : true, Text : await response.text() };
+        } catch (error) {
+            const why = (error && error.name === 'AbortError') ? ('no answer in ' + Math.round(Na__PubMs__TIMEOUT_MS / 1000) + ' s') : ((error && error.message) || 'refused');
+            return { Ok : false, Text : '', Reason : why + ' from ' + url };
+        } finally {
+            if (timer) clearTimeout(timer);                                       // <-- After the body: a stalled download is a try that failed too
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Fetch One Linework File: { Ok, Text, Reason }, Never Throws
+    // ------------------------------------------------------------
+    // Every address the reader knows for it (the repository copy first on
+    // localhost, the CDN first on the live site), each under the tools' own
+    // key; then each as it is, straight from the network.
+    // ------------------------------------------------------------
+    async function Na__PubMs__FetchText(path) {
+        const urls = Na__PubDoc__Urls__For(path);
+        if (urls.length === 0) return { Ok : false, Text : '', Reason : 'no project is selected, so ' + path + ' cannot be read' };
+        const tries = urls.map((url) => [ Na__PubMs__Keyed(url), 'default' ]).concat(urls.map((url) => [ url, 'no-store' ]));
+        const reasons = [];
+        for (const [ url, cacheMode ] of tries) {
+            const got = await Na__PubMs__Try(url, cacheMode);
+            if (got.Ok) return got;
+            reasons.push(got.Reason);
+        }
+        return { Ok : false, Text : '', Reason : reasons.join('; ') };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Read and Index the Sheet's Linework (What Is Not Read Yet)
     // ------------------------------------------------------------
     // onProgress({ Done, Total }) hears each drawing land. Resolves to
     // { Ok, Layers, Failed }. A drawing whose linework cannot be read still
     // gets a layer - its frame and scale - so it can be measured, without
-    // snapping; Failed says which, and why.
+    // snapping; Failed says which, and why, and the next Prepare reads only
+    // those again. While a reading is in flight, or once every drawing is
+    // read, Prepare hands back the reading there is.
     // ------------------------------------------------------------
     function Na__PubMs__Prepare(documentId, onProgress) {
         const doc = Na__PubMs__Doc(documentId);
@@ -165,42 +274,52 @@
             if (typeof onProgress !== 'function') return;
             try { onProgress({ Done : doc.Progress.Done, Total : doc.Progress.Total }); } catch (error) { /* a listener's fault is its own */ }
         };
-        if (doc.Prep) { tell(); return doc.Prep; }
+        if (doc.Prep && (doc.Busy || doc.Failed.length === 0)) { tell(); return doc.Prep; }
 
+        doc.Busy = true;
         doc.Prep = (async () => {
             await Na__PubMs__Summary(documentId);
             const records = doc.Records || [];
-            doc.Progress = { Done : 0, Total : records.length };
+            const todo = records.filter((info) => !doc.Read.has(info.Id));
+            doc.Progress = { Done : records.length - todo.length, Total : records.length };
+            doc.Failed = [];
             tell();
 
-            const texts = await Promise.all(records.map(async (info) => {
+            const texts = await Promise.all(todo.map(async (info) => {
                 if (!info.File) return { Ok : true, Text : '' };                  // <-- A vector-free drawing: measured without snapping
                 const path = Na__PubSchema__ResolveDocumentRef(documentId, info.File);
-                if (!path) return { Ok : false, Text : '', Reason : 'its linework file is not one this sheet can name' };
-                const got = await Na__PubDoc__Urls__Fetch(path, 'text', true);
-                return got.Ok ? { Ok : true, Text : String(got.Value || '') } : { Ok : false, Text : '', Reason : got.Reason };
+                if (!path) return { Ok : false, Text : '', Reason : 'its linework file is not one this sheet can name', Final : true };
+                return Na__PubMs__FetchText(path);
             }));
 
-            for (let i = 0; i < records.length; i++) {
+            for (let i = 0; i < todo.length; i++) {
                 if (doc.Released) break;                                          // <-- The sheet was left while this was reading
-                const info = records[i], got = texts[i];
-                if (!got.Ok) doc.Failed.push({ Id : info.Id, Reason : got.Reason });
+                const info = todo[i], got = texts[i];
                 let layer = null;
-                try {
-                    layer = Na__PubMsLw__Build(info.Record, got.Text);
-                } catch (error) {
-                    doc.Failed.push({ Id : info.Id, Reason : 'its linework could not be read (' + (error && error.message) + ')' });
-                    layer = Na__PubMsLw__Build(info.Record, '');
+                if (got.Ok) {
+                    try {
+                        layer = Na__PubMsLw__Build(info.Record, got.Text);
+                    } catch (error) {
+                        doc.Failed.push({ Id : info.Id, Reason : 'its linework could not be read (' + (error && error.message) + ')' });
+                    }
+                    doc.Read.add(info.Id);                                        // <-- Downloaded: the same bytes will not read better a second time
+                } else {
+                    doc.Failed.push({ Id : info.Id, Reason : got.Reason });
+                    if (got.Final) doc.Read.add(info.Id);
                 }
+                if (!layer && !doc.Layers.has(info.Id)) layer = Na__PubMsLw__Build(info.Record, '');   // <-- Its frame and scale, until its lines are read
                 if (layer) doc.Layers.set(info.Id, layer);
-                doc.Progress.Done = i + 1;
+                doc.Progress.Done += 1;
                 tell();
                 await new Promise((resolve) => setTimeout(resolve, 0));         // <-- A breath between drawings: the page keeps answering
             }
-            doc.Ready = !doc.Released;
-            tell();                                                               // <-- Once more, now it is ready: a listener reading Status hears the end
+            doc.Busy = false;
+            if (doc.Released) return { Ok : false, Layers : [], Failed : [] };
+            doc.Ready = true;
             if (doc.Failed.length) console.warn('[TrueVision3D] Measure: ' + documentId + ' measured without snapping on ' + doc.Failed.map((one) => one.Id + ' (' + one.Reason + ')').join(', '));
-            return { Ok : doc.Failed.length === 0, Layers : [ ...doc.Layers.values() ], Failed : doc.Failed.slice() };
+            if (doc.Failed.every((one) => doc.Read.has(one.Id))) doc.Failed = [];   // <-- Nothing left a second try could read: do not try again
+            tell();                                                               // <-- Once more, now it is ready: a listener reading Status hears the end
+            return { Ok : doc.Failed.length === 0, Layers : Na__PubMs__Layers(documentId), Failed : doc.Failed.slice() };
         })();
         return doc.Prep;
     }
@@ -301,26 +420,43 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Remember a Sheet's Measurements as They Are, Before a Change (a new change ends what Redo could bring back)
+    // ------------------------------------------------------------
+    function Na__PubMs__Remember(doc) {
+        doc.Undo.push(doc.Measures.map(Na__PubMs__Copy));
+        if (doc.Undo.length > Na__PubMs__HISTORY) doc.Undo.shift();
+        doc.Redo = [];
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Keep a New Measurement; Returns It With Its Id
+    // ------------------------------------------------------------
+    // Ids are never given twice, even to one undone: a redo brings a
+    // measurement back under its own.
     // ------------------------------------------------------------
     function Na__PubMs__Add(documentId, measure) {
         const doc = Na__PubMs__Doc(documentId);
         const kept = Na__PubMs__Copy(measure);
         kept.Id = 'Measure_' + String(doc.Next++).padStart(3, '0');
-        doc.Measures.push(kept);
+        Na__PubMs__Remember(doc);
+        doc.Measures = doc.Measures.concat([ kept ]);
         return Na__PubMs__Copy(kept);
     }
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Put a Changed Measurement Back (by its Id); false when there is none
+    // FUNCTION | Put a Changed Measurement Back (by its Id); false when there is none, or it did not change
     // ------------------------------------------------------------
     function Na__PubMs__Replace(documentId, measure) {
         const doc = Na__PubMs__Docs.get(documentId);
         if (!doc || !measure) return false;
         const at = doc.Measures.findIndex((one) => one.Id === measure.Id);
         if (at === -1) return false;
-        doc.Measures[at] = Na__PubMs__Copy(measure);
+        const kept = Na__PubMs__Copy(measure);
+        if (JSON.stringify(kept) === JSON.stringify(doc.Measures[at])) return false;   // <-- Pulled and put back where it was: nothing to undo
+        Na__PubMs__Remember(doc);
+        doc.Measures = doc.Measures.map((one, i) => (i === at ? kept : one));
         return true;
     }
     // ------------------------------------------------------------
@@ -330,27 +466,61 @@
     // ------------------------------------------------------------
     function Na__PubMs__Remove(documentId, id) {
         const doc = Na__PubMs__Docs.get(documentId);
-        if (!doc) return false;
-        const before = doc.Measures.length;
+        if (!doc || !doc.Measures.some((one) => one.Id === id)) return false;
+        Na__PubMs__Remember(doc);
         doc.Measures = doc.Measures.filter((one) => one.Id !== id);
-        return doc.Measures.length !== before;
+        return true;
     }
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Remove Every Measurement on a Sheet; Returns How Many Went
+    // FUNCTION | Remove Every Measurement on a Sheet; Returns How Many Went (one Undo brings them all back)
     // ------------------------------------------------------------
     function Na__PubMs__Clear(documentId) {
         const doc = Na__PubMs__Docs.get(documentId);
-        if (!doc) return 0;
+        if (!doc || doc.Measures.length === 0) return 0;
         const count = doc.Measures.length;
+        Na__PubMs__Remember(doc);
         doc.Measures = [];
         return count;
     }
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Let a Sheet's Linework Go, Keeping Its Measurements
+    // FUNCTION | Undo the Last Change to a Sheet's Measurements; false when there is none
+    // ------------------------------------------------------------
+    function Na__PubMs__Undo(documentId) {
+        const doc = Na__PubMs__Docs.get(documentId);
+        if (!doc || doc.Undo.length === 0) return false;
+        doc.Redo.push(doc.Measures);
+        doc.Measures = doc.Undo.pop();
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Redo the Last Change Undone; false when there is none
+    // ------------------------------------------------------------
+    function Na__PubMs__Redo(documentId) {
+        const doc = Na__PubMs__Docs.get(documentId);
+        if (!doc || doc.Redo.length === 0) return false;
+        doc.Undo.push(doc.Measures);
+        doc.Measures = doc.Redo.pop();
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | What Undo and Redo Could Do on a Sheet: { CanUndo, CanRedo }
+    // ------------------------------------------------------------
+    function Na__PubMs__History(documentId) {
+        const doc = Na__PubMs__Docs.get(documentId);
+        return { CanUndo : !!(doc && doc.Undo.length), CanRedo : !!(doc && doc.Redo.length) };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Let a Sheet's Linework Go, Keeping Its Measurements and Their History
     // ------------------------------------------------------------
     // A reading still in flight finishes into an entry nobody holds any more.
     // ------------------------------------------------------------
@@ -358,10 +528,7 @@
         const doc = Na__PubMs__Docs.get(documentId);
         if (!doc) return;
         doc.Released = true;
-        Na__PubMs__Docs.set(documentId, {
-            Records : null, Layers : new Map(), Prep : null, Ready : false, Progress : { Done : 0, Total : 0 }, Failed : [],
-            Measures : doc.Measures, Next : doc.Next, Released : false
-        });
+        Na__PubMs__Docs.set(documentId, Na__PubMs__Fresh(doc));
     }
     // ------------------------------------------------------------
 
@@ -385,6 +552,9 @@
         Na__PubMs__Replace,
         Na__PubMs__Remove,
         Na__PubMs__Clear,
+        Na__PubMs__Undo,
+        Na__PubMs__Redo,
+        Na__PubMs__History,
         Na__PubMs__Release
     };
 

@@ -6,6 +6,59 @@
 
 # -----------------------------------------------------------------------------
 
+## Project Vision - Version 0.5.4 - 19-Oct-2026
+
+### Changed - The hub's PlanVision card opens the drawings published from TrueVision; legacy jobs keep PlanVision
+
+#### Why
+- Adam: PlanVision is being retired, but stays live on the jobs it is live on. Drawings are now derived from the 3D
+  model and published from TrueVision's layout editor, and "once published, the PlanVision light should light up,
+  allowing people to get straight into their plans from Project Vision rather than having to go through the 3D model
+  of TrueVision first." A job's model goes out for concept approval first; its drawings come later.
+- Until now the card lit for any project with anything in `20__PlanVision__AppContent`, which every project has (its
+  JSON, the placeholder notes), so JW02, PS01, PS02, SB04 and SK02 all offered an empty PlanVision.
+
+#### The card (`index.html`, new `02__Src__AppModules/ProjectVision__PlanVisionCard__.js`)
+- Three answers, in order:
+  1. Drawings published from TrueVision: TrueVision, with `open=Drawings`. TrueVision 3D v2.183.0 opens the first
+     published drawing of the Drawings menu in the client's drawing viewer, and does not download the 3D model until
+     the 3D Model tab is pressed.
+  2. A legacy job, whose PlanVision has drawings of its own: PlanVision, exactly as before.
+  3. Neither: Coming Soon, until drawings are published.
+- Published is read LIVE, from the project's `06__Layout__PublishedDocuments/PublishedDocuments__Index__.json` (at
+  least one document with `Document__State` published), in the places and order TrueVision's reader uses: the R2 CDN
+  then the GitHub Pages copy on the live site, the repository first on localhost. A publish lights the card as soon as
+  its index lands, with no build and no push. The CDN sends that file with CORS open and a 60 s cache; the hub asks
+  with `no-cache`. A project whose index flag says it has no TrueVision content is not asked, and an index that does
+  not answer in 3 s counts as nothing published.
+- A legacy job that has had drawings published from TrueVision goes to TrueVision: those are its current drawings.
+  Today that is RB05 (PlanVision has its March to June concept set D01 to D08; TrueVision has published 14 drawings
+  under the same numbers) and the AA00 example.
+- The card carries `data-route` (`truevision-drawings`, `planvision-legacy` or `none`) for checking.
+- TrueVision's key is the twin of `Na__LeShareLink__KEY_DRAWINGS` (TrueVision's share links module), noted at both ends.
+
+#### Build (`ProjectVision__BuildScript__.py`)
+- `count_planvision_drawings` counts a project's legacy PlanVision drawings from disk with the rules the PlanVision data
+  is built by (`discover_planvision_phases`): a PNG and PDF pair once, nothing under `00__`, no Design and Access
+  Statement figures. It goes into every master index entry as `planVisionDrawings`. The card's legacy answer needs
+  `subApps.planVision` AND a count above 0.
+- An index from before this build has no `planVisionDrawings`, and the flag alone decides, as before: pushing the hub
+  ahead of the next build changes only the TrueVision answer.
+- The summary table's Plan column shows the legacy drawing count, or `-` where the card is left to TrueVision.
+
+#### What each job does now
+- JW02, PS01, RB05, AA00: TrueVision's published drawings.
+- EB03 (15), NP03 (12), BH03 (8), JH03 (32): PlanVision, unchanged.
+- PS02, SB04, SK02: Coming Soon after the next build (until then, their empty PlanVision as before).
+
+#### Tested
+- The master index built in memory from the real portal by the script's own functions (nothing written): the counts
+  above, AA00's stale PlanVision JSON (19 listed, none on disk) counting 0.
+- The hub served read-only on localhost with that index: every project above answers as listed. JW02's card opened
+  TrueVision on D01 in the viewer with no model file and no sky dome requested; the 3D Model tab then loaded both.
+
+# -----------------------------------------------------------------------------
+
 ## Project Vision - Version 0.5.3 - 19-Oct-2026
 
 ### Added - Synced SketchUp scenes reach TrueVision: the build registers the Scene Sync store, the sync uploads it

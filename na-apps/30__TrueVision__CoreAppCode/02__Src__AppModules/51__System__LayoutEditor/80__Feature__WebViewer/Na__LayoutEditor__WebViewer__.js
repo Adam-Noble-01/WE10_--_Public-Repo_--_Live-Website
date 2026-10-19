@@ -37,6 +37,8 @@
 //   gets the point cloud slider's button beside the zoom keys
 //   (Na__LayoutEditor__WebViewer__PointCloud__), and one with a 2D drawing
 //   the measuring tools' tape measure (Na__LayoutEditor__WebViewer__Measure__).
+//   On a desk each symbol has its word beside it; on a phone the dock shows
+//   the symbols alone.
 // - WHAT IS NOT SHOWN AT ALL. The panel columns, the drawing toolbar, the
 //   measurements box and the specification's authoring bar. Not disabled: not
 //   built. The two view modules own the reading surfaces (Drawings, Spec) and
@@ -58,6 +60,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.5.0
+// - SYMBOLS ON A PHONE (TrueVision3D v2.181.0). Adam: "On mobile phone
+//   versions of TrueVision, just use the symbols and drop the text." PDF and
+//   Share carry house icons made for them (UiIcons__MenuIcons__ToolsMenu,
+//   PdfDocument and Share) ahead of their words, and the stylesheet drops
+//   every word in the dock below 760px and squares a drawing's controls, so
+//   all of them fit a phone instead of scrolling Share off the end. The
+//   actions row is marked as a drawing's (na-le-viewer__actions--drawing) for
+//   that rule, so the specification's worded page keys keep their width.
+//
 // 19-Oct-2026 - Version 1.4.0
 // - THE MEASURING TOOLS (TrueVision3D v2.180.0). A published drawing with a
 //   2D drawing on it (Na__LeVwMs__Summary) puts a Measure button in the dock
@@ -154,6 +166,19 @@
     const Na__LeVw__BODY_CLASS = 'na-le-viewer--active';                         // <-- On the body: the stylesheet collapses the editor shell behind it
     const Na__LeVw__SPEC_ID    = '__specification__';                            // <-- The specification's id in the document list; no sheet can hold it
     const Na__LeVw__ZOOM_STEP  = 1.35;
+    // ------------------------------------------------------------
+
+    // MODULE CONSTANTS | The Dock's Icons
+    // ------------------------------------------------------------
+    // The house icons made for the dock's PDF and Share (19-Oct-2026), found
+    // beside this module's own address so they resolve on localhost, the live
+    // site and an installed app alike, as the measuring tools find theirs.
+    // ------------------------------------------------------------
+    const Na__LeVw__ICON_BASE  = new URL('../../../01__AppAssets__TrueVision/UiIcons__MenuIcons__ToolsMenu/', import.meta.url).href;
+    const Na__LeVw__ICONS      = Object.freeze({
+        pdf   : 'Icon__ToolsMenu__PdfDocument__.svg',
+        share : 'Icon__ToolsMenu__Share__.svg'
+    });
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | Gate, Chrome and What Is Showing
@@ -279,12 +304,31 @@
     // Every control here carries data-na-viewer rather than its own listener,
     // so the chrome is rebuilt freely and one delegated click handler on the
     // host keeps answering.
+    //
+    // WITH AN ICON (a key of Na__LeVw__ICONS) the button shows the icon and
+    // then its word, in a span the stylesheet hides on a phone; the title and
+    // aria-label name it either way. The icon is sized on the element as well
+    // as in the stylesheet, so a stylesheet a release behind this module
+    // cannot draw it at the SVG's own 1024px.
     // ------------------------------------------------------------
-    function Na__LeVw__Button(text, action, title, modifier) {
-        const button = Na__LeVw__El('button', 'na-le-viewer__btn' + (modifier ? ' ' + modifier : ''), text);
+    function Na__LeVw__Button(text, action, title, modifier, icon) {
+        const file   = icon ? Na__LeVw__ICONS[icon] : null;
+        const button = Na__LeVw__El('button', 'na-le-viewer__btn' + (modifier ? ' ' + modifier : '') + (file ? ' na-le-viewer__btn--icon' : ''), file ? null : text);
         button.type = 'button';
         button.setAttribute('data-na-viewer', action);
         if (title) { button.title = title; button.setAttribute('aria-label', title); }
+        if (file) {
+            const img = Na__LeVw__El('img', 'na-le-viewer__btn-icon');
+            img.src = Na__LeVw__ICON_BASE + file;
+            img.alt = '';
+            img.width = 20;
+            img.height = 20;
+            img.decoding = 'async';
+            img.draggable = false;
+            img.setAttribute('aria-hidden', 'true');
+            button.appendChild(img);
+            button.appendChild(Na__LeVw__El('span', 'na-le-viewer__btn-label', text));
+        }
         return button;
     }
     // ------------------------------------------------------------
@@ -340,6 +384,7 @@
         const actions = Na__LeVw__Dock.querySelector('.na-le-viewer__actions');
         if (!actions) return;
         actions.innerHTML = '';
+        actions.classList.toggle('na-le-viewer__actions--drawing', Na__LeVw__Current !== Na__LeVw__SPEC_ID);   // <-- A drawing's controls go square on a phone; the page keys are words and keep their width
         if (Na__LeVw__Current === Na__LeVw__SPEC_ID) {
             actions.appendChild(Na__LeVw__Button(Na__LeCfg__GetLabel('ViewerPageUp', 'Page up'), 'page-up', Na__LeCfg__GetLabel('ViewerPageUpTitle', 'The page before this one')));
             actions.appendChild(Na__LeVw__Button(Na__LeCfg__GetLabel('ViewerPageDown', 'Page down'), 'page-down', Na__LeCfg__GetLabel('ViewerPageDownTitle', 'The page after this one')));
@@ -354,8 +399,8 @@
             if (button) actions.appendChild(button);
         }
         if (Na__LeVw__MeasureShown()) actions.appendChild(Na__LeVwMs__DockButton());   // <-- Only a published drawing with a 2D drawing on it: one tape measure, its tools behind it
-        actions.appendChild(Na__LeVw__Button(Na__LeCfg__GetLabel('ViewerPdf', 'PDF'), 'pdf', Na__LeCfg__GetLabel('ViewerPdfTitle', 'Download this sheet as a PDF at paper size')));
-        actions.appendChild(Na__LeVw__Button(Na__LeCfg__GetLabel('ViewerShare', 'Share'), 'share', Na__LeCfg__GetLabel('ViewerShareTitle', 'A link that opens this drawing, read-only, on any device')));   // <-- Beside the PDF, as Adam asked (66__Feature__DocumentSharing)
+        actions.appendChild(Na__LeVw__Button(Na__LeCfg__GetLabel('ViewerPdf', 'PDF'), 'pdf', Na__LeCfg__GetLabel('ViewerPdfTitle', 'Download this sheet as a PDF at paper size'), null, 'pdf'));
+        actions.appendChild(Na__LeVw__Button(Na__LeCfg__GetLabel('ViewerShare', 'Share'), 'share', Na__LeCfg__GetLabel('ViewerShareTitle', 'A link that opens this drawing, read-only, on any device'), null, 'share'));   // <-- Beside the PDF, as Adam asked (66__Feature__DocumentSharing)
     }
     // ------------------------------------------------------------
 

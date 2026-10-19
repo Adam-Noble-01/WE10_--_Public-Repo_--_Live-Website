@@ -199,6 +199,23 @@
     line-height                        : 1;
 }
 
+/* PDF AND SHARE CARRY ICONS (19-Oct-2026, TrueVision3D v2.181.0): the house
+   icons made for them in UiIcons__MenuIcons__ToolsMenu, at the tape
+   measure's size beside it and ahead of their words. On a phone the icon
+   stands alone (The Dock on a Phone, below). */
+
+.na-le-viewer__btn--icon {
+    gap                                : 6px;
+    padding                            : 0 10px;
+}
+
+.na-le-viewer__btn-icon {
+    flex                               : 0 0 auto;
+    width                              : 20px;
+    height                             : 20px;
+    pointer-events                     : none;
+}
+
 /* endregion ------------------------------------------------------- */
 
 
@@ -210,7 +227,8 @@
    PointCloud__). THE BUTTON is a dock button like the others, with a small
    point cloud mark and how strong the point clouds are now; the figure turns
    the accent blue once the reader has moved it away from the sheet as
-   issued. On a phone the word goes and the mark and the figure stay. */
+   issued. On a phone the word and the figure go and the mark stays (The
+   Dock on a Phone, below); the title still gives the figure. */
 
 .na-le-viewer__btn--pc {
     gap                                : 6px;
@@ -238,12 +256,6 @@
 .na-le-viewer__btn--pc[aria-expanded="true"] {
     border-color                       : var(--Na_ViewerAccent);
     background                         : #eef5fb;
-}
-
-@media (max-width: 479px) {
-    .na-le-viewer__pc-label {
-        display                        : none;
-    }
 }
 
 /* THE PANEL opens above the button and sits over the drawing, below the
@@ -595,6 +607,63 @@
 
 .na-le-spec--viewer .na-le-spec__reader {
     padding-bottom                     : 12px;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Dock on a Phone                                    */
+/* ----------------------------------------------------------------- */
+
+/* THE SYMBOLS ALONE BELOW 760px (19-Oct-2026, TrueVision3D v2.181.0).
+   Adam: "On mobile phone versions of TrueVision, just use the symbols and
+   drop the text." Every word in the dock goes: PDF, Share, Measure, Point
+   cloud and its figure. Each button keeps its words as its title and its
+   accessible name. 760px is where the chrome widens for a desk (below),
+   and the dock with all its words needs about 700px; under that the row
+   scrolled, and on a 430px phone Share was off the end and PDF cut in half.
+
+   A DRAWING'S CONTROLS ARE THEN 36px SQUARES THAT MAY GIVE UP 6px. Ten
+   controls at 36px do not fit a 375px phone even as symbols, so the squares
+   narrow together, never below 30px, and the row only scrolls on a screen
+   narrower than about 350px. The rule is for a drawing's row alone: the
+   specification's page keys are words and keep their width. */
+
+@media (max-width: 759px) {
+    .na-le-viewer__btn-label,
+    .na-le-viewer__pc-label,
+    .na-le-viewer__pc-value,
+    .na-le-viewer__ms-label {
+        display                        : none;
+    }
+
+    .na-le-viewer__actions--drawing > .na-le-viewer__btn {
+        flex                           : 0 1 36px;
+        min-width                      : 30px;
+        padding                        : 0;
+    }
+}
+
+/* A PHONE HELD UPRIGHT takes the rest of the room from the spacing. The step
+   keys lose their side margins and come in to 40px, still the widest keys in
+   the dock at the edges where a thumb lands least accurately, and the gaps
+   close from 6px to 4px. */
+
+@media (max-width: 479px) {
+    .na-le-viewer__step {
+        gap                            : 4px;
+    }
+
+    .na-le-viewer__btn--step {
+        min-width                      : 40px;
+        margin                         : 0;
+    }
+
+    .na-le-viewer__actions {
+        gap                            : 4px;
+        padding                        : 0 2px;
+    }
 }
 
 /* endregion ------------------------------------------------------- */

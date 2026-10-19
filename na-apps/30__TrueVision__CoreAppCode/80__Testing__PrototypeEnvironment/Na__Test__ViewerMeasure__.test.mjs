@@ -21,7 +21,11 @@
 // WHAT IT GUARDS:
 // - Path data: M L H V Z, relative commands, curves cut into pieces whose
 //   joints are not ends, arcs. The file: its viewBox, classes and transforms
-//   passed down from groups, comments and unstroked paths ignored.
+//   passed down from groups, comments ignored.
+// - Only drawn lines (v2.182.0): a shape counts when it has a visible stroke,
+//   its own, its group's or its style="". A fill alone, a shape that says
+//   nothing of its stroke, no width, no opacity, display none, hidden, and
+//   anything inside defs or a clip path are not lines.
 // - The frame: what is outside it is cut away, and a cut end is not an end.
 // - The joins: pieces of one straight line become one, a T junction and a
 //   change of class stop a join, and a gently curving run is never
@@ -34,6 +38,11 @@
 // - The values: lengths, a rectangle square to a turned drawing, areas with a
 //   label point inside an L, exact or an estimate, metres on a site plan,
 //   hectares on a large area.
+// - The store (v2.182.0): the linework is fetched under the tools' own key
+//   (?na-measure=1), never by the address the sheet's <image> poisoned; a
+//   drawing that could not be read is read again by the next Prepare, alone;
+//   Undo and Redo step through keeping, pulling, deleting and clearing, and
+//   an id is never given twice.
 // =============================================================================
 
 import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'node:fs';
@@ -107,7 +116,10 @@ import { performance } from 'node:perf_hooks';
         Viewport__Id : 'Viewport_001', Viewport__Kind : '2d', Viewport__ScaleDenominator : 50, Viewport__RotationDeg : 0,
         Viewport__FrameMm : { X : 0, Y : 0, WidthMm : 20, HeightMm : 20 }, Viewport__Vector : { Vector__File : 'x.svg' }
     }, over || {});
-    const svg = (box, body) => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + box + '">' + body + '</svg>';
+    // A FILE OF DRAWN LINES: the body inside a stroked group, as the example
+    // files style theirs. rawSvg leaves the body to say its own strokes.
+    const rawSvg = (box, body) => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + box + '">' + body + '</svg>';
+    const svg    = (box, body) => rawSvg(box, '<g fill="none" stroke="#323232" stroke-width="0.12">' + body + '</g>');
 
 // endregion -------------------------------------------------------------------
 
@@ -147,9 +159,42 @@ console.log('\nThe file');
         '<g data-na-class="hidden" transform="translate(10 5)"><path d="M0,0L10,0"/></g>' +
         '<path data-na-class="section" d="M1,1L2,2" stroke="none"/>' +
         '<path data-na-class="visible" d="M3,3L4,4"/>'));
-    check('the viewBox, two paths: a comment and an unstroked path are not lines', [ parsed.ViewBox, parsed.Paths.length ], [ [ 0, 0, 100, 50 ], 2 ]);
+    check('the viewBox, two paths: a comment and a path stroked none are not lines', [ parsed.ViewBox, parsed.Paths.length ], [ [ 0, 0, 100, 50 ], 2 ]);
     check('a group passes its class and its transform down', [ parsed.Paths[0].Class, parsed.Paths[0].Matrix ], [ 'hidden', [ 1, 0, 0, 1, 10, 5 ] ]);
     check('a path keeps its own class', parsed.Paths[1].Class, 'visible');
+}
+
+console.log('\nOnly drawn lines');
+{
+    // EACH PATH NAMES ITSELF in its d (its x is its number), so the test can
+    // say exactly which were read.
+    const read = (body) => Lw.Na__PubMsLw__ParseSvg(rawSvg('0 0 100 100', body)).Paths.map((p) => Number(p.D.match(/^M(\d+)/)[1]));
+    check('as published: each line strokes itself (the real files) and counts',
+        read('<path data-na-class="visible" fill="none" stroke="#323232" stroke-width="0.12" d="M1,0L1,9"/>'), [ 1 ]);
+    check('a solid fill with no line round it is not a line, however solid; a fill WITH a line is',
+        read('<path fill="#d9d9d9" d="M1,0L1,9L5,9Z"/><path fill="#d9d9d9" stroke="#000" stroke-width="0.1" d="M2,0L2,9L5,9Z"/>'), [ 2 ]);
+    check('a shape that says nothing of its stroke draws none (SVG\'s default), so it is not a line',
+        read('<path d="M1,0L1,9"/><rect x="3" y="3" width="4" height="4"/>'), []);
+    check('a stroke from style="" counts, and style="" wins over the attribute',
+        read('<path style="stroke:#000;stroke-width:0.2" d="M1,0L1,9"/><path stroke="#000" style="stroke: none" d="M2,0L2,9"/>'), [ 1 ]);
+    check('a stroke that paints nothing: none, transparent, rgba with no alpha, #RGBA and #RRGGBBAA with none',
+        read('<g stroke-width="0.1"><path stroke="none" d="M1,0L1,9"/><path stroke="transparent" d="M2,0L2,9"/><path stroke="rgba(0,0,0,0)" d="M3,0L3,9"/>' +
+             '<path stroke="rgb(0 0 0 / 0%)" d="M4,0L4,9"/><path stroke="#0000" d="M5,0L5,9"/><path stroke="#00000000" d="M6,0L6,9"/><path stroke="#000000ff" d="M7,0L7,9"/></g>'), [ 7 ]);
+    check('no width, no stroke opacity, no opacity (on the shape or any group above it): not lines',
+        read('<g stroke="#000"><path stroke-width="0" d="M1,0L1,9"/><path stroke-opacity="0" d="M2,0L2,9"/><path opacity="0" d="M3,0L3,9"/>' +
+             '<g opacity="0"><path d="M4,0L4,9"/></g><g opacity="0.5"><path opacity="0.5" d="M5,0L5,9"/></g></g>'), [ 5 ]);
+    check('display none hides everything below it; hidden does too, unless a shape says visible again',
+        read('<g stroke="#000"><g display="none"><path d="M1,0L1,9"/><path visibility="visible" d="M2,0L2,9"/></g>' +
+             '<g visibility="hidden"><path d="M3,0L3,9"/><path visibility="visible" d="M4,0L4,9"/></g><path style="display:none" d="M5,0L5,9"/></g>'), [ 4 ]);
+    check('lines inside defs, a clip path, a mask or a symbol are not drawn where they stand',
+        read('<defs><path stroke="#000" d="M1,0L1,9"/></defs><clipPath id="c"><rect stroke="#000" x="2" y="0" width="5" height="5"/></clipPath>' +
+             '<mask id="m"><path stroke="#000" d="M3,0L3,9"/></mask><symbol id="s"><path stroke="#000" d="M4,0L4,9"/></symbol><path stroke="#000" d="M5,0L5,9"/>'), [ 5 ]);
+    check('a shape written open and closed, and an unknown element, leave the groups around them as they were',
+        read('<g stroke="#000"><path d="M1,0L1,9"></path><metadata>x</metadata><foo>y</foo><path d="M2,0L2,9"/></g><path d="M3,0L3,9"/>'), [ 1, 2 ]);
+    check('a stroke on the svg element itself is inherited like a group\'s',
+        [ read('<g><path d="M1,0L1,9"/></g>').length, Lw.Na__PubMsLw__ParseSvg('<svg viewBox="0 0 9 9" stroke="#000" stroke-width="0.1"><path d="M1,0L1,9"/></svg>').Paths.length ], [ 0, 1 ]);
+    const fills = Lw.Na__PubMsLw__Build(record(), rawSvg('0 0 20 20', '<path fill="#000" d="M2,2L12,2L12,12L2,12Z"/>'));
+    check('a drawing of fills alone has nothing to snap to', [ fills.Count, Snap.Na__PubMsSnap__Find([ fills ], 2.1, 2.1, { ApertureMm : 1 }).Kind ], [ 0, 'none' ]);
 }
 
 // endregion -------------------------------------------------------------------
@@ -336,39 +381,98 @@ if (!existsSync(D01)) {
     console.log('        built in ' + ms.toFixed(1) + ' ms: ' + JSON.stringify(layer.Stats));
 
     // THE STORE, END TO END: the shipped module with the reader's loading
-    // stubbed to read this folder from disk.
+    // stubbed to read this folder from disk, and fetch stubbed the way the live
+    // site answers: the CDN first, the repository copy (not served there)
+    // second, and the CDN's plain address refused, as the sheet's own <image>
+    // leaves it in a browser's cache (no CORS header, kept for a year).
     const loaded = {
         Ok : true,
         Sheet : JSON.parse(readFileSync(join(D01, 'Document__Sheet__.json'), 'utf8')),
         Elements : { viewport : JSON.parse(readFileSync(join(D01, '01__Elements__Data', 'Elements__Viewports__.json'), 'utf8')) }
     };
+    const CDN = 'https://cdn.test/', SITE = 'https://site.test/', KEY = '?na-measure=1';
     const fetched = [];
+    const flaky = new Set();                                                     // <-- Paths whose next keyed fetch fails, once
+    globalThis.fetch = async (url, init) => {
+        fetched.push({ Url : url, Cache : init && init.cache, Mode : init && init.mode });
+        if (url.startsWith(SITE)) return new Response('not here', { status : 404 });
+        const keyed = url.endsWith(KEY);
+        const path = url.slice(CDN.length).replace(KEY, '');
+        if (!keyed) throw new TypeError('Failed to fetch');                     // <-- The poisoned plain address
+        if (flaky.has(path)) { flaky.delete(path); throw new TypeError('Failed to fetch'); }
+        try { return new Response(readFileSync(join(JW02, path), 'utf8'), { status : 200 }); } catch (e) { return new Response('missing', { status : 404 }); }
+    };
     const Store = await load(PUB + 'Na__PubDoc__Measure__.js', Object.assign({}, Lw, {
         Na__PubDoc__LoadDocument : async () => loaded,
-        Na__PubDoc__Urls__Fetch : async (path, as) => { fetched.push(path); try { return { Ok : true, Value : readFileSync(join(JW02, path), 'utf8') }; } catch (e) { return { Ok : false, Reason : 'missing' }; } },
+        Na__PubDoc__Urls__For : (path) => [ CDN + path, SITE + path ],
         Na__PubSchema__Kind : (name) => (name === 'viewport' ? { arrayKey : 'Elements__Viewports' } : null),
         Na__PubSchema__ResolveDocumentRef : (documentId, reference) => documentId + '/' + reference
     }));
-    const summary = await Store.Na__PubMs__Summary('JW02_T01_D01');
+    const D = 'JW02_T01_D01';
+    const summary = await Store.Na__PubMs__Summary(D);
     check('the sheet can be measured: four drawings at 1:100, all with linework', summary, { Count : 4, WithLinework : 4, Scales : [ 100 ] });
     check('nothing has been fetched yet: a reader who never measures costs nothing', fetched.length, 0);
     const progress = [];
-    const prepared = await Store.Na__PubMs__Prepare('JW02_T01_D01', (p) => progress.push(p.Done + '/' + p.Total));
-    check('Prepare reads the four files once each and builds four layers', [ prepared.Ok, prepared.Layers.length, fetched.length, progress[progress.length - 1] ], [ true, 4, 4, '4/4' ]);
-    await Store.Na__PubMs__Prepare('JW02_T01_D01');
+    const prepared = await Store.Na__PubMs__Prepare(D, (p) => progress.push(p.Done + '/' + p.Total));
+    check('Prepare reads the four files once each, from the CDN under the tools\' own key, never the poisoned address, and builds four layers',
+        [ prepared.Ok, prepared.Layers.length, fetched.length, fetched.every((f) => f.Url.startsWith(CDN) && f.Url.endsWith(KEY) && f.Mode === 'cors'), progress[progress.length - 1] ],
+        [ true, 4, 4, true, '4/4' ]);
+    await Store.Na__PubMs__Prepare(D);
     check('...and asking again fetches nothing more', fetched.length, 4);
+
+    // A DRAWING THAT CANNOT BE READ: measured without snapping meanwhile, then
+    // read again, alone, by the next Prepare.
+    Store.Na__PubMs__Release(D);
+    const three = viewports.find((v) => v['Viewport__Id'] === 'Viewport_003');
+    flaky.add(D + '/' + three['Viewport__Vector']['Vector__File']);
+    fetched.length = 0;
+    const first = await Store.Na__PubMs__Prepare(D);
+    check('a drawing refused everywhere still gets a layer (its frame and scale, nothing to snap to), and is reported',
+        [ first.Ok, first.Failed.map((f) => f.Id), Store.Na__PubMs__Layer(D, 'Viewport_003').Count, Store.Na__PubMs__Status(D).Ready, Store.Na__PubMs__Status(D).Failed ],
+        [ false, [ 'Viewport_003' ], 0, true, 1 ]);
+    check('...after its keyed addresses, then its plain ones past the cache (four tries for it, one each for the rest)',
+        [ fetched.length, fetched.filter((f) => f.Url.indexOf('Viewport_003') !== -1).map((f) => [ f.Url.startsWith(CDN) ? 'cdn' : 'site', f.Url.endsWith(KEY) ? 'keyed' : 'plain', f.Cache ]) ],
+        [ 7, [ [ 'cdn', 'keyed', 'default' ], [ 'site', 'keyed', 'default' ], [ 'cdn', 'plain', 'no-store' ], [ 'site', 'plain', 'no-store' ] ] ]);
+    fetched.length = 0;
+    const again = await Store.Na__PubMs__Prepare(D);
+    check('the next Prepare reads that drawing again, and only that one, and now it can be snapped to',
+        [ again.Ok, fetched.length, fetched.length > 0 && fetched[0].Url.indexOf('Viewport_003') !== -1, Store.Na__PubMs__Layer(D, 'Viewport_003').Count > 0, Store.Na__PubMs__Status(D).Failed ],
+        [ true, 1, true, true, 0 ]);
+    await Store.Na__PubMs__Prepare(D);
+    check('...and with every drawing read, no more', fetched.length, 1);
+
     const two = viewports.find((v) => v['Viewport__Id'] === 'Viewport_002')['Viewport__FrameMm'];
-    check('the drawing under a point is found from the records', Store.Na__PubMs__ViewportAt('JW02_T01_D01', two.X + two.WidthMm / 2, two.Y + two.HeightMm / 2).Id, 'Viewport_002');
-    const kept = Store.Na__PubMs__Add('JW02_T01_D01', { Tool : 'linear', ViewportId : 'Viewport_002', Scale : 100, Points : [ { X : 1, Y : 2, Snap : 'end' }, { X : 3, Y : 4, Snap : 'mid' } ] });
-    check('a measurement is kept with an id', [ kept.Id, Store.Na__PubMs__List('JW02_T01_D01').length ], [ 'Measure_001', 1 ]);
+    check('the drawing under a point is found from the records', Store.Na__PubMs__ViewportAt(D, two.X + two.WidthMm / 2, two.Y + two.HeightMm / 2).Id, 'Viewport_002');
+    const line = (x) => ({ Tool : 'linear', ViewportId : 'Viewport_002', Scale : 100, Points : [ { X : x, Y : 2, Snap : 'end' }, { X : 3, Y : 4, Snap : 'mid' } ] });
+    const kept = Store.Na__PubMs__Add(D, line(1));
+    check('a measurement is kept with an id', [ kept.Id, Store.Na__PubMs__List(D).length ], [ 'Measure_001', 1 ]);
     kept.Points[1].X = 9;
-    check('the list hands out copies: changing one changes nothing until it is put back', Store.Na__PubMs__List('JW02_T01_D01')[0].Points[1].X, 3);
-    Store.Na__PubMs__Replace('JW02_T01_D01', kept);
-    check('...and Replace puts it back', Store.Na__PubMs__List('JW02_T01_D01')[0].Points[1].X, 9);
-    Store.Na__PubMs__Release('JW02_T01_D01');
-    check('leaving the sheet lets its linework go and keeps its measurements', [ Store.Na__PubMs__Layers('JW02_T01_D01').length, Store.Na__PubMs__List('JW02_T01_D01').length, Store.Na__PubMs__Status('JW02_T01_D01').Asked ], [ 0, 1, false ]);
-    check('Clear says how many went', [ Store.Na__PubMs__Clear('JW02_T01_D01'), Store.Na__PubMs__List('JW02_T01_D01').length ], [ 1, 0 ]);
-    check('Remove of one that is not there is false', Store.Na__PubMs__Remove('JW02_T01_D01', 'Measure_999'), false);
+    check('the list hands out copies: changing one changes nothing until it is put back', Store.Na__PubMs__List(D)[0].Points[1].X, 3);
+    Store.Na__PubMs__Replace(D, kept);
+    check('...and Replace puts it back', Store.Na__PubMs__List(D)[0].Points[1].X, 9);
+
+    // UNDO AND REDO
+    const ids = () => Store.Na__PubMs__List(D).map((m) => m.Id);
+    check('a Replace that changes nothing is not a change', [ Store.Na__PubMs__Replace(D, kept), Store.Na__PubMs__History(D) ], [ false, { CanUndo : true, CanRedo : false } ]);
+    check('Undo puts back what the pull changed', [ Store.Na__PubMs__Undo(D), Store.Na__PubMs__List(D)[0].Points[1].X ], [ true, 3 ]);
+    check('...Undo again takes the measurement away (and then there is nothing left to undo); Redo brings it back under its own id',
+        [ Store.Na__PubMs__Undo(D), ids(), Store.Na__PubMs__Undo(D), Store.Na__PubMs__Redo(D), ids() ], [ true, [], false, true, [ 'Measure_001' ] ]);
+    check('Redo again repeats the pull, and then there is nothing left to redo',
+        [ Store.Na__PubMs__Redo(D), Store.Na__PubMs__List(D)[0].Points[1].X, Store.Na__PubMs__Redo(D) ], [ true, 9, false ]);
+    const second = Store.Na__PubMs__Add(D, line(2));
+    Store.Na__PubMs__Undo(D);
+    const third = Store.Na__PubMs__Add(D, line(3));
+    check('an id is never given twice, even after its measurement was undone; a new change ends what Redo could bring back',
+        [ second.Id, third.Id, ids(), Store.Na__PubMs__History(D).CanRedo ], [ 'Measure_002', 'Measure_003', [ 'Measure_001', 'Measure_003' ], false ]);
+    check('Delete, then Undo, brings it back where it was',
+        [ Store.Na__PubMs__Remove(D, 'Measure_001'), ids(), Store.Na__PubMs__Undo(D), ids() ], [ true, [ 'Measure_003' ], true, [ 'Measure_001', 'Measure_003' ] ]);
+    Store.Na__PubMs__Release(D);
+    check('leaving the sheet lets its linework go and keeps its measurements and their history',
+        [ Store.Na__PubMs__Layers(D).length, Store.Na__PubMs__List(D).length, Store.Na__PubMs__Status(D).Asked, Store.Na__PubMs__History(D).CanUndo ], [ 0, 2, false, true ]);
+    check('Clear says how many went, and one Undo brings them all back',
+        [ Store.Na__PubMs__Clear(D), ids(), Store.Na__PubMs__Undo(D), ids() ], [ 2, [], true, [ 'Measure_001', 'Measure_003' ] ]);
+    check('Remove or Clear of nothing is false or none, and not a change',
+        [ Store.Na__PubMs__Remove(D, 'Measure_999'), Store.Na__PubMs__Clear('JW02_T01_D99'), Store.Na__PubMs__History(D) ], [ false, 0, { CanUndo : true, CanRedo : true } ]);
 }
 
 console.log('\nEvery published linework file in the project folders');

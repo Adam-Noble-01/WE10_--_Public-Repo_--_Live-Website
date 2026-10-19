@@ -373,7 +373,7 @@
                         "Areas" : [
                             {
                                 "Name"   : "Covered Vehicular Workshop",
-                                "AreaM2" : 348.794751,
+                                "AreaM2" : 349.509751,
                                 "Group"  : "Proposed For Development",
                                 "Colour" : "#d5e1c7"
                             },
@@ -435,12 +435,12 @@
                             },
                             {
                                 "Name"   : "Proposed For Development",
-                                "AreaM2" : 692.158563,
+                                "AreaM2" : 692.873563,
                                 "Colour" : "#c6e0c6",
                                 "Count"  : 7
                             }
                         ],
-                        "TotalM2" : 934.717979
+                        "TotalM2" : 935.432979
                     }
                 },
                 "Parametric__Link" : null
@@ -525,7 +525,7 @@
                         "Areas" : [
                             {
                                 "Name"   : "Covered Vehicular Workshop",
-                                "AreaM2" : 348.794751,
+                                "AreaM2" : 349.509751,
                                 "Group"  : "Proposed For Development",
                                 "Colour" : "#d5e1c7"
                             },
@@ -587,12 +587,12 @@
                             },
                             {
                                 "Name"   : "Proposed For Development",
-                                "AreaM2" : 692.158563,
+                                "AreaM2" : 692.873563,
                                 "Colour" : "#c6e0c6",
                                 "Count"  : 7
                             }
                         ],
-                        "TotalM2" : 934.717979
+                        "TotalM2" : 935.432979
                     }
                 },
                 "Parametric__Link" : null
@@ -677,7 +677,7 @@
                         "Areas" : [
                             {
                                 "Name"   : "Covered Vehicular Workshop",
-                                "AreaM2" : 348.794751,
+                                "AreaM2" : 349.509751,
                                 "Group"  : "Proposed For Development",
                                 "Colour" : "#d5e1c7"
                             },
@@ -739,12 +739,12 @@
                             },
                             {
                                 "Name"   : "Proposed For Development",
-                                "AreaM2" : 692.158563,
+                                "AreaM2" : 692.873563,
                                 "Colour" : "#c6e0c6",
                                 "Count"  : 7
                             }
                         ],
-                        "TotalM2" : 934.717979
+                        "TotalM2" : 935.432979
                     }
                 },
                 "Parametric__Link" : null
@@ -937,7 +937,7 @@
                         "Areas" : [
                             {
                                 "Name"   : "Covered Vehicular Workshop",
-                                "AreaM2" : 348.794751,
+                                "AreaM2" : 349.509751,
                                 "Group"  : "Proposed For Development",
                                 "Colour" : "#d5e1c7"
                             },
@@ -999,17 +999,81 @@
                             },
                             {
                                 "Name"   : "Proposed For Development",
-                                "AreaM2" : 692.158563,
+                                "AreaM2" : 692.873563,
                                 "Colour" : "#c6e0c6",
                                 "Count"  : 7
                             }
                         ],
-                        "TotalM2" : 934.717979
+                        "TotalM2" : 935.432979
                     }
                 },
                 "Parametric__Link" : null
             },
             "Group__Id" : "Group_005"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_123"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_124"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_125"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_126"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_086"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_087"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_088"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_089"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_090"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_091"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_092"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_093"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "ProjectQr",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "SizeMm"      : 20,
+                    "Form"        : "compact",
+                    "BodyWidthMm" : 95,
+                    "ProjectName" : ""
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_006"
         }
     ],
     "Elements__LayerSvg" : {}

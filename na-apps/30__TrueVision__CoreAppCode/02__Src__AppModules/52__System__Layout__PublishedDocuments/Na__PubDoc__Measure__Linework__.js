@@ -45,6 +45,13 @@
 //   the cells its line passes through (a voxel walk, not its bounding box, so
 //   a long diagonal does not fill the whole grid). A query touches a few
 //   cells and a few dozen segments however big the drawing is.
+// - ONLY DRAWN LINES. A shape is read only when it has a visible stroke, so
+//   a solid fill with no line round it (and the sheet has many invisible
+//   ones) can never be snapped to. See ParseSvg.
+// - ONLY THIS FILE. The pictures under the linework (the drawing's raster
+//   tiers, a point cloud's second picture) and everything else on the sheet
+//   (areas, hatches, text, symbols) are never read: a point snaps to the
+//   drawing's own lines and nothing else.
 // - PURE. No DOM, no fetch, no imports: the published reader fetches the file
 //   and hands its text in. Testable in Node byte for byte as it ships.
 //
@@ -55,6 +62,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.1.0
+// - Only a shape with a visible stroke is read: its own, its group's or its
+//   style="", not none or transparent, wider than nothing, with some opacity,
+//   not hidden, and not inside defs, a clip path, a mask, a symbol or a
+//   marker. A fill alone was never meant to snap, and a shape that said
+//   nothing about its stroke (SVG draws no stroke then) used to count
+//   (TrueVision3D v2.182.0).
+//
 // 19-Oct-2026 - Version 1.0.0
 // - Initial implementation (TrueVision3D v2.180.0, the web viewer's measuring
 //   tools).
@@ -104,6 +119,27 @@
     // ------------------------------------------------------------
     const Na__PubMsLw__TOKEN    = /[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?|[A-Za-z]/g;     // <-- ANY letter is a token, so one the reader does not know stops the walk, as a browser stops drawing
     const Na__PubMsLw__IDENTITY = Object.freeze([ 1, 0, 0, 1, 0, 0 ]);         // <-- [a, b, c, d, e, f]: x' = a x + c y + e, y' = b x + d y + f
+    // ------------------------------------------------------------
+
+    // MODULE CONSTANTS | Which Elements Are Read, and What a File Starts From
+    // ------------------------------------------------------------
+    // SHAPES are the elements whose outline can be a line. UNDRAWN are the
+    // elements whose contents are only drawn where something else uses them
+    // (a clip path, a mask, a symbol, a marker), or never (defs, a style
+    // sheet, a title): none of their lines are lines of the drawing. Names are
+    // lower case, as the reader compares them. ROOT_STYLE is SVG's own
+    // starting point: no stroke, one unit wide, fully opaque, visible.
+    // ------------------------------------------------------------
+    const Na__PubMsLw__SHAPES = Object.freeze({ path : true, line : true, polyline : true, polygon : true, rect : true });
+    const Na__PubMsLw__UNDRAWN = Object.freeze({
+        defs : true, clippath : true, mask : true, symbol : true, marker : true, pattern : true,
+        lineargradient : true, radialgradient : true, filter : true, style : true, script : true,
+        title : true, desc : true, metadata : true
+    });
+    const Na__PubMsLw__ROOT_STYLE = Object.freeze({
+        Name : '#document', Class : null, Matrix : Na__PubMsLw__IDENTITY, Stroke : 'none', Width : 1,
+        StrokeOpacity : 1, Opacity : 1, Visibility : 'visible', Undrawn : false
+    });
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -385,17 +421,118 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Read a Published Linework SVG: Its viewBox and Every Stroked Path
+    // HELPER FUNCTION | A style="" Attribute's Declarations, Keyed by Property
+    // ------------------------------------------------------------
+    function Na__PubMsLw__StyleDecl(text) {
+        const out = {};
+        if (!text) return out;
+        String(text).split(';').forEach((part) => {
+            const at = part.indexOf(':');
+            if (at === -1) return;
+            const key = part.slice(0, at).trim().toLowerCase();
+            if (key) out[key] = part.slice(at + 1).replace(/!\s*important/i, '').trim();
+        });
+        return out;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Number, or a Percentage as a Fraction, Held to 0..1 (fallback when unreadable)
+    // ------------------------------------------------------------
+    function Na__PubMsLw__Fraction(value, fallback) {
+        if (value === null || value === undefined) return fallback;
+        const text = String(value).trim();
+        const n = parseFloat(text);
+        if (!Number.isFinite(n)) return fallback;
+        return Math.max(0, Math.min(1, text.endsWith('%') ? n / 100 : n));
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Does a Stroke Value Paint Anything (none, transparent and a colour with no alpha do not)
+    // ------------------------------------------------------------
+    function Na__PubMsLw__IsPaint(value) {
+        const v = String(value === null || value === undefined ? 'none' : value).trim().toLowerCase();
+        if (v === '' || v === 'none' || v === 'transparent') return false;
+        const hex = /^#([0-9a-f]{4}|[0-9a-f]{8})$/.exec(v);
+        if (hex) return parseInt(hex[1].length === 4 ? hex[1].slice(3) : hex[1].slice(6), 16) > 0;
+        const fn = /^(?:rgba?|hsla?)\(([^)]*)\)$/.exec(v);
+        if (fn) {
+            const parts = fn[1].split(/[\s,/]+/).filter(Boolean);
+            if (parts.length >= 4) return Na__PubMsLw__Fraction(parts[3], 1) > 0;
+        }
+        return true;                                                             // <-- A colour, currentColor or a paint server: drawn
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | An Element's Style: What It Says (style="" before its attributes) Over What It Inherits
+    // ------------------------------------------------------------
+    // stroke, stroke-width, stroke-opacity and visibility are inherited, as SVG
+    // inherits them; opacity multiplies down the tree; display none, and the
+    // inside of an element that is never drawn where it stands, hide
+    // everything below.
+    // ------------------------------------------------------------
+    function Na__PubMsLw__Style(name, attributes, parent) {
+        const decl = Na__PubMsLw__StyleDecl(Na__PubMsLw__Attr(attributes, 'style'));
+        const own = (key) => {
+            const value = (decl[key] !== undefined) ? decl[key] : Na__PubMsLw__Attr(attributes, key);
+            if (value === null || value === undefined) return null;
+            const text = String(value).trim();
+            return (text === '' || text.toLowerCase() === 'inherit') ? null : text;
+        };
+        const stroke = own('stroke'), width = own('stroke-width'), strokeOpacity = own('stroke-opacity');
+        const visibility = own('visibility'), display = own('display');
+        const widthMm = width === null ? NaN : parseFloat(width);
+        return {
+            Name          : name,
+            Class         : Na__PubMsLw__Attr(attributes, 'data-na-class') || parent.Class,
+            Matrix        : Na__PubMsLw__Multiply(parent.Matrix, Na__PubMsLw__ParseTransform(Na__PubMsLw__Attr(attributes, 'transform'))),
+            Stroke        : stroke !== null ? stroke : parent.Stroke,
+            Width         : Number.isFinite(widthMm) ? widthMm : parent.Width,
+            StrokeOpacity : strokeOpacity !== null ? Na__PubMsLw__Fraction(strokeOpacity, 1) : parent.StrokeOpacity,
+            Opacity       : parent.Opacity * Na__PubMsLw__Fraction(own('opacity'), 1),
+            Visibility    : visibility !== null ? visibility.toLowerCase() : parent.Visibility,
+            Undrawn       : parent.Undrawn || Na__PubMsLw__UNDRAWN[name] === true || (display !== null && display.toLowerCase() === 'none')
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Does a Shape With This Style Draw a Line Anyone Can See
+    // ------------------------------------------------------------
+    function Na__PubMsLw__Drawn(style) {
+        if (style.Undrawn) return false;
+        if (style.Visibility === 'hidden' || style.Visibility === 'collapse') return false;
+        if (!(style.Opacity > 0) || !(style.StrokeOpacity > 0) || !(style.Width > 0)) return false;
+        return Na__PubMsLw__IsPaint(style.Stroke);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Read a Published Linework SVG: Its viewBox and Every Drawn Line
     // ------------------------------------------------------------
     // Returns { ViewBox : [minX, minY, width, height] | null, Paths : [ { Class,
     // D, Matrix } ] }. Comments go first (the example files explain themselves
-    // in one, and a comment can hold anything). Groups pass their class and
-    // their transform down, as the example files' styling groups do.
+    // in one, and a comment can hold anything). Every element passes its
+    // class, its transform and its style down, as the example files' styling
+    // groups do.
+    //
+    // ONLY A LINE THAT IS DRAWN COUNTS (Adam, 19-Oct-2026: snap "only ... on
+    // the line work ... If a solid fill doesn't have any lines as well, make it
+    // undetectable"). A shape counts when it has a visible stroke: a stroke
+    // that paints (not none, not transparent), wider than nothing, with some
+    // opacity, not hidden, and not inside defs, a clip path, a mask, a symbol
+    // or a marker. A fill alone is never a line, however solid; SVG's own
+    // default stroke is none, so a shape that says nothing about its stroke
+    // is not one either. The published files write every line's stroke on the
+    // line itself, and the example files on its group; a <style> sheet is not
+    // read.
     // ------------------------------------------------------------
     function Na__PubMsLw__ParseSvg(text) {
-        const clean = String(text || '').replace(/<!--[\s\S]*?-->/g, '');
+        const clean = String(text || '').replace(/<!--[\s\S]*?-->/g, '').replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, '');
         const result = { ViewBox : null, Paths : [] };
-        const stack = [ { Class : null, Matrix : Na__PubMsLw__IDENTITY } ];
+        const stack = [ Na__PubMsLw__ROOT_STYLE ];
         const tagRe = /<(\/?)([A-Za-z][\w:-]*)([^>]*)>/g;
         let match;
         while ((match = tagRe.exec(clean)) !== null) {
@@ -403,31 +540,23 @@
             const name       = match[2].toLowerCase();
             const attributes = match[3] || '';
             const selfClosed = /\/\s*$/.test(attributes);
-            const top        = stack[stack.length - 1];
 
-            if (name === 'svg' && !closing && !result.ViewBox) {
+            if (closing) {                                                        // <-- Back to the element it closes (a stray closing tag closes nothing)
+                for (let i = stack.length - 1; i >= 1; i--) {
+                    if (stack[i].Name === name) { stack.length = i; break; }
+                }
+                continue;
+            }
+            if (name === 'svg' && !result.ViewBox) {
                 const box = (Na__PubMsLw__Attr(attributes, 'viewBox') || '').trim().split(/[\s,]+/).map(Number);
                 if (box.length === 4 && box.every(Number.isFinite) && box[2] > 0 && box[3] > 0) result.ViewBox = box;
-                continue;
             }
-            if (name === 'g') {
-                if (closing) { if (stack.length > 1) stack.pop(); continue; }
-                const own = Na__PubMsLw__Attr(attributes, 'data-na-class');
-                const frame = { Class : own || top.Class, Matrix : Na__PubMsLw__Multiply(top.Matrix, Na__PubMsLw__ParseTransform(Na__PubMsLw__Attr(attributes, 'transform'))) };
-                if (!selfClosed) stack.push(frame);
-                continue;
-            }
-            if (closing) continue;
-            if (name === 'path' || name === 'line' || name === 'polyline' || name === 'polygon' || name === 'rect') {
-                if (Na__PubMsLw__Attr(attributes, 'stroke') === 'none') continue;   // <-- Nothing is drawn: nothing to measure
-                const d = (name === 'path') ? Na__PubMsLw__Attr(attributes, 'd') : Na__PubMsLw__ShapeAsPath(name, attributes);
-                if (!d) continue;
-                result.Paths.push({
-                    Class  : Na__PubMsLw__Attr(attributes, 'data-na-class') || top.Class,
-                    D      : d,
-                    Matrix : Na__PubMsLw__Multiply(top.Matrix, Na__PubMsLw__ParseTransform(Na__PubMsLw__Attr(attributes, 'transform')))
-                });
-            }
+            const style = Na__PubMsLw__Style(name, attributes, stack[stack.length - 1]);
+            if (!selfClosed) stack.push(style);
+            if (!Na__PubMsLw__SHAPES[name] || !Na__PubMsLw__Drawn(style)) continue;
+            const d = (name === 'path') ? Na__PubMsLw__Attr(attributes, 'd') : Na__PubMsLw__ShapeAsPath(name, attributes);
+            if (!d) continue;
+            result.Paths.push({ Class : style.Class, D : d, Matrix : style.Matrix });
         }
         return result;
     }

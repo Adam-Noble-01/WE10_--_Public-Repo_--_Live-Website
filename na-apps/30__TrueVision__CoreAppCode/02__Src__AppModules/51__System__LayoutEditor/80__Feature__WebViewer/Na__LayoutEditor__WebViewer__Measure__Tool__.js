@@ -26,6 +26,11 @@
 //   buttons still pan and the wheel still zooms (Na__LayoutEditor__Controls__
 //   Pc__ only ever takes those). Shift keeps a line square to the drawing,
 //   Alt places a point where it is with no snap, Escape stops.
+// - CTRL+Z AND CTRL+Y (and Ctrl+Shift+Z; Cmd on a Mac). Undo takes back the
+//   last point of the measurement being made, and with none being made, the
+//   last change to the kept ones: one kept, pulled, deleted, or all cleared
+//   (Na__PubDoc__Measure__ remembers them per sheet). Redo puts back what
+//   Undo took. The bar's Undo and Redo do the same, for a finger.
 // - A FINGER keeps panning and pinching as it always has (the viewer's touch
 //   recogniser); a TAP places a point instead, handed over by the recogniser
 //   (onTap), so two quick taps are two points and never a double-tap zoom. A
@@ -39,8 +44,8 @@
 // INTEGRATION:
 // - Na__LayoutEditor__WebViewer__Measure__ (the dock button, the menu and the
 //   bar) calls Attach and Detach as drawings come and go, Start, Stop, Finish,
-//   Undo, ClearAll and SetSnap from its controls, OnTap from the recogniser,
-//   and listens with OnChange.
+//   Undo, Redo, ClearAll, SetSnap and SetSize from its controls, OnTap from
+//   the recogniser, and listens with OnChange.
 // - Draws through Na__LayoutEditor__WebViewer__Measure__Overlay__.
 //
 // -----------------------------------------------------------------------------
@@ -52,6 +57,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.1.0
+// - Undo and Redo: Ctrl+Z, Ctrl+Y and Ctrl+Shift+Z (Cmd on a Mac), and the
+//   bar's Undo and Redo. A point first, while a measurement is being made;
+//   otherwise the last change to the kept ones.
+// - The reader's dimension size (SetSize, kept in this browser), and grips
+//   and the delete chip answer as far out as they are drawn
+//   (TrueVision3D v2.182.0).
+//
 // 19-Oct-2026 - Version 1.0.0
 // - Initial implementation (TrueVision3D v2.180.0).
 //
@@ -68,12 +81,14 @@
     } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     import {
         Na__PubMs__Prepare, Na__PubMs__Status, Na__PubMs__Layer, Na__PubMs__ViewportAt, Na__PubMs__ViewportsAt,
-        Na__PubMs__List, Na__PubMs__Add, Na__PubMs__Replace, Na__PubMs__Remove, Na__PubMs__Clear
+        Na__PubMs__List, Na__PubMs__Add, Na__PubMs__Replace, Na__PubMs__Remove, Na__PubMs__Clear,
+        Na__PubMs__Undo, Na__PubMs__Redo, Na__PubMs__History
     } from '../../52__System__Layout__PublishedDocuments/Na__PubDoc__Measure__.js';
     import { Na__PubMsSnap__Find } from '../../52__System__Layout__PublishedDocuments/Na__PubDoc__Measure__Snap__.js';
     import { Na__PubMsMath__Rect } from '../../52__System__Layout__PublishedDocuments/Na__PubDoc__Measure__Maths__.js';
     import {
-        Na__LeVwMsOv__Ensure, Na__LeVwMsOv__Remove, Na__LeVwMsOv__Render, Na__LeVwMsOv__MmPerPx, Na__LeVwMsOv__Grips
+        Na__LeVwMsOv__SIZE, Na__LeVwMsOv__Ensure, Na__LeVwMsOv__Remove, Na__LeVwMsOv__Render, Na__LeVwMsOv__MmPerPx,
+        Na__LeVwMsOv__Grips, Na__LeVwMsOv__GripPx, Na__LeVwMsOv__SetSize, Na__LeVwMsOv__GetSize
     } from './Na__LayoutEditor__WebViewer__Measure__Overlay__.js';
 
 // endregion -------------------------------------------------------------------
@@ -92,6 +107,12 @@
     const Na__LeVwMsTool__DRAG_PX    = 5;                                        // <-- A press that moves this far is a drag
     const Na__LeVwMsTool__TAP_SHOW_MS = 1400;                                    // <-- How long a tap's snap stays marked
     const Na__LeVwMsTool__FLASH_MS   = 2800;
+    // ------------------------------------------------------------
+
+    // MODULE CONSTANTS | The Reader's Dimension Size: Its Range, and Where This Browser Keeps It
+    // ------------------------------------------------------------
+    const Na__LeVwMsTool__SIZE     = Na__LeVwMsOv__SIZE;                       // <-- { Min, Max, Default }, for the menu's slider
+    const Na__LeVwMsTool__SIZE_KEY = 'na-layouteditor-viewer-measure-size';    // <-- A factor as text; absent = the default
     // ------------------------------------------------------------
 
     // MODULE CONSTANTS | Classes on the Stage
@@ -122,6 +143,8 @@
         MarkerTimer: 0,
         Drag       : null,                                                       // <-- { PointerId, Id, Index, Kind, Working, Original, StartX, StartY, Moved }
         Press      : null,                                                       // <-- { PointerId, X, Y, Dragging } a press that placed a first point
+        DraftRedo  : null,                                                       // <-- { Meta, Points } the points Undo took off the one being made, for Redo
+        SizeRead   : false,                                                      // <-- The kept dimension size has been read from this browser
         LastMove   : null,                                                       // <-- { X, Y, Event } the mouse's last position, for Shift and Alt
         SnapOn     : true,
         Flash      : null,                                                       // <-- { Text, Until }
@@ -295,6 +318,7 @@
         const kept = Na__PubMs__Add(S.DocumentId, S.Draft);
         S.Draft = null;
         S.Press = null;
+        S.DraftRedo = null;
         return kept;
     }
     // ------------------------------------------------------------
@@ -303,16 +327,22 @@
     // FUNCTION | Put Down a Point Where a Snap Landed
     // ------------------------------------------------------------
     // Returns true when the point was taken (or deliberately ignored, a second
-    // point on the first), false when it could not be (off every drawing).
+    // point on the first), false when it could not be (off every drawing). A
+    // point put down ends what Redo could bring back of the points undone.
     // ------------------------------------------------------------
     function Na__LeVwMsTool__Place(snap) {
         const S = Na__LeVwMsTool__S;
         if (!S.Tool) return false;
-        if (!S.Draft) return Na__LeVwMsTool__Begin(snap);
+        if (!S.Draft) {
+            const begun = Na__LeVwMsTool__Begin(snap);
+            if (begun) S.DraftRedo = null;
+            return begun;
+        }
         const points = S.Draft.Points;
         const point  = Na__LeVwMsTool__Point(snap);
         const last   = points[points.length - 1];
         if (Math.hypot(point.X - last.X, point.Y - last.Y) < 1e-6) return true;   // <-- The same point twice: nothing to measure yet
+        S.DraftRedo = null;
 
         if (S.Tool === 'linear') {
             points.push(point);
@@ -389,10 +419,11 @@
         const measure = Na__LeVwMsTool__Measures().find((one) => one.Id === S.Selected);
         if (!measure) return null;
         const grips = Na__LeVwMsOv__Grips(measure);
+        const reach = Math.max(Na__LeVwMsTool__REACH[kind].Grip, Na__LeVwMsOv__GripPx() + 2);   // <-- At a large dimension size, all of a grip that is drawn
         let best = null;
         grips.forEach((point, index) => {
             const d = Na__LeVwMsTool__PxTo(clientX, clientY, point);
-            if (d <= Na__LeVwMsTool__REACH[kind].Grip && (!best || d < best.d)) best = { d, index };
+            if (d <= reach && (!best || d < best.d)) best = { d, index };
         });
         return best ? { Measure : measure, Index : best.index } : null;
     }
@@ -404,7 +435,8 @@
     function Na__LeVwMsTool__ChipAt(clientX, clientY, kind) {
         const chip = Na__LeVwMsTool__S.Hits.Chip;
         if (!chip || chip.Id !== Na__LeVwMsTool__S.Selected) return false;
-        return Na__LeVwMsTool__PxTo(clientX, clientY, { X : chip.X, Y : chip.Y }) <= Na__LeVwMsTool__REACH[kind].Chip;
+        const reach = Math.max(Na__LeVwMsTool__REACH[kind].Chip, chip.R / Na__LeVwMsOv__MmPerPx() + 2);
+        return Na__LeVwMsTool__PxTo(clientX, clientY, { X : chip.X, Y : chip.Y }) <= reach;
     }
     // ------------------------------------------------------------
 
@@ -665,12 +697,35 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Keys: Escape, Enter, Backspace, Delete, and Shift or Alt Changing the Hover
+    // HELPER FUNCTION | Is a Key Going Into a Box That Takes Text (which keeps its own keys, Ctrl+Z among them)
+    // ------------------------------------------------------------
+    function Na__LeVwMsTool__Typing(target) {
+        if (!target) return false;
+        if (target.isContentEditable || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') return true;
+        if (target.tagName !== 'INPUT') return false;
+        return !/^(range|checkbox|radio|button|submit|reset|color)$/i.test(target.type || 'text');
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Keys: Undo and Redo, Escape, Enter, Backspace, Delete, and Shift or Alt Changing the Hover
     // ------------------------------------------------------------
     function Na__LeVwMsTool__OnKey(event) {
         const S = Na__LeVwMsTool__S;
         if (!S.DocumentId) return;
         const target = event.target;
+
+        // UNDO AND REDO: Ctrl+Z; Ctrl+Y or Ctrl+Shift+Z; Cmd on a Mac. The
+        // menu's slider and tick box let them through; a box taking text keeps
+        // them. A key nothing could be undone or redone by is left alone.
+        if (event.type === 'keydown' && (event.ctrlKey || event.metaKey) && !event.altKey) {
+            const key = String(event.key || '').toLowerCase();
+            if ((key === 'z' || key === 'y') && !Na__LeVwMsTool__Typing(target)) {
+                const done = (key === 'y' || event.shiftKey) ? Na__LeVwMsTool__Redo() : Na__LeVwMsTool__Undo();
+                if (done) event.preventDefault();
+            }
+            return;
+        }
         if (target && (/^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName) || target.isContentEditable)) return;
 
         if (event.type === 'keyup' || event.key === 'Shift' || event.key === 'Alt') {
@@ -758,6 +813,7 @@
     // FUNCTION | What the Tools Are Doing Now
     // ------------------------------------------------------------
     // { DocumentId, Tool, Points (of the one being made), CanFinish, CanUndo,
+    //   CanRedo, UndoPoint (Undo would take back a point, not a change),
     //   Count (kept on this sheet), Selected, SnapOn, Linework (the reading's
     //   status), Flash (a message for the bar), Touch (true when the last press
     //   on the drawing was a finger, false a mouse, null before the first) }
@@ -765,12 +821,16 @@
     function Na__LeVwMsTool__State() {
         const S = Na__LeVwMsTool__S;
         const draft = S.Draft;
+        const history = S.DocumentId ? Na__PubMs__History(S.DocumentId) : { CanUndo : false, CanRedo : false };
+        const pointBack = !!(draft && draft.Points.length > 0);
         return {
             DocumentId : S.DocumentId,
             Tool       : S.Tool,
             Points     : draft ? draft.Points.length : 0,
             CanFinish  : !!(draft && draft.Tool === 'area' && draft.Points.length >= 3),
-            CanUndo    : !!(draft && draft.Points.length > 0),
+            CanUndo    : pointBack || history.CanUndo,
+            CanRedo    : Na__LeVwMsTool__PointAgain() || history.CanRedo,
+            UndoPoint  : pointBack,
             Count      : Na__LeVwMsTool__Measures().length,
             Selected   : S.Selected,
             SnapOn     : S.SnapOn,
@@ -804,6 +864,7 @@
             return true;
         }
         Na__LeVwMsTool__Detach();
+        Na__LeVwMsTool__ReadSize();
         S.DocumentId = documentId;
         S.Stage = els.stage;
         Na__LeVwMsOv__Ensure(els.paper);
@@ -857,8 +918,8 @@
         const was = S.DocumentId;
         Object.assign(S, {
             DocumentId : null, Stage : null, Bound : null, Tool : null, Draft : null, Selected : null, Hover : null,
-            Cursor : null, Marker : null, MarkerName : null, MarkerTimer : 0, Drag : null, Press : null, LastMove : null,
-            Flash : null, FlashTimer : 0, Hits : { Labels : [], Chip : null }, Frame : 0
+            Cursor : null, Marker : null, MarkerName : null, MarkerTimer : 0, Drag : null, Press : null, DraftRedo : null,
+            LastMove : null, Flash : null, FlashTimer : 0, Hits : { Labels : [], Chip : null }, Frame : 0
         });
         Na__LeVwMsOv__Remove();
         if (was) Na__LeVwMsTool__Notify();
@@ -875,6 +936,7 @@
         S.Tool = tool;
         S.Draft = null;
         S.Press = null;
+        S.DraftRedo = null;
         S.Selected = null;
         S.Hover = null;
         if (S.Stage) S.Stage.classList.add(Na__LeVwMsTool__CLASS_TOOL);
@@ -912,6 +974,7 @@
         S.Tool = null;
         S.Draft = null;
         S.Press = null;
+        S.DraftRedo = null;
         S.Cursor = null;
         S.Marker = null;
         S.MarkerName = null;
@@ -929,6 +992,7 @@
         const S = Na__LeVwMsTool__S;
         S.Draft = null;
         S.Press = null;
+        S.DraftRedo = null;
         Na__LeVwMsTool__Render();
         Na__LeVwMsTool__Notify();
     }
@@ -948,13 +1012,79 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Take Back the Last Point Put Down
+    // HELPER FUNCTION | Could Redo Put a Point Back on the Measurement Being Made
+    // ------------------------------------------------------------
+    // Only with the same tool on, and on the same drawing.
+    // ------------------------------------------------------------
+    function Na__LeVwMsTool__PointAgain() {
+        const S = Na__LeVwMsTool__S;
+        const back = S.DraftRedo;
+        if (!back || back.Points.length === 0 || S.Tool !== back.Meta.Tool) return false;
+        return !S.Draft || S.Draft.ViewportId === back.Meta.ViewportId;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | After Undo or Redo of a Change: Let Go of a Pick That Has Gone
+    // ------------------------------------------------------------
+    // The points undone off the measurement being made cannot come back once
+    // a change to the kept ones has been stepped over.
+    // ------------------------------------------------------------
+    function Na__LeVwMsTool__AfterHistory() {
+        const S = Na__LeVwMsTool__S;
+        const ids = new Set(Na__LeVwMsTool__Measures().map((one) => one.Id));
+        if (S.Selected && !ids.has(S.Selected)) S.Selected = null;
+        if (S.Hover && !ids.has(S.Hover)) S.Hover = null;
+        S.DraftRedo = null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Undo: the Last Point of the Measurement Being Made, or With None Being Made, the Last Change to the Kept Ones
+    // ------------------------------------------------------------
+    // A change is a measurement kept, pulled, deleted, or the sheet cleared.
+    // Returns true when something was undone. Not while a grip is held.
     // ------------------------------------------------------------
     function Na__LeVwMsTool__Undo() {
         const S = Na__LeVwMsTool__S;
-        if (!S.Draft) return false;
-        S.Draft.Points.pop();
-        if (S.Draft.Points.length === 0) S.Draft = null;
+        if (!S.DocumentId || S.Drag) return false;
+        if (S.Draft && S.Draft.Points.length) {
+            const draft = S.Draft;
+            if (!S.DraftRedo || S.DraftRedo.Meta.Tool !== draft.Tool || S.DraftRedo.Meta.ViewportId !== draft.ViewportId) {
+                S.DraftRedo = { Meta : { Tool : draft.Tool, ViewportId : draft.ViewportId, Scale : draft.Scale, SpinDeg : draft.SpinDeg }, Points : [] };
+            }
+            S.DraftRedo.Points.push(draft.Points.pop());
+            if (draft.Points.length === 0) S.Draft = null;
+            S.Press = null;
+        } else if (Na__PubMs__Undo(S.DocumentId)) {
+            Na__LeVwMsTool__AfterHistory();
+        } else {
+            return false;
+        }
+        if (S.Tool && S.LastMove) Na__LeVwMsTool__Hover(S.LastMove.X, S.LastMove.Y, { shiftKey : S.LastMove.Shift, altKey : S.LastMove.Alt });   // <-- The square and the perpendicular follow the new last point
+        Na__LeVwMsTool__Render();
+        Na__LeVwMsTool__Notify();
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Redo: Put Back What Undo Took, a Point or a Change; true When Something Came Back
+    // ------------------------------------------------------------
+    function Na__LeVwMsTool__Redo() {
+        const S = Na__LeVwMsTool__S;
+        if (!S.DocumentId || S.Drag) return false;
+        if (Na__LeVwMsTool__PointAgain()) {
+            const back = S.DraftRedo;
+            if (!S.Draft) S.Draft = { Tool : back.Meta.Tool, ViewportId : back.Meta.ViewportId, Scale : back.Meta.Scale, SpinDeg : back.Meta.SpinDeg, Points : [] };
+            S.Draft.Points.push(back.Points.pop());
+            if (back.Points.length === 0) S.DraftRedo = null;
+        } else if (Na__PubMs__Redo(S.DocumentId)) {
+            Na__LeVwMsTool__AfterHistory();
+        } else {
+            return false;
+        }
+        if (S.Tool && S.LastMove) Na__LeVwMsTool__Hover(S.LastMove.X, S.LastMove.Y, { shiftKey : S.LastMove.Shift, altKey : S.LastMove.Alt });
         Na__LeVwMsTool__Render();
         Na__LeVwMsTool__Notify();
         return true;
@@ -986,9 +1116,49 @@
         S.Selected = null;
         S.Hover = null;
         S.Draft = null;
+        S.DraftRedo = null;
         Na__LeVwMsTool__Render();
         Na__LeVwMsTool__Notify();
         return count;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Read the Dimension Size This Browser Kept (once; nothing kept leaves the default)
+    // ------------------------------------------------------------
+    function Na__LeVwMsTool__ReadSize() {
+        const S = Na__LeVwMsTool__S;
+        if (S.SizeRead) return;
+        S.SizeRead = true;
+        let kept = null;
+        try { kept = (typeof window !== 'undefined' && window.localStorage) ? window.localStorage.getItem(Na__LeVwMsTool__SIZE_KEY) : null; } catch (error) { kept = null; }   // <-- Storage is a courtesy
+        if (kept !== null && kept !== '' && Number.isFinite(parseFloat(kept))) Na__LeVwMsOv__SetSize(parseFloat(kept));
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Set the Dimensions' Size (a factor: 1 is the default), Kept in This Browser; Returns the Size Set
+    // ------------------------------------------------------------
+    function Na__LeVwMsTool__SetSize(factor) {
+        Na__LeVwMsTool__S.SizeRead = true;                                       // <-- What the reader sets wins over what was kept
+        const size = Na__LeVwMsOv__SetSize(factor);
+        try {
+            if (typeof window !== 'undefined' && window.localStorage) {
+                if (Math.abs(size - Na__LeVwMsOv__SIZE.Default) < 1e-9) window.localStorage.removeItem(Na__LeVwMsTool__SIZE_KEY);
+                else window.localStorage.setItem(Na__LeVwMsTool__SIZE_KEY, String(size));
+            }
+        } catch (error) { /* kept for this visit only */ }
+        Na__LeVwMsTool__Render();
+        return size;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Dimensions' Size Now (a factor: 1 is the default)
+    // ------------------------------------------------------------
+    function Na__LeVwMsTool__GetSize() {
+        Na__LeVwMsTool__ReadSize();
+        return Na__LeVwMsOv__GetSize();
     }
     // ------------------------------------------------------------
 
@@ -1035,6 +1205,7 @@
 
     export {
         Na__LeVwMsTool__TOOLS,
+        Na__LeVwMsTool__SIZE,
         Na__LeVwMsTool__State,
         Na__LeVwMsTool__OnChange,
         Na__LeVwMsTool__Attach,
@@ -1045,9 +1216,12 @@
         Na__LeVwMsTool__CancelDraft,
         Na__LeVwMsTool__Finish,
         Na__LeVwMsTool__Undo,
+        Na__LeVwMsTool__Redo,
         Na__LeVwMsTool__RemoveSelected,
         Na__LeVwMsTool__ClearAll,
         Na__LeVwMsTool__SetSnap,
+        Na__LeVwMsTool__SetSize,
+        Na__LeVwMsTool__GetSize,
         Na__LeVwMsTool__OnTap
     };
 

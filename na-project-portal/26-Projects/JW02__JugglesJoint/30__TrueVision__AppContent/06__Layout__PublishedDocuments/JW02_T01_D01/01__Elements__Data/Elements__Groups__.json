@@ -389,6 +389,452 @@
                 }
             },
             "Group__Id" : "Group_002"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_120"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_121"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_122"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_123"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_124"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_125"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_126"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_127"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_128"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_129"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_130"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_131"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_132"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_133"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_134"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_135"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_136"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_137"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_138"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_139"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_140"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_141"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_142"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_143"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_144"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_145"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_146"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_037"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_038"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_039"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_040"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_041"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_042"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_043"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_044"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_045"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_046"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_047"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_048"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "DrawingTitle",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "ScaleDenominator" : 100,
+                    "DivisionMm"       : 2000,
+                    "Divisions"        : 10,
+                    "SubdivideFirst"   : true,
+                    "SubdivisionMm"    : 500,
+                    "Units"            : "m",
+                    "ShowUnits"        : true,
+                    "ShowScaleBar"     : true,
+                    "PhaseMode"        : "existing",
+                    "TitleText"        : "",
+                    "Uppercase"        : true,
+                    "UnderlineMm"      : 60,
+                    "BarPlacement"     : "right",
+                    "BarOffsetMm"      : 171.968,
+                    "ViewKind"         : "elevation",
+                    "ViewPhase"        : "proposed",
+                    "ViewFacing"       : "West",
+                    "ViewLevel"        : "",
+                    "ViewName"         : "",
+                    "ViewDrawing"      : "Elevation__West__Right"
+                },
+                "Parametric__Link" : {
+                    "Link__SheetId"    : "Sheet_001",
+                    "Link__ViewportId" : "Viewport_004"
+                }
+            },
+            "Group__Id" : "Group_004"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_147"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_148"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_149"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_150"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_151"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_152"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_153"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_154"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_155"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_156"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_157"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_158"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_159"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_160"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_161"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_162"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_163"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_164"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_165"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_166"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_167"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_168"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_169"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_170"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_171"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_172"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_173"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_049"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_050"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_051"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_052"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_053"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_054"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_055"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_056"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_057"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_058"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_059"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_060"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "DrawingTitle",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "ScaleDenominator" : 100,
+                    "DivisionMm"       : 2000,
+                    "Divisions"        : 10,
+                    "SubdivideFirst"   : true,
+                    "SubdivisionMm"    : 500,
+                    "Units"            : "m",
+                    "ShowUnits"        : true,
+                    "ShowScaleBar"     : true,
+                    "PhaseMode"        : "existing",
+                    "TitleText"        : "",
+                    "Uppercase"        : true,
+                    "UnderlineMm"      : 60,
+                    "BarPlacement"     : "right",
+                    "BarOffsetMm"      : 171.968,
+                    "ViewKind"         : "elevation",
+                    "ViewPhase"        : "proposed",
+                    "ViewFacing"       : "East",
+                    "ViewLevel"        : "",
+                    "ViewName"         : "",
+                    "ViewDrawing"      : "Elevation__East__Left"
+                },
+                "Parametric__Link" : {
+                    "Link__SheetId"    : "Sheet_001",
+                    "Link__ViewportId" : "Viewport_002"
+                }
+            },
+            "Group__Id" : "Group_005"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_183"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_184"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_185"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_186"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_061"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_062"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_063"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_064"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_065"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_066"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_067"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_068"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "ProjectQr",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "SizeMm"      : 20,
+                    "Form"        : "compact",
+                    "BodyWidthMm" : 95,
+                    "ProjectName" : ""
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_006"
         }
     ],
     "Elements__LayerSvg" : {}

@@ -34,6 +34,24 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.16.0
+// - Token BUMPED to 2026-10-19-07 for v2.182.0 (the web viewer's measuring
+//   tools: snapping on the live site, only drawn lines, dimension size, undo
+//   and redo). 2026-10-19-06 is live (origin/main is 7a42496, which shipped
+//   v2.180.0's measuring tools), and the measure store, its linework reader,
+//   its overlay and its tools gained exports that the changed tools and menu
+//   import (Undo, Redo, History; SIZE, SetSize, GetSize, GripPx): a warm
+//   client pairing an old overlay with the new tools would not link, and the
+//   web viewer, which imports them, would not load until the next visit.
+// - The bump also covers v2.181.0 (the dock's phone icons) and v2.183.0 (a
+//   new module, Na__AppFlow__ModelGate__, and new exports in the share links
+//   and manifest modules that changed modules import), should either still
+//   be unpushed when this goes live.
+// - The measuring tools fetch a linework file as <file>?na-measure=1: the
+//   published-asset pattern already allows a query, so it is cached first in
+//   tv-published under its own key, apart from the plain address the sheet's
+//   <image> asks for.
+//
 // 19-Oct-2026 - Version 1.15.0
 // - Token BUMPED to 2026-10-19-06 for v2.178.0 (3D View point cloud scenes on
 //   3D viewports). The point cloud placement, config and store, the 3D
@@ -731,7 +749,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-10-19-06';                                                            // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-10-19-07';                                                          // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

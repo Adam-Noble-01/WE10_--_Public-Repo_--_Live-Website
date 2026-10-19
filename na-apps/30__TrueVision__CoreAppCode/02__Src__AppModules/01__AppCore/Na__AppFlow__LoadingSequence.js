@@ -31,6 +31,18 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.5.0 (v2.183.0)
+// - THE MODEL GATE (Na__AppFlow__ModelGate__). The model files and the sky
+//   dome wait at it, just after the drawings go out. It is open unless a
+//   reader was sent straight to a document (Na__LayoutEditor__Share__Open__
+//   arms it), and then they load when the reader goes to the 3D Model tab.
+// - The sky dome (Scene__Environment) is loaded beside the model files rather
+//   than before the project data: the materials pass is its only reader, and
+//   it was 1.5 MB in front of every drawing. Nothing between the two places
+//   used it.
+// - The project data is asked for at once, beside the data library, instead
+//   of after it and the sky dome; it is awaited where it always was.
+//
 // 19-Oct-2026 - Version 1.4.1 (v2.175.1)
 // - FIXED: a project whose presentation block Scene Sync's placeholder had
 //   left switched off showed no carousel at load (JW02). Before the carousel
@@ -174,6 +186,13 @@
     // MODULE IMPORTS | DataLib Loader (Single Source of Truth)
     // ------------------------------------------------------------
     import { Na__DataLib__LoadAll, Na__DataLib__GetMaterials } from './AppCore__DataLib__Loader.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | The Model Gate (the model files wait here while a reader reads a document)
+    // ------------------------------------------------------------
+    // @delegate: ./Na__AppFlow__ModelGate__.js
+    // ------------------------------------------------------------
+    import { Na__ModelGate__Pass } from './Na__AppFlow__ModelGate__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Materials System
@@ -485,6 +504,24 @@
     // ------------------------------------------------------------
     async function Na__AppFlow__StartLoadingSequence(context) {
 
+        // THE PROJECT, READ OFF THE ADDRESS, AND ITS DATA ASKED FOR AT ONCE
+        // ---------------------------------------------------------------
+        // The project data is what the drawings, the scenes and the model list
+        // all come out of, so it is requested before anything else is waited
+        // on: beside the data library rather than after it. It is still
+        // AWAITED where it always was, below, so nothing reads it any sooner;
+        // the catch only stops a failure being reported as unhandled before
+        // that await takes it.
+        // ---------------------------------------------------------------
+        const projectCode   = Na__AppUtils__GetProjectCodeFromUrl();
+        const projectFolder = Na__AppUtils__GetProjectFolderFromUrl();
+        const yearCode      = Na__AppUtils__GetYearFromUrl();
+        const Na__ProjectData__Request = (projectCode && projectFolder)
+            ? Na__AppUtils__FetchTrueVisionProjectData(projectFolder, yearCode)    // <-- CDN (prod) or local file (dev)
+            : null;
+        if (Na__ProjectData__Request) Na__ProjectData__Request.catch(() => {});
+        // ---------------------------------------------------------------
+
         // LOAD DATALIB INDEX FILES (must complete before any system reads DataLib data)
         // ---------------------------------------------------------------
         await Na__DataLib__LoadAll();                                         // <-- Parallel fetch of all 4 DataLib files from GitHub
@@ -536,7 +573,10 @@
             Na__Config__GroundPlane,
             Na__Config__PerSceneLighting || null                             // <-- Per-scene lighting switch, flight blend and slider ranges
         );
-        const Na__Scene__EnvironmentTexture = await Na__Scene__ApplyEnvironmentMap(Na__Scene__Main, Na__Renderer__Main, Na__Config__SceneEnvironment);
+        // THE SKY DOME IS THE MODEL'S, so it loads with the model files, behind
+        // the model gate (below). Its only reader is the materials pass, which
+        // runs after them; here it held 1.5 MB in front of every drawing.
+        let Na__Scene__EnvironmentTexture = null;
 
         const Na__RenderPipeline__State = Na__RenderPipeline__SetupComposer(Na__Renderer__Main, Na__Scene__Main, Na__Camera__Main, Na__Config__ProfileLines, Na__SceneEffect__FogPass, Na__Config__AmbientOcclusion, Na__Controls__Orbit.target);
         const Na__RenderComposer__Main  = Na__RenderPipeline__State.composer;
@@ -749,11 +789,7 @@
         });
         // ------------------------------------------------------------
 
-        // RESOLVE PROJECT-SPECIFIC MODEL URLS
-        const projectCode   = Na__AppUtils__GetProjectCodeFromUrl();
-        const projectFolder = Na__AppUtils__GetProjectFolderFromUrl();
-        const yearCode      = Na__AppUtils__GetYearFromUrl();
-
+        // RESOLVE PROJECT-SPECIFIC MODEL URLS (the project was read off the address at the top)
         if (projectCode && projectFolder) {
             // NEW PATH | Fetch TrueVision__ProjectData__.json (full base) then,
             // on localhost, overlay the Dev-menu-saved keys from the live R2 copy
@@ -763,7 +799,7 @@
             // re-seeds R2 with the complete merged document.
             try {
                 Na__UiFeature__UpdateStatus('Loading project data...');
-                const projectData = await Na__AppUtils__FetchTrueVisionProjectData(projectFolder, yearCode); // <-- CDN (prod) or local file (dev)
+                const projectData = await Na__ProjectData__Request;             // <-- Asked for at the top, beside the data library
 
                 if (Na__AppUtils__IsRunningOnLocalhost() && Na__CfApi__IsConfigured()) {
                     const r2Result = await Na__CfApi__ReadProjectData();       // <-- Fresh read from R2 via worker
@@ -1039,6 +1075,20 @@
             }
         }));
 
+        // THE MODEL GATE | The drawings are out; the model's own files wait here
+        // ---------------------------------------------------------------
+        // Open, so passed at once, unless a reader was sent straight to a
+        // document: then the model files and the sky dome are asked for when
+        // the reader goes to the 3D Model tab, and never if they do not.
+        // Everything below runs exactly as it did, only later.
+        // @delegate: ./Na__AppFlow__ModelGate__.js
+        // ---------------------------------------------------------------
+        const Na__ModelGate__Result = await Na__ModelGate__Pass();
+        if (Na__ModelGate__Result.Waited) Na__UiFeature__UpdateStatus('Loading the 3D model...');
+        const Na__Scene__EnvironmentLoad = Na__Scene__ApplyEnvironmentMap(Na__Scene__Main, Na__Renderer__Main, Na__Config__SceneEnvironment)
+            .then((texture) => { Na__Scene__EnvironmentTexture = texture; return texture; });   // <-- Beside the model files; never rejects (null on failure), and kept even if the model fails
+        // ---------------------------------------------------------------
+
         // LOAD ALL MODELS VIA MULTI-MODEL LOADER
         try {
             let Na__LoadedModelGroups = null;                                 // <-- Map of category -> THREE.Group
@@ -1052,6 +1102,9 @@
                     Na__UiFeature__UpdateStatus                              // <-- Status callback for loading overlay
                 );
             }
+
+            // THE SKY DOME, BEFORE ITS ONE READER (mirror and glass reflections)
+            await Na__Scene__EnvironmentLoad;
 
             // APPLY PBR MATERIALS FROM LIBRARY (second pass - selective override)
             // Data is sourced from the DataLib cache loaded at sequence start via Na__DataLib__LoadAll().
@@ -1539,7 +1592,12 @@
         Na__RenderLoop__RequestRenderOnce();
 
         // RESIZE HANDLER
-        window.addEventListener('resize', () => {
+        // ---------------------------------------------------------------
+        // Attached here, after the model, so a reader who waited at the model
+        // gate may have turned the phone, or watched the tab strip appear,
+        // with nothing listening: the handler is run once for them below.
+        // ---------------------------------------------------------------
+        const Na__AppFlow__OnResize = () => {
             const width  = window.innerWidth;
             const height = window.innerHeight;
 
@@ -1562,7 +1620,9 @@
             Na__FloorPlanMode__HandleResize(width, height);                  // <-- Ortho frustum aspect + markup reprojection
             Na__ElevationMode__HandleResize(width, height);
             Na__RenderLoop__RequestRenderOnce();
-        });
+        };
+        window.addEventListener('resize', Na__AppFlow__OnResize);
+        if (Na__ModelGate__Result.Waited) Na__AppFlow__OnResize();          // <-- The window as it is now, not as it was when the page opened
     }
     // ------------------------------------------------------------
 

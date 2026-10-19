@@ -13,6 +13,10 @@
 # - Scans na-project-portal/{year}-Projects/ for project directories
 # - Validates project codes against [A-Z]{2}[0-9]{2} format
 # - Checks sub-app content availability (ProjectAdmin, PlanVision, TrueVision)
+# - Counts each project's legacy PlanVision drawings (planVisionDrawings in the
+#   master index): the Project Hub's PlanVision card keeps opening PlanVision
+#   only for a job that has some, and otherwise waits for drawings published
+#   from TrueVision. See count_planvision_drawings.
 # - Writes ProjectVision__MasterProjectIndex__Core__.json
 # - Generates per-project ProjectVision-WebApp.html redirect files
 # - Updates AppConfiguration__ProjectKeysIndex__.json for Project Admin
@@ -245,11 +249,12 @@ def build_master_index(all_projects):
 
     for proj in all_projects:
         projects_dict[proj['projectCode']] = {
-            'projectCode'   : proj['projectCode'],
-            'projectName'   : proj['projectName'],
-            'projectFolder' : proj['projectFolder'],
-            'projectYear'   : proj['projectYear'],
-            'subApps'       : proj['subApps'],
+            'projectCode'        : proj['projectCode'],
+            'projectName'        : proj['projectName'],
+            'projectFolder'      : proj['projectFolder'],
+            'projectYear'        : proj['projectYear'],
+            'subApps'            : proj['subApps'],
+            'planVisionDrawings' : proj.get('planVisionDrawings', 0),   # <-- Legacy PlanVision drawings on disk: 0 sends the hub's PlanVision card to TrueVision's published drawings only
         }
 
     return {
@@ -903,6 +908,32 @@ def discover_planvision_phases(project_path):
     return phases
 
 
+def count_planvision_drawings(project_path):
+    """How many drawings the legacy PlanVision app has to show for a project.
+
+    PlanVision is being retired: drawings are now published from TrueVision's
+    layout editor, and the Project Hub's PlanVision card opens those. It goes on
+    opening PlanVision only for a job PlanVision actually has drawings for, and
+    this is that test - counted from disk with the very rules the PlanVision
+    project data is built by (discover_planvision_phases): a PNG and PDF pair
+    once, nothing under a 00__ archive folder, no Design and Access Statement
+    figures. The PlanVision folder's own JSON and placeholder notes, which every
+    project carries, are not drawings, and nor is a project data file left
+    listing drawings that are no longer there.
+
+    Written to the master index as planVisionDrawings. 0 means the card waits
+    for TrueVision drawings (ProjectVision__PlanVisionCard__.js).
+    """
+    def count(entries):
+        total = 0
+        for entry in entries or []:
+            total += len(entry.get('files') or [])
+            total += count(entry.get('subfolders'))
+        return total
+
+    return sum(count(phase['folder_structure']) for phase in discover_planvision_phases(project_path))
+
+
 def generate_planvision_project_data(project_code, project_name, phases):
     """Build the PlanVision__ProjectData__.json structure."""
     phase_content = {}
@@ -1114,7 +1145,8 @@ def print_summary(all_projects, warnings):
     for proj in sorted(all_projects, key=lambda p: (p['projectYear'], p['projectCode'])):
         sa = proj['subApps']
         admin_mark = 'YES' if sa['projectAdmin'] else '-'
-        plan_mark  = 'YES' if sa['planVision']   else '-'
+        plan_count = proj.get('planVisionDrawings', 0)
+        plan_mark  = str(plan_count) if (sa['planVision'] and plan_count) else '-'   # <-- Legacy PlanVision drawings: '-' leaves the hub card to TrueVision's published drawings
         tv_mark    = 'YES' if sa['trueVision']   else '-'
 
         print(f'  {proj["projectCode"]:<6} {proj["projectYear"]:<6} '
@@ -1201,8 +1233,9 @@ def main():
                     f'does not match config code {config.get("projectCode")}'
                 )
 
-            proj['projectName'] = project_name
-            proj['subApps']     = sub_apps
+            proj['projectName']        = project_name
+            proj['subApps']            = sub_apps
+            proj['planVisionDrawings'] = count_planvision_drawings(proj['folderPath'])   # <-- For every project: the master index is always written whole
             all_projects.append(proj)
 
     target_projects = all_projects

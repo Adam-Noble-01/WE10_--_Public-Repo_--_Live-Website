@@ -7,6 +7,8 @@
 // MODULE     : Published Documents - Measure - Maths
 // AUTHOR     : Adam Noble - Noble Architecture
 // PURPOSE    : Turn a measurement's sheet points into real lengths and areas at its drawing's scale, and say them the way the drawings do
+// SCHEMA REF : na-project-portal/26-Projects/AA00__ExampleProjectStructure/
+//              30__TrueVision__AppContent/06__Layout__PublishedDocuments
 // CREATED    : 19-Oct-2026
 //
 // DESCRIPTION:

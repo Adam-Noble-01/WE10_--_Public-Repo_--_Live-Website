@@ -5,7 +5,7 @@
         "Meta__Module"      : "Layout Editor - Document Sharing - Settings",
         "Meta__Author"      : "Adam Noble - Noble Architecture",
         "Meta__Purpose"     : "The address a Share button hands out, how the app answers one, and every word the Share box says",
-        "Meta__Version"     : "1.0.0",
+        "Meta__Version"     : "1.1.0",
         "Meta__Created"     : "29-Sep-2026",
         "Meta__Note"        : "Every value here is a built-in default mirrored in Na__LayoutEditor__Share__Links__.js and Na__LayoutEditor__Share__Button__.js, so a failed fetch degrades to a working link rather than a missing one. THE DOCUMENT KEYS ARE NOT HERE, on purpose: a key is what an already-sent link carries, so it is a permanent rule in code (Na__LayoutEditor__Share__Links__.js), never a setting anybody can change by editing a file."
     },
@@ -28,7 +28,9 @@
         "Open__WaitForSheetsMs"      : 60000,
         "Open__WaitForSheetsNote"    : "How long the app waits for the project's drawings to arrive before it gives up on the link and stays on the 3D model. The drawings arrive before the 3D model starts loading, so this is only ever reached on a dead connection.",
         "Open__LiftLoadingScreen"    : true,
-        "Open__LiftLoadingScreenNote": "A reader who was sent a document is shown it as soon as it can be shown, not after the whole 3D model has loaded behind it: the loading screen is lifted off the document the moment it opens, and put back if the reader goes to the 3D Model tab before the model is ready. Where this session can AUTHOR the link waits for the model instead, because the editor renders its drawings from it."
+        "Open__LiftLoadingScreenNote": "A reader who was sent a document is shown it as soon as it can be shown, not after the whole 3D model has loaded behind it: the loading screen is lifted off the document the moment it opens, and put back if the reader goes to the 3D Model tab before the model is ready. Where this session can AUTHOR the link waits for the model instead, because the editor renders its drawings from it.",
+        "Open__LoadModelOnDemand"    : true,
+        "Open__LoadModelOnDemandNote": "A reader opened on a document is not sent the 3D model at all until they go to the 3D Model tab: the model files and the sky dome wait at the model gate (01__AppCore/Na__AppFlow__ModelGate__.js), so the document has the whole connection and the phone has the memory. The web viewer never renders from the model, so nothing a reader can do in the documents needs it. false loads the model behind the document, as before TrueVision3D v2.183.0. An authoring session always loads it."
     },
 
     "LayoutEditor__Share__Labels": {

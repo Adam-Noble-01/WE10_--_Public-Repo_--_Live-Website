@@ -179,8 +179,8 @@
         },
         {
             "Annotation__Text"       : "Floor Areas",
-            "Annotation__PosXMm"     : 749.2390545132511,
-            "Annotation__PosYMm"     : 311.9430744191899,
+            "Annotation__PosXMm"     : 749.2391,
+            "Annotation__PosYMm"     : 311.9431,
             "Annotation__SizeMm"     : 3.2,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -192,8 +192,8 @@
         },
         {
             "Annotation__Text"       : "Room",
-            "Annotation__PosXMm"     : 749.2390545132511,
-            "Annotation__PosYMm"     : 317.14307441918993,
+            "Annotation__PosXMm"     : 749.2391,
+            "Annotation__PosYMm"     : 317.1431,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -205,8 +205,8 @@
         },
         {
             "Annotation__Text"       : "Area",
-            "Annotation__PosXMm"     : 827.2390545132511,
-            "Annotation__PosYMm"     : 317.14307441918993,
+            "Annotation__PosXMm"     : 827.2391,
+            "Annotation__PosYMm"     : 317.1431,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -218,8 +218,8 @@
         },
         {
             "Annotation__Text"       : "Earmarked For Demolition",
-            "Annotation__PosXMm"     : 752.8390545132512,
-            "Annotation__PosYMm"     : 322.8430744191899,
+            "Annotation__PosXMm"     : 752.8391,
+            "Annotation__PosYMm"     : 322.8431,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -231,8 +231,8 @@
         },
         {
             "Annotation__Text"       : "242.56 m²",
-            "Annotation__PosXMm"     : 827.2390545132511,
-            "Annotation__PosYMm"     : 322.8430744191899,
+            "Annotation__PosXMm"     : 827.2391,
+            "Annotation__PosYMm"     : 322.8431,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -244,8 +244,8 @@
         },
         {
             "Annotation__Text"       : "Large Barn",
-            "Annotation__PosXMm"     : 755.8390545132512,
-            "Annotation__PosYMm"     : 327.0430744191899,
+            "Annotation__PosXMm"     : 755.8391,
+            "Annotation__PosYMm"     : 327.0431,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -257,8 +257,8 @@
         },
         {
             "Annotation__Text"       : "190.17 m²",
-            "Annotation__PosXMm"     : 827.2390545132511,
-            "Annotation__PosYMm"     : 327.0430744191899,
+            "Annotation__PosXMm"     : 827.2391,
+            "Annotation__PosYMm"     : 327.0431,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -270,8 +270,8 @@
         },
         {
             "Annotation__Text"       : "Open Sided Storage Shed",
-            "Annotation__PosXMm"     : 755.8390545132512,
-            "Annotation__PosYMm"     : 331.2430744191899,
+            "Annotation__PosXMm"     : 755.8391,
+            "Annotation__PosYMm"     : 331.2431,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -283,8 +283,8 @@
         },
         {
             "Annotation__Text"       : "52.39 m²",
-            "Annotation__PosXMm"     : 827.2390545132511,
-            "Annotation__PosYMm"     : 331.2430744191899,
+            "Annotation__PosXMm"     : 827.2391,
+            "Annotation__PosYMm"     : 331.2431,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -296,8 +296,8 @@
         },
         {
             "Annotation__Text"       : "Proposed For Development",
-            "Annotation__PosXMm"     : 752.8390545132512,
-            "Annotation__PosYMm"     : 337.0430744191899,
+            "Annotation__PosXMm"     : 752.8391,
+            "Annotation__PosYMm"     : 337.0431,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -308,9 +308,9 @@
             "Annotation__Id"         : "Text_023"
         },
         {
-            "Annotation__Text"       : "692.16 m²",
-            "Annotation__PosXMm"     : 827.2390545132511,
-            "Annotation__PosYMm"     : 337.0430744191899,
+            "Annotation__Text"       : "692.87 m²",
+            "Annotation__PosXMm"     : 827.2391,
+            "Annotation__PosYMm"     : 337.0431,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -322,8 +322,8 @@
         },
         {
             "Annotation__Text"       : "Covered Vehicular Workshop",
-            "Annotation__PosXMm"     : 755.8390545132512,
-            "Annotation__PosYMm"     : 341.2430744191899,
+            "Annotation__PosXMm"     : 755.8391,
+            "Annotation__PosYMm"     : 341.2431,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -334,9 +334,9 @@
             "Annotation__Id"         : "Text_025"
         },
         {
-            "Annotation__Text"       : "348.79 m²",
-            "Annotation__PosXMm"     : 827.2390545132511,
-            "Annotation__PosYMm"     : 341.2430744191899,
+            "Annotation__Text"       : "349.51 m²",
+            "Annotation__PosXMm"     : 827.2391,
+            "Annotation__PosYMm"     : 341.2431,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -348,8 +348,8 @@
         },
         {
             "Annotation__Text"       : "Holiday Cottage",
-            "Annotation__PosXMm"     : 755.8390545132512,
-            "Annotation__PosYMm"     : 345.4430744191899,
+            "Annotation__PosXMm"     : 755.8391,
+            "Annotation__PosYMm"     : 345.4431,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -361,8 +361,8 @@
         },
         {
             "Annotation__Text"       : "103.05 m²",
-            "Annotation__PosXMm"     : 827.2390545132511,
-            "Annotation__PosYMm"     : 345.4430744191899,
+            "Annotation__PosXMm"     : 827.2391,
+            "Annotation__PosYMm"     : 345.4431,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -374,8 +374,8 @@
         },
         {
             "Annotation__Text"       : "Area Summary",
-            "Annotation__PosXMm"     : 749.8327705908149,
-            "Annotation__PosYMm"     : 385.5130785019087,
+            "Annotation__PosXMm"     : 749.8328,
+            "Annotation__PosYMm"     : 385.5131,
             "Annotation__SizeMm"     : 3.2,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -387,8 +387,8 @@
         },
         {
             "Annotation__Text"       : "Group",
-            "Annotation__PosXMm"     : 749.8327705908149,
-            "Annotation__PosYMm"     : 390.71307850190874,
+            "Annotation__PosXMm"     : 749.8328,
+            "Annotation__PosYMm"     : 390.7131,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -400,8 +400,8 @@
         },
         {
             "Annotation__Text"       : "Area",
-            "Annotation__PosXMm"     : 827.8327705908149,
-            "Annotation__PosYMm"     : 390.71307850190874,
+            "Annotation__PosXMm"     : 827.8328,
+            "Annotation__PosYMm"     : 390.7131,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -413,8 +413,8 @@
         },
         {
             "Annotation__Text"       : "Earmarked For Demolition",
-            "Annotation__PosXMm"     : 753.4327705908148,
-            "Annotation__PosYMm"     : 396.4130785019087,
+            "Annotation__PosXMm"     : 753.4328,
+            "Annotation__PosYMm"     : 396.4131,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -426,8 +426,8 @@
         },
         {
             "Annotation__Text"       : "242.56 m²",
-            "Annotation__PosXMm"     : 827.8327705908149,
-            "Annotation__PosYMm"     : 396.4130785019087,
+            "Annotation__PosXMm"     : 827.8328,
+            "Annotation__PosYMm"     : 396.4131,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -439,8 +439,8 @@
         },
         {
             "Annotation__Text"       : "Proposed For Development",
-            "Annotation__PosXMm"     : 753.4327705908148,
-            "Annotation__PosYMm"     : 402.21307850190874,
+            "Annotation__PosXMm"     : 753.4328,
+            "Annotation__PosYMm"     : 402.2131,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -452,8 +452,8 @@
         },
         {
             "Annotation__Text"       : "Jimmy's Residence",
-            "Annotation__PosXMm"     : 755.8390545132512,
-            "Annotation__PosYMm"     : 349.64307441918993,
+            "Annotation__PosXMm"     : 755.8391,
+            "Annotation__PosYMm"     : 349.6431,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -465,8 +465,8 @@
         },
         {
             "Annotation__Text"       : "95.31 m²",
-            "Annotation__PosXMm"     : 827.2390545132511,
-            "Annotation__PosYMm"     : 349.64307441918993,
+            "Annotation__PosXMm"     : 827.2391,
+            "Annotation__PosYMm"     : 349.6431,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -478,8 +478,8 @@
         },
         {
             "Annotation__Text"       : "Barn",
-            "Annotation__PosXMm"     : 755.8390545132512,
-            "Annotation__PosYMm"     : 353.84307441918986,
+            "Annotation__PosXMm"     : 755.8391,
+            "Annotation__PosYMm"     : 353.8431,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -491,8 +491,8 @@
         },
         {
             "Annotation__Text"       : "49.33 m²",
-            "Annotation__PosXMm"     : 827.2390545132511,
-            "Annotation__PosYMm"     : 353.84307441918986,
+            "Annotation__PosXMm"     : 827.2391,
+            "Annotation__PosYMm"     : 353.8431,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -503,9 +503,9 @@
             "Annotation__Id"         : "Text_038"
         },
         {
-            "Annotation__Text"       : "692.16 m²",
-            "Annotation__PosXMm"     : 827.8327705908149,
-            "Annotation__PosYMm"     : 402.21307850190874,
+            "Annotation__Text"       : "692.87 m²",
+            "Annotation__PosXMm"     : 827.8328,
+            "Annotation__PosYMm"     : 402.2131,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -517,8 +517,8 @@
         },
         {
             "Annotation__Text"       : "Total",
-            "Annotation__PosXMm"     : 749.8327705908149,
-            "Annotation__PosYMm"     : 408.1380785019087,
+            "Annotation__PosXMm"     : 749.8328,
+            "Annotation__PosYMm"     : 408.1381,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -529,9 +529,9 @@
             "Annotation__Id"         : "Text_040"
         },
         {
-            "Annotation__Text"       : "934.72 m²",
-            "Annotation__PosXMm"     : 827.8327705908149,
-            "Annotation__PosYMm"     : 408.1380785019087,
+            "Annotation__Text"       : "935.43 m²",
+            "Annotation__PosXMm"     : 827.8328,
+            "Annotation__PosYMm"     : 408.1381,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -543,8 +543,8 @@
         },
         {
             "Annotation__Text"       : "Storage Barn 02",
-            "Annotation__PosXMm"     : 755.8390545132512,
-            "Annotation__PosYMm"     : 358.0430744191899,
+            "Annotation__PosXMm"     : 755.8391,
+            "Annotation__PosYMm"     : 358.0431,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -556,8 +556,8 @@
         },
         {
             "Annotation__Text"       : "37.12 m²",
-            "Annotation__PosXMm"     : 827.2390545132511,
-            "Annotation__PosYMm"     : 358.0430744191899,
+            "Annotation__PosXMm"     : 827.2391,
+            "Annotation__PosYMm"     : 358.0431,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -569,8 +569,8 @@
         },
         {
             "Annotation__Text"       : "Passage",
-            "Annotation__PosXMm"     : 755.8390545132512,
-            "Annotation__PosYMm"     : 362.2430744191899,
+            "Annotation__PosXMm"     : 755.8391,
+            "Annotation__PosYMm"     : 362.2431,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -582,8 +582,8 @@
         },
         {
             "Annotation__Text"       : "8.21 m²",
-            "Annotation__PosXMm"     : 827.2390545132511,
-            "Annotation__PosYMm"     : 362.2430744191899,
+            "Annotation__PosXMm"     : 827.2391,
+            "Annotation__PosYMm"     : 362.2431,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -595,8 +595,8 @@
         },
         {
             "Annotation__Text"       : "Storage Barn 01",
-            "Annotation__PosXMm"     : 755.8390545132512,
-            "Annotation__PosYMm"     : 366.4430744191899,
+            "Annotation__PosXMm"     : 755.8391,
+            "Annotation__PosYMm"     : 366.4431,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -608,8 +608,8 @@
         },
         {
             "Annotation__Text"       : "50.35 m²",
-            "Annotation__PosXMm"     : 827.2390545132511,
-            "Annotation__PosYMm"     : 366.4430744191899,
+            "Annotation__PosXMm"     : 827.2391,
+            "Annotation__PosYMm"     : 366.4431,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -621,8 +621,8 @@
         },
         {
             "Annotation__Text"       : "Total",
-            "Annotation__PosXMm"     : 749.2390545132511,
-            "Annotation__PosYMm"     : 372.3680744191899,
+            "Annotation__PosXMm"     : 749.2391,
+            "Annotation__PosYMm"     : 372.3681,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -633,9 +633,9 @@
             "Annotation__Id"         : "Text_048"
         },
         {
-            "Annotation__Text"       : "934.72 m²",
-            "Annotation__PosXMm"     : 827.2390545132511,
-            "Annotation__PosYMm"     : 372.3680744191899,
+            "Annotation__Text"       : "935.43 m²",
+            "Annotation__PosXMm"     : 827.2391,
+            "Annotation__PosYMm"     : 372.3681,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -686,7 +686,7 @@
         },
         {
             "Annotation__Text"       : "Earmarked For Demolition",
-            "Annotation__PosXMm"     : 753.4999999999999,
+            "Annotation__PosXMm"     : 753.5,
             "Annotation__PosYMm"     : 276.275,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
@@ -712,7 +712,7 @@
         },
         {
             "Annotation__Text"       : "Proposed For Development",
-            "Annotation__PosXMm"     : 753.4999999999999,
+            "Annotation__PosXMm"     : 753.5,
             "Annotation__PosYMm"     : 282.075,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
@@ -724,7 +724,7 @@
             "Annotation__Id"         : "Text_055"
         },
         {
-            "Annotation__Text"       : "7,450 ft²",
+            "Annotation__Text"       : "7,458 ft²",
             "Annotation__PosXMm"     : 827.9,
             "Annotation__PosYMm"     : 282.075,
             "Annotation__SizeMm"     : 2.4,
@@ -750,7 +750,7 @@
             "Annotation__Id"         : "Text_057"
         },
         {
-            "Annotation__Text"       : "10,061 ft²",
+            "Annotation__Text"       : "10,069 ft²",
             "Annotation__PosXMm"     : 827.9,
             "Annotation__PosYMm"     : 288,
             "Annotation__SizeMm"     : 2.4,
@@ -803,8 +803,8 @@
         },
         {
             "Annotation__Text"       : "Earmarked For Demolition",
-            "Annotation__PosXMm"     : 752.9062999999999,
-            "Annotation__PosYMm"     : 202.70499999999998,
+            "Annotation__PosXMm"     : 752.9063,
+            "Annotation__PosYMm"     : 202.705,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -817,7 +817,7 @@
         {
             "Annotation__Text"       : "2,611 ft²",
             "Annotation__PosXMm"     : 827.3063,
-            "Annotation__PosYMm"     : 202.70499999999998,
+            "Annotation__PosYMm"     : 202.705,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -829,8 +829,8 @@
         },
         {
             "Annotation__Text"       : "Large Barn",
-            "Annotation__PosXMm"     : 755.9062999999999,
-            "Annotation__PosYMm"     : 206.90499999999997,
+            "Annotation__PosXMm"     : 755.9063,
+            "Annotation__PosYMm"     : 206.905,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -843,7 +843,7 @@
         {
             "Annotation__Text"       : "2,047 ft²",
             "Annotation__PosXMm"     : 827.3063,
-            "Annotation__PosYMm"     : 206.90499999999997,
+            "Annotation__PosYMm"     : 206.905,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -855,7 +855,7 @@
         },
         {
             "Annotation__Text"       : "Open Sided Storage Shed",
-            "Annotation__PosXMm"     : 755.9062999999999,
+            "Annotation__PosXMm"     : 755.9063,
             "Annotation__PosYMm"     : 211.105,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
@@ -881,7 +881,7 @@
         },
         {
             "Annotation__Text"       : "Proposed For Development",
-            "Annotation__PosXMm"     : 752.9062999999999,
+            "Annotation__PosXMm"     : 752.9063,
             "Annotation__PosYMm"     : 216.905,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
@@ -893,7 +893,7 @@
             "Annotation__Id"         : "Text_068"
         },
         {
-            "Annotation__Text"       : "7,450 ft²",
+            "Annotation__Text"       : "7,458 ft²",
             "Annotation__PosXMm"     : 827.3063,
             "Annotation__PosYMm"     : 216.905,
             "Annotation__SizeMm"     : 2.4,
@@ -907,7 +907,7 @@
         },
         {
             "Annotation__Text"       : "Covered Vehicular Workshop",
-            "Annotation__PosXMm"     : 755.9062999999999,
+            "Annotation__PosXMm"     : 755.9063,
             "Annotation__PosYMm"     : 221.105,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
@@ -919,7 +919,7 @@
             "Annotation__Id"         : "Text_070"
         },
         {
-            "Annotation__Text"       : "3,754 ft²",
+            "Annotation__Text"       : "3,762 ft²",
             "Annotation__PosXMm"     : 827.3063,
             "Annotation__PosYMm"     : 221.105,
             "Annotation__SizeMm"     : 2.4,
@@ -933,8 +933,8 @@
         },
         {
             "Annotation__Text"       : "Holiday Cottage",
-            "Annotation__PosXMm"     : 755.9062999999999,
-            "Annotation__PosYMm"     : 225.30499999999998,
+            "Annotation__PosXMm"     : 755.9063,
+            "Annotation__PosYMm"     : 225.305,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -947,7 +947,7 @@
         {
             "Annotation__Text"       : "1,109 ft²",
             "Annotation__PosXMm"     : 827.3063,
-            "Annotation__PosYMm"     : 225.30499999999998,
+            "Annotation__PosYMm"     : 225.305,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -959,7 +959,7 @@
         },
         {
             "Annotation__Text"       : "Jimmy's Residence",
-            "Annotation__PosXMm"     : 755.9062999999999,
+            "Annotation__PosXMm"     : 755.9063,
             "Annotation__PosYMm"     : 229.505,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
@@ -985,8 +985,8 @@
         },
         {
             "Annotation__Text"       : "Barn",
-            "Annotation__PosXMm"     : 755.9062999999999,
-            "Annotation__PosYMm"     : 233.70499999999998,
+            "Annotation__PosXMm"     : 755.9063,
+            "Annotation__PosYMm"     : 233.705,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -999,7 +999,7 @@
         {
             "Annotation__Text"       : "531 ft²",
             "Annotation__PosXMm"     : 827.3063,
-            "Annotation__PosYMm"     : 233.70499999999998,
+            "Annotation__PosYMm"     : 233.705,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -1011,7 +1011,7 @@
         },
         {
             "Annotation__Text"       : "Storage Barn 02",
-            "Annotation__PosXMm"     : 755.9062999999999,
+            "Annotation__PosXMm"     : 755.9063,
             "Annotation__PosYMm"     : 237.905,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
@@ -1037,7 +1037,7 @@
         },
         {
             "Annotation__Text"       : "Passage",
-            "Annotation__PosXMm"     : 755.9062999999999,
+            "Annotation__PosXMm"     : 755.9063,
             "Annotation__PosYMm"     : 242.105,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
@@ -1063,8 +1063,8 @@
         },
         {
             "Annotation__Text"       : "Storage Barn 01",
-            "Annotation__PosXMm"     : 755.9062999999999,
-            "Annotation__PosYMm"     : 246.30499999999998,
+            "Annotation__PosXMm"     : 755.9063,
+            "Annotation__PosYMm"     : 246.305,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -1077,7 +1077,7 @@
         {
             "Annotation__Text"       : "542 ft²",
             "Annotation__PosXMm"     : 827.3063,
-            "Annotation__PosYMm"     : 246.30499999999998,
+            "Annotation__PosYMm"     : 246.305,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 400,
             "Annotation__Colour"     : "#172b3a",
@@ -1090,7 +1090,7 @@
         {
             "Annotation__Text"       : "Total",
             "Annotation__PosXMm"     : 749.3063,
-            "Annotation__PosYMm"     : 252.23000000000002,
+            "Annotation__PosYMm"     : 252.23,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -1101,9 +1101,9 @@
             "Annotation__Id"         : "Text_084"
         },
         {
-            "Annotation__Text"       : "10,061 ft²",
+            "Annotation__Text"       : "10,069 ft²",
             "Annotation__PosXMm"     : 827.3063,
-            "Annotation__PosYMm"     : 252.23000000000002,
+            "Annotation__PosYMm"     : 252.23,
             "Annotation__SizeMm"     : 2.4,
             "Annotation__FontWeight" : 600,
             "Annotation__Colour"     : "#172b3a",
@@ -1112,9 +1112,113 @@
             "Annotation__LeaderXMm"  : null,
             "Annotation__LeaderYMm"  : null,
             "Annotation__Id"         : "Text_085"
+        },
+        {
+            "Annotation__Text"       : "Scan Me",
+            "Annotation__PosXMm"     : 17.384236387154466,
+            "Annotation__PosYMm"     : 40.21721639732154,
+            "Annotation__SizeMm"     : 3.2,
+            "Annotation__FontWeight" : 600,
+            "Annotation__Colour"     : "#172b3a",
+            "Annotation__Align"      : "left",
+            "Annotation__LayerId"    : "Layer_002",
+            "Annotation__LeaderXMm"  : null,
+            "Annotation__LeaderYMm"  : null,
+            "Annotation__Id"         : "Text_086"
+        },
+        {
+            "Annotation__Text"       : "Use your phone or tablet camera",
+            "Annotation__PosXMm"     : 10.214736387154467,
+            "Annotation__PosYMm"     : 45.36521639732154,
+            "Annotation__SizeMm"     : 1.5,
+            "Annotation__FontWeight" : 400,
+            "Annotation__Colour"     : "#5f6b74",
+            "Annotation__Align"      : "left",
+            "Annotation__LayerId"    : "Layer_002",
+            "Annotation__LeaderXMm"  : null,
+            "Annotation__LeaderYMm"  : null,
+            "Annotation__Id"         : "Text_087"
+        },
+        {
+            "Annotation__Text"       : "View Project Portal",
+            "Annotation__PosXMm"     : 10.214736387154467,
+            "Annotation__PosYMm"     : 51.56521639732154,
+            "Annotation__SizeMm"     : 3.5,
+            "Annotation__FontWeight" : 600,
+            "Annotation__Colour"     : "#172b3a",
+            "Annotation__Align"      : "left",
+            "Annotation__LayerId"    : "Layer_002",
+            "Annotation__LeaderXMm"  : null,
+            "Annotation__LeaderYMm"  : null,
+            "Annotation__Id"         : "Text_088"
+        },
+        {
+            "Annotation__Text"       : "JW02 - Jaws Joint",
+            "Annotation__PosXMm"     : 10.214736387154467,
+            "Annotation__PosYMm"     : 55.96521639732154,
+            "Annotation__SizeMm"     : 2.4,
+            "Annotation__FontWeight" : 400,
+            "Annotation__Colour"     : "#5f6b74",
+            "Annotation__Align"      : "left",
+            "Annotation__LayerId"    : "Layer_002",
+            "Annotation__LeaderXMm"  : null,
+            "Annotation__LeaderYMm"  : null,
+            "Annotation__Id"         : "Text_089"
+        },
+        {
+            "Annotation__Text"       : "·   Walk Through the 3D Model",
+            "Annotation__PosXMm"     : 10.214736387154467,
+            "Annotation__PosYMm"     : 60.96521639732154,
+            "Annotation__SizeMm"     : 2.2,
+            "Annotation__FontWeight" : 400,
+            "Annotation__Colour"     : "#5f6b74",
+            "Annotation__Align"      : "left",
+            "Annotation__LayerId"    : "Layer_002",
+            "Annotation__LeaderXMm"  : null,
+            "Annotation__LeaderYMm"  : null,
+            "Annotation__Id"         : "Text_090"
+        },
+        {
+            "Annotation__Text"       : "·   Saved Scenes and Viewpoints",
+            "Annotation__PosXMm"     : 10.214736387154467,
+            "Annotation__PosYMm"     : 64.56521639732154,
+            "Annotation__SizeMm"     : 2.2,
+            "Annotation__FontWeight" : 400,
+            "Annotation__Colour"     : "#5f6b74",
+            "Annotation__Align"      : "left",
+            "Annotation__LayerId"    : "Layer_002",
+            "Annotation__LeaderXMm"  : null,
+            "Annotation__LeaderYMm"  : null,
+            "Annotation__Id"         : "Text_091"
+        },
+        {
+            "Annotation__Text"       : "·   Measuring Tools",
+            "Annotation__PosXMm"     : 10.214736387154467,
+            "Annotation__PosYMm"     : 68.16521639732153,
+            "Annotation__SizeMm"     : 2.2,
+            "Annotation__FontWeight" : 400,
+            "Annotation__Colour"     : "#5f6b74",
+            "Annotation__Align"      : "left",
+            "Annotation__LayerId"    : "Layer_002",
+            "Annotation__LeaderXMm"  : null,
+            "Annotation__LeaderYMm"  : null,
+            "Annotation__Id"         : "Text_092"
+        },
+        {
+            "Annotation__Text"       : "·   Live Drawings Online",
+            "Annotation__PosXMm"     : 10.214736387154467,
+            "Annotation__PosYMm"     : 71.76521639732155,
+            "Annotation__SizeMm"     : 2.2,
+            "Annotation__FontWeight" : 400,
+            "Annotation__Colour"     : "#5f6b74",
+            "Annotation__Align"      : "left",
+            "Annotation__LayerId"    : "Layer_002",
+            "Annotation__LeaderXMm"  : null,
+            "Annotation__LeaderYMm"  : null,
+            "Annotation__Id"         : "Text_093"
         }
     ],
     "Elements__LayerSvg" : {
-        "Layer_002" : "<text x=\"221.913\" y=\"515.6\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3.5\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">EXISTING GROUND FLOOR PLAN</text><text x=\"374.76\" y=\"520.914\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.5\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">0</text><text x=\"394.76\" y=\"520.914\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">2</text><text x=\"414.76\" y=\"520.914\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">4</text><text x=\"434.76\" y=\"520.914\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">6</text><text x=\"454.76\" y=\"520.914\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">8</text><text x=\"474.76\" y=\"520.914\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">10</text><text x=\"494.76\" y=\"520.914\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">12</text><text x=\"514.76\" y=\"520.914\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">14</text><text x=\"534.76\" y=\"520.914\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">16</text><text x=\"554.76\" y=\"520.914\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">18</text><text x=\"574.76\" y=\"520.914\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">20</text><text x=\"594.76\" y=\"520.914\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.5\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">22</text><text x=\"749.239\" y=\"311.943\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3.2\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Floor Areas</text><text x=\"749.239\" y=\"317.143\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Room</text><text x=\"827.239\" y=\"317.143\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">Area</text><text x=\"752.839\" y=\"322.843\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Earmarked For Demolition</text><text x=\"827.239\" y=\"322.843\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">242.56 m²</text><text x=\"755.839\" y=\"327.043\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Large Barn</text><text x=\"827.239\" y=\"327.043\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">190.17 m²</text><text x=\"755.839\" y=\"331.243\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Open Sided Storage Shed</text><text x=\"827.239\" y=\"331.243\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">52.39 m²</text><text x=\"752.839\" y=\"337.043\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Proposed For Development</text><text x=\"827.239\" y=\"337.043\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">692.16 m²</text><text x=\"755.839\" y=\"341.243\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Covered Vehicular Workshop</text><text x=\"827.239\" y=\"341.243\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">348.79 m²</text><text x=\"755.839\" y=\"345.443\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Holiday Cottage</text><text x=\"827.239\" y=\"345.443\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">103.05 m²</text><text x=\"749.833\" y=\"385.513\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3.2\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Area Summary</text><text x=\"749.833\" y=\"390.713\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Group</text><text x=\"827.833\" y=\"390.713\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">Area</text><text x=\"753.433\" y=\"396.413\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Earmarked For Demolition</text><text x=\"827.833\" y=\"396.413\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">242.56 m²</text><text x=\"753.433\" y=\"402.213\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Proposed For Development</text><text x=\"755.839\" y=\"349.643\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Jimmy&#39;s Residence</text><text x=\"827.239\" y=\"349.643\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">95.31 m²</text><text x=\"755.839\" y=\"353.843\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Barn</text><text x=\"827.239\" y=\"353.843\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">49.33 m²</text><text x=\"827.833\" y=\"402.213\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">692.16 m²</text><text x=\"749.833\" y=\"408.138\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Total</text><text x=\"827.833\" y=\"408.138\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">934.72 m²</text><text x=\"755.839\" y=\"358.043\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Storage Barn 02</text><text x=\"827.239\" y=\"358.043\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">37.12 m²</text><text x=\"755.839\" y=\"362.243\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Passage</text><text x=\"827.239\" y=\"362.243\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">8.21 m²</text><text x=\"755.839\" y=\"366.443\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Storage Barn 01</text><text x=\"827.239\" y=\"366.443\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">50.35 m²</text><text x=\"749.239\" y=\"372.368\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Total</text><text x=\"827.239\" y=\"372.368\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">934.72 m²</text><text x=\"749.9\" y=\"265.375\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3.2\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Area Summary</text><text x=\"749.9\" y=\"270.575\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Group</text><text x=\"827.9\" y=\"270.575\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">Area</text><text x=\"753.5\" y=\"276.275\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Earmarked For Demolition</text><text x=\"827.9\" y=\"276.275\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">2,611 ft²</text><text x=\"753.5\" y=\"282.075\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Proposed For Development</text><text x=\"827.9\" y=\"282.075\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">7,450 ft²</text><text x=\"749.9\" y=\"288\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Total</text><text x=\"827.9\" y=\"288\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">10,061 ft²</text><text x=\"749.306\" y=\"191.805\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3.2\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Floor Areas</text><text x=\"749.306\" y=\"197.005\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Room</text><text x=\"827.306\" y=\"197.005\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">Area</text><text x=\"752.906\" y=\"202.705\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Earmarked For Demolition</text><text x=\"827.306\" y=\"202.705\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">2,611 ft²</text><text x=\"755.906\" y=\"206.905\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Large Barn</text><text x=\"827.306\" y=\"206.905\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">2,047 ft²</text><text x=\"755.906\" y=\"211.105\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Open Sided Storage Shed</text><text x=\"827.306\" y=\"211.105\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">564 ft²</text><text x=\"752.906\" y=\"216.905\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Proposed For Development</text><text x=\"827.306\" y=\"216.905\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">7,450 ft²</text><text x=\"755.906\" y=\"221.105\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Covered Vehicular Workshop</text><text x=\"827.306\" y=\"221.105\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">3,754 ft²</text><text x=\"755.906\" y=\"225.305\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Holiday Cottage</text><text x=\"827.306\" y=\"225.305\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">1,109 ft²</text><text x=\"755.906\" y=\"229.505\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Jimmy&#39;s Residence</text><text x=\"827.306\" y=\"229.505\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">1,026 ft²</text><text x=\"755.906\" y=\"233.705\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Barn</text><text x=\"827.306\" y=\"233.705\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">531 ft²</text><text x=\"755.906\" y=\"237.905\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Storage Barn 02</text><text x=\"827.306\" y=\"237.905\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">400 ft²</text><text x=\"755.906\" y=\"242.105\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Passage</text><text x=\"827.306\" y=\"242.105\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">88 ft²</text><text x=\"755.906\" y=\"246.305\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Storage Barn 01</text><text x=\"827.306\" y=\"246.305\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">542 ft²</text><text x=\"749.306\" y=\"252.23\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Total</text><text x=\"827.306\" y=\"252.23\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">10,061 ft²</text>"
+        "Layer_002" : "<text x=\"221.913\" y=\"515.6\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3.5\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">EXISTING GROUND FLOOR PLAN</text><text x=\"374.76\" y=\"520.914\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.5\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">0</text><text x=\"394.76\" y=\"520.914\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">2</text><text x=\"414.76\" y=\"520.914\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">4</text><text x=\"434.76\" y=\"520.914\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">6</text><text x=\"454.76\" y=\"520.914\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">8</text><text x=\"474.76\" y=\"520.914\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">10</text><text x=\"494.76\" y=\"520.914\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">12</text><text x=\"514.76\" y=\"520.914\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">14</text><text x=\"534.76\" y=\"520.914\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">16</text><text x=\"554.76\" y=\"520.914\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">18</text><text x=\"574.76\" y=\"520.914\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">20</text><text x=\"594.76\" y=\"520.914\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.5\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">22</text><text x=\"749.239\" y=\"311.943\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3.2\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Floor Areas</text><text x=\"749.239\" y=\"317.143\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Room</text><text x=\"827.239\" y=\"317.143\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">Area</text><text x=\"752.839\" y=\"322.843\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Earmarked For Demolition</text><text x=\"827.239\" y=\"322.843\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">242.56 m²</text><text x=\"755.839\" y=\"327.043\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Large Barn</text><text x=\"827.239\" y=\"327.043\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">190.17 m²</text><text x=\"755.839\" y=\"331.243\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Open Sided Storage Shed</text><text x=\"827.239\" y=\"331.243\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">52.39 m²</text><text x=\"752.839\" y=\"337.043\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Proposed For Development</text><text x=\"827.239\" y=\"337.043\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">692.87 m²</text><text x=\"755.839\" y=\"341.243\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Covered Vehicular Workshop</text><text x=\"827.239\" y=\"341.243\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">349.51 m²</text><text x=\"755.839\" y=\"345.443\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Holiday Cottage</text><text x=\"827.239\" y=\"345.443\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">103.05 m²</text><text x=\"749.833\" y=\"385.513\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3.2\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Area Summary</text><text x=\"749.833\" y=\"390.713\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Group</text><text x=\"827.833\" y=\"390.713\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">Area</text><text x=\"753.433\" y=\"396.413\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Earmarked For Demolition</text><text x=\"827.833\" y=\"396.413\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">242.56 m²</text><text x=\"753.433\" y=\"402.213\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Proposed For Development</text><text x=\"755.839\" y=\"349.643\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Jimmy&#39;s Residence</text><text x=\"827.239\" y=\"349.643\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">95.31 m²</text><text x=\"755.839\" y=\"353.843\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Barn</text><text x=\"827.239\" y=\"353.843\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">49.33 m²</text><text x=\"827.833\" y=\"402.213\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">692.87 m²</text><text x=\"749.833\" y=\"408.138\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Total</text><text x=\"827.833\" y=\"408.138\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">935.43 m²</text><text x=\"755.839\" y=\"358.043\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Storage Barn 02</text><text x=\"827.239\" y=\"358.043\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">37.12 m²</text><text x=\"755.839\" y=\"362.243\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Passage</text><text x=\"827.239\" y=\"362.243\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">8.21 m²</text><text x=\"755.839\" y=\"366.443\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Storage Barn 01</text><text x=\"827.239\" y=\"366.443\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">50.35 m²</text><text x=\"749.239\" y=\"372.368\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Total</text><text x=\"827.239\" y=\"372.368\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">935.43 m²</text><text x=\"749.9\" y=\"265.375\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3.2\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Area Summary</text><text x=\"749.9\" y=\"270.575\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Group</text><text x=\"827.9\" y=\"270.575\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">Area</text><text x=\"753.5\" y=\"276.275\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Earmarked For Demolition</text><text x=\"827.9\" y=\"276.275\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">2,611 ft²</text><text x=\"753.5\" y=\"282.075\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Proposed For Development</text><text x=\"827.9\" y=\"282.075\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">7,458 ft²</text><text x=\"749.9\" y=\"288\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Total</text><text x=\"827.9\" y=\"288\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">10,069 ft²</text><text x=\"749.306\" y=\"191.805\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3.2\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Floor Areas</text><text x=\"749.306\" y=\"197.005\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Room</text><text x=\"827.306\" y=\"197.005\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">Area</text><text x=\"752.906\" y=\"202.705\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Earmarked For Demolition</text><text x=\"827.306\" y=\"202.705\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">2,611 ft²</text><text x=\"755.906\" y=\"206.905\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Large Barn</text><text x=\"827.306\" y=\"206.905\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">2,047 ft²</text><text x=\"755.906\" y=\"211.105\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Open Sided Storage Shed</text><text x=\"827.306\" y=\"211.105\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">564 ft²</text><text x=\"752.906\" y=\"216.905\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Proposed For Development</text><text x=\"827.306\" y=\"216.905\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">7,458 ft²</text><text x=\"755.906\" y=\"221.105\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Covered Vehicular Workshop</text><text x=\"827.306\" y=\"221.105\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">3,762 ft²</text><text x=\"755.906\" y=\"225.305\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Holiday Cottage</text><text x=\"827.306\" y=\"225.305\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">1,109 ft²</text><text x=\"755.906\" y=\"229.505\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Jimmy&#39;s Residence</text><text x=\"827.306\" y=\"229.505\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">1,026 ft²</text><text x=\"755.906\" y=\"233.705\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Barn</text><text x=\"827.306\" y=\"233.705\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">531 ft²</text><text x=\"755.906\" y=\"237.905\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Storage Barn 02</text><text x=\"827.306\" y=\"237.905\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">400 ft²</text><text x=\"755.906\" y=\"242.105\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Passage</text><text x=\"827.306\" y=\"242.105\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">88 ft²</text><text x=\"755.906\" y=\"246.305\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Storage Barn 01</text><text x=\"827.306\" y=\"246.305\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">542 ft²</text><text x=\"749.306\" y=\"252.23\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Total</text><text x=\"827.306\" y=\"252.23\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"end\" xml:space=\"preserve\">10,069 ft²</text><text x=\"17.384\" y=\"40.217\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3.2\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Scan Me</text><text x=\"10.215\" y=\"45.365\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"1.5\" font-weight=\"400\" fill=\"#5f6b74\" text-anchor=\"start\" xml:space=\"preserve\">Use your phone or tablet camera</text><text x=\"10.215\" y=\"51.565\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3.5\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">View Project Portal</text><text x=\"10.215\" y=\"55.965\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"400\" fill=\"#5f6b74\" text-anchor=\"start\" xml:space=\"preserve\">JW02 - Jaws Joint</text><text x=\"10.215\" y=\"60.965\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.2\" font-weight=\"400\" fill=\"#5f6b74\" text-anchor=\"start\" xml:space=\"preserve\">·   Walk Through the 3D Model</text><text x=\"10.215\" y=\"64.565\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.2\" font-weight=\"400\" fill=\"#5f6b74\" text-anchor=\"start\" xml:space=\"preserve\">·   Saved Scenes and Viewpoints</text><text x=\"10.215\" y=\"68.165\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.2\" font-weight=\"400\" fill=\"#5f6b74\" text-anchor=\"start\" xml:space=\"preserve\">·   Measuring Tools</text><text x=\"10.215\" y=\"71.765\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.2\" font-weight=\"400\" fill=\"#5f6b74\" text-anchor=\"start\" xml:space=\"preserve\">·   Live Drawings Online</text>"
     }
 }

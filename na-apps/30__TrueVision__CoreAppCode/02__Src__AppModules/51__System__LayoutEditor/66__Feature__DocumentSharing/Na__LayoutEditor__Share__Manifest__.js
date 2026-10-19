@@ -64,6 +64,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.1.0
+// - PublishedIds (TrueVision3D v2.183.0): every drawing the index says is
+//   published, read as DrawingState reads one, so the Drawings key opens the
+//   first drawing of the pack a reader can actually read.
+//
 // 29-Sep-2026 - Version 1.0.0
 // - Initial implementation (TrueVision3D v2.166.0).
 //
@@ -252,6 +257,31 @@
             const rows = Array.isArray(got.Value['PublishedDocuments__Documents']) ? got.Value['PublishedDocuments__Documents'] : [];
             const row  = rows.find((one) => one && one['Document__Id'] === documentId);
             return (row && row['Document__State'] === Na__PubSchema__States().published) ? 'published' : 'unpublished';
+        } catch (error) {
+            return null;
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Every Drawing the Index Says Is Published Now (a Set of document ids; null when it cannot tell)
+    // ------------------------------------------------------------
+    // DrawingState for the whole pack at once, read the same way and from the
+    // same place: what a reader opening the Drawings key (the Project Hub's
+    // PlanVision card) will be shown. An index that is not there is an empty
+    // set - nothing has been published - and only a page with no project in
+    // its address, or a fault, cannot tell.
+    // ------------------------------------------------------------
+    async function Na__LeShareMf__PublishedIds() {
+        try {
+            await Na__PubSchema__Ready();
+            await Na__PubDoc__Urls__Ready();
+            if (!Na__LeShareMf__Folder()) return null;
+            const got = await Na__PubDoc__Urls__Fetch(Na__PubSchema__IndexPath(), 'json', false);
+            if (!got.Ok || !got.Value) return new Set();
+            const rows = Array.isArray(got.Value['PublishedDocuments__Documents']) ? got.Value['PublishedDocuments__Documents'] : [];
+            const published = Na__PubSchema__States().published;
+            return new Set(rows.filter((one) => one && one['Document__Id'] && one['Document__State'] === published).map((one) => one['Document__Id']));
         } catch (error) {
             return null;
         }
@@ -477,6 +507,7 @@
         Na__LeShareMf__Find,
         Na__LeShareMf__Remember,
         Na__LeShareMf__DrawingState,
+        Na__LeShareMf__PublishedIds,
         Na__LeShareMf__Build,
         Na__LeShareMf__Write,
         Na__LeShareMf__Record,
