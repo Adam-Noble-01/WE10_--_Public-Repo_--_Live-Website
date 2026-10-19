@@ -27,6 +27,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.1.0
+// - Section 10: a point cloud viewport's second picture (where it is painted,
+//   at what tier and opacity, against the budget) and the client's slider
+//   (TrueVision3D v2.176.0).
+//
 // 23-Sep-2026 - Version 1.0.0
 // - Created with Phases 2 and 3 of TrueVision__PLAN__PublishingSystem__.md.
 //
@@ -575,6 +580,153 @@
         Load.Na__PubLoad__ProgressLabel('element:dimension', 'dimension') === 'Dimensions' &&
         Load.Na__PubLoad__ProgressLabel('element:leader', 'leader') === 'Specification Bubbles' &&
         Load.Na__PubLoad__ProgressLabel('manifest', null) === 'Reading the Drawing');
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | 10. A Point Cloud Viewport, and the Client's Slider
+// -----------------------------------------------------------------------------
+//
+// A point cloud viewport publishes a second opaque picture - the drawing with
+// its point cloud at full strength - that the reader lays over the plain one at
+// the viewport's own opacity (19-Oct-2026, TrueVision3D v2.176.0). Checked on a
+// viewport element shaped exactly as the publisher writes JW02's, painted by
+// the real painter, and on the slider's arithmetic.
+//
+// -----------------------------------------------------------------------------
+
+    section('10. A point cloud viewport, and the client\'s slider');
+
+    const Pc = await import(pathToFileURL(join(STAGE, READER, 'Na__PubDoc__PointCloud__.mjs')).href);
+
+    const TIERS = [ [ 'Tier01', 'Fit', 1024, 183 ], [ 'Tier02', 'Read', 3072, 549 ], [ 'Tier03', 'Detail', 5120, 915 ] ];
+    const tiersOf = (stem) => TIERS.map(([ id, name, w, h ]) => ({
+        'Tier__Id' : id, 'Tier__File' : '03__Viewports__Raster/Viewport_001__' + stem + id + '__' + name + '__c2d0429490.webp', 'Tier__PixelW' : w, 'Tier__PixelH' : h }));
+    const cloudViewport = (over, opacity, extra) => Object.assign({
+        'Viewport__Id'            : 'Viewport_001',
+        'Viewport__Kind'          : '2d',
+        'Viewport__FrameMm'       : { X : 10, Y : 20, WidthMm : 512, HeightMm : 91.5 },
+        'Viewport__RotationDeg'   : 0,
+        'Viewport__PictureRectMm' : { X : 0, Y : 0, WidthMm : 512, HeightMm : 91.5 },
+        'Viewport__BaseImage'     : true,
+        'Viewport__RasterOpaque'  : true,
+        'Viewport__Rasters'       : tiersOf(''),
+        'Viewport__FogMasks'      : [],
+        'Viewport__PointCloud'    : { 'PointCloud__Opacity' : opacity, 'PointCloud__OverLinework' : over,
+                                      'PointCloud__Rasters' : tiersOf('PointCloud__'), 'PointCloud__DatumSvg' : '<path d="M1,1L2,2" stroke="#c0392b"/>' },
+        'Viewport__Vector'        : { 'Vector__File' : '02__Viewports__Vector/Viewport_001__Linework__c2d0429490.svg', 'Vector__WidthMm' : 512, 'Vector__HeightMm' : 91.5 },
+        'Viewport__SceneSvg'      : '<text class="scene-mark">scene</text>',
+        'Viewport__FrameSvg'      : ''
+    }, extra || {});
+    const paintWith = (documentId, viewports, density) => Vp.Na__PubVp__Paint(viewports, {
+        DocumentId : documentId, DefPrefix : 'na-t', Defs : [], Zoom : 1, Density : density || 0,
+        Url : (relative) => relative ? ('https://cdn.test/' + relative) : null,
+        Resolve : (viewport, reference) => 'JW02/' + reference,
+        Tokens : (markup) => markup,
+        PointCloudOpacity : (base) => Pc.Na__PubPc__OpacityFor(documentId, base)
+    });
+    const at = (markup, needle) => markup.indexOf(needle);
+
+    // THE SLIDER'S ARITHMETIC
+    const jw = Pc.Na__PubPc__Register('JW02_T01_D01', Vp.Na__PubVp__CloudBases([
+        cloudViewport(false, 0.35), cloudViewport(false, 0.3), cloudViewport(false, 0.3), cloudViewport(false, 0.3),
+        { 'Viewport__Id' : 'Viewport_009', 'Viewport__Rasters' : tiersOf('') } ]));
+    check('a drawing\'s point clouds are listed from its viewports, those without one left out (JW02: 35, 30, 30, 30)',
+        jw && jw.Count === 4 && jw.HomePercent === 31 && jw.LevelPercent === 31 && jw.AtHome === true, JSON.stringify(jw));
+    check('as drawn, every point cloud shows exactly its own opacity',
+        Pc.Na__PubPc__OpacityFor('JW02_T01_D01', 0.35) === 0.35 && Pc.Na__PubPc__OpacityFor('JW02_T01_D01', 0.3) === 0.3);
+    Pc.Na__PubPc__SetLevel('JW02_T01_D01', 0);
+    check('slid to 0: every point cloud off, the bare drawing',
+        Pc.Na__PubPc__OpacityFor('JW02_T01_D01', 0.35) === 0 && Pc.Na__PubPc__OpacityFor('JW02_T01_D01', 0.3) === 0);
+    Pc.Na__PubPc__SetLevel('JW02_T01_D01', 1);
+    check('slid to 100: every point cloud at full strength',
+        Pc.Na__PubPc__OpacityFor('JW02_T01_D01', 0.35) === 1 && Pc.Na__PubPc__OpacityFor('JW02_T01_D01', 0.3) === 1);
+    Pc.Na__PubPc__Register('JW02_T01_D01', [ 0.35, 0.3, 0.3, 0.3 ]);
+    check('the drawing built again (a tier swap) keeps where the reader left the slider',
+        Pc.Na__PubPc__Summary('JW02_T01_D01').LevelPercent === 100);
+    Pc.Na__PubPc__Register('JW02_T01_D01', [ 0.5, 0.5, 0.3, 0.3 ]);
+    check('a re-published drawing with other point clouds starts again as issued',
+        Pc.Na__PubPc__Summary('JW02_T01_D01').LevelPercent === 40 && Pc.Na__PubPc__Summary('JW02_T01_D01').AtHome);
+    Pc.Na__PubPc__Register('XX01_T01_D01', [ 0.4, 0.4 ]);
+    Pc.Na__PubPc__SetLevel('XX01_T01_D01', 0.2);
+    const half = Pc.Na__PubPc__OpacityFor('XX01_T01_D01', 0.4);
+    Pc.Na__PubPc__SetLevel('XX01_T01_D01', 0.7);
+    const raised = Pc.Na__PubPc__OpacityFor('XX01_T01_D01', 0.4);
+    check('with equal opacities the slider\'s figure IS the opacity on screen (20 and 70)',
+        Math.abs(half - 0.2) < 1e-9 && Math.abs(raised - 0.7) < 1e-9, half + ', ' + raised);
+    Pc.Na__PubPc__Register('XX02_T01_D01', [ 0.2, 0.6 ]);
+    Pc.Na__PubPc__SetLevel('XX02_T01_D01', 0.7);
+    const lowUp = Pc.Na__PubPc__OpacityFor('XX02_T01_D01', 0.2), highUp = Pc.Na__PubPc__OpacityFor('XX02_T01_D01', 0.6);
+    Pc.Na__PubPc__SetLevel('XX02_T01_D01', 0.2);
+    const lowDown = Pc.Na__PubPc__OpacityFor('XX02_T01_D01', 0.2), highDown = Pc.Na__PubPc__OpacityFor('XX02_T01_D01', 0.6);
+    check('mixed opacities move in tandem: each in proportion towards full above as drawn, towards none below',
+        Math.abs(lowUp - 0.6) < 1e-9 && Math.abs(highUp - 0.8) < 1e-9 && Math.abs(lowDown - 0.1) < 1e-9 && Math.abs(highDown - 0.3) < 1e-9,
+        [ lowUp, highUp, lowDown, highDown ].join(', '));
+    check('As drawn puts the sheet back as issued', Pc.Na__PubPc__Reset('XX02_T01_D01').AtHome === true);
+    Pc.Na__PubPc__SetLevel('XX02_T01_D01', 1.7);
+    check('a figure past 100 is held at 100, and the level is kept to whole percentages',
+        Pc.Na__PubPc__Summary('XX02_T01_D01').LevelPercent === 100 && Pc.Na__PubPc__SetLevel('XX02_T01_D01', 0.333).Level === 0.33);
+    const fakePictures = [ 0.2, 0.6 ].map((base) => ({ getAttribute : () => String(base), style : {} }));
+    Pc.Na__PubPc__SetLevel('XX02_T01_D01', 0);
+    const applied = Pc.Na__PubPc__Apply({ querySelectorAll : (selector) => selector === '.na-pubdoc__viewport-pointcloud' ? fakePictures : [] }, 'XX02_T01_D01');
+    check('Apply sets every point cloud picture on the sheet from its own opacity and the level',
+        applied === 2 && fakePictures.every((one) => one.style.opacity === '0'));
+    check('a drawing without point clouds has no slider', Pc.Na__PubPc__Register('XX03_T01_D01', []) === null && Pc.Na__PubPc__Summary('XX03_T01_D01') === null);
+
+    // THE PAINTER
+    Pc.Na__PubPc__Register('JW02_T01_D01', [ 0.35 ]);
+    Vp.Na__PubVp__Release(null);                                                  // <-- Nothing else held, so the budget sums are this drawing's alone
+    const under = paintWith('JW02_T01_D01', [ cloudViewport(false, 0.35) ]);
+    check('Linework On Top: the point cloud picture over the plain one and UNDER the linework, then the datum, then the markup',
+        at(under, '__raster') < at(under, '__pointcloud') && at(under, '__pointcloud') < at(under, '__linework') &&
+        at(under, '__linework') < at(under, 'na-pubdoc__viewport-datum') && at(under, 'na-pubdoc__viewport-datum') < at(under, 'scene-mark'));
+    Vp.Na__PubVp__Release('JW02_T01_D01');
+    const over = paintWith('JW02_T01_D01', [ cloudViewport(true, 0.35) ]);
+    check('the default: the point cloud picture OVER the linework, then the datum, then the markup',
+        at(over, '__raster') < at(over, '__linework') && at(over, '__linework') < at(over, '__pointcloud') &&
+        at(over, '__pointcloud') < at(over, 'na-pubdoc__viewport-datum') && at(over, 'na-pubdoc__viewport-datum') < at(over, 'scene-mark'));
+    check('it is the point cloud picture of the SAME tier as the plain one',
+        at(under, 'Viewport_001__Tier01__Fit__') !== -1 && at(under, 'Viewport_001__PointCloud__Tier01__Fit__') !== -1 && at(under, 'Tier02') === -1);
+    check('it opens at the viewport\'s own opacity, and carries it for the slider and for print',
+        /class="na-pubdoc__viewport-pointcloud"[^>]*data-na-pc-base="0\.35"[^>]*style="--na-pc-base:0\.35"/.test(under) &&
+        /<image[^>]*opacity="0\.35"[^>]*na-pubdoc__viewport-pointcloud/.test(under), under.slice(0, 600));
+    check('both pictures count against the budget',
+        Vp.Na__PubVp__HeldBytes() === 1024 * 183 * 4 * 2, 'held ' + Vp.Na__PubVp__HeldBytes());
+    Vp.Na__PubVp__Release('JW02_T01_D01');
+    const zoomedIn = paintWith('JW02_T01_D01', [ cloudViewport(false, 0.35) ], 11);
+    check('zoomed in, both step up together',
+        at(zoomedIn, 'Viewport_001__Tier03__Detail__') !== -1 && at(zoomedIn, 'Viewport_001__PointCloud__Tier03__Detail__') !== -1 && at(zoomedIn, 'Tier01') === -1);
+    Vp.Na__PubVp__Release('JW02_T01_D01');
+    Vp.Na__PubVp__SetBudget(1024 * 183 * 4 * 2 + 16);
+    const squeezed = paintWith('JW02_T01_D01', [ cloudViewport(false, 0.35) ], 11);
+    check('a budget with room for one small pair keeps both on the small tier, never one picture without the other',
+        at(squeezed, 'Viewport_001__Tier01__Fit__') !== -1 && at(squeezed, 'Viewport_001__PointCloud__Tier01__Fit__') !== -1);
+    Vp.Na__PubVp__SetBudget(134217728);
+    Pc.Na__PubPc__SetLevel('JW02_T01_D01', 0);
+    Vp.Na__PubVp__Release('JW02_T01_D01');
+    const slidOff = paintWith('JW02_T01_D01', [ cloudViewport(false, 0.35) ]);
+    check('painted again after the slider moved (a zoom\'s tier swap), it is painted where the slider is',
+        /<image[^>]*opacity="0"[^>]*na-pubdoc__viewport-pointcloud/.test(slidOff));
+    Pc.Na__PubPc__Reset('JW02_T01_D01');
+    Vp.Na__PubVp__Release('JW02_T01_D01');
+    const noPlain = paintWith('JW02_T01_D01', [ cloudViewport(false, 0.35, { 'Viewport__Rasters' : [], 'Viewport__BaseImage' : false }) ]);
+    check('a viewport with no plain picture still shows its point cloud, and no grey "missing" panel',
+        at(noPlain, 'Viewport_001__PointCloud__Tier01__Fit__') !== -1 && at(noPlain, 'na-pubdoc__viewport-missing') === -1 && at(noPlain, '__raster') === -1);
+    Vp.Na__PubVp__Release('JW02_T01_D01');
+    const plain = paintWith('JW02_T01_D01', [ cloudViewport(false, 0.35, { 'Viewport__PointCloud' : null }) ]);
+    check('a viewport without a point cloud paints exactly as before: no second picture, no datum',
+        at(plain, '__pointcloud') === -1 && at(plain, 'na-pubdoc__viewport-datum') === -1 && at(plain, '__raster') !== -1);
+    Vp.Na__PubVp__Release('JW02_T01_D01');
+
+    Reader.Na__PubDoc__Forget('AA00_T02_D02');
+    const d02again = await Reader.Na__PubDoc__Build('AA00_T02_D02', { Zoom : 1 });
+    check('the example\'s elevation has no point cloud, so the dock offers no slider for it',
+        d02again.Ok && d02again.PointClouds === null && d02again.Markup.indexOf('na-pubdoc__viewport-pointcloud') === -1);
+
+    check('the loading cover names the point cloud picture as its own job',
+        Load.Na__PubLoad__ImagePart(cdn + '06__Layout__PublishedDocuments/JW02_T01_D01/03__Viewports__Raster/Viewport_002__PointCloud__Tier01__Fit__8f2597e422.webp').Kind === 'pointCloud' &&
+        Load.Na__PubLoad__ImageLabel({ Kind : 'pointCloud', ViewportId : 'Viewport_002' }, [ 'Viewport_001', 'Viewport_002' ]) === 'Viewport 2 of 2  -  Point Cloud');
 
 // endregion -------------------------------------------------------------------
 

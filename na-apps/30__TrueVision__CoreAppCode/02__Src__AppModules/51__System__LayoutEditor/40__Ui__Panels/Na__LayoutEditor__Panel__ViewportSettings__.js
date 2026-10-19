@@ -17,7 +17,8 @@
 //   which phase the viewport draws - for the selected viewport, and for the
 //   next one added. Hidden on a project with a single model.
 // - Scale is a row of toggle buttons (D27) on 2D viewports, one per locked
-//   scale - 1:20, 1:50, 1:100 and 1:200 as shipped; the frame and pan
+//   scale - 1:20, 1:50, 1:100 and 1:200 as shipped, plus the project's own
+//   custom scales (Add custom scale, under the buttons); the frame and pan
 //   readouts are editable numbers in paper and drawing millimetres; the
 //   markup mode switch, Import From Scene and Edit In Drawing implement
 //   D34 (editing of scene markup happens in the drawing itself).
@@ -49,12 +50,25 @@
 // - Ported from   : ValeVision3D 51__System__LayoutEditor/Na__LayoutEditor__Panel__ViewportSettings__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
 // - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers; site plan drawings (site plan viewports), TrueVision first on 14-Sep-2026.
+// - Divergences   : Console prefix, header and folder numbers; site plan drawings (site plan viewports), TrueVision first on 14-Sep-2026; custom scales (Add custom scale), TrueVision first on 19-Oct-2026.
 // - Back-port     : n/a (this IS the back-port)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.12.0 (TrueVision v2.177.0)
+// - Add custom scale, under the Scale buttons. It opens a small form under
+//   the row - 1:, the number, Add, Cancel; Enter adds, Escape cancels - and
+//   the scale joins the project's list (Na__LeModel__AddCustomScale), so a
+//   button for it appears on every viewport's Scale row, in order. It is not
+//   applied: click it, as any other scale. A custom scale's button has a
+//   dashed edge, and right-clicking it takes it off the list, unless a
+//   viewport is drawn at it.
+// - The Scale rows are rebuilt whenever what they would show changes - the
+//   project's list arriving after the panel was built, a scale added or taken
+//   off, or a viewport at a scale that is on no list, whose button is shown
+//   lit while it is selected. The site plan Add Viewport scale list follows.
+//
 // 19-Oct-2026 - Version 1.11.0 (TrueVision, Scene Sync)
 // - The scene lists name the SketchUp scenes TrueVision Sync keeps in step
 //   on their own, after Adam's groups, as "SketchUp: <name>". A new 2D
@@ -132,7 +146,7 @@
     // MODULE IMPORTS | Config, Scale, Layout, Model, Panels, Viewports, Markup
     // ------------------------------------------------------------
     import { Na__LeCfg__GetLabel, Na__LeCfg__FormatLabel, Na__LeCfg__GetViewportSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
-    import { Na__LeScale__ListDenominators, Na__LeScale__FormatLabel } from '../07__Core__SheetData/Na__LayoutEditor__ScaleManager__.js';
+    import { Na__LeScale__ListDenominators, Na__LeScale__FormatLabel, Na__LeScale__ListCustom, Na__LeScale__CUSTOM_MAX } from '../07__Core__SheetData/Na__LayoutEditor__ScaleManager__.js';
     import { Na__LeLayout__Solve, Na__LeLayout__DefaultViewportRect } from '../07__Core__SheetData/Na__LayoutEditor__SheetLayout__.js';
     import {
         Na__LeModel__KIND_2D,
@@ -147,7 +161,9 @@
         Na__LeModel__ResolveViewportSource,
         Na__LeModel__IsSitePlanSheet,
         Na__LeModel__IsSitePlanViewport,
-        Na__LeModel__IsLayerLocked
+        Na__LeModel__IsLayerLocked,
+        Na__LeModel__AddCustomScale,
+        Na__LeModel__RemoveCustomScale
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeVpZoom__Get, Na__LeVpZoom__Percent, Na__LeVpZoom__PatchAbout, Na__LeVpZoom__PatchReset } from '../20__System__Viewports/Na__LayoutEditor__Viewport3dZoom__.js';
     import { Na__LeVpRot__Deg, Na__LeVpRot__WrapDeg } from '../20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: the viewport's turn
@@ -422,6 +438,171 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Scale Rows and Custom Scales (TrueVision v2.177.0)
+// -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | A Message in the Editor's Toast (error: true for a refusal)
+    // ------------------------------------------------------------
+    function Na__LePanelViewport__Toast(message, error) {
+        const context = Na__LePanels__GetContext();
+        const toast   = context ? context.showToast : null;
+        if (typeof toast === 'function') toast(message, error === true);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Scales a Row Shows: Its List, and the Viewport's Own When Off It
+    // ------------------------------------------------------------
+    // A viewport can be drawn at a whole scale that is on no list (Coerce
+    // keeps it), so that scale gets a button while the viewport is selected:
+    // the row always shows, lit, the scale the drawing is at.
+    // ------------------------------------------------------------
+    function Na__LePanelViewport__RowScales(sitePlan, current) {
+        const scales = Na__LeScale__ListDenominators(sitePlan === true);
+        const own    = Number(current);
+        if (Number.isFinite(own) && own > 0 && scales.indexOf(own) === -1) scales.push(own);
+        return scales.sort((a, b) => a - b);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Fill a Row With Its Scale Buttons, Then Add Custom Scale
+    // ------------------------------------------------------------
+    // Rebuilt only when what it would show changes (data-na-scales), so a
+    // refresh that changes nothing costs nothing. Answers true when rebuilt.
+    // ------------------------------------------------------------
+    function Na__LePanelViewport__FillScaleRow(row, sitePlan, current) {
+        if (!row) return false;
+        const scales = Na__LePanelViewport__RowScales(sitePlan, current);
+        const custom = Na__LeScale__ListCustom();
+        const key    = scales.join(',') + '|' + custom.join(',');
+        if (row.getAttribute('data-na-scales') === key) return false;
+        row.setAttribute('data-na-scales', key);
+        row.textContent = '';
+        scales.forEach((d) => {
+            const button = Na__LePanels__Button(Na__LeScale__FormatLabel(d), 'vp-scale', 'na-le-btn--toggle', d);
+            if (custom.indexOf(d) !== -1) {
+                // A CUSTOM SCALE: a dashed edge tells it from the app's own, and
+                // a right-click takes it off the project's list. Wired here, not
+                // through the panel's delegation, which carries no right-click.
+                button.classList.add('na-le-btn--custom-scale');
+                button.title = Na__LeCfg__FormatLabel('CustomScaleTitle', '{scale} is a custom scale for this project. Right-click to take it off the list.', { scale : Na__LeScale__FormatLabel(d) });
+                button.addEventListener('contextmenu', (event) => {
+                    event.preventDefault();
+                    Na__LePanelViewport__RemoveScale(d);
+                });
+            }
+            row.appendChild(button);
+        });
+        if (Na__LePanels__IsEditable()) {
+            const add = Na__LePanels__Button(Na__LeCfg__GetLabel('AddCustomScale', 'Add custom scale'), 'vp-scale-add', 'na-le-btn--small na-le-btn--add-scale', sitePlan === true ? 'siteplan' : 'drawing');
+            add.title = Na__LeCfg__GetLabel('AddCustomScaleTitle', 'Add a scale of your own to this project\'s list, such as 1:500. Every viewport in the project can then use it.');
+            row.appendChild(add);
+        }
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Add Custom Scale Form Under a Scale Row (hidden until asked for)
+    // ------------------------------------------------------------
+    // 1:, the number, Add and Cancel. Enter adds, Escape cancels (both through
+    // the panel's keydown delegation). It is a row of its own under the Scale
+    // row, so rebuilding the buttons never wipes what is being typed.
+    // ------------------------------------------------------------
+    function Na__LePanelViewport__ScaleForm(sitePlan) {
+        const role = sitePlan === true ? 'siteplan' : 'drawing';
+        const form = document.createElement('div');
+        form.className = 'na-le-scale-add';
+        const prefix = document.createElement('span');
+        prefix.className   = 'na-le-scale-add__prefix';
+        prefix.textContent = '1:';
+        const input = Na__LePanels__Input('number', 'vp-scale-add-value', { step : 1, min : 1, max : Na__LeScale__CUSTOM_MAX, placeholder : '500' });
+        input.setAttribute('data-na-role', role);
+        input.title = Na__LeCfg__FormatLabel('AddCustomScaleInputTitle', 'The scale\'s second number: 500 for 1:500. A whole number from 1 to {max}.', { max : Na__LeScale__CUSTOM_MAX.toLocaleString('en-GB') });
+        form.appendChild(prefix);
+        form.appendChild(input);
+        form.appendChild(Na__LePanels__Button(Na__LeCfg__GetLabel('AddCustomScaleOk', 'Add'), 'vp-scale-add-ok', 'na-le-btn--small na-le-btn--primary', role));
+        form.appendChild(Na__LePanels__Button(Na__LeCfg__GetLabel('AddCustomScaleCancel', 'Cancel'), 'vp-scale-add-cancel', 'na-le-btn--small', role));
+        const row = Na__LePanels__Row('', form);
+        row.setAttribute('data-na-block', sitePlan === true ? 'scale-add-siteplan' : 'scale-add');
+        row.hidden = true;
+        return row;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Form Row for a Role ('drawing' or 'siteplan')
+    // ------------------------------------------------------------
+    function Na__LePanelViewport__FormFor(role) {
+        return document.querySelector('[data-na-block="' + (role === 'siteplan' ? 'scale-add-siteplan' : 'scale-add') + '"]');
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Open, Close and Submit the Add Custom Scale Form
+    // ------------------------------------------------------------
+    function Na__LePanelViewport__OpenScaleForm(role) {
+        const form = Na__LePanelViewport__FormFor(role);
+        if (!form) return;
+        form.hidden = false;
+        const input = form.querySelector('[data-na-control="vp-scale-add-value"]');
+        if (input) { input.value = ''; input.focus(); }
+    }
+    function Na__LePanelViewport__CloseScaleForm(role) {
+        const form = Na__LePanelViewport__FormFor(role);
+        if (form) form.hidden = true;
+    }
+    function Na__LePanelViewport__SubmitScaleForm(role) {
+        const form  = Na__LePanelViewport__FormFor(role);
+        const input = form ? form.querySelector('[data-na-control="vp-scale-add-value"]') : null;
+        if (!input || !Na__LePanels__IsEditable()) return;
+        const result = Na__LeModel__AddCustomScale(input.value, role === 'siteplan');
+        if (result.reason === 'invalid') {
+            Na__LePanelViewport__Toast(Na__LeCfg__FormatLabel('CustomScaleInvalid', 'Type a whole number from 1 to {max}, such as 500 for 1:500.', { max : Na__LeScale__CUSTOM_MAX.toLocaleString('en-GB') }), true);
+            input.focus();
+            return;
+        }
+        Na__LePanelViewport__CloseScaleForm(role);
+        const label = Na__LeScale__FormatLabel(result.denominator);
+        if (result.reason === 'listed') {
+            Na__LePanelViewport__Toast(Na__LeCfg__FormatLabel('CustomScaleListed', '{scale} is already on the list.', { scale : label }), false);
+            return;
+        }
+        Na__LePanelViewport__Toast(Na__LeCfg__FormatLabel('CustomScaleAdded', '{scale} added to this project\'s scales. Click it to draw the viewport at {scale}.', { scale : label }), false);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Take a Custom Scale Off the List (right-click on its button)
+    // ------------------------------------------------------------
+    function Na__LePanelViewport__RemoveScale(denominator) {
+        if (!Na__LePanels__IsEditable()) return;
+        const label  = Na__LeScale__FormatLabel(denominator);
+        const result = Na__LeModel__RemoveCustomScale(denominator);
+        if (result.ok) {
+            Na__LePanelViewport__Toast(Na__LeCfg__FormatLabel('CustomScaleRemoved', '{scale} is off this project\'s list.', { scale : label }), false);
+        } else if (result.reason === 'in-use') {
+            Na__LePanelViewport__Toast(Na__LeCfg__FormatLabel('CustomScaleInUse', '{scale} stays on the list: {count} viewport(s) in this project are drawn at it.', { scale : label, count : result.inUse }), true);
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Site Plan Scales, as Add Viewport's Select Options
+    // ------------------------------------------------------------
+    function Na__LePanelViewport__SitePlanScaleOptions() {
+        return Na__LeScale__ListDenominators(true).map((d) => ({
+            value : d,
+            label : Na__LeScale__FormatLabel(d) + ' - ' + Na__LePanelViewport__PlanTypeName(d)
+        }));
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Section
 // -----------------------------------------------------------------------------
 
@@ -443,10 +624,7 @@
         const addSitePlan = document.createElement('div');
         addSitePlan.setAttribute('data-na-block', 'add-siteplan');
         addSitePlan.hidden = true;
-        const sitePlanScales = Na__LeScale__ListDenominators(true).map((d) => ({
-            value : d,
-            label : Na__LeScale__FormatLabel(d) + ' - ' + Na__LePanelViewport__PlanTypeName(d)
-        }));
+        const sitePlanScales = Na__LePanelViewport__SitePlanScaleOptions();   // <-- Refilled on refresh when the project's own scales change
         addSitePlan.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('SitePlanStoreLabel', 'Site Plan'), Na__LePanels__Select('vp-add-siteplan-store', Na__LePanelViewport__StoreOptions(), '')));
         addSitePlan.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('SitePlanAddScale', 'Scale'), Na__LePanels__Select('vp-add-siteplan-scale', sitePlanScales, '')));
         if (editable) addSitePlan.appendChild(Na__LePanels__Button(Na__LeCfg__GetLabel('AddSitePlanViewport', 'Add Site Plan Viewport'), 'vp-add-siteplan', 'na-le-btn--primary'));
@@ -485,8 +663,9 @@
         const scale = document.createElement('div');
         scale.className = 'na-le-toggle-group na-le-toggle-group--tight';     // <-- Four scales on one line in the default column
         scale.setAttribute('data-na-block', 'scale');
-        Na__LeScale__ListDenominators().forEach((d) => scale.appendChild(Na__LePanels__Button(Na__LeScale__FormatLabel(d), 'vp-scale', 'na-le-btn--toggle', d)));
+        Na__LePanelViewport__FillScaleRow(scale, false, null);                   // <-- The app's scales, the project's own, then Add custom scale
         edit.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('ScaleLabel', 'Scale'), scale));
+        if (editable) edit.appendChild(Na__LePanelViewport__ScaleForm(false));
         const sitePlanStore = Na__LePanels__Select('vp-siteplan-store', Na__LePanelViewport__StoreOptions(), '');
         sitePlanStore.title = Na__LeCfg__GetLabel('SitePlanStoreNote', 'Which site plan this viewport draws - the Existing one or the Proposed one.');
         const sitePlanStoreRow = Na__LePanels__Row(Na__LeCfg__GetLabel('SitePlanStoreLabel', 'Site Plan'), sitePlanStore);
@@ -500,8 +679,9 @@
         const sitePlanScale = document.createElement('div');                     // <-- A site plan viewport's own toggle: 1:500 and 1:1250
         sitePlanScale.className = 'na-le-toggle-group na-le-toggle-group--tight';
         sitePlanScale.setAttribute('data-na-block', 'scale-siteplan');
-        Na__LeScale__ListDenominators(true).forEach((d) => sitePlanScale.appendChild(Na__LePanels__Button(Na__LeScale__FormatLabel(d), 'vp-scale', 'na-le-btn--toggle', d)));
+        Na__LePanelViewport__FillScaleRow(sitePlanScale, true, null);
         edit.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('ScaleLabel', 'Scale'), sitePlanScale));
+        if (editable) edit.appendChild(Na__LePanelViewport__ScaleForm(true));
 
         const frame = document.createElement('div');
         frame.className = 'na-le-grid4';
@@ -651,6 +831,11 @@
             }
             if (note) note.textContent = Na__LePanelViewport__StoreNote(status);
             if (button) button.disabled = status !== Na__SpStore__STATUS_READY;
+            // The project's own scales can arrive or change after the panel was
+            // built, so the scale choice is refilled whenever its count differs.
+            const addScale = addBlock.querySelector('[data-na-control="vp-add-siteplan-scale"]');
+            const scaleOptions = Na__LePanelViewport__SitePlanScaleOptions();
+            if (addScale && addScale.options.length !== scaleOptions.length && document.activeElement !== addScale) Na__LePanels__FillSelect(addScale, scaleOptions, addScale.value);
             if (status !== Na__SpStore__STATUS_READY && status !== Na__SpStore__STATUS_EMPTY) Na__SpStore__ResolveAll();   // <-- The store's event refreshes this panel when it lands
         }
         const addSelect = addBlock.querySelector('[data-na-control="vp-add-scene"]');
@@ -692,6 +877,13 @@
 
         editBlock.querySelector('[data-na-block="scale"]').parentNode.hidden = !is2d || isSitePlan;
         editBlock.querySelector('[data-na-block="scale-siteplan"]').parentNode.hidden = !isSitePlan;
+        // THE ROWS FOLLOW THE PROJECT'S OWN SCALES, which load after this panel
+        // is built and change with Add custom scale, and the selected viewport's
+        // own scale when it is on no list. Rebuilt only when that changes.
+        Na__LePanelViewport__FillScaleRow(editBlock.querySelector('[data-na-block="scale"]'), false, (is2d && !isSitePlan) ? viewport.Viewport__ScaleDenominator : null);
+        Na__LePanelViewport__FillScaleRow(editBlock.querySelector('[data-na-block="scale-siteplan"]'), true, isSitePlan ? viewport.Viewport__ScaleDenominator : null);
+        if (!is2d || isSitePlan) Na__LePanelViewport__CloseScaleForm('drawing');   // <-- A form only shows under a row that shows
+        if (!isSitePlan) Na__LePanelViewport__CloseScaleForm('siteplan');
         const storeRow = editBlock.querySelector('[data-na-block="siteplan-store-row"]');
         if (storeRow) {
             storeRow.hidden = !isSitePlan;
@@ -852,6 +1044,13 @@
             if (d.kind === Na__LeModel__KIND_2D) Na__LeVp2d__CentreOnDrawing(c.sheet, c.viewport);
         });
         Na__LePanels__OnControl('click', 'vp-scale', (e, el, role) => { const c = Na__LePanelViewport__Current(); if (c) Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, { scaleDenominator : parseFloat(role) }); });
+        Na__LePanels__OnControl('click', 'vp-scale-add', (e, el, role) => Na__LePanelViewport__OpenScaleForm(role));
+        Na__LePanels__OnControl('click', 'vp-scale-add-ok', (e, el, role) => Na__LePanelViewport__SubmitScaleForm(role));
+        Na__LePanels__OnControl('click', 'vp-scale-add-cancel', (e, el, role) => Na__LePanelViewport__CloseScaleForm(role));
+        Na__LePanels__OnControl('keydown', 'vp-scale-add-value', (e, el, role) => {
+            if (e.key === 'Enter')  { e.preventDefault(); Na__LePanelViewport__SubmitScaleForm(role); }
+            if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); Na__LePanelViewport__CloseScaleForm(role); }
+        });
         Na__LePanels__OnControl('change', 'vp-frame', (e, el, key) => {
             const c = Na__LePanelViewport__Current(); const v = parseFloat(el.value);
             if (c && Number.isFinite(v)) { const rect = {}; rect[key] = v; Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, { rect : rect }); }

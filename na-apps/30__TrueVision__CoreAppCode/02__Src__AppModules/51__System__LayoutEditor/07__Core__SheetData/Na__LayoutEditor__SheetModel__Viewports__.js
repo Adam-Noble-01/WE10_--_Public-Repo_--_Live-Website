@@ -45,6 +45,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.6.0 (TrueVision v2.177.0)
+// - Custom scales: AddCustomScale and RemoveCustomScale write the pack's own
+//   scale list (ScaleManager, kept on the drawings block) and announce it as
+//   'scales', so the panels rebuild their buttons and the next save keeps it.
+//   Remove is refused while any 2D viewport on any sheet is drawn at it.
+//
 // 19-Oct-2026 - Version 1.5.0 (TrueVision)
 // - Point cloud viewports (Viewport__PointCloud, 22__System__PointCloudData).
 //   CreateViewport takes a pointCloud option and UpdateViewport a pointCloud
@@ -102,7 +108,7 @@
         Na__LeRec__Find,
         Na__LeRec__NormaliseViewport
     } from './Na__LayoutEditor__SheetRecords__.js';
-    import { Na__LeScale__Coerce } from './Na__LayoutEditor__ScaleManager__.js';
+    import { Na__LeScale__Coerce, Na__LeScale__CustomValue, Na__LeScale__ListCustom, Na__LeScale__SetCustom, Na__LeScale__ListDenominators } from './Na__LayoutEditor__ScaleManager__.js';
     import { Na__LeEdge__FIELD, Na__LeEdge__CAT_FIELD } from '../25__System__RenderStyles/Na__LayoutEditor__EdgeStyles__.js';
     import { Na__LeHatch__FIELD, Na__LeHatch__CAT_FIELD } from '../36__System__HatchPatternTools/Na__LayoutEditor__HatchPatterns__.js';
     import { Na__LeSpComp__DECK_FIELD, Na__LeSpComp__TYPE_FIELD } from '../25__System__RenderStyles/Na__LayoutEditor__SitePlanComposites__.js';
@@ -122,6 +128,7 @@
         Na__LeModel__SCENES_KEY,
         Na__LeModel__STYLE_KEYS,
         Na__LeModel__Touch,
+        Na__LeModel__Array,
         Na__LeModel__Unselect,
         Na__LeModel__AssignDirty
     } from './Na__LayoutEditor__SheetModel__State__.js';
@@ -475,7 +482,56 @@
 
     // MODULE EXPORTS | Layout Editor Sheet Model Viewports API
     // ------------------------------------------------------------
+    // FUNCTION | Add One of the Pack's Own Scales (TrueVision v2.177.0)
+    // ------------------------------------------------------------
+    // raw: what was typed, "500" or "1:500". sitePlan: which list the panel is
+    // showing, so a scale already on it is refused rather than doubled. The
+    // list is the PACK's (the drawings block), so it is announced like the
+    // common title block fields: every panel rebuilds its scale buttons, the
+    // browser draft is written and the next save keeps it. No undo step: it is
+    // a list of choices, and choosing one is what is undone.
+    // Answers { ok, denominator, reason }, reason 'invalid' or 'listed'.
+    // ------------------------------------------------------------
+    function Na__LeModel__AddCustomScale(raw, sitePlan) {
+        const denominator = Na__LeScale__CustomValue(raw);
+        if (denominator === null) return { ok : false, denominator : null, reason : 'invalid' };
+        if (Na__LeScale__ListDenominators(sitePlan === true).indexOf(denominator) !== -1) return { ok : false, denominator : denominator, reason : 'listed' };
+        Na__LeScale__SetCustom(Na__LeScale__ListCustom().concat([ denominator ]));
+        Na__LeModel__Touch('scales', null);
+        return { ok : true, denominator : denominator, reason : null };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Take One of the Pack's Own Scales Off the List (never one in use)
+    // ------------------------------------------------------------
+    // Refused while any 2D viewport on any sheet is drawn at it: its button
+    // would vanish from under the drawing that uses it. (The drawing would
+    // keep its scale anyway - Coerce never drops a whole scale - but a scale
+    // nobody can see on the list is a scale nobody can find again.)
+    // Answers { ok, reason, inUse }, reason 'not-custom' or 'in-use'.
+    // ------------------------------------------------------------
+    function Na__LeModel__RemoveCustomScale(denominator) {
+        const wanted = Na__LeScale__CustomValue(denominator);
+        const custom = Na__LeScale__ListCustom();
+        if (wanted === null || custom.indexOf(wanted) === -1) return { ok : false, reason : 'not-custom', inUse : 0 };
+        let inUse = 0;
+        Na__LeModel__Array().forEach((sheet) => {
+            (Array.isArray(sheet && sheet.Sheet__Viewports) ? sheet.Sheet__Viewports : []).forEach((viewport) => {
+                if (viewport && viewport.Viewport__Kind === Na__LeModel__KIND_2D && Number(viewport.Viewport__ScaleDenominator) === wanted) inUse += 1;
+            });
+        });
+        if (inUse > 0) return { ok : false, reason : 'in-use', inUse : inUse };
+        Na__LeScale__SetCustom(custom.filter((d) => d !== wanted));
+        Na__LeModel__Touch('scales', null);
+        return { ok : true, reason : null, inUse : 0 };
+    }
+    // ------------------------------------------------------------
+
+
     export {
+        Na__LeModel__AddCustomScale,
+        Na__LeModel__RemoveCustomScale,
         Na__LeModel__GetViewports,
         Na__LeModel__GetViewportById,
         Na__LeModel__IsSitePlanViewport,

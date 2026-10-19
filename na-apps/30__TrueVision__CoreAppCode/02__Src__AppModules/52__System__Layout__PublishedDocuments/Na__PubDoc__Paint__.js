@@ -42,6 +42,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.1.0
+// - Image takes Data (extra data-na-* attributes) and Style, for the point
+//   cloud picture: its viewport's own opacity rides in data-na-pc-base and
+//   --na-pc-base, which the reader's slider and the print stylesheet read.
+//
 // 23-Sep-2026 - Version 1.0.0
 // - Created with Phase 2 of TrueVision__PLAN__PublishingSystem__.md.
 //
@@ -361,11 +366,16 @@
     // ------------------------------------------------------------
     // preserveAspectRatio is "none" because the published rectangle IS the part
     // of the picture that shows: the crop was applied when the picture was
-    // stored, so the browser must not letterbox it back.
+    // stored, so the browser must not letterbox it back. Data is an object of
+    // extra data-na-* attributes ({ 'pc-base' : 0.35 } writes
+    // data-na-pc-base="0.35"); Style is an inline style string.
     // ------------------------------------------------------------
     function Na__PubPaint__Image(sink, x, y, width, height, href, style) {
         if (!href) return sink;
         const s = style || {};
+        const data = (s.Data && typeof s.Data === 'object')
+            ? Object.keys(s.Data).filter((key) => /^[a-z][a-z0-9-]*$/.test(key)).map((key) => Na__PubPaint__Attr('data-na-' + key, s.Data[key])).join('')
+            : '';
         sink.push('<image x="' + Na__PubPaint__Num(x) + '" y="' + Na__PubPaint__Num(y) +
             '" width="' + Na__PubPaint__Num(Math.max(0, width)) + '" height="' + Na__PubPaint__Num(Math.max(0, height)) + '"' +
             ' href="' + Na__PubPaint__Esc(href) + '"' +
@@ -373,6 +383,8 @@
             (s.Opacity != null && Number(s.Opacity) < 1 ? ' opacity="' + Na__PubPaint__Num(s.Opacity) + '"' : '') +
             Na__PubPaint__Attr('class', s.Class) +
             Na__PubPaint__Attr('data-na-id', s.Id) +
+            data +
+            Na__PubPaint__Attr('style', s.Style) +
             Na__PubPaint__Attr('clip-path', s.ClipPath ? ('url(#' + s.ClipPath + ')') : null) +
             '/>');
         return sink;

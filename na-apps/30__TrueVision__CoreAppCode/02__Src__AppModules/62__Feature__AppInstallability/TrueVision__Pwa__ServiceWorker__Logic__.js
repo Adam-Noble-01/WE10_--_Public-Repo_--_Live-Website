@@ -34,6 +34,27 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.14.0
+// - Token BUMPED to 2026-10-19-05 for v2.176.0 (point clouds in published
+//   drawings and the client's point cloud slider). The published reader gained
+//   a module (Na__PubDoc__PointCloud__) and exports that the document loader
+//   and the web viewer import, the publisher's Viewport2d import gained
+//   PointCloudForPublish, and the viewer stylesheet changed: a warm client
+//   must not mix old and new copies.
+//
+// 19-Oct-2026 - Version 1.13.0
+// - Token BUMPED to 2026-10-19-04 for v2.177.0 (custom viewport scales). The
+//   ScaleManager, the sheet model and the drawings data gained exports that
+//   the changed Viewport panel and Viewports unit import: a warm client must
+//   not mix old and new copies.
+//
+// 19-Oct-2026 - Version 1.12.0
+// - Token BUMPED to 2026-10-19-03 for v2.175.0 and v2.175.1. 2026-10-19-02
+//   went live with Scene Sync, and since then the Scene Sync live module
+//   gained exports the loading sequence imports (RepairPresentationBlock),
+//   and the point cloud layer's stylesheet changed: a warm client must not
+//   mix old and new copies.
+//
 // 19-Oct-2026 - Version 1.11.0
 // - Token BUMPED to 2026-10-19-02 for Scene Sync (v2.174.0). 2026-10-19-01 is
 //   live, and this release adds exports to modules a warm client holds - the
@@ -703,7 +724,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-10-19-02';                                                            // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-10-19-05';                                                            // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

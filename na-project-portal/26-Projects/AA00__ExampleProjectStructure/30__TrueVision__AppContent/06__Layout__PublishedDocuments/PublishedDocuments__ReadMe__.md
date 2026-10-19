@@ -191,6 +191,57 @@ is WebP.
 
 ---
 
+## Point cloud viewports (added 19-Oct-2026, TrueVision v2.176.0)
+
+A viewport that lays a SketchUp point cloud scene over its drawing publishes **one more
+picture**: the same viewport with its point cloud laid in at **full strength**, where the
+PDF lays it (under the linework with Linework On Top, over it otherwise). It is opaque like
+every other published picture, at each screen tier, beside the rasters:
+
+```
+03__Viewports__Raster/
+    Viewport_001__PointCloud__Tier01__Fit__<hash>.webp
+    Viewport_001__PointCloud__Tier02__Read__<hash>.webp
+    Viewport_001__PointCloud__Tier03__Detail__<hash>.webp
+```
+
+No Print tier: the PDF is baked at publish, with the point cloud at the viewport's own
+opacity. The element in `Elements__Viewports__.json` carries the block that says how to
+show it:
+
+```json
+"Viewport__PointCloud" : {
+    "PointCloud__Opacity"      : 0.35,
+    "PointCloud__OverLinework" : false,
+    "PointCloud__Rasters"      : [ { "Tier__Id" : "Tier01", "Tier__File" : "03__Viewports__Raster/Viewport_001__PointCloud__Tier01__Fit__<hash>.webp", "Tier__PixelW" : 1024, "Tier__PixelH" : 183 } ],
+    "PointCloud__DatumSvg"     : ""
+}
+```
+
+| Key | What it is |
+|---|---|
+| `PointCloud__Opacity` | The viewport's own opacity, the strength the drawing prints its point cloud at. The reader lays the second picture over the plain one at exactly this, so the drawing opens as issued. |
+| `PointCloud__OverLinework` | `true`: the picture goes over the published linework (it holds the linework too). `false` (Linework On Top): under it. |
+| `PointCloud__Rasters` | The second picture's tiers, shaped like `Viewport__Rasters`. |
+| `PointCloud__DatumSvg` | The survey datum symbols as SVG in the frame's own millimetres, drawn over both pictures and never faded. Empty when there are none. |
+
+The manifest's `Files__Viewports` entry lists the tiers under `Viewport__PointCloud`, shaped
+like `Viewport__Rasters`; it is `null` on a viewport without a point cloud, as the element's
+block is.
+
+**Why a crossfade of two opaque pictures, and not a transparent layer.** Laying decks over
+each other is linear in the point cloud's strength, so `plain x (1 - o) + full x o` is
+exactly the drawing with its point cloud at `o`, wherever it sits in the stack. Nothing
+published carries an alpha channel, and the client's **point cloud slider** in the web
+viewer only moves `o`: from none (the drawing on its own) to full, all of a sheet's point
+clouds in tandem from the drawing as issued. It never reaches the PDF, a share link or a
+printed page.
+
+The schema version stayed 1: a reader that does not know the block shows the drawing
+without its point cloud, as it always did.
+
+---
+
 ## One file per drawing element, named after its layer
 
 The element files are not a new taxonomy. `Sheet__Layers` already carries a

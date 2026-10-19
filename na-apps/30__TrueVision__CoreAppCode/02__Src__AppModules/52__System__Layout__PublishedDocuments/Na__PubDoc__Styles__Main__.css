@@ -67,8 +67,19 @@
    screen's, so there is nothing to sharpen and disabling smoothing would only
    make a between-tiers moment look worse. */
 .na-pubdoc__viewport-raster,
-.na-pubdoc__viewport-linework {
+.na-pubdoc__viewport-linework,
+.na-pubdoc__viewport-pointcloud,
+.na-pubdoc__viewport-datum {
     pointer-events   : none;
+}
+
+/* A point cloud picture's viewport opacity rides in --na-pc-base, so a printed
+   page shows the sheet as issued whatever a reader's slider says. The app's
+   own copy of this rule is in the web viewer's stylesheet. */
+@media print {
+    .na-pubdoc__viewport-pointcloud {
+        opacity      : var(--na-pc-base, 1) !important;
+    }
 }
 
 .na-pubdoc__image-bitmap {

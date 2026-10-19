@@ -1,0 +1,96 @@
+{
+    "PublishedDocument__Meta" : {
+        "Meta__FileName"  : "Document__Manifest__.json",
+        "Meta__Note"      : "Everything this published document is made of. Written LAST, after every file it names is in place, so its presence means the document is whole.",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments"
+    },
+    "PublishedDocument__Identity" : {
+        "Document__Id"            : "JW02_T01_D03",
+        "Document__ProjectCode"   : "JW02",
+        "Document__Phase"         : "T01",
+        "Document__Number"        : "D03",
+        "Document__Name"          : "Existing Conditions | Site Plan",
+        "Document__Revision"      : "A",
+        "Document__Status"        : null,
+        "Document__SourceSheetId" : "Sheet_003"
+    },
+    "PublishedDocument__Publish" : {
+        "Publish__SchemaVersion"  : 1,
+        "Publish__AtIso"          : "2026-10-19T15:46:13.472Z",
+        "Publish__AtEpochMs"      : 1792424773472,
+        "Publish__ByApp"          : "TrueVision3D Layout Editor",
+        "Publish__ByAppVersion"   : "v2.166.0",
+        "Publish__RevisionAction" : "new",
+        "Publish__Archived"       : null
+    },
+    "PublishedDocument__Files" : {
+        "Files__Sheet" : {
+            "File__Path"   : "Document__Sheet__.json",
+            "File__Bytes"  : 14986,
+            "File__Sha256" : "e7b923651a"
+        },
+        "Files__Elements" : [
+            {
+                "File__Type"   : "viewport",
+                "File__Layers" : [],
+                "File__Path"   : "01__Elements__Data/Elements__Viewports__.json",
+                "File__Count"  : 1,
+                "File__Bytes"  : 2926,
+                "File__Sha256" : "f13e9f16d3"
+            }
+        ],
+        "Files__Viewports" : [
+            {
+                "Viewport__Id"      : "Viewport_001",
+                "Viewport__Hash"    : "8cc75c1f08",
+                "Viewport__Vector"  : null,
+                "Viewport__Rasters" : [
+                    {
+                        "Tier__Id"           : "Print",
+                        "File__Path"         : "03__Viewports__Raster/Viewport_001__Print__8cc75c1f08.png",
+                        "File__PixelW"       : 8192,
+                        "File__PixelH"       : 5666,
+                        "File__Bytes"        : 689612,
+                        "File__DecodedBytes" : 185663488,
+                        "File__Sha256"       : "8cc75c1f08"
+                    },
+                    {
+                        "Tier__Id"           : "Tier03",
+                        "File__Path"         : "03__Viewports__Raster/Viewport_001__Tier03__Detail__8cc75c1f08.webp",
+                        "File__PixelW"       : 5120,
+                        "File__PixelH"       : 3541,
+                        "File__Bytes"        : 39936,
+                        "File__DecodedBytes" : 72519680,
+                        "File__Sha256"       : "8cc75c1f08"
+                    },
+                    {
+                        "Tier__Id"           : "Tier02",
+                        "File__Path"         : "03__Viewports__Raster/Viewport_001__Tier02__Read__8cc75c1f08.webp",
+                        "File__PixelW"       : 3072,
+                        "File__PixelH"       : 2125,
+                        "File__Bytes"        : 15936,
+                        "File__DecodedBytes" : 26112000,
+                        "File__Sha256"       : "8cc75c1f08"
+                    },
+                    {
+                        "Tier__Id"           : "Tier01",
+                        "File__Path"         : "03__Viewports__Raster/Viewport_001__Tier01__Fit__8cc75c1f08.webp",
+                        "File__PixelW"       : 1024,
+                        "File__PixelH"       : 708,
+                        "File__Bytes"        : 2876,
+                        "File__DecodedBytes" : 2899968,
+                        "File__Sha256"       : "8cc75c1f08"
+                    }
+                ],
+                "Viewport__FogMasks" : []
+            }
+        ],
+        "Files__Pdf" : {
+            "File__Path"   : "Document__Print__5b1023010d.pdf",
+            "File__Bytes"  : 353182,
+            "File__Sha256" : "5b1023010d",
+            "File__Name"   : "JW02_T01_D03__ExistingConditionsSitePlan__A1__RevA__19-Oct-2026__.pdf"
+        },
+        "Files__TotalBytes" : 1119454
+    }
+}

@@ -43,6 +43,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.2.0
+// - The app version stamp is v2.176.0, with the config's: from this release a
+//   point cloud viewport is published with its point cloud (Viewports 1.2.0),
+//   so Publish__ByAppVersion says which publishes carry one.
+//
 // 29-Sep-2026 - Version 1.1.0
 // - THE SHARE LINK RECORD (TrueVision3D v2.166.0). Just before the index, a
 //   publish writes PublishedDocuments__ShareLinks__.json through
@@ -96,7 +101,7 @@
     let Na__LePub__Busy  = false;
 
     const Na__LePub__F = {                                                        // <-- The built-in floor
-        appVersion : 'v2.166.0', pushToR2Default : false, bakePdf : true,
+        appVersion : 'v2.176.0', pushToR2Default : false, bakePdf : true,
         retireOrphans : true, specLoadTimeoutMs : 15000, labels : {}
     };
 

@@ -31,6 +31,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.4.1 (v2.175.1)
+// - FIXED: a project whose presentation block Scene Sync's placeholder had
+//   left switched off showed no carousel at load (JW02). Before the carousel
+//   decides, Na__SsLive__RepairPresentationBlock switches such a block back on.
+//
 // 19-Oct-2026 - Version 1.4.0 (Scene Sync, v2.174.0)
 // - The SketchUp scenes TrueVision Sync keeps in step are read as soon as the
 //   project data is in (Na__SsStore__Load, alongside the orbit helper) and
@@ -153,7 +158,7 @@
     // @delegate: ../23__System__SceneSync/Na__SceneSync__Live__.js
     // ------------------------------------------------------------
     import { Na__SsStore__Load, Na__SsStore__Settle, Na__SsStore__GetUrl } from '../23__System__SceneSync/Na__SceneSync__Store__.js';
-    import { Na__SsLive__Use, Na__SsLive__HasScenes, Na__SsLive__NewContainerConfig } from '../23__System__SceneSync/Na__SceneSync__Live__.js';
+    import { Na__SsLive__Use, Na__SsLive__HasScenes, Na__SsLive__NewContainerConfig, Na__SsLive__RepairPresentationBlock } from '../23__System__SceneSync/Na__SceneSync__Live__.js';
     import { Na__PlCfg__GetDefaultExclusionTokens } from '../50__System__ProjectedLinework/Na__ProjectedLinework__ConfigAccess__.js';
     // ------------------------------------------------------------
 
@@ -960,6 +965,7 @@
                 defaultExcludeTokens : Na__PlCfg__GetDefaultExclusionTokens()
             }, { url : Na__SsStore__GetUrl() });
             if (Na__SceneSync__Count > 0) console.log(`[TrueVision3D] Scene Sync: ${Na__SceneSync__Count} SketchUp scene(s) in step with SketchUp.`);
+            Na__SsLive__RepairPresentationBlock(Na__ProjectData__Full);           // <-- A block Scene Sync 1.0.0 left switched off is switched back on before the carousel decides
         }
 
         // REGISTER FULL PROJECT DATA AS THE DEV-MENU SAVE MERGE BASE

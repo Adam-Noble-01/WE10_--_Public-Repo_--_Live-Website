@@ -56,6 +56,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.5.1 (TrueVision v2.175.1)
+// - A block that holds authored scenes is always switched on when it is
+//   committed or saved, as the block this editor makes for a first scene is.
+//   JW02's block had been saved switched off (Scene Sync 1.0.0's placeholder)
+//   and pressing Update put it in the carousel only until the next reload.
+//
 // 19-Oct-2026 - Version 1.5.0 (Scene Sync, TrueVision v2.174.0)
 // - The working copy leaves out the scenes TrueVision Sync keeps in step with
 //   SketchUp: they get no row, cannot be edited, deleted or regrouped here,
@@ -444,6 +450,7 @@
         }
 
         config.PresentationMode__SavedCameraScenes__Scenes = updatedScenes;  // <-- Write back in-place
+        if (updatedScenes.length > 0) config.PresentationMode__SavedCameraScenes__Enabled = true;   // <-- Authored scenes are meant to be seen: the block this editor makes is switched on, and so is every block it writes to
 
         // KEEP DEFAULT SCENE ID VALID
         const defaultId = config.PresentationMode__SavedCameraScenes__DefaultSceneId;
@@ -1686,6 +1693,7 @@
         let config = Na__PresentationMode__ProjectJson__GetActiveConfig();
         if (config) {
             config.PresentationMode__SavedCameraScenes__Scenes = updatedScenes; // <-- Ensure latest scenes
+            if (updatedScenes.length > 0) config.PresentationMode__SavedCameraScenes__Enabled = true;   // <-- As in CommitWorkingScenes: what is saved holding scenes is switched on
         } else {
             config = Na__PmDev__BuildDefaultConfig(updatedScenes);
         }

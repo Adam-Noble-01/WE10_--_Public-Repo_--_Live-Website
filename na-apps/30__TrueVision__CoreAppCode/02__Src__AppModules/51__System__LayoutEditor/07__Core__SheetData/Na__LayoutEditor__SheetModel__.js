@@ -509,7 +509,9 @@
         Na__LeModel__DeleteViewport,
         Na__LeModel__UpdateViewport,
         Na__LeModel__ResolveViewportSource,
-        Na__LeModel__RegisterViewportNamer
+        Na__LeModel__RegisterViewportNamer,
+        Na__LeModel__AddCustomScale,
+        Na__LeModel__RemoveCustomScale
     } from './Na__LayoutEditor__SheetModel__Viewports__.js';
     // ------------------------------------------------------------
 
@@ -855,6 +857,8 @@
         Na__LeModel__UpdateViewport,
         Na__LeModel__ResolveViewportSource,
         Na__LeModel__RegisterViewportNamer,
+        Na__LeModel__AddCustomScale,
+        Na__LeModel__RemoveCustomScale,
         Na__LeModel__GetAnnotations,
         Na__LeModel__GetAnnotationById,
         Na__LeModel__GetDimensions,

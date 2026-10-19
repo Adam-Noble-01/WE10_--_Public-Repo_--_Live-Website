@@ -6,7 +6,7 @@
 // NAMESPACE  : Na__LeVp2d
 // MODULE     : Layout Editor - Viewport 2D - Point Cloud
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : Lay a SketchUp point cloud scene over (or under) a 2D viewport's linework, on screen and in the PDF
+// PURPOSE    : Lay a SketchUp point cloud scene over (or under) a 2D viewport's linework, on screen, in the PDF and in a published drawing
 // CREATED    : 19-Oct-2026
 //
 // DESCRIPTION:
@@ -46,8 +46,8 @@
 //   modules, the sheet chrome (the datum's primitives) and the raster
 //   quality (the PDF picture's size). Nothing imports it but
 //   Na__LayoutEditor__Viewport2d__, which calls PointCloudFill from Fill and
-//   re-exports the rest; the PDF exporter and the Point Cloud Tools panel
-//   reach it through that file.
+//   re-exports the rest; the PDF exporter, the publisher and the Point Cloud
+//   Tools panel reach it through that file.
 // - The paper's zoom is pushed in with PointCloudSetZoom by the Point Cloud
 //   Tools panel module, which listens to the sheet surface; importing the
 //   surface here would close a loop (the surface imports Viewport2d).
@@ -55,6 +55,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.2.0
+// - PointCloudForPublish: the point cloud at FULL strength on a canvas of a
+//   given size across the frame, with the viewport's own opacity beside it,
+//   for the publisher's second picture (Adam: published drawings showed no
+//   point cloud at all). The drawing loop is shared with ForExport through
+//   PcCanvas, so the PDF draws exactly what it drew before.
+//
 // 19-Oct-2026 - Version 1.1.0
 // - The working view (Adam: "so you can globally turn off all of the point
 //   cloud layers or one by one ... for when you're working, so you can pop
@@ -687,6 +694,38 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Draw a Resolved Point Cloud Into a New Canvas Covering the Frame (null when no picture loaded)
+    // ------------------------------------------------------------
+    // width x height pixels across the viewport's whole frame, the point
+    // cloud at FULL strength: its own alpha, never the viewport's opacity.
+    // why names the job in the warning a missing tile gives.
+    // ------------------------------------------------------------
+    async function Na__LeVp2d__PcCanvas(viewport, resolved, width, height, why) {
+        const win = Na__LeVp2d__Window(viewport);
+        const kx  = width / win.WidthMm, ky = height / win.HeightMm;
+        const pictures = Na__LeVp2d__PcPictures(resolved.revision, resolved.matrix, win, Math.max(kx, ky));
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        let drawn = 0;
+        for (const picture of pictures) {
+            const bitmap = await Na__LeVp2d__PcBitmap(picture.urls);
+            if (!bitmap) { console.warn('[TrueVision3D LayoutEditor] A point cloud tile did not load for ' + why + ': ' + picture.urls[0]); continue; }
+            const t = Na__LeVp2d__PcTargetMatrix(resolved.matrix, picture, win, kx, ky);
+            ctx.setTransform(t[0], t[1], t[2], t[3], t[4], t[5]);
+            ctx.drawImage(bitmap, 0, 0);
+            if (typeof bitmap.close === 'function') bitmap.close();
+            drawn += 1;
+        }
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        if (!drawn) { canvas.width = 1; canvas.height = 1; return null; }
+        return { canvas : canvas, context : ctx, window : win };
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | The Point Cloud as One Picture of the Viewport's Frame, at Export Resolution (not cached)
     // ------------------------------------------------------------
     // Resolves { dataUrl, lineworkOnTop, datum } or null: a PNG of the frame
@@ -700,32 +739,40 @@
         if (!resolved || resolved.status !== Na__LeVp2d__PC_READY) return null;
         const frame = viewport.Viewport__FrameMm;
         const px    = Na__LeRaster__Fit(frame.WidthMm, frame.HeightMm, Na__LeRaster__Export());
-        const win   = Na__LeVp2d__Window(viewport);
-        const kx    = px.w / win.WidthMm, ky = px.h / win.HeightMm;
-        const pictures = Na__LeVp2d__PcPictures(resolved.revision, resolved.matrix, win, Math.max(kx, ky));
-        const canvas = document.createElement('canvas');
-        canvas.width = px.w; canvas.height = px.h;
-        const ctx = canvas.getContext('2d');
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
-        let drawn = 0;
-        for (const picture of pictures) {
-            const bitmap = await Na__LeVp2d__PcBitmap(picture.urls);
-            if (!bitmap) { console.warn('[TrueVision3D LayoutEditor] A point cloud tile did not load for the PDF: ' + picture.urls[0]); continue; }
-            const t = Na__LeVp2d__PcTargetMatrix(resolved.matrix, picture, win, kx, ky);
-            ctx.setTransform(t[0], t[1], t[2], t[3], t[4], t[5]);
-            ctx.drawImage(bitmap, 0, 0);
-            if (typeof bitmap.close === 'function') bitmap.close();
-            drawn += 1;
-        }
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        const drawn = await Na__LeVp2d__PcCanvas(viewport, resolved, px.w, px.h, 'the PDF');
         if (!drawn) return null;
+        const ctx = drawn.context;
         ctx.globalCompositeOperation = 'destination-in';                         // <-- Every pixel's alpha times the opacity, its colour untouched
         ctx.fillStyle = 'rgba(0, 0, 0, ' + resolved.opacity + ')';
         ctx.fillRect(0, 0, px.w, px.h);
         ctx.globalCompositeOperation = 'source-over';
-        return { dataUrl : canvas.toDataURL('image/png'), lineworkOnTop : resolved.lineworkOnTop,
-                 datum : Na__LeVp2d__PointCloudDatumPrimitives(viewport, resolved, win) };
+        return { dataUrl : drawn.canvas.toDataURL('image/png'), lineworkOnTop : resolved.lineworkOnTop,
+                 datum : Na__LeVp2d__PointCloudDatumPrimitives(viewport, resolved, drawn.window) };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Point Cloud at Full Strength, for a Published Drawing (not cached)
+    // ------------------------------------------------------------
+    // Resolves { canvas, opacity, lineworkOnTop, datum } or null. canvas is
+    // width x height pixels across the frame (the export level when they are
+    // not given) holding the point cloud at FULL strength, for the publisher
+    // to lay into the viewport's second picture; opacity is the viewport's
+    // own, which the reader shows that picture at, so a published drawing
+    // opens exactly as it prints. The caller frees the canvas. Asks only the
+    // drawing's own state, never the working view: what is published is what
+    // prints.
+    // ------------------------------------------------------------
+    async function Na__LeVp2d__PointCloudForPublish(viewport, width, height) {
+        const resolved = await Na__LeVp2d__PcLoaded(viewport);
+        if (!resolved || resolved.status !== Na__LeVp2d__PC_READY) return null;
+        const frame = viewport.Viewport__FrameMm;
+        const px    = (width > 0 && height > 0) ? { w : Math.round(width), h : Math.round(height) }
+                                                : Na__LeRaster__Fit(frame.WidthMm, frame.HeightMm, Na__LeRaster__Export());
+        const drawn = await Na__LeVp2d__PcCanvas(viewport, resolved, px.w, px.h, 'publishing');
+        if (!drawn) return null;
+        return { canvas : drawn.canvas, opacity : resolved.opacity, lineworkOnTop : resolved.lineworkOnTop,
+                 datum : Na__LeVp2d__PointCloudDatumPrimitives(viewport, resolved, drawn.window) };
     }
     // ------------------------------------------------------------
 
@@ -762,7 +809,8 @@
         Na__LeVp2d__PointCloudReload,
         Na__LeVp2d__PointCloudBoundsMm,
         Na__LeVp2d__PointCloudDatumPrimitives,
-        Na__LeVp2d__PointCloudForExport
+        Na__LeVp2d__PointCloudForExport,
+        Na__LeVp2d__PointCloudForPublish
     };
     // ------------------------------------------------------------
 

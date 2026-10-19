@@ -33,7 +33,9 @@
 // - WHAT IT SHOWS is a dock at the bottom of the screen: which document of how
 //   many, an arrow each side of it, and the controls for however the showing
 //   document is being looked at - Fit, zoom and PDF for a drawing, the page
-//   keys for the specification.
+//   keys for the specification. A published drawing with point clouds also
+//   gets the point cloud slider's button beside the zoom keys
+//   (Na__LayoutEditor__WebViewer__PointCloud__).
 // - WHAT IS NOT SHOWN AT ALL. The panel columns, the drawing toolbar, the
 //   measurements box and the specification's authoring bar. Not disabled: not
 //   built. The two view modules own the reading surfaces (Drawings, Spec) and
@@ -55,6 +57,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.3.0
+// - THE POINT CLOUD SLIDER (TrueVision3D v2.176.0). A published drawing with
+//   point clouds puts a Point cloud button in the dock after the zoom keys,
+//   saying how strong they are now; it opens the slider panel
+//   (Na__LayoutEditor__WebViewer__PointCloud__), which fades every point
+//   cloud on the sheet together from the drawing as issued. The panel
+//   follows the dock when it is rebuilt and goes when the drawing does.
+//
 // 29-Sep-2026 - Version 1.2.0
 // - SHARE IN THE DOCK, BESIDE THE PDF, as Adam asked: a link that opens the
 //   drawing showing, read-only, on any device - the same Share box every
@@ -111,6 +121,9 @@
     } from './Na__LayoutEditor__WebViewer__Spec__.js';
     import { Na__LeVwTouch__IsTouchDevice } from './Na__LayoutEditor__WebViewer__TouchControls__.js';
     import { Na__LeShareUi__Open } from '../66__Feature__DocumentSharing/Na__LayoutEditor__Share__Button__.js';   // <-- Share, beside the PDF: the link to the drawing showing
+    import {
+        Na__LeVwPc__ACTION, Na__LeVwPc__DockButton, Na__LeVwPc__Toggle, Na__LeVwPc__Sync, Na__LeVwPc__Close
+    } from './Na__LayoutEditor__WebViewer__PointCloud__.js';   // <-- The point cloud slider, beside the zoom keys
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -280,6 +293,16 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Drawing on Screen When It Is Published With Point Clouds (null otherwise)
+    // ------------------------------------------------------------
+    function Na__LeVw__CloudShown() {
+        const shown = Na__LeVw__Shown;
+        if (!shown || shown.SheetId !== Na__LeVw__Current || shown.State !== 'published' || !shown.PointClouds) return null;
+        return shown;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | The Actions for Whatever Is Showing
     // ------------------------------------------------------------
     // A drawing is a picture: fit it, zoom it, take it away as a PDF. The
@@ -299,6 +322,11 @@
         actions.appendChild(Na__LeVw__Button(Na__LeCfg__GetLabel('ZoomFit', 'Fit'), 'fit', Na__LeCfg__GetLabel('ViewerFitTitle', 'Show the whole sheet')));
         actions.appendChild(Na__LeVw__Button('−', 'zoom-out', Na__LeCfg__GetLabel('ViewerZoomOutTitle', 'Zoom out')));
         actions.appendChild(Na__LeVw__Button('+', 'zoom-in', Na__LeCfg__GetLabel('ViewerZoomInTitle', 'Zoom in')));
+        const cloud = Na__LeVw__CloudShown();                                    // <-- Only a published drawing with a point cloud
+        if (cloud) {
+            const button = Na__LeVwPc__DockButton(cloud.DocumentId);
+            if (button) actions.appendChild(button);
+        }
         actions.appendChild(Na__LeVw__Button(Na__LeCfg__GetLabel('ViewerPdf', 'PDF'), 'pdf', Na__LeCfg__GetLabel('ViewerPdfTitle', 'Download this sheet as a PDF at paper size')));
         actions.appendChild(Na__LeVw__Button(Na__LeCfg__GetLabel('ViewerShare', 'Share'), 'share', Na__LeCfg__GetLabel('ViewerShareTitle', 'A link that opens this drawing, read-only, on any device')));   // <-- Beside the PDF, as Adam asked (66__Feature__DocumentSharing)
     }
@@ -374,6 +402,11 @@
             case 'zoom-out'   : Na__LeVwDraw__ZoomBy(1 / Na__LeVw__ZOOM_STEP);                        break;
             case 'pdf'        : void Na__LeVw__Pdf();                                                 break;
             case 'share'      : Na__LeVw__Share(target);                                              break;
+            case Na__LeVwPc__ACTION : {
+                const cloud = Na__LeVw__CloudShown();
+                if (cloud) Na__LeVwPc__Toggle(target, cloud.DocumentId, cloud.Host);
+                break;
+            }
             case 'page-up'    : Na__LeVwSpec__StepPage(-1);                                           break;
             case 'page-down'  : Na__LeVwSpec__StepPage(1);                                            break;
             default           : break;
@@ -553,7 +586,8 @@
 
         host.innerHTML = built.Markup || '';                                     // <-- One parse for the whole sheet
         const painted = Na__PubLoad__WatchPaint(loading, host);                  // <-- In the SAME task as the markup, so no load event can be missed
-        Na__LeVw__Shown = { SheetId : sheet.Sheet__Id, DocumentId : documentId, State : built.State, Host : host, Markup : built.Markup, Fallback : fallback };
+        Na__LeVw__Shown = { SheetId : sheet.Sheet__Id, DocumentId : documentId, State : built.State, Host : host, Markup : built.Markup, Fallback : fallback,
+                            PointClouds : built.PointClouds || null };   // <-- The dock's point cloud slider, when it has any
         if (!built.Ok) console.warn('[TrueVision3D] ' + documentId + ' could not be shown: ' + built.Reason);
         Na__LeVw__WatchZoom();
         Na__LeVw__Sync();
@@ -596,6 +630,7 @@
     function Na__LeVw__Release() {
         const shown = Na__LeVw__Shown;
         Na__LeVw__Shown = null;
+        Na__LeVwPc__Close();                                                     // <-- Its point cloud panel goes with it
         if (!shown) return;
         if (shown.Host) shown.Host.innerHTML = '';
         Na__PubDoc__Forget(shown.DocumentId);
@@ -608,6 +643,7 @@
     function Na__LeVw__ShowSpecification() {
         Na__PubLoad__CancelAll();                                                // <-- A drawing still loading must not leave its cover over the specification
         Na__LeVwDraw__Detach();                                                  // <-- One surface owns the touch recogniser at a time
+        Na__LeVwPc__Close();
         Na__LeVw__Current = Na__LeVw__SPEC_ID;
         Na__LeVwSpec__Show({ onSwipe : Na__LeVw__Step });
         Na__LeVw__Sync();
@@ -622,6 +658,7 @@
         Na__PubLoad__CancelAll();                                                // <-- Nor over the register
         Na__LeVwSpec__Hide();
         Na__LeVwDraw__Detach();
+        Na__LeVwPc__Close();
         Na__LeVw__Current = 'register';
     }
 
@@ -651,6 +688,9 @@
         const at = Na__LeVw__IndexOf(documents, Na__LeVw__Current);
 
         Na__LeVw__FillActions();
+        const cloud = Na__LeVw__CloudShown();
+        Na__LeVwPc__Sync(Na__LeVw__Dock.querySelector('[data-na-viewer="' + Na__LeVwPc__ACTION + '"]'),
+                         cloud ? cloud.DocumentId : null, cloud ? cloud.Host : null);   // <-- An open point cloud panel follows the rebuilt button, or closes
         const previous = Na__LeVw__Dock.querySelector('[data-na-viewer="previous"]');
         const next     = Na__LeVw__Dock.querySelector('[data-na-viewer="next"]');
         const count    = Na__LeVw__Dock.querySelector('.na-le-viewer__count');

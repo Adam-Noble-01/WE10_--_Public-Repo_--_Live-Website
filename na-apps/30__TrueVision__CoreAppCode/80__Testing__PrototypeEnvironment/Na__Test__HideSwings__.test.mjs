@@ -35,6 +35,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.1.0 (TrueVision v2.177.0)
+// - Custom scales: a whole scale on no list is now KEPT on load (a pack's own
+//   1:150 must never be reset to 1:50 and saved that way). The two checks
+//   that asserted the old reset now assert that any whole scale is kept, and
+//   that a fraction still takes the default.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Written with Hide swings and the 1:200 scale (TrueVision3D v2.140.0).
 //
@@ -168,7 +174,7 @@ import { tmpdir } from 'node:os';
     check('the Viewport panel builds four scale buttons', Scale.Na__LeScale__ListDenominators().map((d) => Scale.Na__LeScale__FormatLabel(d)), [ '1:20', '1:50', '1:100', '1:200' ]);
     check('an architectural viewport keeps 1:200 (it used to be coerced to 1:50)', Scale.Na__LeScale__Coerce(200), 200);
     check('a site plan viewport keeps its own 1:200 as before', Scale.Na__LeScale__Coerce(200, true), 200);
-    check('a scale on neither list still falls to the default', Scale.Na__LeScale__Coerce(150), 50);
+    check('any whole scale is kept (a custom scale, v2.177.0), on a list or not; a fraction still takes the default', [ Scale.Na__LeScale__Coerce(150), Scale.Na__LeScale__Coerce(1250), Scale.Na__LeScale__Coerce(37.5) ], [ 150, 1250, 50 ]);
     check('a frame 100 mm wide at 1:200 shows 20 m of the model, and 20 m draws 100 mm', [ Scale.Na__LeScale__PaperToModelMm(100, 200), Scale.Na__LeScale__ModelToPaperMm(20000, 200) ], [ 20000, 100 ]);
     check('the list runs on from 1:100 to 1:200 and back round to 1:20', [ Scale.Na__LeScale__Next(100), Scale.Na__LeScale__Next(200) ], [ 200, 20 ]);
     check('the title block names it with its paper, alone and in a mix', [ Scale.Na__LeScale__SheetLabel([ 200 ], 'A3'), Scale.Na__LeScale__SheetLabel([ 200, 100 ], 'A2') ], [ '1:200 @ ISO A3', '1:100 & 1:200 @ ISO A2' ]);
@@ -211,7 +217,7 @@ import { tmpdir } from 'node:os';
     check('and a second load leaves it byte-identical', JSON.stringify(twice), JSON.stringify(once));
     check('a tick and an untick are both kept', [ true, false ].map((v) => Records.Na__LeRec__NormaliseViewport(Object.assign(roofRecord(), { Viewport__HideSwings : v }), 'L').Viewport__HideSwings), [ true, false ]);
     check('anything that is not a boolean is taken off', [ 'true', 1, null, {} ].map((v) => Object.prototype.hasOwnProperty.call(Records.Na__LeRec__NormaliseViewport(Object.assign(roofRecord(), { Viewport__HideSwings : v }), 'L'), 'Viewport__HideSwings')), [ false, false, false, false ]);
-    check('1:200 survives a load; 1:150, which is on no list, still does not', [ 200, 150 ].map((d) => Records.Na__LeRec__NormaliseViewport(Object.assign(roofRecord(), { Viewport__ScaleDenominator : d }), 'L').Viewport__ScaleDenominator), [ 200, 50 ]);
+    check('1:200 survives a load, and so does 1:150 on no list: a custom scale is never reset (v2.177.0)', [ 200, 150 ].map((d) => Records.Na__LeRec__NormaliseViewport(Object.assign(roofRecord(), { Viewport__ScaleDenominator : d }), 'L').Viewport__ScaleDenominator), [ 200, 150 ]);
 
     const touched = [];
     const Views = await load(LE + '07__Core__SheetData/Na__LayoutEditor__SheetModel__Viewports__.js', Object.assign({

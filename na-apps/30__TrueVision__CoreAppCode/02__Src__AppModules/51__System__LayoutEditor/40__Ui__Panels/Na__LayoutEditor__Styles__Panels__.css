@@ -247,6 +247,47 @@
     padding                            : 4px 3px;
 }
 
+/* CUSTOM SCALES (v2.177.0). A project's own scale has a dashed edge, so it
+   can be told from the app's own at a glance (right-click takes it off the
+   list). Add custom scale takes the line under the buttons, and its form -
+   1:, the number, Add, Cancel - opens in a row of its own under that. */
+.na-le-toggle-group .na-le-btn--custom-scale {
+    border-style                       : dashed;
+}
+
+/* MORE THAN FOUR SCALES KEEP THE COLUMNS: every scale button is a quarter of
+   the row, so a fifth (1:500) wraps under 1:20 at the same width rather than
+   stretching across the whole line on its own. The first four are exactly
+   as they were. */
+.na-le-toggle-group--tight .na-le-btn--toggle {
+    flex                               : 0 0 calc((100% - 12px) / 4);
+    min-width                          : 0;
+}
+
+.na-le-toggle-group .na-le-btn--add-scale {
+    flex                               : 1 0 100%;
+}
+
+.na-le-scale-add {
+    display                            : flex;
+    flex                               : 1 1 auto;
+    align-items                        : center;
+    gap                                : 4px;
+    min-width                          : 0;
+}
+
+.na-le-scale-add__prefix {
+    flex                               : 0 0 auto;
+    color                              : #555;
+    font-size                          : 0.74rem;
+}
+
+.na-le-scale-add .na-le-input {
+    flex                               : 1 1 0;
+    min-width                          : 0;
+    padding                            : 3px 4px;
+}
+
 /* A CHECKBOX AND ITS WORDS INSIDE A ROW, after the row's own control - the
    Doors row's Hide swings, beside Open all. Its own label, so a click on
    the words ticks it and a click on the row's caption does nothing. */

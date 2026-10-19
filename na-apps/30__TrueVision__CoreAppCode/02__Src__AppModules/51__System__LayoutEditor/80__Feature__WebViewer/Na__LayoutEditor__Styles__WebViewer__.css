@@ -92,11 +92,26 @@
     display                            : flex;
     overflow-x                         : auto;                        /* <-- A narrow phone scrolls the actions rather than squeezing them below a thumb's reach */
     flex                               : 1 1 auto;
-    justify-content                    : center;
+    justify-content                    : flex-start;
     gap                                : 6px;
     min-width                          : 0;
     padding                            : 0 4px;
     scrollbar-width                    : none;
+}
+
+/* CENTRED BY THE END BUTTONS' MARGINS, NOT BY justify-content (19-Oct-2026).
+   A row centred with justify-content that is wider than the dock spills off
+   BOTH ends, and the part off the left can never be scrolled to: on a 375px
+   phone that was Fit, and with the point cloud button beside the zoom keys
+   it was all of Fit. Auto margins centre the row when it fits and give it
+   up when it does not, so it then starts at Fit and scrolls to Share. */
+
+.na-le-viewer__actions > :first-child {
+    margin-left                        : auto;
+}
+
+.na-le-viewer__actions > :last-child {
+    margin-right                       : auto;
 }
 
 .na-le-viewer__actions::-webkit-scrollbar {
@@ -182,6 +197,341 @@
     margin                             : 0 2px;
     font-size                          : 1.15rem;
     line-height                        : 1;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Point Cloud Slider                                 */
+/* ----------------------------------------------------------------- */
+
+/* Added 19-Oct-2026 for TrueVision3D v2.176.0 (Na__LayoutEditor__WebViewer__
+   PointCloud__). THE BUTTON is a dock button like the others, with a small
+   point cloud mark and how strong the point clouds are now; the figure turns
+   the accent blue once the reader has moved it away from the sheet as
+   issued. On a phone the word goes and the mark and the figure stay. */
+
+.na-le-viewer__btn--pc {
+    gap                                : 6px;
+    padding                            : 0 10px;
+}
+
+.na-le-viewer__pc-icon {
+    flex                               : 0 0 auto;
+    width                              : 16px;
+    height                             : 16px;
+    color                              : var(--Na_ViewerAccent);
+}
+
+.na-le-viewer__pc-value {
+    min-width                          : 2.6em;
+    color                              : var(--Na_ViewerMuted);
+    font-variant-numeric               : tabular-nums;                /* <-- The button must not jiggle as the figure changes */
+    text-align                         : right;
+}
+
+.na-le-viewer__btn--pc[data-na-changed="true"] .na-le-viewer__pc-value {
+    color                              : var(--Na_ViewerAccent);
+}
+
+.na-le-viewer__btn--pc[aria-expanded="true"] {
+    border-color                       : var(--Na_ViewerAccent);
+    background                         : #eef5fb;
+}
+
+@media (max-width: 479px) {
+    .na-le-viewer__pc-label {
+        display                        : none;
+    }
+}
+
+/* THE PANEL opens above the button and sits over the drawing, below the
+   toasts, like the Share box it is a sibling of. It stays up while the
+   reader slides, so it is compact: a slider and a box on one row, three
+   presets, one line of help. */
+
+.na-le-viewer-pc {
+    --na-pc-thumb                      : 20px;
+    --na-pc-level                      : 0.5;                         /* <-- Set by the module: the slider's position, 0 to 1 */
+    --na-pc-home                       : 0.5;                         /* <-- ...and the sheet as issued */
+    position                           : fixed;
+    top                                : 0;
+    left                               : 0;
+    z-index                            : 1100;
+    box-sizing                         : border-box;
+    width                              : 320px;
+    max-width                          : calc(100vw - 16px);
+    padding                            : 12px 14px 12px;
+    background                         : var(--Na_ViewerPaper);
+    border                             : 1px solid var(--Na_ViewerLine);
+    border-radius                      : 8px;
+    box-shadow                         : 0 10px 32px rgba(23, 43, 58, 0.22);
+    color                              : var(--Na_ViewerInk);
+    font-family                        : var(--Vale_FontFamily, 'Open Sans', sans-serif);
+    font-size                          : 0.78rem;
+    line-height                        : 1.45;
+    text-align                         : left;
+}
+
+.na-le-viewer-pc__head {
+    display                            : flex;
+    align-items                        : baseline;
+    gap                                : 8px;
+    margin-bottom                      : 6px;
+}
+
+.na-le-viewer-pc__title {
+    flex                               : 0 0 auto;
+    font-size                          : 0.74rem;
+    font-weight                        : 600;
+    letter-spacing                     : 0.06em;
+    text-transform                     : uppercase;
+}
+
+.na-le-viewer-pc__what {
+    flex                               : 1 1 auto;
+    min-width                          : 0;
+    overflow                           : hidden;
+    color                              : var(--Na_ViewerMuted);
+    text-overflow                      : ellipsis;
+    white-space                        : nowrap;
+}
+
+.na-le-viewer-pc__close {
+    flex                               : 0 0 auto;
+    align-self                         : center;
+    width                              : 26px;
+    height                             : 26px;
+    padding                            : 0;
+    border                             : 0;
+    border-radius                      : 5px;
+    background                         : transparent;
+    color                              : var(--Na_ViewerMuted);
+    font-size                          : 1.15rem;
+    line-height                        : 1;
+    cursor                             : pointer;
+}
+
+.na-le-viewer-pc__close:hover {
+    background                         : #e8edf3;
+    color                              : var(--Na_ViewerInk);
+}
+
+.na-le-viewer-pc__row {
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 10px;
+}
+
+/* THE TRACK. Drawn here rather than left to the browser, so it is the same
+   on every device: a slim rule filled in the accent blue up to the thumb, a
+   white thumb ringed in blue, and a short tick under the track where the
+   sheet as issued sits. The fill and the tick are both placed where the
+   thumb's CENTRE is, which runs from half a thumb in at each end. */
+
+.na-le-viewer-pc__track {
+    position                           : relative;
+    flex                               : 1 1 auto;
+    min-width                          : 0;
+    padding-bottom                     : 8px;
+}
+
+.na-le-viewer-pc__range {
+    display                            : block;
+    width                              : 100%;
+    height                             : 30px;
+    margin                             : 0;
+    background                         : transparent;
+    cursor                             : pointer;
+    -webkit-appearance                 : none;
+    appearance                         : none;
+    -webkit-tap-highlight-color        : transparent;
+    touch-action                       : pan-y;                       /* <-- The finger drags the thumb sideways and never pans the sheet behind */
+}
+
+.na-le-viewer-pc__range:focus {
+    outline                            : none;
+}
+
+.na-le-viewer-pc__range:focus-visible {
+    outline                            : 2px solid rgba(26, 127, 196, 0.35);
+    outline-offset                     : 2px;
+    border-radius                      : 4px;
+}
+
+.na-le-viewer-pc__range::-webkit-slider-runnable-track {
+    height                             : 6px;
+    border-radius                      : 3px;
+    background                         : linear-gradient(to right,
+                                             var(--Na_ViewerAccent) 0,
+                                             var(--Na_ViewerAccent) calc((var(--na-pc-thumb) / 2) + ((100% - var(--na-pc-thumb)) * var(--na-pc-level))),
+                                             #dce3ea calc((var(--na-pc-thumb) / 2) + ((100% - var(--na-pc-thumb)) * var(--na-pc-level))),
+                                             #dce3ea 100%);
+}
+
+.na-le-viewer-pc__range::-webkit-slider-thumb {
+    width                              : var(--na-pc-thumb);
+    height                             : var(--na-pc-thumb);
+    margin-top                         : calc((6px - var(--na-pc-thumb)) / 2);
+    border                             : 2px solid var(--Na_ViewerAccent);
+    border-radius                      : 50%;
+    background                         : #ffffff;
+    box-shadow                         : 0 1px 4px rgba(23, 43, 58, 0.25);
+    -webkit-appearance                 : none;
+    appearance                         : none;
+}
+
+.na-le-viewer-pc__range::-moz-range-track {
+    height                             : 6px;
+    border-radius                      : 3px;
+    background                         : #dce3ea;
+}
+
+.na-le-viewer-pc__range::-moz-range-progress {
+    height                             : 6px;
+    border-radius                      : 3px;
+    background                         : var(--Na_ViewerAccent);
+}
+
+.na-le-viewer-pc__range::-moz-range-thumb {
+    box-sizing                         : border-box;
+    width                              : var(--na-pc-thumb);
+    height                             : var(--na-pc-thumb);
+    border                             : 2px solid var(--Na_ViewerAccent);
+    border-radius                      : 50%;
+    background                         : #ffffff;
+    box-shadow                         : 0 1px 4px rgba(23, 43, 58, 0.25);
+}
+
+.na-le-viewer-pc__home {
+    position                           : absolute;
+    bottom                             : 0;
+    left                               : calc((var(--na-pc-thumb) / 2) + ((100% - var(--na-pc-thumb)) * var(--na-pc-home)));
+    width                              : 2px;
+    height                             : 7px;
+    margin-left                        : -1px;
+    border-radius                      : 1px;
+    background                         : var(--Na_ViewerInk);
+    opacity                            : 0.45;
+    pointer-events                     : none;
+}
+
+/* THE BOX, for an exact figure. Typed into, stepped with the arrow keys,
+   and read in the same weight as the dock's own figures. */
+
+.na-le-viewer-pc__value {
+    display                            : inline-flex;
+    flex                               : 0 0 auto;
+    align-items                        : center;
+    gap                                : 3px;
+    padding-bottom                     : 8px;
+    color                              : var(--Na_ViewerMuted);
+    font-weight                        : 600;
+}
+
+.na-le-viewer-pc__number {
+    box-sizing                         : border-box;
+    width                              : 3.6em;
+    height                             : 32px;
+    padding                            : 0 7px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 5px;
+    background                         : #ffffff;
+    color                              : var(--Na_ViewerInk);
+    font-family                        : inherit;
+    font-size                          : 0.84rem;
+    font-weight                        : 600;
+    font-variant-numeric               : tabular-nums;
+    text-align                         : right;
+    -moz-appearance                    : textfield;
+    appearance                         : textfield;
+}
+
+.na-le-viewer-pc__number::-webkit-outer-spin-button,
+.na-le-viewer-pc__number::-webkit-inner-spin-button {
+    margin                             : 0;
+    -webkit-appearance                 : none;
+}
+
+.na-le-viewer-pc__number:focus {
+    border-color                       : var(--Na_ViewerAccent);
+    outline                            : 2px solid rgba(26, 127, 196, 0.35);
+    outline-offset                     : 0;
+}
+
+.na-le-viewer-pc__presets {
+    display                            : flex;
+    gap                                : 6px;
+    margin-top                         : 4px;
+}
+
+.na-le-viewer-pc__preset {
+    display                            : inline-flex;
+    flex                               : 1 1 0;
+    align-items                        : center;
+    justify-content                    : center;
+    box-sizing                         : border-box;
+    min-height                         : 32px;
+    padding                            : 0 10px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 5px;
+    background                         : #f4f6f8;
+    color                              : var(--Na_ViewerInk);
+    font-family                        : inherit;
+    font-size                          : 0.76rem;
+    font-weight                        : 600;
+    white-space                        : nowrap;
+    cursor                             : pointer;
+    -webkit-tap-highlight-color        : transparent;
+}
+
+.na-le-viewer-pc__preset:hover {
+    background                         : #e8edf3;
+}
+
+.na-le-viewer-pc__preset--on,
+.na-le-viewer-pc__preset--on:hover {
+    border-color                       : var(--Na_ViewerAccent);
+    background                         : #eef5fb;
+    color                              : var(--Na_ViewerAccent);
+}
+
+.na-le-viewer-pc__note {
+    margin                             : 8px 0 0;
+    color                              : var(--Na_ViewerMuted);
+    font-size                          : 0.74rem;
+}
+
+/* A THUMB-SIZED THUMB ON A TOUCH SCREEN, and a box at 16px so a phone does
+   not zoom the page when the reader taps into it. */
+
+@media (pointer: coarse) {
+    .na-le-viewer-pc {
+        --na-pc-thumb                  : 26px;
+    }
+
+    .na-le-viewer-pc__range {
+        height                         : 40px;
+    }
+
+    .na-le-viewer-pc__number {
+        height                         : 38px;
+        font-size                      : 16px;
+    }
+
+    .na-le-viewer-pc__preset {
+        min-height                     : 38px;
+    }
+}
+
+/* THE PUBLISHED POINT CLOUD PICTURES are never tapped, and a printed page
+   shows the sheet as issued, whatever the slider says: each picture carries
+   its viewport's own opacity in --na-pc-base. */
+
+.na-pubdoc__viewport-pointcloud,
+.na-pubdoc__viewport-datum {
+    pointer-events                     : none;
 }
 
 /* endregion ------------------------------------------------------- */
@@ -281,8 +631,13 @@
    is the one on its own bar. The viewer's chrome has no place on the paper. */
 
 @media print {
-    .na-le-viewer__dock {
+    .na-le-viewer__dock,
+    .na-le-viewer-pc {
         display                        : none !important;
+    }
+
+    .na-pubdoc__viewport-pointcloud {
+        opacity                        : var(--na-pc-base, 1) !important;   /* <-- The sheet as issued, never the slider's */
     }
 }
 

@@ -47,7 +47,8 @@
 //     PaintSitePlan, FillSitePlan, RefillSitePlan).
 //   - Na__LayoutEditor__Viewport2d__PointCloud__ (TrueVision only): a
 //     SketchUp point cloud scene laid over or under the linework of a plan,
-//     elevation, section or site plan viewport, and its PDF picture.
+//     elevation, section or site plan viewport, its PDF picture and its
+//     published picture.
 //
 // INTEGRATION:
 // - The sheet surface calls Fill for every visible 2D frame; the tools
@@ -70,6 +71,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.20.0 (TrueVision)
+// - Re-exports the PointCloud unit's PointCloudForPublish for the publisher:
+//   the point cloud at full strength, laid into a published viewport's
+//   second picture.
+//
 // 19-Oct-2026 - Version 1.19.0 (TrueVision)
 // - Re-exports the PointCloud unit's working view (PC_WORKING_EVENT,
 //   PointCloudWorkingVisible, SetWorkingVisible, SetAllWorkingVisible,
@@ -311,7 +317,8 @@
         Na__LeVp2d__PointCloudSetZoom,
         Na__LeVp2d__PointCloudReload,
         Na__LeVp2d__PointCloudBoundsMm,
-        Na__LeVp2d__PointCloudForExport
+        Na__LeVp2d__PointCloudForExport,
+        Na__LeVp2d__PointCloudForPublish
     } from './Na__LayoutEditor__Viewport2d__PointCloud__.js';
     // ------------------------------------------------------------
 
@@ -731,7 +738,8 @@
         Na__LeVp2d__PointCloudSetZoom,
         Na__LeVp2d__PointCloudReload,
         Na__LeVp2d__PointCloudBoundsMm,
-        Na__LeVp2d__PointCloudForExport
+        Na__LeVp2d__PointCloudForExport,
+        Na__LeVp2d__PointCloudForPublish
     };
     // ------------------------------------------------------------
 

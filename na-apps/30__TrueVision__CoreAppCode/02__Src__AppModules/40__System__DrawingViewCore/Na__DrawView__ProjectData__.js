@@ -67,6 +67,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.8.0 (TrueVision v2.177.0)
+// - CUSTOM SCALES. LayoutEditor__DrawingsData__CustomScaleDenominators holds
+//   the pack's own extra viewport scales (1:500 and the like), added with the
+//   Viewport panel's Add custom scale. Like the common title block fields it
+//   is a fact about the project, not about any one sheet, so it sits on the
+//   block and goes wherever the block goes. GetCustomScales and
+//   SetCustomScales only keep whole positive numbers; the limits and every
+//   rule about what a scale may be live in the Layout Editor's ScaleManager.
+//
 // 19-Oct-2026 - Version 1.7.0
 // - SCENE SYNC. Na__DrawData__RegisterLoadHook: a hook runs on the block a
 //   load adopts, before the load is announced, so a listener never sees the
@@ -198,6 +207,7 @@
     const Na__DrawData__CLIENT_DIMS_KEY  = 'LayoutEditor__DrawingsData__ClientDimensionsEnabled';
     const Na__DrawData__COMMON_CLIENT_KEY = 'LayoutEditor__DrawingsData__CommonClient';
     const Na__DrawData__COMMON_SITE_KEY   = 'LayoutEditor__DrawingsData__CommonSiteAddress';
+    const Na__DrawData__CUSTOM_SCALES_KEY = 'LayoutEditor__DrawingsData__CustomScaleDenominators';   // <-- The pack's own extra viewport scales, whole denominators, finest first
     const Na__DrawData__FLOOR_PLANS_KEY  = 'LayoutEditor__DrawingsData__FloorPlans';
     const Na__DrawData__ELEVATIONS_KEY   = 'LayoutEditor__DrawingsData__Elevations';
     const Na__DrawData__SHEETS_KEY       = 'LayoutEditor__DrawingsData__Sheets';
@@ -683,6 +693,55 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Custom Viewport Scales
+// -----------------------------------------------------------------------------
+
+    // FUNCTION | The Pack's Own Extra Viewport Scales (denominators, finest first)
+    // ------------------------------------------------------------
+    // Absent reads as none. Only whole positive numbers come back, once each,
+    // so a hand-edited block can never put a fraction or a word on a button.
+    // ------------------------------------------------------------
+    function Na__DrawData__GetCustomScales() {
+        const stored = Na__DrawData__GetBlock()[Na__DrawData__CUSTOM_SCALES_KEY];
+        return Na__DrawData__CleanScales(stored);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Replace the Pack's Custom Scales (an empty list removes the key)
+    // ------------------------------------------------------------
+    // Returns true when the stored list changed, so the caller announces only
+    // a real change. Empty removes the key rather than storing [], so a pack
+    // that never had one reads the same as a new one.
+    // ------------------------------------------------------------
+    function Na__DrawData__SetCustomScales(denominators) {
+        const block  = Na__DrawData__GetBlock();
+        const before = Na__DrawData__CleanScales(block[Na__DrawData__CUSTOM_SCALES_KEY]);
+        const after  = Na__DrawData__CleanScales(denominators);
+        if (after.join(',') === before.join(',')) return false;
+        if (after.length) block[Na__DrawData__CUSTOM_SCALES_KEY] = after;
+        else delete block[Na__DrawData__CUSTOM_SCALES_KEY];
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Whole Positive Numbers, Once Each, Finest First
+    // ------------------------------------------------------------
+    function Na__DrawData__CleanScales(raw) {
+        const clean = [];
+        (Array.isArray(raw) ? raw : []).forEach((value) => {
+            const n = Number(value);
+            if (Number.isInteger(n) && n > 0 && clean.indexOf(n) === -1) clean.push(n);
+        });
+        return clean.sort((a, b) => a - b);
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Scene Link Checks
 // -----------------------------------------------------------------------------
 
@@ -1008,6 +1067,8 @@
         Na__DrawData__SetClientDimensionsEnabled,
         Na__DrawData__GetCommonFields,
         Na__DrawData__SetCommonField,
+        Na__DrawData__GetCustomScales,
+        Na__DrawData__SetCustomScales,
         Na__DrawData__IsFloorPlanScene,
         Na__DrawData__IsElevationScene,
         Na__DrawData__IsDrawingScene,

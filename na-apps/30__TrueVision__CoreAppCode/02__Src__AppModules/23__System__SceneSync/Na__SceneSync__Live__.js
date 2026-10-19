@@ -32,6 +32,20 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.0.1
+// - FIXED: presentation scenes did not show at load (JW02). The placeholder
+//   block made for a project with synced scenes and no presentation scenes
+//   (Sync__Container, switched off so the carousel ignores it) took the first
+//   scene authored in the Dev menu and was saved still switched off. The
+//   config hook now PROMOTES a container the moment it holds a real scene:
+//   the mark goes, it is switched on, and it gets the groups, default scene
+//   and schema note a block made by the Dev menu would have.
+// - Na__SsLive__RepairPresentationBlock, called by the loading sequence
+//   before the carousel decides: a project with synced scenes whose saved
+//   block holds viewer scenes but is switched off is switched back on, in
+//   memory, and the next save writes it. Nothing in TrueVision ever writes a
+//   block switched off, so that state can only be this bug's.
+//
 // 19-Oct-2026 - Version 1.0.0
 // - Initial implementation (Scene Sync, TrueVision v2.174.0).
 //
@@ -66,8 +80,10 @@
     } from '../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     import {
         Na__PresentationMode__ProjectJson__RegisterConfigHook,
-        Na__PresentationMode__ProjectJson__GetActiveConfig
+        Na__PresentationMode__ProjectJson__GetActiveConfig,
+        Na__PresentationMode__ProjectJson__SCHEMA_DESCRIPTION
     } from '../21__System__PresentationMode/Na__PresentationMode__ProjectJson__SceneData.js';
+    import { Na__PresentationMode__SceneGroups__GetDefaultGroups } from '../21__System__PresentationMode/Na__PresentationMode__SceneGroups__Data__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -81,6 +97,12 @@
     // ------------------------------------------------------------
     const Na__SsLive__CHANGED_EVENT = 'na-scenesync-changed';                    // <-- detail: { reason }
     const Na__SsLive__SCENES_KEY    = 'PresentationMode__SavedCameraScenes__Scenes';
+    const Na__SsLive__BLOCK_KEY     = 'PresentationMode__SavedCameraScenes';
+    const Na__SsLive__ENABLED_KEY   = 'PresentationMode__SavedCameraScenes__Enabled';
+    const Na__SsLive__GROUPS_KEY    = 'PresentationMode__SavedCameraScenes__Groups';
+    const Na__SsLive__DEFAULT_KEY   = 'PresentationMode__SavedCameraScenes__DefaultSceneId';
+    const Na__SsLive__DESC_KEY      = 'PresentationMode__SavedCameraScenes__Description';
+    const Na__SsLive__CONTAINER_KEY = 'Sync__Container';
     const Na__SsLive__PLAN_ID       = 'FloorPlan__Id';
     const Na__SsLive__ELEVATION_ID  = 'Elevation__Id';
     const Na__SsLive__SCENE_ID      = 'PresentationMode__Scene__Id';
@@ -122,11 +144,63 @@
     // ------------------------------------------------------------
     function Na__SsLive__ApplyToConfig(config) {
         if (!config || typeof config !== 'object') return;
+        Na__SsLive__PromoteContainer(config);                                    // <-- A placeholder that now holds an authored scene is an ordinary, enabled block
         if (!Array.isArray(config[Na__SsLive__SCENES_KEY])) {
             if (!Na__SsLive__Built.scenes.length) return;                        // <-- Nothing to add: a block without scenes stays as it came
             config[Na__SsLive__SCENES_KEY] = [];
         }
         Na__SceneSync__ApplyToList(config[Na__SsLive__SCENES_KEY], Na__SsLive__Built.scenes, Na__SsLive__SCENE_ID);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Authored Viewer Scenes in a List (not synced, not layout editor only)
+    // ------------------------------------------------------------
+    function Na__SsLive__ViewerScenes(list) {
+        return (Array.isArray(list) ? list : []).filter((scene) => scene && typeof scene === 'object' && !Na__SceneSync__IsSynced(scene)
+            && typeof scene.PresentationMode__Scene__Id === 'string' && scene.PresentationMode__Scene__LayoutEditorOnly !== true);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Promote a Placeholder Block Once It Holds an Authored Scene (in place)
+    // ------------------------------------------------------------
+    // What the Dev menu's own first scene would have made (BuildDefaultConfig):
+    // switched on, the default groups when it has none, a default scene and the
+    // schema note. Returns true when it promoted.
+    // ------------------------------------------------------------
+    function Na__SsLive__PromoteContainer(config) {
+        if (!config || config[Na__SsLive__CONTAINER_KEY] !== true) return false;
+        const authored = (Array.isArray(config[Na__SsLive__SCENES_KEY]) ? config[Na__SsLive__SCENES_KEY] : []).filter((scene) => scene && !Na__SceneSync__IsSynced(scene));
+        if (!authored.length) return false;
+        delete config[Na__SsLive__CONTAINER_KEY];
+        config[Na__SsLive__ENABLED_KEY] = true;
+        if (!Array.isArray(config[Na__SsLive__GROUPS_KEY]) || !config[Na__SsLive__GROUPS_KEY].length) config[Na__SsLive__GROUPS_KEY] = Na__PresentationMode__SceneGroups__GetDefaultGroups();
+        if (!config[Na__SsLive__DEFAULT_KEY]) config[Na__SsLive__DEFAULT_KEY] = authored[0].PresentationMode__Scene__Id || null;
+        if (typeof config[Na__SsLive__DESC_KEY] !== 'string') config[Na__SsLive__DESC_KEY] = Na__PresentationMode__ProjectJson__SCHEMA_DESCRIPTION;
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Switch Back On a Block a Placeholder Left Switched Off (the loading sequence calls it)
+    // ------------------------------------------------------------
+    // Only on a project with synced scenes (where the placeholder could have
+    // been made), and only a block that holds authored viewer scenes and is
+    // switched off: nothing in TrueVision writes a block switched off, so that
+    // state is the 1.0.0 bug's. In place, on the project data the app loaded,
+    // so the carousel shows now and the next save of any key writes it right.
+    // Returns true when it repaired.
+    // ------------------------------------------------------------
+    function Na__SsLive__RepairPresentationBlock(projectData) {
+        if (!Na__SsLive__Built.scenes.length) return false;
+        const block = projectData && typeof projectData === 'object' ? projectData[Na__SsLive__BLOCK_KEY] : null;
+        if (!block || typeof block !== 'object' || block[Na__SsLive__ENABLED_KEY] === true) return false;
+        if (!Na__SsLive__ViewerScenes(block[Na__SsLive__SCENES_KEY]).length) return false;
+        block[Na__SsLive__ENABLED_KEY] = true;
+        delete block[Na__SsLive__CONTAINER_KEY];
+        console.warn('[TrueVision3D SceneSync] The presentation scenes were saved switched off by Scene Sync 1.0.0 and are switched back on. The next save keeps them on.');
+        return true;
     }
     // ------------------------------------------------------------
 
@@ -292,6 +366,8 @@
         Na__SsLive__NewContainerConfig,
         Na__SsLive__ApplyToBlock,
         Na__SsLive__ApplyToConfig,
+        Na__SsLive__PromoteContainer,
+        Na__SsLive__RepairPresentationBlock,
         Na__SsLive__Entries,
         Na__SsLive__Entry,
         Na__SsLive__GetInfo,

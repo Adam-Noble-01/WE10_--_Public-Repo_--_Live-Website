@@ -63,6 +63,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.1.0
+// - A point cloud viewport's second picture (<viewport>__PointCloud__...) is
+//   its own job, Point Cloud, so the cover names it rather than calling it
+//   the viewport's Picture twice (TrueVision3D v2.176.0).
+//
 // 23-Sep-2026 - Version 1.0.0
 // - Created (TrueVision3D v2.156.0).
 //
@@ -104,6 +109,7 @@
             picture    : 'Picture',
             linework   : 'Linework',
             fog        : 'Depth Fog',
+            pointCloud : 'Point Cloud',
             shared     : 'Title Block Images',
             sheetImage : 'Sheet Pictures',
             pattern    : 'Hatch Patterns',
@@ -218,8 +224,8 @@
 
     // FUNCTION | What One Published Image Is, From Where It Lives
     // ------------------------------------------------------------
-    // Returns { Kind, ViewportId }. Kind is picture, fog, linework, shared,
-    // sheetImage, pattern or other. Read off the published file's own name
+    // Returns { Kind, ViewportId }. Kind is picture, fog, pointCloud,
+    // linework, shared, sheetImage, pattern or other. Read off the published file's own name
     // and folder, which the schema fixes, so nothing is guessed.
     // ------------------------------------------------------------
     function Na__PubLoad__ImagePart(href) {
@@ -227,7 +233,7 @@
         const file = url.split('?')[0].split('#')[0];
         const name = file.split('/').pop() || '';
         const view = (name.match(/^(Viewport_[A-Za-z0-9-]+?)__/) || [])[1] || null;
-        if (/\/03__Viewports__Raster\//.test(file)) return { Kind : /__FogMask__/.test(name) ? 'fog' : 'picture', ViewportId : view };
+        if (/\/03__Viewports__Raster\//.test(file)) return { Kind : /__FogMask__/.test(name) ? 'fog' : (/__PointCloud__/.test(name) ? 'pointCloud' : 'picture'), ViewportId : view };
         if (/\/02__Viewports__Vector\//.test(file)) return { Kind : 'linework', ViewportId : view };
         if (/\/02__Shared__Images\//.test(file))    return { Kind : 'shared', ViewportId : null };
         if (/\/01__Shared__Patterns\//.test(file))  return { Kind : 'pattern', ViewportId : null };
@@ -242,7 +248,7 @@
     function Na__PubLoad__ImageLabel(part, viewportIds, labels) {
         const l = labels || Na__PubLoad__F.labels;
         const kind = part && part.Kind;
-        if (kind === 'picture' || kind === 'fog' || kind === 'linework') {
+        if (kind === 'picture' || kind === 'fog' || kind === 'linework' || kind === 'pointCloud') {
             const total = (viewportIds || []).length;
             const n     = Math.max(1, (viewportIds || []).indexOf(part.ViewportId) + 1);
             const which = total > 1 ? l.view + ' ' + l.viewOf.split('{n}').join(String(n)).split('{total}').join(String(total)) : l.view;

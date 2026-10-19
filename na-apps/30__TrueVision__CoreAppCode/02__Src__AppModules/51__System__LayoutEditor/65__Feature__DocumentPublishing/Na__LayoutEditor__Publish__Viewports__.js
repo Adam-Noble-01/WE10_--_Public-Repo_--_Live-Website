@@ -40,10 +40,26 @@
 //   baked bytes. Any change anywhere - a line, a tier, the mask - gives every
 //   file a new name, so a name can never mean two different files and all of
 //   them can be cached immutably.
+// - A POINT CLOUD VIEWPORT PUBLISHES A SECOND PICTURE: the same decks with
+//   the SketchUp point cloud laid in at FULL strength, where the PDF lays it
+//   (Na__LeVp2d__PointCloudForPublish, CloudDecks), at every screen tier.
+//   The reader lays it over the plain picture at the viewport's opacity, so
+//   the drawing opens as it prints, and a client's slider moves only that
+//   opacity. Opaque like the plain picture: compositing is linear in the
+//   point cloud's strength, so a crossfade of two opaque pictures is exact
+//   and no alpha channel is ever published.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.2.0
+// - Point cloud viewports are published WITH their point cloud (Adam: the
+//   client view of JW02 showed none). Bake adds Viewport__PointCloud to the
+//   element - PointCloud__Opacity, PointCloud__OverLinework,
+//   PointCloud__Rasters and the datum as PointCloud__DatumSvg - and the
+//   second picture's tiers to the manifest. A point cloud that cannot be
+//   drawn is a warning, never a failed publish.
+//
 // 23-Sep-2026 - Version 1.1.0
 // - SitePlanSvg paints each site plan face as ONE holed polyline (outer ring
 //   plus its inner rings, through Na__LeRings__FacesFromRings), filled
@@ -69,13 +85,14 @@
     import { Na__LeRings__FacesFromRings } from '../15__Core__Markup/Na__LayoutEditor__ShapeRings__.js';
     import {
         Na__LeVp2d__Describe, Na__LeVp2d__EnsureLinework, Na__LeVp2d__RenderForExport,
-        Na__LeVp2d__RenderFogForExport, Na__LeVp2d__StyleBands, Na__LeVp2d__SitePlanDrawing
+        Na__LeVp2d__RenderFogForExport, Na__LeVp2d__StyleBands, Na__LeVp2d__SitePlanDrawing,
+        Na__LeVp2d__PointCloudForPublish
     } from '../20__System__Viewports/Na__LayoutEditor__Viewport2d__.js';
     import { Na__LeVp3d__RenderForExport, Na__LeVp3d__ExportRectMm } from '../20__System__Viewports/Na__LayoutEditor__Viewport3d__.js';
 
     import {
         Na__PubSchema__VectorPath, Na__PubSchema__RasterPath, Na__PubSchema__MaskPath,
-        Na__PubSchema__DocumentFolder, Na__PubSchema__TierPixels
+        Na__PubSchema__PointCloudPath, Na__PubSchema__DocumentFolder, Na__PubSchema__TierPixels
     } from '../../53__Data__Layout__PublishedSchema/Na__PublishedSchema__Paths__.js';
 
     import {
@@ -241,6 +258,63 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Point Cloud Picture
+// -----------------------------------------------------------------------------
+
+    // FUNCTION | A Point Cloud Viewport's Second Picture: Every Deck, the Point Cloud at Full Strength Among Them
+    // ------------------------------------------------------------
+    // decks : the viewport's layers in the order the PDF paints them, each an
+    //         image or canvas drawn across the whole frame, or an SVG's markup
+    //         (the linework, a site plan's fills), rasterised here at this
+    //         size. A missing deck (null) is skipped.
+    // Painted over the paper, so the picture is opaque like every other
+    // published picture. The reader lays it over the plain picture at the
+    // viewport's opacity, o: plain x (1 - o) + this x o is EXACTLY the
+    // drawing with its point cloud at o, wherever the point cloud sits in
+    // the stack, because every deck is laid over the ones below it and that
+    // is linear in the point cloud's strength.
+    // ------------------------------------------------------------
+    async function Na__LePubVp__CloudPicture(width, height, decks) {
+        const out = Na__LePubRas__Canvas(width, height, true);
+        out.context.fillStyle = Na__LePubVp__PAPER;
+        out.context.fillRect(0, 0, width, height);
+        for (const deck of decks) {
+            if (!deck) continue;
+            if (typeof deck === 'string') {
+                const url = URL.createObjectURL(new Blob([ deck ], { type : 'image/svg+xml' }));
+                try { out.context.drawImage(await Na__LePubRas__Load(url), 0, 0, width, height); }
+                finally { URL.revokeObjectURL(url); }
+            } else {
+                out.context.drawImage(deck, 0, 0, width, height);
+            }
+        }
+        return out;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Decks of a Point Cloud Viewport, in the PDF's Order
+    // ------------------------------------------------------------
+    // Na__LePdf__DrawViewport's order exactly. A drawing: underlay, the point
+    // cloud with Linework On Top, linework, fog, the point cloud otherwise. A
+    // site plan: the point cloud with Linework On Top (under every deck),
+    // fills and patterns, linework, the point cloud otherwise. The linework
+    // is in this picture only where the point cloud goes over it; under it,
+    // the reader's own linework is drawn over this picture.
+    // ------------------------------------------------------------
+    function Na__LePubVp__CloudDecks(cloud, layers) {
+        const over = !cloud.lineworkOnTop;
+        if (layers.site) {
+            return over ? [ layers.fills, layers.lines, cloud.canvas ] : [ cloud.canvas, layers.fills ];
+        }
+        return over ? [ layers.underlay, layers.lines, layers.fog, cloud.canvas ] : [ layers.underlay, cloud.canvas, layers.fog ];
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Bake One Viewport
 // -----------------------------------------------------------------------------
 
@@ -267,6 +341,34 @@
         let maskPair  = null;
         let linework  = null;
         let sceneSvg  = '';
+        let cloudPair = null;                                                     // <-- A point cloud viewport's second picture, or null
+        let cloudInfo = null;                                                     // <-- { Opacity, OverLinework, DatumSvg } beside it
+
+        // THE POINT CLOUD, where the viewport lays one over its drawing: the
+        // same picture with the point cloud in it at full strength, size the
+        // plain picture's (or the export level's when there is none). Never
+        // fails the publish: a point cloud is cosmetic, as in the PDF.
+        const bakeCloud = async (size, layers) => {
+            if (!viewport.Viewport__PointCloud) return;
+            say('point cloud');
+            let cloud = null;
+            try {
+                cloud = await Na__LeVp2d__PointCloudForPublish(viewport, size ? size.w : 0, size ? size.h : 0);
+            } catch (error) {
+                console.warn('[TrueVision3D LayoutEditor] A point cloud was left out of a published drawing.', error);
+            }
+            if (!cloud) {
+                if (!viewport.Viewport__PointCloud.PointCloud__Hidden) warnings.push(viewport.Viewport__Id + ': its point cloud could not be drawn, so it is published without one.');
+                return;
+            }
+            try {
+                cloudPair = await Na__LePubVp__CloudPicture(cloud.canvas.width, cloud.canvas.height, Na__LePubVp__CloudDecks(cloud, layers));
+                cloudInfo = { Opacity : cloud.opacity, OverLinework : !cloud.lineworkOnTop,
+                              DatumSvg : Na__LePubVp__SvgBody(cloud.datum, frame.WidthMm, frame.HeightMm) };   // <-- Frame-local, as the PDF offsets it
+            } finally {
+                Na__LePubRas__Free(cloud.canvas);
+            }
+        };
 
         if (is2d) {
             const described = Na__LeVp2d__Describe(viewport);
@@ -276,14 +378,15 @@
                 const drawing = await Na__LeVp2d__SitePlanDrawing(viewport);
                 if (!drawing) warnings.push(viewport.Viewport__Id + ': the site plan drawing could not be built.');
                 else {
-                    const svg = Na__LePubVp__SitePlanSvg(viewport, described, drawing);
+                    const svg   = Na__LePubVp__SitePlanSvg(viewport, described, drawing);
+                    const print = Na__LePubVp__PrintSize(frame);
                     if (svg) {
-                        const print = Na__LePubVp__PrintSize(frame);
                         picture = await Na__LePubRas__FromSvg(svg, print.PixelW, print.PixelH, Na__LePubVp__PAPER);
                     }
                     if (drawing.paintLines !== false) {
                         linework = Na__LePubVp__LineworkSvg(sheet, viewport, described, drawing.classes, drawing.siteRules, documentId);
                     }
+                    await bakeCloud({ w : print.PixelW, h : print.PixelH }, { site : true, fills : svg, lines : linework ? linework.Markup : null });
                 }
             } else if (!described.definition) {
                 warnings.push(viewport.Viewport__Id + ': its drawing source is missing, so it is published empty.');
@@ -292,16 +395,16 @@
                 const underlay = await Na__LeVp2d__RenderForExport(viewport);   // <-- null for a vector-only viewport
                 say('fog');
                 const fog      = await Na__LeVp2d__RenderFogForExport(viewport);   // <-- null unless the drawing has depth fog
+                const image    = (underlay && underlay.dataUrl) ? await Na__LePubRas__Load(underlay.dataUrl) : null;
+                const fogImage = (fog && fog.dataUrl) ? await Na__LePubRas__Load(fog.dataUrl) : null;
 
-                if (underlay && underlay.dataUrl) {
-                    const image = await Na__LePubRas__Load(underlay.dataUrl);
+                if (image) {
                     picture = Na__LePubRas__Canvas(image.naturalWidth, image.naturalHeight, true);
                     picture.context.fillStyle = Na__LePubVp__PAPER;
                     picture.context.fillRect(0, 0, picture.canvas.width, picture.canvas.height);
                     picture.context.drawImage(image, 0, 0);
                 }
-                if (fog && fog.dataUrl) {
-                    const fogImage = await Na__LePubRas__Load(fog.dataUrl);
+                if (fogImage) {
                     if (!picture) {                                               // <-- Fog over bare paper: the paper is the picture
                         picture = Na__LePubRas__Canvas(fogImage.naturalWidth, fogImage.naturalHeight, true);
                         picture.context.fillStyle = Na__LePubVp__PAPER;
@@ -316,6 +419,9 @@
                     const classes = await Na__LeVp2d__EnsureLinework(described.definition, null, false, described.modelSource);   // <-- The viewport's own design phase
                     linework = Na__LePubVp__LineworkSvg(sheet, viewport, described, classes, null, documentId);
                 }
+
+                await bakeCloud(picture ? { w : picture.canvas.width, h : picture.canvas.height } : null,
+                                { site : false, underlay : image, fog : fogImage, lines : linework ? linework.Markup : null });
 
                 if (viewport.Viewport__MarkupMode === 'scene') {
                     const scene = await Na__LePubSheet__Portable(Na__LeMarkup__BuildScenePrimitives(described), sheet, assets);
@@ -348,13 +454,17 @@
         say('tiers');
         const rasterBlobs = picture ? await Na__LePubRas__Ladder(picture.canvas, pictureMm, { Background : Na__LePubVp__PAPER }) : [];
         const maskBlobs   = maskPair ? await Na__LePubRas__Ladder(maskPair.canvas, pictureMm, { Background : '#ffffff', SkipPrint : true }) : [];
-        if (picture)  Na__LePubRas__Free(picture);
-        if (maskPair) Na__LePubRas__Free(maskPair);
+        const cloudBlobs  = cloudPair ? await Na__LePubRas__Ladder(cloudPair.canvas, pictureMm, { Background : Na__LePubVp__PAPER, SkipPrint : true }) : [];   // <-- No Print: the PDF is baked
+        if (picture)   Na__LePubRas__Free(picture);
+        if (maskPair)  Na__LePubRas__Free(maskPair);
+        if (cloudPair) Na__LePubRas__Free(cloudPair);
 
         // ---- ONE HASH OVER EVERY BYTE OF THE VIEWPORT -------------------------
         const parts = [];
         for (const one of rasterBlobs) parts.push(await Na__LePubRas__Sha(one.Blob));
         for (const one of maskBlobs)   parts.push(await Na__LePubRas__Sha(one.Blob));
+        for (const one of cloudBlobs)  parts.push(await Na__LePubRas__Sha(one.Blob));
+        if (cloudInfo) parts.push(await Na__LePubRas__Sha('pointcloud|' + cloudInfo.DatumSvg));
         if (linework) parts.push(await Na__LePubRas__Sha(linework.Markup));
         parts.push(await Na__LePubRas__Sha(sceneSvg + '|' + JSON.stringify(framePrims.length)));
         const hash = (await Na__LePubRas__Sha(parts.join('|'))).slice(0, 10);
@@ -383,6 +493,25 @@
             manifestMasks.push({ 'Tier__Id' : one.Tier.id, 'File__Path' : local(path), 'File__PixelW' : one.PixelW, 'File__PixelH' : one.PixelH,
                                  'File__Bytes' : one.Blob.size, 'File__DecodedBytes' : one.PixelW * one.PixelH * 4, 'File__Sha256' : hash });
         }
+        const clouds = [];
+        const manifestClouds = [];
+        for (const one of cloudBlobs) {
+            const path = Na__PubSchema__PointCloudPath(documentId, viewport.Viewport__Id, one.Tier.id, hash);
+            files.push({ Path : root(path), Blob : one.Blob });
+            clouds.push({ 'Tier__Id' : one.Tier.id, 'Tier__File' : local(path), 'Tier__PixelW' : one.PixelW, 'Tier__PixelH' : one.PixelH });
+            manifestClouds.push({ 'Tier__Id' : one.Tier.id, 'File__Path' : local(path), 'File__PixelW' : one.PixelW, 'File__PixelH' : one.PixelH,
+                                  'File__Bytes' : one.Blob.size, 'File__DecodedBytes' : one.PixelW * one.PixelH * 4, 'File__Sha256' : hash });
+        }
+        // THE POINT CLOUD BLOCK. Opacity is the strength the drawing prints its
+        // point cloud at, so the reader opens on exactly the issued drawing;
+        // OverLinework says whether the picture goes over the published
+        // linework or under it. The datum is vectors, never faded.
+        const cloudEntry = (cloudInfo && clouds.length) ? {
+            'PointCloud__Opacity'      : Math.max(0, Math.min(1, Number(cloudInfo.Opacity))),
+            'PointCloud__OverLinework' : cloudInfo.OverLinework,
+            'PointCloud__Rasters'      : clouds,
+            'PointCloud__DatumSvg'     : cloudInfo.DatumSvg
+        } : null;
 
         let vectorEntry = null, manifestVector = null;
         if (linework) {
@@ -409,6 +538,7 @@
             'Viewport__RasterOpaque'    : true,
             'Viewport__Rasters'         : rasters,
             'Viewport__FogMasks'        : masks,
+            'Viewport__PointCloud'      : cloudEntry,
             'Viewport__Vector'          : vectorEntry,
             'Viewport__SceneSvg'        : sceneSvg,
             'Viewport__FrameSvg'        : Na__LePubVp__SvgBody(framePrims, 1, 1)   // <-- Page coordinates: the box is never used, only the body
@@ -422,7 +552,8 @@
             'Viewport__Hash'    : hash,
             'Viewport__Vector'  : manifestVector,
             'Viewport__Rasters' : manifestRasters,
-            'Viewport__FogMasks': manifestMasks
+            'Viewport__FogMasks': manifestMasks,
+            'Viewport__PointCloud' : manifestClouds.length ? manifestClouds : null
         };
         return { Element : element, Manifest : manifest, Files : files, Assets : assets, Warnings : warnings, Hash : hash };
     }

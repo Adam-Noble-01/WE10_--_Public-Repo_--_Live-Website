@@ -40,6 +40,16 @@
 // - LAYOUT EDITOR ONLY. Every synced scene is marked
 //   PresentationMode__Scene__LayoutEditorOnly, so the viewer's carousel, its
 //   opening scene and its counts never change because of a sync.
+// - SKETCHUP'S NAME IS AN IDENTIFIER, NOT A TITLE. "Elevation__North__Front"
+//   is what the scene is called in SketchUp and in the panels; a drawing
+//   title is written from the facts, as for TrueVision's own elevations:
+//   Existing or Proposed from the model, and the compass word from the
+//   bearing against the project's north (EXISTING NORTH ELEVATION). So a
+//   synced elevation carries NO Elevation__NameIsAuto. false says somebody
+//   typed the name in Dev Tools for the sheets to use (that is what lettered
+//   JW02's titles ELEVATION__NORTH__FRONT); true says the name follows the
+//   compass, which SketchUp's does not. Absent promotes no name to a title,
+//   and the auto namer renames nothing it is not told is automatic.
 //
 // CAMERA, SKETCHUP TO TRUEVISION:
 // - Positions are integer millimetres, rotations radians to 4 dp (Euler XYZ),
@@ -55,6 +65,27 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.0.2
+// - FIXED: a synced elevation's drawing title read the SketchUp scene name
+//   (JW02 D01: EXISTING ELEVATION__NORTH__FRONT) where it should read
+//   EXISTING NORTH ELEVATION. The record said Elevation__NameIsAuto false,
+//   which the Layout Editor's viewport identity reads as "a name typed in Dev
+//   Tools > Elevations", and a chosen name beats the compass word. The flag
+//   is now left off: titles, viewport names and frame captions follow the
+//   compass, Elevation__Name stays SketchUp's for the panels, and a detached
+//   copy is titled the same way until a name is typed for it in Dev Tools.
+//
+// 19-Oct-2026 - Version 1.0.1
+// - FIXED: a project's presentation scenes stayed off at load (JW02: no
+//   carousel until Update was pressed in the Dev menu). A project with synced
+//   scenes and no presentation block got a placeholder block marked
+//   Sync__Container and switched OFF (so the carousel ignored it). The first
+//   scene authored in the Dev menu went into that placeholder, and the save
+//   dropped the mark but kept Enabled false, which the carousel reads as
+//   "explicitly disabled". StripDoc now writes a container that holds a real
+//   scene as an ordinary, enabled block; the live module promotes it the
+//   moment the scene is added, and repairs a block saved this way.
+//
 // 19-Oct-2026 - Version 1.0.0
 // - Initial implementation (Scene Sync, TrueVision v2.174.0). Reads manifest
 //   schema 1 (GLB Builder 2.12.0).
@@ -93,6 +124,7 @@
     const Na__SceneSync__PRESENTATION_KEY  = 'PresentationMode__SavedCameraScenes';
     const Na__SceneSync__SCENES_KEY        = 'PresentationMode__SavedCameraScenes__Scenes';
     const Na__SceneSync__DEFAULT_SCENE_KEY = 'PresentationMode__SavedCameraScenes__DefaultSceneId';
+    const Na__SceneSync__ENABLED_KEY       = 'PresentationMode__SavedCameraScenes__Enabled';
     const Na__SceneSync__LEGACY_KEYS       = [ 'PresentationMode__SavedCameraScenes__FloorPlans', 'PresentationMode__SavedCameraScenes__Elevations' ];
     // ------------------------------------------------------------
 
@@ -210,7 +242,10 @@
             if (config[Na__SceneSync__CONTAINER_KEY] === true) {
                 const real = Array.isArray(config[Na__SceneSync__SCENES_KEY]) ? config[Na__SceneSync__SCENES_KEY].length : 0;
                 if (real === 0) delete doc[Na__SceneSync__PRESENTATION_KEY];     // <-- Made only to hold synced scenes: never written
-                else delete config[Na__SceneSync__CONTAINER_KEY];                // <-- It holds real scenes now: an ordinary block from here
+                else {                                                           // <-- It holds real scenes now: an ordinary block from here, and an ENABLED one
+                    delete config[Na__SceneSync__CONTAINER_KEY];
+                    config[Na__SceneSync__ENABLED_KEY] = true;                   // <-- The container's false was only ever a placeholder; the carousel reads false as "switched off"
+                }
             }
         }
         return removed;
@@ -247,7 +282,7 @@
     function Na__SceneSync__ContainerConfig() {
         return {
             [Na__SceneSync__CONTAINER_KEY]                      : true,
-            'PresentationMode__SavedCameraScenes__Enabled'      : false,
+            [Na__SceneSync__ENABLED_KEY]                        : false,
             [Na__SceneSync__SCENES_KEY]                         : []
         };
     }
@@ -504,8 +539,7 @@
                 const origin = drawing.PlaneOriginMm || {};
                 out.elevations.push(Object.assign({
                     Elevation__Id                    : id,
-                    Elevation__Name                  : name,
-                    Elevation__NameIsAuto            : false,                    // <-- SketchUp names it: never renamed by the auto namer
+                    Elevation__Name                  : name,                     // <-- SketchUp's, for the panels. No Elevation__NameIsAuto: a scene name is never a title (see the header)
                     Elevation__Order                 : order,
                     Elevation__Enabled               : true,
                     Elevation__AzimuthDeg            : Na__SceneSync__Round(Na__SceneSync__WrapDeg(drawing.AzimuthDeg), 6),

@@ -32,10 +32,23 @@
 //   height x 4, because that is the figure a phone cares about. It is a budget in
 //   BYTES and never a count of sheets: counting sheets is what let the authoring
 //   viewer hold twenty-four of them.
+// - A POINT CLOUD VIEWPORT HAS A THIRD THING: its second picture, the same
+//   drawing with the point cloud in it at full strength, laid over the plain
+//   picture at the viewport's own opacity - under the linework with Linework
+//   On Top, over it otherwise - then its datum. Both pictures are opaque, so
+//   nothing blends but one opacity, and that opacity is the client's slider
+//   (Na__PubDoc__PointCloud__). Both count against the budget.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.1.0
+// - Point cloud viewports (Viewport__PointCloud, TrueVision3D v2.176.0). The
+//   tier choice holds both pictures of a point cloud viewport and returns
+//   Cloud beside Raster; Paint lays the point cloud picture where the drawing
+//   stacks it, at context.PointCloudOpacity of the viewport's own opacity,
+//   then the datum. CloudBases lists a drawing's point cloud opacities.
+//
 // 23-Sep-2026 - Version 1.0.0
 // - Created with Phase 2 of TrueVision__PLAN__PublishingSystem__.md.
 //
@@ -123,6 +136,22 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Point Cloud Pictures a Viewport Published, by Tier Id
+    // ------------------------------------------------------------
+    function Na__PubVp__CloudMap(viewport) {
+        const map = new Map();
+        const block = viewport && viewport['Viewport__PointCloud'];
+        const list = block && block['PointCloud__Rasters'];
+        if (Array.isArray(list)) {
+            for (const raster of list) {
+                if (raster && raster['Tier__Id']) map.set(String(raster['Tier__Id']), raster);
+            }
+        }
+        return map;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | What a Tier of a Viewport Costs Decoded
     // ------------------------------------------------------------
     function Na__PubVp__Cost(raster) {
@@ -140,10 +169,16 @@
     // that fits in what is left of the budget. Returning the smallest rather
     // than nothing is deliberate: a slightly soft drawing is a drawing, and a
     // reader that refused to show anything would be the old fault in a new coat.
+    // A POINT CLOUD VIEWPORT holds two pictures of the tier at once - the plain
+    // one and its point cloud - so both count against the budget, and both are
+    // returned (Raster, Cloud). The plain picture's tiers lead; a viewport
+    // with none is led by its point cloud's.
     // ------------------------------------------------------------
     function Na__PubVp__ChooseTier(documentId, viewport, zoom, density) {
         const rasters = Na__PubVp__RasterMap(viewport);
-        if (rasters.size === 0) return null;
+        const clouds  = Na__PubVp__CloudMap(viewport);
+        const lead    = rasters.size ? rasters : clouds;
+        if (lead.size === 0) return null;
 
         const key     = documentId + '/' + viewport['Viewport__Id'];
         const held    = Na__PubVp__Showing.get(key);
@@ -155,19 +190,23 @@
         const ladder  = Na__PubSchema__ScreenTiers();
         const ceiling = ladder.findIndex((one) => wanted && one.id === wanted.id);
         const spare   = Na__PubVp__Budget - (Na__PubVp__HeldBytes() - ((held && held.Bytes) || 0));
+        const pick    = (tier) => {
+            const raster = rasters.get(tier.id) || null;
+            const cloud  = clouds.get(tier.id) || null;
+            return { Tier : tier, Raster : raster, Cloud : cloud, Bytes : Na__PubVp__Cost(raster) + Na__PubVp__Cost(cloud) };
+        };
 
         for (let i = (ceiling === -1 ? ladder.length - 1 : ceiling); i >= 0; i--) {
-            const tier   = ladder[i];
-            const raster = rasters.get(tier.id);
-            if (!raster || failed.has(tier.id)) continue;
-            if (Na__PubVp__Cost(raster) > spare && i > 0) continue;                // <-- Over budget: try smaller
-            return { Tier : tier, Raster : raster, Bytes : Na__PubVp__Cost(raster) };
+            const tier = ladder[i];
+            if (!lead.has(tier.id) || failed.has(tier.id)) continue;
+            const one = pick(tier);
+            if (one.Bytes > spare && i > 0) continue;                             // <-- Over budget: try smaller
+            return one;
         }
         // Everything is either absent or has failed. The smallest published tier
         // is the last thing worth trying.
         for (const tier of ladder) {
-            const raster = rasters.get(tier.id);
-            if (raster && !failed.has(tier.id)) return { Tier : tier, Raster : raster, Bytes : Na__PubVp__Cost(raster) };
+            if (lead.has(tier.id) && !failed.has(tier.id)) return pick(tier);
         }
         return null;
     }
@@ -276,7 +315,8 @@
             sink.push('<g clip-path="url(#' + clipId + ')">');
 
             const chosen = Na__PubVp__ChooseTier(context.DocumentId, viewport, zoom, context.Density);
-            if (chosen) {
+            const cloud  = Na__PubVp__Cloud(viewport, chosen, context);          // <-- Null for nearly every viewport
+            if (chosen && chosen.Raster) {
                 const href = context.Url(context.Resolve(viewport, chosen.Raster['Tier__File']));
                 if (href) {
                     Na__PubPaint__Image(sink, px, py, pw, ph, href, {
@@ -286,6 +326,8 @@
                     });
                     Na__PubVp__Held(context.DocumentId, id, chosen.Tier.id, chosen.Bytes);
                 }
+            } else if (chosen && cloud) {
+                Na__PubVp__Held(context.DocumentId, id, chosen.Tier.id, chosen.Bytes);   // <-- No plain picture: the point cloud's is the only one held
             } else if (viewport['Viewport__BaseImage'] !== false) {
                 // A PICTURE WAS EXPECTED AND THERE IS NONE. The frame is drawn
                 // empty rather than left as a hole, so it is obvious something
@@ -316,6 +358,10 @@
                 }
             }
 
+            // THE POINT CLOUD UNDER THE LINEWORK (Linework On Top): its picture
+            // straight over the plain one, at the viewport's opacity.
+            if (cloud && !cloud.Over) Na__PubVp__PaintCloud(sink, cloud, px, py, pw, ph, id);
+
             const vector = viewport['Viewport__Vector'];
             if (vector && vector['Vector__File']) {
                 const href = context.Url(context.Resolve(viewport, vector['Vector__File']));
@@ -328,6 +374,18 @@
                     });
                     if (maskAttr) sink.push('</g>');
                 }
+            }
+
+            // THE POINT CLOUD OVER THE LINEWORK (the default): its picture holds
+            // the linework too, so laid over it at the viewport's opacity it is
+            // exactly the drawing with its point cloud over the lines.
+            if (cloud && cloud.Over) Na__PubVp__PaintCloud(sink, cloud, px, py, pw, ph, id);
+
+            // THE DATUM, vectors over the point cloud and the linework, under the
+            // scene markup, as the PDF draws it. A slider never fades it.
+            if (cloud && cloud.DatumSvg) {
+                sink.push('<g class="na-pubdoc__viewport-datum" transform="translate(' + Na__PubPaint__Num(x) + ' ' + Na__PubPaint__Num(y) + ')">' +
+                          (context.Tokens ? context.Tokens(cloud.DatumSvg) : cloud.DatumSvg) + '</g>');
             }
 
             // SCENE MARKUP, in the frame's own millimetres, inside the clip and
@@ -358,6 +416,66 @@
             }
         }
         return Na__PubPaint__Done(sink);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Viewport's Point Cloud as This Paint Shows It (null when it has none)
+    // ------------------------------------------------------------
+    // { Href (null when no tier of it was chosen), Base (the viewport's own
+    // opacity), Opacity (shown now), Over, DatumSvg }. The datum comes with
+    // the block whatever tier was chosen: it is vectors.
+    // ------------------------------------------------------------
+    function Na__PubVp__Cloud(viewport, chosen, context) {
+        const block = viewport['Viewport__PointCloud'];
+        if (!block || typeof block !== 'object') return null;
+        const raw  = Number(block['PointCloud__Opacity']);
+        const base = Number.isFinite(raw) ? Math.max(0, Math.min(1, raw)) : 1;
+        const href = (chosen && chosen.Cloud) ? context.Url(context.Resolve(viewport, chosen.Cloud['Tier__File'])) : null;
+        const opacity = (typeof context.PointCloudOpacity === 'function') ? context.PointCloudOpacity(base) : base;
+        return {
+            Href     : href || null,
+            Base     : base,
+            Opacity  : Math.max(0, Math.min(1, Number(opacity))),
+            Over     : block['PointCloud__OverLinework'] === true,
+            DatumSvg : (typeof block['PointCloud__DatumSvg'] === 'string') ? block['PointCloud__DatumSvg'] : ''
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Put a Viewport's Point Cloud Picture on the Sheet
+    // ------------------------------------------------------------
+    // Carries its viewport's own opacity twice: data-na-pc-base for the
+    // reader's slider, --na-pc-base for the print stylesheet, which shows a
+    // printed page as issued whatever the slider says.
+    // ------------------------------------------------------------
+    function Na__PubVp__PaintCloud(sink, cloud, x, y, w, h, id) {
+        if (!cloud.Href) return;
+        Na__PubPaint__Image(sink, x, y, w, h, cloud.Href, {
+            Id      : id + '__pointcloud',
+            Class   : 'na-pubdoc__viewport-pointcloud',
+            Aspect  : 'none',
+            Opacity : cloud.Opacity,
+            Data    : { 'pc-base' : Na__PubPaint__Num(cloud.Base) },
+            Style   : '--na-pc-base:' + Na__PubPaint__Num(cloud.Base)
+        });
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | A Published Drawing's Point Clouds: Each Viewport's Own Opacity
+    // ------------------------------------------------------------
+    // One number per viewport that publishes a point cloud picture, in the
+    // order they are painted. What the reader's slider is built around.
+    // ------------------------------------------------------------
+    function Na__PubVp__CloudBases(viewports) {
+        return (Array.isArray(viewports) ? viewports : [])
+            .filter((one) => Na__PubVp__CloudMap(one).size > 0)
+            .map((one) => {
+                const raw = Number(one['Viewport__PointCloud']['PointCloud__Opacity']);
+                return Number.isFinite(raw) ? Math.max(0, Math.min(1, raw)) : 1;
+            });
     }
     // ------------------------------------------------------------
 
@@ -413,6 +531,7 @@
 
     export {
         Na__PubVp__Paint,
+        Na__PubVp__CloudBases,
         Na__PubVp__ChooseTier,
         Na__PubVp__ShowingTier,
         Na__PubVp__Held,

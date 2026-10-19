@@ -97,3 +97,14 @@ the reader in `52` never asks for it. The example folder holds one, and
 `Na__Test__PublishedSchema__` region 6A checks it. Adding the name did NOT bump
 `Version__Schema`: no reader of schema 1 reads it, and nothing a reader of schema 1 reads
 changed.
+
+## The point cloud picture (v2.176.0)
+
+`RasterTiers__PointCloudSuffix` / `Na__PubSchema__PointCloudPath()` name a point cloud
+viewport's second picture, `<viewport>__PointCloud__<tier>__<name>__<hash>.webp`, at each
+SCREEN tier, beside the rasters (no Print tier: the PDF is baked at publish). It is the
+viewport's picture with its SketchUp point cloud laid in at full strength, where the PDF
+lays it; the element's `Viewport__PointCloud` block says the opacity the reader shows it
+at. The example folder's ReadMe documents the block, and `Na__Test__PublishedSchema__`
+region 7 checks the name. Adding it did NOT bump `Version__Schema`: a reader of schema 1
+that does not know the key shows the drawing without its point cloud, as it always did.

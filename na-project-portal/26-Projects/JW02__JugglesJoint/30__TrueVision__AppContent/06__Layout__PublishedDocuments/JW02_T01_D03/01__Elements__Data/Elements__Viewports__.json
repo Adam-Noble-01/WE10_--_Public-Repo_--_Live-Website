@@ -1,0 +1,63 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName" : "Elements__Viewports__.json",
+        "Meta__Kind"     : "viewport",
+        "Meta__Document" : "JW02_T01_D03"
+    },
+    "Elements__LayerSvg"  : {},
+    "Elements__Viewports" : [
+        {
+            "Viewport__Id"      : "Viewport_001",
+            "Viewport__Kind"    : "2d",
+            "Viewport__Name"    : "",
+            "Viewport__LayerId" : "Layer_001",
+            "Viewport__FrameMm" : {
+                "X"        : 5.013461525036973,
+                "Y"        : 4.357337823921284,
+                "WidthMm"  : 830.9999484890542,
+                "HeightMm" : 574.7985096935436
+            },
+            "Viewport__RotationDeg"      : 0,
+            "Viewport__ScaleDenominator" : 200,
+            "Viewport__SitePlan"         : false,
+            "Viewport__PictureRectMm"    : {
+                "X"        : 0,
+                "Y"        : 0,
+                "WidthMm"  : 830.9999484890542,
+                "HeightMm" : 574.7985096935436
+            },
+            "Viewport__BaseImage"    : true,
+            "Viewport__RasterOpaque" : true,
+            "Viewport__Rasters"      : [
+                {
+                    "Tier__Id"     : "Print",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Print__8cc75c1f08.png",
+                    "Tier__PixelW" : 8192,
+                    "Tier__PixelH" : 5666
+                },
+                {
+                    "Tier__Id"     : "Tier03",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier03__Detail__8cc75c1f08.webp",
+                    "Tier__PixelW" : 5120,
+                    "Tier__PixelH" : 3541
+                },
+                {
+                    "Tier__Id"     : "Tier02",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier02__Read__8cc75c1f08.webp",
+                    "Tier__PixelW" : 3072,
+                    "Tier__PixelH" : 2125
+                },
+                {
+                    "Tier__Id"     : "Tier01",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier01__Fit__8cc75c1f08.webp",
+                    "Tier__PixelW" : 1024,
+                    "Tier__PixelH" : 708
+                }
+            ],
+            "Viewport__FogMasks" : [],
+            "Viewport__Vector"   : null,
+            "Viewport__SceneSvg" : "",
+            "Viewport__FrameSvg" : "<rect x=\"5.013\" y=\"4.357\" width=\"831\" height=\"574.799\" fill=\"none\" stroke=\"#8a949c\" stroke-width=\"0.25\"/><rect x=\"5.013\" y=\"574.156\" width=\"37.473\" height=\"5\" fill=\"#ffffff\" stroke=\"#8a949c\" stroke-width=\"0.25\"/><text x=\"6.913\" y=\"577.52\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"700\" fill=\"#172b3a\" text-anchor=\"start\" letter-spacing=\"0.16\" xml:space=\"preserve\">ROOF FLOOR PLAN   1:200</text>"
+        }
+    ]
+}

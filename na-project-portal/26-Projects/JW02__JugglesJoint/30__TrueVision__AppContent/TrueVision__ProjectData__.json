@@ -35,18 +35,18 @@
         "PointCloud__FolderName": "PointCloud__ViewportData",
         "PointCloud__BaseUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/JW02__JugglesJoint/30__TrueVision__AppContent/PointCloud__ViewportData",
         "PointCloud__ManifestUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/JW02__JugglesJoint/30__TrueVision__AppContent/PointCloud__ViewportData/TrueVision__PointCloudData__Manifest__.json",
-        "PointCloud__ExportedIso": "2026-10-19T16:12:28+0100",
-        "PointCloud__SceneCount": 4
+        "PointCloud__ExportedIso": "2026-10-19T17:11:59+0100",
+        "PointCloud__SceneCount": 5
     },
     "SceneSync__DataStore": {
         "SceneSync__FolderName": "SceneSync__SketchUpSceneData",
         "SceneSync__BaseUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/JW02__JugglesJoint/30__TrueVision__AppContent/SceneSync__SketchUpSceneData",
         "SceneSync__ManifestUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/JW02__JugglesJoint/30__TrueVision__AppContent/SceneSync__SketchUpSceneData/TrueVision__SceneSyncData__Manifest__.json",
-        "SceneSync__ExportedIso": "2026-10-19T16:12:28+0100",
-        "SceneSync__SceneCount": 4
+        "SceneSync__ExportedIso": "2026-10-19T17:11:59+0100",
+        "SceneSync__SceneCount": 5
     },
     "PresentationMode__SavedCameraScenes": {
-        "PresentationMode__SavedCameraScenes__Enabled": false,
+        "PresentationMode__SavedCameraScenes__Enabled": true,
         "PresentationMode__SavedCameraScenes__Scenes": [
             {
                 "PresentationMode__Scene__Id": "Scene_001",
@@ -121,6 +121,64 @@
                     }
                 },
                 "PresentationMode__Scene__Order": 2
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_003",
+                "PresentationMode__Scene__Name": "Ground Floor Plan",
+                "PresentationMode__Scene__Order": 1,
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 37000,
+                        "Camera__DefaultPos__PosY": 143068,
+                        "Camera__DefaultPos__PosZ": -27000
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -1.5707963267948966,
+                        "Camera__DefaultRotation__RotY": 0,
+                        "Camera__DefaultRotation__RotZ": 0
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 30
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Floor plan cut centre. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 37000,
+                    "OrbitHelperCube__Position__PosY": 1250,
+                    "OrbitHelperCube__Position__PosZ": -27000
+                },
+                "PresentationMode__Scene__GroupId": "Group_004",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_003.webp",
+                "PresentationMode__Scene__FloorPlanId": "FloorPlan_001"
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_004",
+                "PresentationMode__Scene__Name": "Roof Floor Plan",
+                "PresentationMode__Scene__Order": 2,
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 37000,
+                        "Camera__DefaultPos__PosY": 148718,
+                        "Camera__DefaultPos__PosZ": -27000
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -1.5707963267948966,
+                        "Camera__DefaultRotation__RotY": 0,
+                        "Camera__DefaultRotation__RotZ": 0
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 30
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Floor plan cut centre. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 37000,
+                    "OrbitHelperCube__Position__PosY": 6900,
+                    "OrbitHelperCube__Position__PosZ": -27000
+                },
+                "PresentationMode__Scene__GroupId": "Group_004",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_004.webp",
+                "PresentationMode__Scene__FloorPlanId": "FloorPlan_002"
             }
         ],
         "PresentationMode__SavedCameraScenes__Groups": [
@@ -146,7 +204,7 @@
                 "PresentationMode__Group__Id": "Group_004",
                 "PresentationMode__Group__Name": "Floor Plans",
                 "PresentationMode__Group__Order": 4,
-                "PresentationMode__Group__Enabled": false
+                "PresentationMode__Group__Enabled": true
             },
             {
                 "PresentationMode__Group__Id": "Group_005",
@@ -172,13 +230,63 @@
     "LayoutEditor__DrawingsData": {
         "LayoutEditor__DrawingsData__Description": "TrueVision-owned drawing definitions: floor plans, elevations and sections with their markup, and Layout Editor sheets. Distances are integer millimetres.",
         "LayoutEditor__DrawingsData__Version": 1,
-        "LayoutEditor__DrawingsData__ClientDimensionsEnabled": false,
-        "LayoutEditor__DrawingsData__FloorPlans": [],
+        "LayoutEditor__DrawingsData__ClientDimensionsEnabled": true,
+        "LayoutEditor__DrawingsData__FloorPlans": [
+            {
+                "FloorPlan__Id": "FloorPlan_001",
+                "FloorPlan__Name": "Ground Floor Plan",
+                "FloorPlan__Order": 1,
+                "FloorPlan__Enabled": true,
+                "FloorPlan__FloorDatumMm": 0,
+                "FloorPlan__CutOffsetMm": 1250,
+                "FloorPlan__ViewDepthMm": 1500,
+                "FloorPlan__SceneId": "Scene_003",
+                "FloorPlan__Annotations": [],
+                "FloorPlan__Styles": {
+                    "Styles__ProjectedLinework": false,
+                    "Styles__ProfileLinework": true,
+                    "Styles__GlassOpaque": false,
+                    "Styles__Whitecard": true,
+                    "Styles__HiddenLines": false
+                },
+                "FloorPlan__Dimensions": [],
+                "FloorPlan__CameraZoom": 1.9738226851840035,
+                "FloorPlan__CameraTargetMm": {
+                    "PosX": 30648,
+                    "PosZ": -24309
+                },
+                "FloorPlan__StoreyLevel": "ground"
+            },
+            {
+                "FloorPlan__Id": "FloorPlan_002",
+                "FloorPlan__Name": "Roof Floor Plan",
+                "FloorPlan__Order": 2,
+                "FloorPlan__Enabled": true,
+                "FloorPlan__FloorDatumMm": 5700,
+                "FloorPlan__CutOffsetMm": 1200,
+                "FloorPlan__ViewDepthMm": null,
+                "FloorPlan__SceneId": "Scene_004",
+                "FloorPlan__Annotations": [],
+                "FloorPlan__Styles": {
+                    "Styles__ProjectedLinework": false,
+                    "Styles__ProfileLinework": true,
+                    "Styles__GlassOpaque": false,
+                    "Styles__Whitecard": true,
+                    "Styles__HiddenLines": false
+                },
+                "FloorPlan__Dimensions": [],
+                "FloorPlan__CameraZoom": 1,
+                "FloorPlan__CameraTargetMm": {
+                    "PosX": 37000,
+                    "PosZ": -27000
+                }
+            }
+        ],
         "LayoutEditor__DrawingsData__Elevations": [],
         "LayoutEditor__DrawingsData__Sheets": [
             {
                 "Sheet__Id": "Sheet_001",
-                "Sheet__Name": "Elevations",
+                "Sheet__Name": "Existing Conditions | Elevations",
                 "Sheet__Order": 1,
                 "Sheet__PaperSize": "A1",
                 "Sheet__Orientation": "landscape",
@@ -237,17 +345,17 @@
                         "Viewport__ModelSourceId": null,
                         "Viewport__Name": "",
                         "Viewport__FrameMm": {
-                            "X": 7.753088588820901,
-                            "Y": 17.57391962042209,
-                            "WidthMm": 594.6998686692868,
-                            "HeightMm": 106.30637550406409
+                            "X": 69.87921911183832,
+                            "Y": 37.57391962042209,
+                            "WidthMm": 569.8611324079022,
+                            "HeightMm": 106.02155289886075
                         },
                         "Viewport__ScaleDenominator": 100,
                         "Viewport__ModelLayers": null,
                         "Viewport__LayerId": "Layer_001",
                         "Viewport__PanMm": {
-                            "X": 28508.86016420552,
-                            "Y": -2726.9181930894592
+                            "X": 33479.53640343803,
+                            "Y": -2741.159323349625
                         },
                         "Viewport__ImageMm": {
                             "WidthMm": 180,
@@ -259,7 +367,7 @@
                         },
                         "Viewport__Styles": {
                             "baseImage": true,
-                            "projectedLinework": false,
+                            "projectedLinework": true,
                             "profileLinework": false,
                             "glassOpaque": true,
                             "whitecard": true,
@@ -271,15 +379,16 @@
                         "Viewport__ProjectedEdges": null,
                         "Viewport__CompositeWeights": null,
                         "Viewport__MarkupMode": "scene",
-                        "Viewport__ShowScaleLabel": true,
+                        "Viewport__ShowScaleLabel": false,
                         "Viewport__SnapshotAsset": null,
-                        "Viewport__Locked": false,
+                        "Viewport__Locked": true,
                         "Viewport__PointCloud": {
                             "PointCloud__SceneId": "pcs_d5daef4a",
                             "PointCloud__Opacity": 0.35,
                             "PointCloud__LineworkOnTop": true,
                             "PointCloud__ShowDatum": true
-                        }
+                        },
+                        "Viewport__ShowFrame": false
                     },
                     {
                         "Viewport__Id": "Viewport_002",
@@ -289,8 +398,8 @@
                         "Viewport__ModelSourceId": null,
                         "Viewport__Name": "",
                         "Viewport__FrameMm": {
-                            "X": 122.98693505910069,
-                            "Y": 150.5,
+                            "X": 145.40280430911798,
+                            "Y": 444.86680352564315,
                             "WidthMm": 473.1478899073313,
                             "HeightMm": 120
                         },
@@ -316,7 +425,7 @@
                         },
                         "Viewport__Styles": {
                             "baseImage": true,
-                            "projectedLinework": false,
+                            "projectedLinework": true,
                             "profileLinework": false,
                             "glassOpaque": true,
                             "whitecard": true,
@@ -328,9 +437,10 @@
                         "Viewport__ProjectedEdges": null,
                         "Viewport__CompositeWeights": null,
                         "Viewport__MarkupMode": "scene",
-                        "Viewport__ShowScaleLabel": true,
+                        "Viewport__ShowScaleLabel": false,
                         "Viewport__SnapshotAsset": null,
-                        "Viewport__Locked": false
+                        "Viewport__Locked": true,
+                        "Viewport__ShowFrame": false
                     },
                     {
                         "Viewport__Id": "Viewport_003",
@@ -340,8 +450,8 @@
                         "Viewport__ModelSourceId": null,
                         "Viewport__Name": "",
                         "Viewport__FrameMm": {
-                            "X": 123.54541094933654,
-                            "Y": 420.5,
+                            "X": 163.4425991208122,
+                            "Y": 180.49657413885973,
                             "WidthMm": 534.1515879618953,
                             "HeightMm": 103.30304344050882
                         },
@@ -367,7 +477,7 @@
                         },
                         "Viewport__Styles": {
                             "baseImage": true,
-                            "projectedLinework": false,
+                            "projectedLinework": true,
                             "profileLinework": false,
                             "glassOpaque": true,
                             "whitecard": true,
@@ -379,9 +489,10 @@
                         "Viewport__ProjectedEdges": null,
                         "Viewport__CompositeWeights": null,
                         "Viewport__MarkupMode": "scene",
-                        "Viewport__ShowScaleLabel": true,
+                        "Viewport__ShowScaleLabel": false,
                         "Viewport__SnapshotAsset": null,
-                        "Viewport__Locked": false
+                        "Viewport__Locked": true,
+                        "Viewport__ShowFrame": false
                     },
                     {
                         "Viewport__Id": "Viewport_004",
@@ -391,9 +502,9 @@
                         "Viewport__ModelSourceId": null,
                         "Viewport__Name": "",
                         "Viewport__FrameMm": {
-                            "X": 154.4999981119792,
-                            "Y": 300.5,
-                            "WidthMm": 408.4849058406337,
+                            "X": 142.98251932962455,
+                            "Y": 320.4965741388597,
+                            "WidthMm": 474.16945244479564,
                             "HeightMm": 100.19426764287851
                         },
                         "Viewport__ScaleDenominator": 100,
@@ -405,7 +516,7 @@
                         },
                         "Viewport__LayerId": "Layer_001",
                         "Viewport__PanMm": {
-                            "X": 32573.342842527632,
+                            "X": 33186.072709549255,
                             "Y": -3245.912380651119
                         },
                         "Viewport__ImageMm": {
@@ -418,7 +529,7 @@
                         },
                         "Viewport__Styles": {
                             "baseImage": true,
-                            "projectedLinework": false,
+                            "projectedLinework": true,
                             "profileLinework": false,
                             "glassOpaque": true,
                             "whitecard": true,
@@ -430,9 +541,3113 @@
                         "Viewport__ProjectedEdges": null,
                         "Viewport__CompositeWeights": null,
                         "Viewport__MarkupMode": "scene",
-                        "Viewport__ShowScaleLabel": true,
+                        "Viewport__ShowScaleLabel": false,
                         "Viewport__SnapshotAsset": null,
-                        "Viewport__Locked": false
+                        "Viewport__Locked": true,
+                        "Viewport__ShowFrame": false
+                    }
+                ],
+                "Sheet__Annotations": [
+                    {
+                        "Annotation__Text": "EXISTING NORTH ELEVATION",
+                        "Annotation__PosXMm": 197.8754,
+                        "Annotation__PosYMm": 159.2843,
+                        "Annotation__SizeMm": 3.5,
+                        "Annotation__FontWeight": 600,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_001"
+                    },
+                    {
+                        "Annotation__Text": "0",
+                        "Annotation__PosXMm": 370.0144,
+                        "Annotation__PosYMm": 164.5983,
+                        "Annotation__SizeMm": 2.5,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_002"
+                    },
+                    {
+                        "Annotation__Text": "2",
+                        "Annotation__PosXMm": 390.0144,
+                        "Annotation__PosYMm": 164.5983,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_003"
+                    },
+                    {
+                        "Annotation__Text": "4",
+                        "Annotation__PosXMm": 410.0144,
+                        "Annotation__PosYMm": 164.5983,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_004"
+                    },
+                    {
+                        "Annotation__Text": "6",
+                        "Annotation__PosXMm": 430.0144,
+                        "Annotation__PosYMm": 164.5983,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_005"
+                    },
+                    {
+                        "Annotation__Text": "8",
+                        "Annotation__PosXMm": 450.0144,
+                        "Annotation__PosYMm": 164.5983,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_006"
+                    },
+                    {
+                        "Annotation__Text": "10",
+                        "Annotation__PosXMm": 470.0144,
+                        "Annotation__PosYMm": 164.5983,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_007"
+                    },
+                    {
+                        "Annotation__Text": "12",
+                        "Annotation__PosXMm": 490.0144,
+                        "Annotation__PosYMm": 164.5983,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_008"
+                    },
+                    {
+                        "Annotation__Text": "14",
+                        "Annotation__PosXMm": 510.0144,
+                        "Annotation__PosYMm": 164.5983,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_009"
+                    },
+                    {
+                        "Annotation__Text": "16",
+                        "Annotation__PosXMm": 530.0144,
+                        "Annotation__PosYMm": 164.5983,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_010"
+                    },
+                    {
+                        "Annotation__Text": "18",
+                        "Annotation__PosXMm": 550.0144,
+                        "Annotation__PosYMm": 164.5983,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_011"
+                    },
+                    {
+                        "Annotation__Text": "20 m",
+                        "Annotation__PosXMm": 570.0144,
+                        "Annotation__PosYMm": 164.5983,
+                        "Annotation__SizeMm": 2.5,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_012"
+                    },
+                    {
+                        "Annotation__Text": "EXISTING SOUTH ELEVATION",
+                        "Annotation__PosXMm": 197.8754,
+                        "Annotation__PosYMm": 290.2283,
+                        "Annotation__SizeMm": 3.5,
+                        "Annotation__FontWeight": 600,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_013"
+                    },
+                    {
+                        "Annotation__Text": "0",
+                        "Annotation__PosXMm": 370.0144,
+                        "Annotation__PosYMm": 295.5423,
+                        "Annotation__SizeMm": 2.5,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_014"
+                    },
+                    {
+                        "Annotation__Text": "2",
+                        "Annotation__PosXMm": 390.0144,
+                        "Annotation__PosYMm": 295.5423,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_015"
+                    },
+                    {
+                        "Annotation__Text": "4",
+                        "Annotation__PosXMm": 410.0144,
+                        "Annotation__PosYMm": 295.5423,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_016"
+                    },
+                    {
+                        "Annotation__Text": "6",
+                        "Annotation__PosXMm": 430.0144,
+                        "Annotation__PosYMm": 295.5423,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_017"
+                    },
+                    {
+                        "Annotation__Text": "8",
+                        "Annotation__PosXMm": 450.0144,
+                        "Annotation__PosYMm": 295.5423,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_018"
+                    },
+                    {
+                        "Annotation__Text": "10",
+                        "Annotation__PosXMm": 470.0144,
+                        "Annotation__PosYMm": 295.5423,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_019"
+                    },
+                    {
+                        "Annotation__Text": "12",
+                        "Annotation__PosXMm": 490.0144,
+                        "Annotation__PosYMm": 295.5423,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_020"
+                    },
+                    {
+                        "Annotation__Text": "14",
+                        "Annotation__PosXMm": 510.0144,
+                        "Annotation__PosYMm": 295.5423,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_021"
+                    },
+                    {
+                        "Annotation__Text": "16",
+                        "Annotation__PosXMm": 530.0144,
+                        "Annotation__PosYMm": 295.5423,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_022"
+                    },
+                    {
+                        "Annotation__Text": "18",
+                        "Annotation__PosXMm": 550.0144,
+                        "Annotation__PosYMm": 295.5423,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_023"
+                    },
+                    {
+                        "Annotation__Text": "20 m",
+                        "Annotation__PosXMm": 570.0144,
+                        "Annotation__PosYMm": 295.5423,
+                        "Annotation__SizeMm": 2.5,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_024"
+                    }
+                ],
+                "Sheet__Dimensions": [],
+                "Sheet__Shapes": [
+                    {
+                        "Shape__Id": "Shape_036",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__Points": [
+                            [
+                                163.50680585943576,
+                                260.02072045279067
+                            ],
+                            [
+                                198.33136787492646,
+                                260.03763709848295
+                            ],
+                            [
+                                199.53136787492647,
+                                260.03763709848295
+                            ],
+                            [
+                                259.1813678749265,
+                                260.3546372205533
+                            ],
+                            [
+                                260.6813678749265,
+                                260.38463722055326
+                            ],
+                            [
+                                298.33136787492646,
+                                261.13763709848297
+                            ],
+                            [
+                                338.33136787492646,
+                                262.03763709848295
+                            ],
+                            [
+                                381.9481647499265,
+                                263.28233711069
+                            ],
+                            [
+                                440.3549616249265,
+                                265.1337371045865
+                            ],
+                            [
+                                468.33136787492646,
+                                266.16263709848295
+                            ],
+                            [
+                                484.89847923895684,
+                                266.49365116606907
+                            ],
+                            [
+                                498.33136787492646,
+                                266.937637098483
+                            ],
+                            [
+                                551.9313678749265,
+                                267.190137098483
+                            ],
+                            [
+                                578.3313678749264,
+                                267.0332370740689
+                            ],
+                            [
+                                599.2556321949049,
+                                267.32909865660247
+                            ],
+                            [
+                                636.3498752610552,
+                                268.0977260126866
+                            ],
+                            [
+                                660.6783458077743,
+                                268.6324186480691
+                            ],
+                            [
+                                697.5052471455283,
+                                269.70181003789406
+                            ],
+                            [
+                                719.0265867106667,
+                                270.20308342746205
+                            ],
+                            [
+                                722.5397859115646,
+                                270.20308342746205
+                            ],
+                            [
+                                722.5397859115646,
+                                294.4636047820904
+                            ],
+                            [
+                                152.8394724736698,
+                                294.4636047820904
+                            ],
+                            [
+                                152.8394724736698,
+                                260.02072045279067
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 1,
+                        "Shape__FillColour": "#ffffff",
+                        "Shape__Stroked": false,
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null
+                    },
+                    {
+                        "Shape__Id": "Shape_033",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__Points": [
+                            [
+                                645.9490487312646,
+                                123.76123021763073
+                            ],
+                            [
+                                645.9490487312646,
+                                140.3684022538615
+                            ],
+                            [
+                                7.4856815977051445,
+                                140.3684022538615
+                            ],
+                            [
+                                7.4856815977051445,
+                                135.9563689428506
+                            ],
+                            [
+                                10.014421281409122,
+                                135.9563689428506
+                            ],
+                            [
+                                16.69946618179388,
+                                135.75133807301182
+                            ],
+                            [
+                                29.684107612754175,
+                                135.3257982547493
+                            ],
+                            [
+                                41.77166817598478,
+                                134.99227142838484
+                            ],
+                            [
+                                60.88634851476234,
+                                134.48622419076978
+                            ],
+                            [
+                                74.46903964574686,
+                                134.14120021545088
+                            ],
+                            [
+                                94.62829203590736,
+                                133.73445508232294
+                            ],
+                            [
+                                115.5913887679702,
+                                133.14574628583537
+                            ],
+                            [
+                                130.0144212814091,
+                                132.7563689428506
+                            ],
+                            [
+                                146.4857237063971,
+                                132.40346637587436
+                            ],
+                            [
+                                160.0144212814091,
+                                132.1063689428506
+                            ],
+                            [
+                                172.8239734466812,
+                                131.66118412253263
+                            ],
+                            [
+                                185.6731518575082,
+                                131.32843343084937
+                            ],
+                            [
+                                199.05984088239586,
+                                131.1748576306145
+                            ],
+                            [
+                                218.28241031620942,
+                                131.04687389145084
+                            ],
+                            [
+                                232.0786332461363,
+                                130.9444962736429
+                            ],
+                            [
+                                252.3506482506651,
+                                130.6117432385789
+                            ],
+                            [
+                                269.2183918720513,
+                                130.58614649074616
+                            ],
+                            [
+                                283.19378969342654,
+                                130.2278060813724
+                            ],
+                            [
+                                296.40130382686584,
+                                129.89506007645062
+                            ],
+                            [
+                                309.0201185373405,
+                                129.66469168933682
+                            ],
+                            [
+                                320.0144212814091,
+                                129.1313689428506
+                            ],
+                            [
+                                342.32045872357577,
+                                128.30810857843625
+                            ],
+                            [
+                                353.3011284403706,
+                                127.97536257351447
+                            ],
+                            [
+                                373.80349777172876,
+                                127.54022957726178
+                            ],
+                            [
+                                389.13548339076607,
+                                126.95152546753567
+                            ],
+                            [
+                                404.54425690992076,
+                                126.51639481466376
+                            ],
+                            [
+                                433.95404608871013,
+                                125.64612647877763
+                            ],
+                            [
+                                461.0345804257167,
+                                125.0062265300053
+                            ],
+                            [
+                                500.0144212814091,
+                                124.1563689428506
+                            ],
+                            [
+                                522.0886518905962,
+                                124.03473560930533
+                            ],
+                            [
+                                564.8906866766177,
+                                123.64205653767348
+                            ],
+                            [
+                                606.0347325080922,
+                                123.77294956155077
+                            ],
+                            [
+                                640.7342035678925,
+                                123.77294956155077
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 1,
+                        "Shape__FillColour": "#ffffff",
+                        "Shape__Stroked": false,
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null
+                    },
+                    {
+                        "Shape__Id": "Shape_001",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__Points": [
+                            [
+                                -133.27323679348393,
+                                28.618225120396612
+                            ],
+                            [
+                                -91.91258105577901,
+                                28.618225120396612
+                            ],
+                            [
+                                -91.91258105577901,
+                                57.445348816372764
+                            ],
+                            [
+                                -133.27323679348393,
+                                57.445348816372764
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__StrokeColour": "#960000",
+                        "Shape__StrokePt": 1,
+                        "Shape__FillColour": null,
+                        "Shape__Stroked": true,
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null
+                    },
+                    {
+                        "Shape__Id": "Shape_002",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__Points": [
+                            [
+                                -103.91886607239624,
+                                73.40494472373935
+                            ],
+                            [
+                                -68.13549299882112,
+                                73.40494472373935
+                            ],
+                            [
+                                -68.13549299882112,
+                                100.11993057500932
+                            ],
+                            [
+                                -103.91886607239624,
+                                100.11993057500932
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__Stroked": true,
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                198.0464,
+                                160.9153
+                            ],
+                            [
+                                258.0464,
+                                160.9153
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.4,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_003"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                370.0144,
+                                157.2843
+                            ],
+                            [
+                                375.0144,
+                                157.2843
+                            ],
+                            [
+                                375.0144,
+                                158.2843
+                            ],
+                            [
+                                370.0144,
+                                158.2843
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_004"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                370.0144,
+                                158.2843
+                            ],
+                            [
+                                375.0144,
+                                158.2843
+                            ],
+                            [
+                                375.0144,
+                                159.2843
+                            ],
+                            [
+                                370.0144,
+                                159.2843
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#858585",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_005"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                375.0144,
+                                157.2843
+                            ],
+                            [
+                                380.0144,
+                                157.2843
+                            ],
+                            [
+                                380.0144,
+                                158.2843
+                            ],
+                            [
+                                375.0144,
+                                158.2843
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#858585",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_006"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                375.0144,
+                                158.2843
+                            ],
+                            [
+                                380.0144,
+                                158.2843
+                            ],
+                            [
+                                380.0144,
+                                159.2843
+                            ],
+                            [
+                                375.0144,
+                                159.2843
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_007"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                380.0144,
+                                157.2843
+                            ],
+                            [
+                                385.0144,
+                                157.2843
+                            ],
+                            [
+                                385.0144,
+                                158.2843
+                            ],
+                            [
+                                380.0144,
+                                158.2843
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_008"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                380.0144,
+                                158.2843
+                            ],
+                            [
+                                385.0144,
+                                158.2843
+                            ],
+                            [
+                                385.0144,
+                                159.2843
+                            ],
+                            [
+                                380.0144,
+                                159.2843
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#858585",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_009"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                385.0144,
+                                157.2843
+                            ],
+                            [
+                                390.0144,
+                                157.2843
+                            ],
+                            [
+                                390.0144,
+                                158.2843
+                            ],
+                            [
+                                385.0144,
+                                158.2843
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#858585",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_010"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                385.0144,
+                                158.2843
+                            ],
+                            [
+                                390.0144,
+                                158.2843
+                            ],
+                            [
+                                390.0144,
+                                159.2843
+                            ],
+                            [
+                                385.0144,
+                                159.2843
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_011"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                390.0144,
+                                157.2843
+                            ],
+                            [
+                                410.0144,
+                                157.2843
+                            ],
+                            [
+                                410.0144,
+                                158.2843
+                            ],
+                            [
+                                390.0144,
+                                158.2843
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_012"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                390.0144,
+                                158.2843
+                            ],
+                            [
+                                410.0144,
+                                158.2843
+                            ],
+                            [
+                                410.0144,
+                                159.2843
+                            ],
+                            [
+                                390.0144,
+                                159.2843
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#858585",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_013"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                410.0144,
+                                157.2843
+                            ],
+                            [
+                                430.0144,
+                                157.2843
+                            ],
+                            [
+                                430.0144,
+                                158.2843
+                            ],
+                            [
+                                410.0144,
+                                158.2843
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#858585",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_014"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                410.0144,
+                                158.2843
+                            ],
+                            [
+                                430.0144,
+                                158.2843
+                            ],
+                            [
+                                430.0144,
+                                159.2843
+                            ],
+                            [
+                                410.0144,
+                                159.2843
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_015"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                430.0144,
+                                157.2843
+                            ],
+                            [
+                                450.0144,
+                                157.2843
+                            ],
+                            [
+                                450.0144,
+                                158.2843
+                            ],
+                            [
+                                430.0144,
+                                158.2843
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_016"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                430.0144,
+                                158.2843
+                            ],
+                            [
+                                450.0144,
+                                158.2843
+                            ],
+                            [
+                                450.0144,
+                                159.2843
+                            ],
+                            [
+                                430.0144,
+                                159.2843
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#858585",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_017"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                450.0144,
+                                157.2843
+                            ],
+                            [
+                                470.0144,
+                                157.2843
+                            ],
+                            [
+                                470.0144,
+                                158.2843
+                            ],
+                            [
+                                450.0144,
+                                158.2843
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#858585",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_018"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                450.0144,
+                                158.2843
+                            ],
+                            [
+                                470.0144,
+                                158.2843
+                            ],
+                            [
+                                470.0144,
+                                159.2843
+                            ],
+                            [
+                                450.0144,
+                                159.2843
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_019"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                470.0144,
+                                157.2843
+                            ],
+                            [
+                                490.0144,
+                                157.2843
+                            ],
+                            [
+                                490.0144,
+                                158.2843
+                            ],
+                            [
+                                470.0144,
+                                158.2843
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_020"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                470.0144,
+                                158.2843
+                            ],
+                            [
+                                490.0144,
+                                158.2843
+                            ],
+                            [
+                                490.0144,
+                                159.2843
+                            ],
+                            [
+                                470.0144,
+                                159.2843
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#858585",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_021"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                490.0144,
+                                157.2843
+                            ],
+                            [
+                                510.0144,
+                                157.2843
+                            ],
+                            [
+                                510.0144,
+                                158.2843
+                            ],
+                            [
+                                490.0144,
+                                158.2843
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#858585",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_022"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                490.0144,
+                                158.2843
+                            ],
+                            [
+                                510.0144,
+                                158.2843
+                            ],
+                            [
+                                510.0144,
+                                159.2843
+                            ],
+                            [
+                                490.0144,
+                                159.2843
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_023"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                510.0144,
+                                157.2843
+                            ],
+                            [
+                                530.0144,
+                                157.2843
+                            ],
+                            [
+                                530.0144,
+                                158.2843
+                            ],
+                            [
+                                510.0144,
+                                158.2843
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_024"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                510.0144,
+                                158.2843
+                            ],
+                            [
+                                530.0144,
+                                158.2843
+                            ],
+                            [
+                                530.0144,
+                                159.2843
+                            ],
+                            [
+                                510.0144,
+                                159.2843
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#858585",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_025"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                530.0144,
+                                157.2843
+                            ],
+                            [
+                                550.0144,
+                                157.2843
+                            ],
+                            [
+                                550.0144,
+                                158.2843
+                            ],
+                            [
+                                530.0144,
+                                158.2843
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#858585",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_026"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                530.0144,
+                                158.2843
+                            ],
+                            [
+                                550.0144,
+                                158.2843
+                            ],
+                            [
+                                550.0144,
+                                159.2843
+                            ],
+                            [
+                                530.0144,
+                                159.2843
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_027"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                550.0144,
+                                157.2843
+                            ],
+                            [
+                                570.0144,
+                                157.2843
+                            ],
+                            [
+                                570.0144,
+                                158.2843
+                            ],
+                            [
+                                550.0144,
+                                158.2843
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_028"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                550.0144,
+                                158.2843
+                            ],
+                            [
+                                570.0144,
+                                158.2843
+                            ],
+                            [
+                                570.0144,
+                                159.2843
+                            ],
+                            [
+                                550.0144,
+                                159.2843
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#858585",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_029"
+                    },
+                    {
+                        "Shape__Id": "Shape_030",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__Points": [
+                            [
+                                -103.91886607239624,
+                                109.91690523007884
+                            ],
+                            [
+                                -68.13549299882112,
+                                109.91690523007884
+                            ],
+                            [
+                                -68.13549299882112,
+                                136.6318910813488
+                            ],
+                            [
+                                -103.91886607239624,
+                                136.6318910813488
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 1,
+                        "Shape__FillColour": null,
+                        "Shape__Stroked": true,
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null
+                    },
+                    {
+                        "Shape__Id": "Shape_031",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__Points": [
+                            [
+                                41.77166817598478,
+                                134.99198029778177
+                            ],
+                            [
+                                60.88634851476234,
+                                134.4859330601667
+                            ],
+                            [
+                                74.46903964574686,
+                                134.1409090848478
+                            ],
+                            [
+                                94.62829203590736,
+                                133.73416395171986
+                            ],
+                            [
+                                115.5913887679702,
+                                133.1454551552323
+                            ],
+                            [
+                                130.0144212814091,
+                                132.75607781224753
+                            ],
+                            [
+                                146.4857237063971,
+                                132.40317524527129
+                            ],
+                            [
+                                160.0144212814091,
+                                132.10607781224752
+                            ],
+                            [
+                                172.8239734466812,
+                                131.66089299192956
+                            ],
+                            [
+                                185.6731518575082,
+                                131.3281423002463
+                            ],
+                            [
+                                199.05984088239586,
+                                131.17456650001142
+                            ],
+                            [
+                                218.28241031620942,
+                                131.04658276084777
+                            ],
+                            [
+                                232.0786332461363,
+                                130.94420514303982
+                            ],
+                            [
+                                252.3506482506651,
+                                130.61145210797582
+                            ],
+                            [
+                                269.2183918720513,
+                                130.58585536014309
+                            ],
+                            [
+                                283.19378969342654,
+                                130.22751495076932
+                            ],
+                            [
+                                296.40130382686584,
+                                129.89476894584755
+                            ],
+                            [
+                                309.0201185373405,
+                                129.66440055873375
+                            ],
+                            [
+                                320.0144212814091,
+                                129.13107781224753
+                            ],
+                            [
+                                342.32045872357577,
+                                128.30781744783317
+                            ],
+                            [
+                                353.3011284403706,
+                                127.9750714429114
+                            ],
+                            [
+                                373.80349777172876,
+                                127.53993844665871
+                            ],
+                            [
+                                389.13548339076607,
+                                126.95123433693261
+                            ],
+                            [
+                                404.54425690992076,
+                                126.51610368406067
+                            ],
+                            [
+                                433.95404608871013,
+                                125.64583534817454
+                            ],
+                            [
+                                461.0345804257167,
+                                125.00593539940223
+                            ],
+                            [
+                                500.0144212814091,
+                                124.15607781224752
+                            ],
+                            [
+                                522.0886518905962,
+                                124.03444447870226
+                            ],
+                            [
+                                564.8906866766177,
+                                123.64176540707042
+                            ],
+                            [
+                                606.0347325080922,
+                                123.7726584309477
+                            ],
+                            [
+                                640.7342035678925,
+                                123.7726584309477
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 1,
+                        "Shape__FillColour": null,
+                        "Shape__Stroked": true,
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null
+                    },
+                    {
+                        "Shape__Id": "Shape_034",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__Points": [
+                            [
+                                -109.07870538234717,
+                                155.01093290908565
+                            ],
+                            [
+                                -65.54653009221059,
+                                155.01093290908565
+                            ],
+                            [
+                                -65.54653009221059,
+                                182.4874985521772
+                            ],
+                            [
+                                -109.07870538234717,
+                                182.4874985521772
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 1,
+                        "Shape__FillColour": "#ffffff",
+                        "Shape__Stroked": false,
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null
+                    },
+                    {
+                        "Shape__Id": "Shape_035",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__Points": [
+                            [
+                                143.80507008856384,
+                                260.02072045279067
+                            ],
+                            [
+                                198.33136787492646,
+                                260.03763709848295
+                            ],
+                            [
+                                199.53136787492647,
+                                260.03763709848295
+                            ],
+                            [
+                                259.1813678749265,
+                                260.3546372205533
+                            ],
+                            [
+                                260.6813678749265,
+                                260.38463722055326
+                            ],
+                            [
+                                298.33136787492646,
+                                261.13763709848297
+                            ],
+                            [
+                                338.33136787492646,
+                                262.03763709848295
+                            ],
+                            [
+                                381.9481647499265,
+                                263.28233711069
+                            ],
+                            [
+                                440.3549616249265,
+                                265.1337371045865
+                            ],
+                            [
+                                468.33136787492646,
+                                266.16263709848295
+                            ],
+                            [
+                                484.89847923895684,
+                                266.49365116606907
+                            ],
+                            [
+                                498.33136787492646,
+                                266.937637098483
+                            ],
+                            [
+                                551.9313678749265,
+                                267.190137098483
+                            ],
+                            [
+                                578.3313678749264,
+                                267.0332370740689
+                            ],
+                            [
+                                599.2556321949049,
+                                267.32909865660247
+                            ],
+                            [
+                                636.3498752610552,
+                                268.0977260126866
+                            ],
+                            [
+                                660.6783458077743,
+                                268.6324186480691
+                            ],
+                            [
+                                697.5052471455283,
+                                269.70181003789406
+                            ],
+                            [
+                                719.0265867106667,
+                                270.20308342746205
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 1,
+                        "Shape__FillColour": null,
+                        "Shape__Stroked": true,
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                198.0464,
+                                291.8593
+                            ],
+                            [
+                                258.0464,
+                                291.8593
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.4,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_037"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                370.0144,
+                                288.2283
+                            ],
+                            [
+                                375.0144,
+                                288.2283
+                            ],
+                            [
+                                375.0144,
+                                289.2283
+                            ],
+                            [
+                                370.0144,
+                                289.2283
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_038"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                370.0144,
+                                289.2283
+                            ],
+                            [
+                                375.0144,
+                                289.2283
+                            ],
+                            [
+                                375.0144,
+                                290.2283
+                            ],
+                            [
+                                370.0144,
+                                290.2283
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#858585",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_039"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                375.0144,
+                                288.2283
+                            ],
+                            [
+                                380.0144,
+                                288.2283
+                            ],
+                            [
+                                380.0144,
+                                289.2283
+                            ],
+                            [
+                                375.0144,
+                                289.2283
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#858585",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_040"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                375.0144,
+                                289.2283
+                            ],
+                            [
+                                380.0144,
+                                289.2283
+                            ],
+                            [
+                                380.0144,
+                                290.2283
+                            ],
+                            [
+                                375.0144,
+                                290.2283
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_041"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                380.0144,
+                                288.2283
+                            ],
+                            [
+                                385.0144,
+                                288.2283
+                            ],
+                            [
+                                385.0144,
+                                289.2283
+                            ],
+                            [
+                                380.0144,
+                                289.2283
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_042"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                380.0144,
+                                289.2283
+                            ],
+                            [
+                                385.0144,
+                                289.2283
+                            ],
+                            [
+                                385.0144,
+                                290.2283
+                            ],
+                            [
+                                380.0144,
+                                290.2283
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#858585",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_043"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                385.0144,
+                                288.2283
+                            ],
+                            [
+                                390.0144,
+                                288.2283
+                            ],
+                            [
+                                390.0144,
+                                289.2283
+                            ],
+                            [
+                                385.0144,
+                                289.2283
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#858585",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_044"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                385.0144,
+                                289.2283
+                            ],
+                            [
+                                390.0144,
+                                289.2283
+                            ],
+                            [
+                                390.0144,
+                                290.2283
+                            ],
+                            [
+                                385.0144,
+                                290.2283
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_045"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                390.0144,
+                                288.2283
+                            ],
+                            [
+                                410.0144,
+                                288.2283
+                            ],
+                            [
+                                410.0144,
+                                289.2283
+                            ],
+                            [
+                                390.0144,
+                                289.2283
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_046"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                390.0144,
+                                289.2283
+                            ],
+                            [
+                                410.0144,
+                                289.2283
+                            ],
+                            [
+                                410.0144,
+                                290.2283
+                            ],
+                            [
+                                390.0144,
+                                290.2283
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#858585",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_047"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                410.0144,
+                                288.2283
+                            ],
+                            [
+                                430.0144,
+                                288.2283
+                            ],
+                            [
+                                430.0144,
+                                289.2283
+                            ],
+                            [
+                                410.0144,
+                                289.2283
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#858585",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_048"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                410.0144,
+                                289.2283
+                            ],
+                            [
+                                430.0144,
+                                289.2283
+                            ],
+                            [
+                                430.0144,
+                                290.2283
+                            ],
+                            [
+                                410.0144,
+                                290.2283
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_049"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                430.0144,
+                                288.2283
+                            ],
+                            [
+                                450.0144,
+                                288.2283
+                            ],
+                            [
+                                450.0144,
+                                289.2283
+                            ],
+                            [
+                                430.0144,
+                                289.2283
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_050"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                430.0144,
+                                289.2283
+                            ],
+                            [
+                                450.0144,
+                                289.2283
+                            ],
+                            [
+                                450.0144,
+                                290.2283
+                            ],
+                            [
+                                430.0144,
+                                290.2283
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#858585",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_051"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                450.0144,
+                                288.2283
+                            ],
+                            [
+                                470.0144,
+                                288.2283
+                            ],
+                            [
+                                470.0144,
+                                289.2283
+                            ],
+                            [
+                                450.0144,
+                                289.2283
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#858585",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_052"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                450.0144,
+                                289.2283
+                            ],
+                            [
+                                470.0144,
+                                289.2283
+                            ],
+                            [
+                                470.0144,
+                                290.2283
+                            ],
+                            [
+                                450.0144,
+                                290.2283
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_053"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                470.0144,
+                                288.2283
+                            ],
+                            [
+                                490.0144,
+                                288.2283
+                            ],
+                            [
+                                490.0144,
+                                289.2283
+                            ],
+                            [
+                                470.0144,
+                                289.2283
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_054"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                470.0144,
+                                289.2283
+                            ],
+                            [
+                                490.0144,
+                                289.2283
+                            ],
+                            [
+                                490.0144,
+                                290.2283
+                            ],
+                            [
+                                470.0144,
+                                290.2283
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#858585",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_055"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                490.0144,
+                                288.2283
+                            ],
+                            [
+                                510.0144,
+                                288.2283
+                            ],
+                            [
+                                510.0144,
+                                289.2283
+                            ],
+                            [
+                                490.0144,
+                                289.2283
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#858585",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_056"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                490.0144,
+                                289.2283
+                            ],
+                            [
+                                510.0144,
+                                289.2283
+                            ],
+                            [
+                                510.0144,
+                                290.2283
+                            ],
+                            [
+                                490.0144,
+                                290.2283
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_057"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                510.0144,
+                                288.2283
+                            ],
+                            [
+                                530.0144,
+                                288.2283
+                            ],
+                            [
+                                530.0144,
+                                289.2283
+                            ],
+                            [
+                                510.0144,
+                                289.2283
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_058"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                510.0144,
+                                289.2283
+                            ],
+                            [
+                                530.0144,
+                                289.2283
+                            ],
+                            [
+                                530.0144,
+                                290.2283
+                            ],
+                            [
+                                510.0144,
+                                290.2283
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#858585",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_059"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                530.0144,
+                                288.2283
+                            ],
+                            [
+                                550.0144,
+                                288.2283
+                            ],
+                            [
+                                550.0144,
+                                289.2283
+                            ],
+                            [
+                                530.0144,
+                                289.2283
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#858585",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_060"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                530.0144,
+                                289.2283
+                            ],
+                            [
+                                550.0144,
+                                289.2283
+                            ],
+                            [
+                                550.0144,
+                                290.2283
+                            ],
+                            [
+                                530.0144,
+                                290.2283
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_061"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                550.0144,
+                                288.2283
+                            ],
+                            [
+                                570.0144,
+                                288.2283
+                            ],
+                            [
+                                570.0144,
+                                289.2283
+                            ],
+                            [
+                                550.0144,
+                                289.2283
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_062"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                550.0144,
+                                289.2283
+                            ],
+                            [
+                                570.0144,
+                                289.2283
+                            ],
+                            [
+                                570.0144,
+                                290.2283
+                            ],
+                            [
+                                550.0144,
+                                290.2283
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#858585",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_063"
+                    }
+                ],
+                "Sheet__Leaders": [],
+                "Sheet__Groups": [
+                    {
+                        "Group__Members": [
+                            {
+                                "kind": "shape",
+                                "id": "Shape_003"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_004"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_005"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_006"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_007"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_008"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_009"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_010"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_011"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_012"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_013"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_014"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_015"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_016"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_017"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_018"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_019"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_020"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_021"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_022"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_023"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_024"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_025"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_026"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_027"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_028"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_029"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_001"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_002"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_003"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_004"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_005"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_006"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_007"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_008"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_009"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_010"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_011"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_012"
+                            }
+                        ],
+                        "Group__Parametric": {
+                            "Parametric__Type": "DrawingTitle",
+                            "Parametric__Version": 1,
+                            "Parametric__Params": {
+                                "ScaleDenominator": 100,
+                                "DivisionMm": 2000,
+                                "Divisions": 10,
+                                "SubdivideFirst": true,
+                                "SubdivisionMm": 500,
+                                "Units": "m",
+                                "ShowUnits": true,
+                                "ShowScaleBar": true,
+                                "PhaseMode": "existing",
+                                "TitleText": "",
+                                "Uppercase": true,
+                                "UnderlineMm": 60,
+                                "BarPlacement": "right",
+                                "BarOffsetMm": 171.968,
+                                "ViewKind": "elevation",
+                                "ViewPhase": "proposed",
+                                "ViewFacing": "North",
+                                "ViewLevel": "",
+                                "ViewName": "",
+                                "ViewDrawing": "Elevation__North__Front"
+                            },
+                            "Parametric__Link": {
+                                "Link__SheetId": "Sheet_001",
+                                "Link__ViewportId": "Viewport_001"
+                            }
+                        },
+                        "Group__Id": "Group_001"
+                    },
+                    {
+                        "Group__Members": [
+                            {
+                                "kind": "shape",
+                                "id": "Shape_037"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_038"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_039"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_040"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_041"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_042"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_043"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_044"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_045"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_046"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_047"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_048"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_049"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_050"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_051"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_052"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_053"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_054"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_055"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_056"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_057"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_058"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_059"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_060"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_061"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_062"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_063"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_013"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_014"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_015"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_016"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_017"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_018"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_019"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_020"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_021"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_022"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_023"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_024"
+                            }
+                        ],
+                        "Group__Parametric": {
+                            "Parametric__Type": "DrawingTitle",
+                            "Parametric__Version": 1,
+                            "Parametric__Params": {
+                                "ScaleDenominator": 100,
+                                "DivisionMm": 2000,
+                                "Divisions": 10,
+                                "SubdivideFirst": true,
+                                "SubdivisionMm": 500,
+                                "Units": "m",
+                                "ShowUnits": true,
+                                "ShowScaleBar": true,
+                                "PhaseMode": "existing",
+                                "TitleText": "",
+                                "Uppercase": true,
+                                "UnderlineMm": 60,
+                                "BarPlacement": "right",
+                                "BarOffsetMm": 171.968,
+                                "ViewKind": "elevation",
+                                "ViewPhase": "proposed",
+                                "ViewFacing": "South",
+                                "ViewLevel": "",
+                                "ViewName": "",
+                                "ViewDrawing": "Elevation__South__Rear"
+                            },
+                            "Parametric__Link": {
+                                "Link__SheetId": "Sheet_001",
+                                "Link__ViewportId": "Viewport_003"
+                            }
+                        },
+                        "Group__Id": "Group_002"
+                    }
+                ],
+                "Sheet__LayerStack": 2,
+                "Sheet__Lineweights": {
+                    "ViewportPt": 0.3,
+                    "DimensionPt": 0.35
+                },
+                "Sheet__MarginNotes": {
+                    "Enabled": true,
+                    "WidthMm": 92,
+                    "Heading": null,
+                    "TextSizeMm": 2,
+                    "IncludeGeneral": true,
+                    "GroupHeadings": false
+                }
+            },
+            {
+                "Sheet__Id": "Sheet_002",
+                "Sheet__Name": "Existing Conditions | Preliminary Area Plan",
+                "Sheet__Order": 2,
+                "Sheet__PaperSize": "A1",
+                "Sheet__Orientation": "landscape",
+                "Sheet__TitleBlockStyle": "modern",
+                "Sheet__Fields": {
+                    "Sheet__Fields__DrawingNumber": "D02"
+                },
+                "Sheet__Layers": [
+                    {
+                        "Layer__Id": "Layer_002",
+                        "Layer__Name": "Text",
+                        "Layer__Type": "annotation",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
+                        "Layer__Order": 1
+                    },
+                    {
+                        "Layer__Id": "Layer_003",
+                        "Layer__Name": "Dimensions",
+                        "Layer__Type": "dimension",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
+                        "Layer__Order": 2
+                    },
+                    {
+                        "Layer__Id": "Layer_004",
+                        "Layer__Name": "Vectors",
+                        "Layer__Type": "vector",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
+                        "Layer__Order": 3
+                    },
+                    {
+                        "Layer__Id": "Layer_005",
+                        "Layer__Name": "Floor Areas",
+                        "Layer__Type": "area",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
+                        "Layer__Order": 4
+                    },
+                    {
+                        "Layer__Id": "Layer_001",
+                        "Layer__Name": "Viewports",
+                        "Layer__Type": "viewport",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
+                        "Layer__Order": 5
+                    }
+                ],
+                "Sheet__Viewports": [
+                    {
+                        "Viewport__Id": "Viewport_001",
+                        "Viewport__Kind": "2d",
+                        "Viewport__SceneId": "Scene_003",
+                        "Viewport__DrawingId": "FloorPlan_001",
+                        "Viewport__ModelSourceId": null,
+                        "Viewport__Name": "",
+                        "Viewport__FrameMm": {
+                            "X": 72.53163352901015,
+                            "Y": 53.296559799023555,
+                            "WidthMm": 567.5575698942947,
+                            "HeightMm": 478.76762716608505
+                        },
+                        "Viewport__ScaleDenominator": 100,
+                        "Viewport__ModelLayers": null,
+                        "Viewport__LayerId": "Layer_001",
+                        "Viewport__PanMm": {
+                            "X": 31205.041847615754,
+                            "Y": -33011.9626617934
+                        },
+                        "Viewport__ImageMm": {
+                            "WidthMm": 180,
+                            "HeightMm": 120
+                        },
+                        "Viewport__ImageOffsetMm": {
+                            "X": 0,
+                            "Y": 0
+                        },
+                        "Viewport__Styles": {
+                            "baseImage": true,
+                            "projectedLinework": true,
+                            "profileLinework": true,
+                            "glassOpaque": true,
+                            "whitecard": true,
+                            "hiddenLines": false,
+                            "enhanceWhitecard": true,
+                            "contextLayer": true,
+                            "depthFog": true
+                        },
+                        "Viewport__ProjectedEdges": null,
+                        "Viewport__CompositeWeights": null,
+                        "Viewport__MarkupMode": "scene",
+                        "Viewport__ShowScaleLabel": false,
+                        "Viewport__SnapshotAsset": null,
+                        "Viewport__Locked": false,
+                        "Viewport__ShowFrame": false
                     }
                 ],
                 "Sheet__Annotations": [],
@@ -444,6 +3659,299 @@
                 "Sheet__Lineweights": {
                     "ViewportPt": 0.3,
                     "DimensionPt": 0.35
+                },
+                "Sheet__MarginNotes": {
+                    "Enabled": true,
+                    "WidthMm": 92.1,
+                    "Heading": null,
+                    "TextSizeMm": 2,
+                    "IncludeGeneral": true,
+                    "GroupHeadings": false
+                }
+            },
+            {
+                "Sheet__Id": "Sheet_003",
+                "Sheet__Name": "Existing Conditions | Site Plan",
+                "Sheet__Order": 3,
+                "Sheet__PaperSize": "A2",
+                "Sheet__Orientation": "landscape",
+                "Sheet__TitleBlockStyle": "modern",
+                "Sheet__Fields": {
+                    "Sheet__Fields__DrawingNumber": "D03"
+                },
+                "Sheet__Layers": [
+                    {
+                        "Layer__Id": "Layer_002",
+                        "Layer__Name": "Text",
+                        "Layer__Type": "annotation",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
+                        "Layer__Order": 1
+                    },
+                    {
+                        "Layer__Id": "Layer_003",
+                        "Layer__Name": "Dimensions",
+                        "Layer__Type": "dimension",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
+                        "Layer__Order": 2
+                    },
+                    {
+                        "Layer__Id": "Layer_004",
+                        "Layer__Name": "Vectors",
+                        "Layer__Type": "vector",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
+                        "Layer__Order": 3
+                    },
+                    {
+                        "Layer__Id": "Layer_005",
+                        "Layer__Name": "Floor Areas",
+                        "Layer__Type": "area",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
+                        "Layer__Order": 4
+                    },
+                    {
+                        "Layer__Id": "Layer_001",
+                        "Layer__Name": "Viewports",
+                        "Layer__Type": "viewport",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
+                        "Layer__Order": 5
+                    },
+                    {
+                        "Layer__Id": "Layer_007",
+                        "Layer__Name": "White Fade",
+                        "Layer__Type": "mixed",
+                        "Layer__Order": 6,
+                        "Layer__Visible": true,
+                        "Layer__Locked": false
+                    },
+                    {
+                        "Layer__Id": "Layer_006",
+                        "Layer__Name": "Images",
+                        "Layer__Type": "image",
+                        "Layer__Order": 7,
+                        "Layer__Visible": true,
+                        "Layer__Locked": false
+                    }
+                ],
+                "Sheet__Viewports": [
+                    {
+                        "Viewport__Id": "Viewport_001",
+                        "Viewport__Kind": "2d",
+                        "Viewport__SceneId": "Scene_004",
+                        "Viewport__DrawingId": "FloorPlan_002",
+                        "Viewport__ModelSourceId": null,
+                        "Viewport__Name": "",
+                        "Viewport__FrameMm": {
+                            "X": 185.00002732081458,
+                            "Y": 149.61144793107647,
+                            "WidthMm": 129.72815658138086,
+                            "HeightMm": 111.61278687861554
+                        },
+                        "Viewport__ScaleDenominator": 500,
+                        "Viewport__ModelLayers": null,
+                        "Viewport__LayerId": "Layer_001",
+                        "Viewport__PanMm": {
+                            "X": 33678.022074883214,
+                            "Y": -31418.057116015814
+                        },
+                        "Viewport__ImageMm": {
+                            "WidthMm": 180,
+                            "HeightMm": 120
+                        },
+                        "Viewport__ImageOffsetMm": {
+                            "X": 0,
+                            "Y": 0
+                        },
+                        "Viewport__Styles": {
+                            "baseImage": false,
+                            "projectedLinework": true,
+                            "profileLinework": false,
+                            "glassOpaque": false,
+                            "whitecard": false,
+                            "hiddenLines": false,
+                            "enhanceWhitecard": false,
+                            "contextLayer": true,
+                            "depthFog": true
+                        },
+                        "Viewport__ProjectedEdges": null,
+                        "Viewport__CompositeWeights": null,
+                        "Viewport__MarkupMode": "scene",
+                        "Viewport__ShowScaleLabel": false,
+                        "Viewport__SnapshotAsset": null,
+                        "Viewport__Locked": false,
+                        "Viewport__ShowFrame": false
+                    }
+                ],
+                "Sheet__Annotations": [],
+                "Sheet__Dimensions": [],
+                "Sheet__Shapes": [
+                    {
+                        "Shape__Id": "Shape_001",
+                        "Shape__LayerId": "Layer_006",
+                        "Shape__Points": [
+                            [
+                                13.645898933970035,
+                                14.461353210250024
+                            ],
+                            [
+                                489.59394773471325,
+                                14.461353210250024
+                            ],
+                            [
+                                489.59394773471325,
+                                394.34542999665945
+                            ],
+                            [
+                                13.645898933970035,
+                                394.34542999665945
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__Stroked": false,
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Image": {
+                            "Image__File": "OrhtoCloud__SitePlan__1-500__a1af734d6a.webp",
+                            "Image__Folder": "JW02_T01_D03",
+                            "Image__PixelW": 2635,
+                            "Image__PixelH": 1846,
+                            "Image__Frame": true,
+                            "Image__Crop": {
+                                "L": 0.050968639124589835,
+                                "T": 0.008119767011152166,
+                                "R": 0.9051926740344033,
+                                "B": 0.9813425093444219
+                            },
+                            "Image__Name": "OrhtoCloud__SitePlan__1-500__.png",
+                            "Image__SourceW": 2635,
+                            "Image__SourceH": 1846
+                        }
+                    },
+                    {
+                        "Shape__Id": "Shape_002",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__Points": [
+                            [
+                                231.72358880548865,
+                                224.64002982116585
+                            ],
+                            [
+                                292.77358489923864,
+                                224.64002982116585
+                            ],
+                            [
+                                292.77358489923864,
+                                238.52108060241585
+                            ],
+                            [
+                                217.8925380242386,
+                                238.52108060241585
+                            ],
+                            [
+                                217.8925380242386,
+                                207.59002982116584
+                            ],
+                            [
+                                231.72358880548865,
+                                207.59002982116584
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#960000",
+                        "Shape__Stroked": true,
+                        "Shape__FillOpacity": 0.35,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null
+                    },
+                    {
+                        "Shape__Id": "Shape_003",
+                        "Shape__LayerId": "Layer_007",
+                        "Shape__Points": [
+                            [
+                                13.645898933970031,
+                                14.461353210250024
+                            ],
+                            [
+                                489.59394773471325,
+                                14.461353210250024
+                            ],
+                            [
+                                489.59394773471325,
+                                394.34542999665945
+                            ],
+                            [
+                                13.645898933970035,
+                                394.34542999665945
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#ffffff",
+                        "Shape__Stroked": true,
+                        "Shape__FillOpacity": 0.48,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null
+                    },
+                    {
+                        "Shape__Id": "Shape_004",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__Points": [
+                            [
+                                280.26806146173857,
+                                224.50395560241586
+                            ],
+                            [
+                                280.26806146173857,
+                                183.58395560241587
+                            ],
+                            [
+                                292.4280614617386,
+                                183.54395560241585
+                            ],
+                            [
+                                292.43086614923857,
+                                224.50395560241586
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#000096",
+                        "Shape__Stroked": true,
+                        "Shape__FillOpacity": 0.35,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null
+                    }
+                ],
+                "Sheet__Leaders": [],
+                "Sheet__Groups": [],
+                "Sheet__LayerStack": 2,
+                "Sheet__Lineweights": {
+                    "ViewportPt": 0.3,
+                    "DimensionPt": 0.35
+                },
+                "Sheet__MarginNotes": {
+                    "Enabled": true,
+                    "WidthMm": 90,
+                    "Heading": null,
+                    "TextSizeMm": 2,
+                    "IncludeGeneral": true,
+                    "GroupHeadings": false
                 }
             }
         ],
@@ -457,7 +3965,10 @@
             },
             "North__SetIso": "2026-10-19T13:13:36.963Z"
         },
-        "LayoutEditor__DrawingsData__SavedIso": "2026-10-19T15:19:44.612Z",
-        "LayoutEditor__DrawingsData__CommonClient": "Jimmy Jaws"
+        "LayoutEditor__DrawingsData__SavedIso": "2026-10-19T16:31:08.095Z",
+        "LayoutEditor__DrawingsData__CommonClient": "Jimmy Jaws",
+        "LayoutEditor__DrawingsData__CustomScaleDenominators": [
+            500
+        ]
     }
 }

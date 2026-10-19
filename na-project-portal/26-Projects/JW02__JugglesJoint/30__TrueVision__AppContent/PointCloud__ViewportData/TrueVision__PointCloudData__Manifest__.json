@@ -1,7 +1,7 @@
 {
   "PointCloudData__Schema": "TrueVision__PointCloudData__Manifest",
   "PointCloudData__SchemaVersion": 1,
-  "PointCloudData__ExportedIso": "2026-10-19T16:12:28+0100",
+  "PointCloudData__ExportedIso": "2026-10-19T17:11:59+0100",
   "PointCloudData__ExporterVersion": "2.11.0",
   "PointCloudData__CoordinateSystem": {
     "Units": "metres",
@@ -43,7 +43,7 @@
       "Scene__CurrentRevision": "Rev__a643f6d7c5",
       "Scene__CurrentManifest": "PointCloudScene__pcs_42e47ceb/Rev__a643f6d7c5/PointCloudScene__RevisionManifest__.json",
       "Scene__Preview": "PointCloudScene__pcs_42e47ceb/Rev__a643f6d7c5/PointCloudScene__Preview__.webp",
-      "Scene__UpdatedIso": "2026-10-19T16:12:28+0100"
+      "Scene__UpdatedIso": "2026-10-19T17:11:59+0100"
     },
     {
       "Scene__Id": "pcs_d5daef4a",
@@ -84,7 +84,7 @@
       "Scene__CurrentRevision": "Rev__6bada7125b",
       "Scene__CurrentManifest": "PointCloudScene__pcs_d5daef4a/Rev__6bada7125b/PointCloudScene__RevisionManifest__.json",
       "Scene__Preview": "PointCloudScene__pcs_d5daef4a/Rev__6bada7125b/PointCloudScene__Preview__.webp",
-      "Scene__UpdatedIso": "2026-10-19T16:12:28+0100"
+      "Scene__UpdatedIso": "2026-10-19T17:11:59+0100"
     },
     {
       "Scene__Id": "pcs_7d8afead",
@@ -103,6 +103,11 @@
           "Revision__Id": "Rev__295fd60229",
           "Revision__ExportedIso": "2026-10-19T16:12:28+0100",
           "Revision__Manifest": "PointCloudScene__pcs_7d8afead/Rev__295fd60229/PointCloudScene__RevisionManifest__.json"
+        },
+        {
+          "Revision__Id": "Rev__c02a67c6ef",
+          "Revision__ExportedIso": "2026-10-19T17:11:59+0100",
+          "Revision__Manifest": "PointCloudScene__pcs_7d8afead/Rev__c02a67c6ef/PointCloudScene__RevisionManifest__.json"
         }
       ],
       "Scene__Name": "Elevation__South__Rear",
@@ -117,10 +122,10 @@
       "Scene__SourceStoreId": "pcss_6ead0fe1c81a",
       "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.0__",
       "Scene__Folder": "PointCloudScene__pcs_7d8afead",
-      "Scene__CurrentRevision": "Rev__295fd60229",
-      "Scene__CurrentManifest": "PointCloudScene__pcs_7d8afead/Rev__295fd60229/PointCloudScene__RevisionManifest__.json",
-      "Scene__Preview": "PointCloudScene__pcs_7d8afead/Rev__295fd60229/PointCloudScene__Preview__.webp",
-      "Scene__UpdatedIso": "2026-10-19T16:12:28+0100"
+      "Scene__CurrentRevision": "Rev__c02a67c6ef",
+      "Scene__CurrentManifest": "PointCloudScene__pcs_7d8afead/Rev__c02a67c6ef/PointCloudScene__RevisionManifest__.json",
+      "Scene__Preview": "PointCloudScene__pcs_7d8afead/Rev__c02a67c6ef/PointCloudScene__Preview__.webp",
+      "Scene__UpdatedIso": "2026-10-19T17:11:59+0100"
     },
     {
       "Scene__Id": "pcs_4208d708",
@@ -156,7 +161,30 @@
       "Scene__CurrentRevision": "Rev__af6890d201",
       "Scene__CurrentManifest": "PointCloudScene__pcs_4208d708/Rev__af6890d201/PointCloudScene__RevisionManifest__.json",
       "Scene__Preview": "PointCloudScene__pcs_4208d708/Rev__af6890d201/PointCloudScene__Preview__.webp",
-      "Scene__UpdatedIso": "2026-10-19T16:12:28+0100"
+      "Scene__UpdatedIso": "2026-10-19T17:11:59+0100"
+    },
+    {
+      "Scene__Id": "pcs_13b09fe2",
+      "Scene__Revisions": [
+        {
+          "Revision__Id": "Rev__71c3e6f1b4",
+          "Revision__ExportedIso": "2026-10-19T16:25:59+0100",
+          "Revision__Manifest": "PointCloudScene__pcs_13b09fe2/Rev__71c3e6f1b4/PointCloudScene__RevisionManifest__.json"
+        }
+      ],
+      "Scene__Name": "IMG01__3dView__MainShot__",
+      "Scene__ViewType": "view3d",
+      "Scene__Projection": "perspective",
+      "Scene__Scale": null,
+      "Scene__DefaultOpacity": 0.6,
+      "Scene__Status": "active",
+      "Scene__SourceStoreId": "pcss_6ead0fe1c81a",
+      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.0__",
+      "Scene__Folder": "PointCloudScene__pcs_13b09fe2",
+      "Scene__CurrentRevision": "Rev__71c3e6f1b4",
+      "Scene__CurrentManifest": "PointCloudScene__pcs_13b09fe2/Rev__71c3e6f1b4/PointCloudScene__RevisionManifest__.json",
+      "Scene__Preview": "PointCloudScene__pcs_13b09fe2/Rev__71c3e6f1b4/PointCloudScene__Preview__.webp",
+      "Scene__UpdatedIso": "2026-10-19T17:11:59+0100"
     }
   ],
   "PointCloudData__Datums": [

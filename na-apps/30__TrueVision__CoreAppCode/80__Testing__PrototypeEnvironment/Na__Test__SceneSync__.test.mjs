@@ -36,6 +36,16 @@
 //   one goes out, as TrueVision's own.
 // - THE VIEWER IS UNCHANGED. Synced scenes are layout editor only: not in the
 //   carousel's scenes, never the opening scene.
+// - THE CAROUSEL SHOWS AT LOAD (1.0.1, JW02). The placeholder block made for a
+//   project with synced scenes and no presentation scenes is switched off;
+//   the first authored scene must turn it into an ordinary, enabled block, and
+//   a block already saved switched off is switched back on at load.
+// - THE TITLES ARE WRITTEN FROM THE FACTS (1.0.2, JW02). A synced elevation's
+//   drawing title is the compass word from its bearing against the project's
+//   north, never the SketchUp scene name. Proved on JW02's own manifest
+//   (Na__Test__SceneSync__Fixture__/...Manifest__JW02__.json, the sync of
+//   19-Oct-2026 16:25) and its north, 187.8 degrees, through the real
+//   viewport identity, title text, compass and Drawing Title modules.
 //
 // =============================================================================
 
@@ -187,7 +197,8 @@ import { tmpdir } from 'node:os';
     check('the page detached in SketchUp and synced again: both are here, each its own id',
         built.elevations.filter((e) => e.Elevation__Name === 'Side Section').map((e) => e.Sync__State).sort(), [ 'detached', 'synced' ]);
     check('TrueVision reads all three as valid elevations', Ev.Na__ElevData__GetElevations(null).length, 3);
-    check('the auto namer leaves them alone: SketchUp names them', built.elevations.every((e) => e.Elevation__NameIsAuto === false), true);
+    check('SketchUp\'s name is no title: a synced elevation carries no Elevation__NameIsAuto (1.0.2)',
+        built.elevations.every((e) => !Object.prototype.hasOwnProperty.call(e, 'Elevation__NameIsAuto')), true);
 
     // Scenes
     check('every synced scene is for the Layout Editor only, in no real group',
@@ -207,6 +218,108 @@ import { tmpdir } from 'node:os';
     };
     check('an orbit with no maximum, or an option left out, falls back to the defaults (every camera number finite)',
         [ odd.scenes.length, odd.scenes.every(finiteCamera), JSON.stringify(odd.scenes) === JSON.stringify(built.scenes) ], [ 8, true, true ]);
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Drawing Titles: Written From the Facts, Never the Scene Name (JW02)
+// -----------------------------------------------------------------------------
+
+    console.log('\n  Drawing titles (JW02)');
+
+    // JW02's OWN SYNC and its north (TrueVision__ProjectData__.json,
+    // LayoutEditor__DrawingsData__North, set 19-Oct-2026), and the four
+    // elevation viewports of its D01 Existing Conditions | Elevations, unnamed
+    // as they are on the sheet.
+    const JW02       = JSON.parse(readFileSync(join(FIXTURE, 'TrueVision__SceneSyncData__Manifest__JW02__.json'), 'utf8'));
+    const jwBuilt    = Rec.Na__SceneSync__Build(Rec.Na__SceneSync__ReadManifest(JW02), OPTIONS);
+    const NORTH      = { North__BearingDeg : 187.8, North__OriginMm : { PosX : 35721, PosY : -1026, PosZ : -6626 }, North__SetIso : '2026-10-19T13:13:36.963Z' };
+    const JW_GROUP   = { groupId : 'DesignPhase01__ConceptDesign__Scheme-01', label : 'Concept Design - Scheme-01' };   // <-- JW02's only model group
+    const JW_SHEET   = { North : 'sus_7e30d233', East : 'sus_8f65c52a', South : 'sus_cf090d06', West : 'sus_33262186' };   // <-- Elevation__North__Front, __East__Left, __South__Rear, __West__Right
+    const jwViewport = (drawingId, name) => ({ Viewport__Id : 'Viewport_' + drawingId, Viewport__Kind : '2d', Viewport__SceneId : drawingId, Viewport__DrawingId : drawingId, Viewport__ModelSourceId : null, Viewport__Name : name || '' });
+    const jwElev     = (drawingId) => jwBuilt.elevations.find((e) => e.Elevation__Id === drawingId);
+
+    // The real north: the compass maths, the project data module over a
+    // drawings block holding JW02's north (or none), and the shipped config's
+    // compass words.
+    const northCfg = JSON.parse(readFileSync(resolve(SRC, '46__System__NorthDirection', 'Na__North__AppConfig__.json'), 'utf8')).NorthDirection__Compass__Config;
+    const Compass  = await load('46__System__NorthDirection/Na__North__Compass__.js', {});
+    const drawings = { LayoutEditor__DrawingsData__North : NORTH };
+    const North    = await load('46__System__NorthDirection/Na__North__ProjectJson__Data__.js', Object.assign({}, Compass, {
+        Na__DrawData__GetBlock        : () => drawings,
+        Na__NorthCfg__GetCompassSetup : () => ({ halfWidthDeg : northCfg.NorthDirection__Compass__IntercardinalHalfWidthDeg, decimals : northCfg.NorthDirection__Compass__BearingDecimals, words : northCfg.NorthDirection__Compass__Words })
+    }));
+
+    // The real viewport identity and title text. A viewport resolves to its
+    // drawing by id, as the sheet model resolves it, over whichever elevations
+    // a check puts in elevs; its Model Source is JW02's one group.
+    const Text  = await load('51__System__LayoutEditor/20__System__Viewports/Na__LayoutEditor__ViewportTitleText__.js', {});
+    let   elevs = jwBuilt.elevations;
+    const Ident = await load('51__System__LayoutEditor/20__System__Viewports/Na__LayoutEditor__ViewportIdentity__.js', Object.assign({}, Text, {
+        Na__LeModel__KIND_3D                : '3d',
+        Na__LeModel__IsSitePlanViewport     : () => false,
+        Na__LeModel__ResolveViewportSource  : (viewport) => ({ plan : null, elevation : elevs.find((e) => e.Elevation__Id === viewport.Viewport__DrawingId) || null, scene : null }),
+        Na__LeModel__RegisterViewportNamer  : () => {},
+        Na__LeCfg__GetLabel                 : (key, fallback) => fallback,
+        Na__LeSource__Resolve               : () => JW_GROUP,
+        Na__LeClip__IsCopyName              : () => false,
+        Na__ElevData__IsSection             : Ev.Na__ElevData__IsSection,
+        Na__FpData__GetStoreyLevel          : () => null,
+        Na__NorthCfg__Load                  : async () => null,
+        Na__NorthData__IsSet                : North.Na__NorthData__IsSet,
+        Na__NorthData__FacingWordForAzimuth : North.Na__NorthData__FacingWordForAzimuth
+    }));
+    const titled = (viewport, phaseMode) => Ident.Na__LeViewId__TitleFor(viewport, { phaseMode : phaseMode || 'existing', uppercase : true }).text;
+
+    check('JW02\'s four synced elevations, read against its north (187.8), face North, East, South and West',
+        Object.keys(JW_SHEET).map((word) => North.Na__NorthData__FacingWordForAzimuth(jwElev(JW_SHEET[word]).Elevation__AzimuthDeg)), [ 'North', 'East', 'South', 'West' ]);
+    check('their titles are written from the facts, Existing chosen: EXISTING NORTH ELEVATION and the rest, never the scene name',
+        Object.keys(JW_SHEET).map((word) => titled(jwViewport(JW_SHEET[word]))),
+        [ 'EXISTING NORTH ELEVATION', 'EXISTING EAST ELEVATION', 'EXISTING SOUTH ELEVATION', 'EXISTING WEST ELEVATION' ]);
+    check('on Auto the word is the model\'s: JW02\'s only model group is a scheme (Concept Design - Scheme-01), so Proposed',
+        titled(jwViewport(JW_SHEET.North), 'auto'), 'PROPOSED NORTH ELEVATION');
+    check('the scene name is still the drawing\'s own name, for the panels', Ident.Na__LeViewId__Describe(jwViewport(JW_SHEET.North)).drawing, 'Elevation__North__Front');
+    check('an unnamed viewport is named the same way in the panels and its frame caption',
+        Ident.Na__LeViewId__NameFor(jwViewport(JW_SHEET.North), { elevation : jwElev(JW_SHEET.North) }), 'Proposed North Elevation');
+
+    // Through the Drawing Title element itself, given the facts the link
+    // module lays into its parameters (Na__LeParamLink__FactsOf).
+    const Bar        = await load('51__System__LayoutEditor/57__Feature__ScrapbookParametric/Na__LayoutEditor__ScrapbookParametric__ScaleBar__.js', {});
+    const Title      = await load('51__System__LayoutEditor/57__Feature__ScrapbookParametric/Na__LayoutEditor__ScrapbookParametric__DrawingTitle__.js', Object.assign({}, Bar, Text));
+    const parametric = JSON.parse(readFileSync(resolve(SRC, '51__System__LayoutEditor', '57__Feature__ScrapbookParametric', 'Na__LayoutEditor__ScrapbookParametric__Config__.json'), 'utf8'));
+    const titleType  = Title.Na__LeParamTitle__CreateType(() => parametric.LayoutEditor__ScrapbookParametric__DrawingTitle, () => parametric.LayoutEditor__ScrapbookParametric__ScaleBar, () => Ident.Na__LeViewId__Words());
+    const factsOf    = (viewport) => { const f = Ident.Na__LeViewId__Describe(viewport); return { ViewKind : f.kind, ViewPhase : f.phase, ViewFacing : f.facing, ViewLevel : f.level || '', ViewName : f.name, ViewDrawing : f.drawing }; };
+    check('the Drawing Title element under D01\'s north elevation letters EXISTING NORTH ELEVATION',
+        titleType.titleText(Object.assign({ ScaleDenominator : 100, PhaseMode : 'existing' }, factsOf(jwViewport(JW_SHEET.North)))).text, 'EXISTING NORTH ELEVATION');
+
+    // What put the scene name there, and what must still win over the compass
+    elevs = jwBuilt.elevations.map((e) => Object.assign(clone(e), { Elevation__NameIsAuto : false }));   // <-- As 1.0.1 built them
+    check('the cause: built as 1.0.1 built it (Elevation__NameIsAuto false), the same title read EXISTING ELEVATION__NORTH__FRONT',
+        titled(jwViewport(JW_SHEET.North)), 'EXISTING ELEVATION__NORTH__FRONT');
+    elevs = jwBuilt.elevations.concat([ { Elevation__Id : 'Elevation_001', Elevation__Name : 'Coach House North Elevation', Elevation__NameIsAuto : false, Elevation__AzimuthDeg : 180, Elevation__Mode : 'elevation' } ]);
+    check('a name typed in Dev Tools for TrueVision\'s own elevation still titles it', titled(jwViewport('Elevation_001')), 'EXISTING COACH HOUSE NORTH ELEVATION');
+    check('a name typed on the viewport still titles it', titled(jwViewport(JW_SHEET.North, 'Front Elevation')), 'EXISTING FRONT ELEVATION');
+    elevs = [ Rec.Na__SceneSync__DetachedCopy(jwElev(JW_SHEET.North), '2026-10-19T17:00:00.000Z') ];
+    check('detached in TrueVision, it is titled the same way until a name is typed for it', titled(jwViewport(JW_SHEET.North)), 'EXISTING NORTH ELEVATION');
+    elevs = jwBuilt.elevations;
+    delete drawings.LayoutEditor__DrawingsData__North;
+    check('with north not set the title waits for it, and still never prints the scene name', titled(jwViewport(JW_SHEET.North)), 'EXISTING {{DIRECTION}} ELEVATION');
+    drawings.LayoutEditor__DrawingsData__North = NORTH;
+
+    // The auto namer renames only what it is told is automatic
+    const AutoText = await load('45__System__ElevationViews/Na__Elevation__AutoNameText__.js', {});
+    const AutoName = await load('45__System__ElevationViews/Na__Elevation__AutoName__.js', Object.assign({}, AutoText, {
+        Na__NorthData__FacingWordForAzimuth  : North.Na__NorthData__FacingWordForAzimuth,
+        Na__NorthData__TrueBearingForAzimuth : North.Na__NorthData__TrueBearingForAzimuth,
+        Na__ElevData__GetElevations          : () => jwBuilt.elevations,
+        Na__ElevData__IsSection              : Ev.Na__ElevData__IsSection,
+        Na__ElevCfg__GetLabel                : (key, fallback) => fallback
+    }));
+    const sketchUpNamed = clone(jwElev(JW_SHEET.North));
+    check('and the auto namer still leaves SketchUp\'s name alone: nothing to sync, nothing to adopt',
+        [ AutoName.Na__ElevName__Sync(sketchUpNamed), AutoName.Na__ElevName__Adopt(sketchUpNamed), sketchUpNamed.Elevation__Name, 'Elevation__NameIsAuto' in sketchUpNamed ],
+        [ false, false, 'Elevation__North__Front', false ]);
 
 // endregion -------------------------------------------------------------------
 
@@ -285,7 +398,8 @@ import { tmpdir } from 'node:os';
     check('a presentation block made only to hold synced scenes is never written', 'PresentationMode__SavedCameraScenes' in Rec.Na__SceneSync__StrippedCopy(container), false);
     container.PresentationMode__SavedCameraScenes[SCENES].push(realScene);
     const kept = Rec.Na__SceneSync__StrippedCopy(container).PresentationMode__SavedCameraScenes;
-    check('once it holds a real scene it is an ordinary block, written without the mark', [ kept[SCENES].length, 'Sync__Container' in kept ], [ 1, false ]);
+    check('once it holds a real scene it is an ordinary block, written without the mark and SWITCHED ON (JW02)',
+        [ kept[SCENES].length, 'Sync__Container' in kept, kept.PresentationMode__SavedCameraScenes__Enabled ], [ 1, false, true ]);
     const legacy = { PresentationMode__SavedCameraScenes : { PresentationMode__SavedCameraScenes__FloorPlans : [ realPlan, built.plans[0] ] } };
     check('the legacy drawing arrays are stripped too', Rec.Na__SceneSync__StrippedCopy(legacy).PresentationMode__SavedCameraScenes.PresentationMode__SavedCameraScenes__FloorPlans.length, 1);
 
@@ -324,7 +438,10 @@ import { tmpdir } from 'node:os';
         Na__LocalMirror__MergeKeys           : async (keys) => { saves.local.push(clone(keys)); return { ok : false, skipped : true, error : null }; },
         Na__LocalMirror__DrawingsFingerprint : async () => ({ ok : false, skipped : true })
     }));
-    const Live = await load('23__System__SceneSync/Na__SceneSync__Live__.js', Object.assign({}, Rec, DrawData, SceneData));
+    const DEFAULT_GROUPS = [ { PresentationMode__Group__Id : 'Group_001', PresentationMode__Group__Name : 'Exterior 3D Views', PresentationMode__Group__Order : 1, PresentationMode__Group__Enabled : true } ];
+    const Live = await load('23__System__SceneSync/Na__SceneSync__Live__.js', Object.assign({}, Rec, DrawData, SceneData, {
+        Na__PresentationMode__SceneGroups__GetDefaultGroups : () => clone(DEFAULT_GROUPS)
+    }));
     check('the live module hooks in as it is imported, before any project arrives', events.length, 0);
 
     Live.Na__SsLive__Use(manifest, OPTIONS, { url : 'http://127.0.0.1:8523/x.json' });
@@ -374,6 +491,30 @@ import { tmpdir } from 'node:os';
     SceneData.Na__PresentationMode__ProjectJson__SetActiveConfig(committed, 'ZZ98__SceneSyncTest', '26');
     check('and a later adoption keeps the detached scene, never adding the synced one beside it',
         committed[SCENES].filter((s) => s.PresentationMode__Scene__Id === planId).map((s) => Rec.Na__SceneSync__IsDetached(s)), [ true ]);
+
+    // JW02 (19-Oct-2026): synced scenes, no presentation scenes, then the first scene authored in the Dev menu
+    const placeholder = Live.Na__SsLive__NewContainerConfig();
+    SceneData.Na__PresentationMode__ProjectJson__SetActiveConfig(placeholder, 'JW02__JugglesJoint', '26');
+    check('a project with synced scenes and no presentation scenes: the placeholder holds them, switched off, so the carousel ignores it',
+        [ placeholder.Sync__Container, placeholder.PresentationMode__SavedCameraScenes__Enabled, SceneData.Na__PresentationMode__ProjectJson__HasValidSavedScenes({ PresentationMode__SavedCameraScenes : placeholder }) ],
+        [ true, false, false ]);
+    const authored = { PresentationMode__Scene__Id : 'Scene_001', PresentationMode__Scene__Name : '3D | North West', PresentationMode__Scene__GroupId : 'Group_001',
+        PresentationMode__Scene__CameraPosition : { Camera__DefaultPos : { Camera__DefaultPos__PosX : 1, Camera__DefaultPos__PosY : 2, Camera__DefaultPos__PosZ : 3 } } };
+    placeholder[SCENES] = [ authored ];                                                     // <-- What the Dev menu's Add Scene commits: its working copy, no synced scenes
+    SceneData.Na__PresentationMode__ProjectJson__SetActiveConfig(placeholder, 'JW02__JugglesJoint', '26');
+    check('the first authored scene makes it an ordinary block at once: no mark, switched on, the default groups, a default scene and the schema note',
+        [ 'Sync__Container' in placeholder, placeholder.PresentationMode__SavedCameraScenes__Enabled, placeholder.PresentationMode__SavedCameraScenes__Groups.length,
+          placeholder.PresentationMode__SavedCameraScenes__DefaultSceneId, typeof placeholder.PresentationMode__SavedCameraScenes__Description ],
+        [ false, true, 1, 'Scene_001', 'string' ]);
+    check('so the next load shows the carousel (and the synced scenes are back beside the authored one)',
+        [ SceneData.Na__PresentationMode__ProjectJson__HasValidSavedScenes({ PresentationMode__SavedCameraScenes : placeholder }), placeholder[SCENES].length ], [ true, 9 ]);
+    const savedOff = { PresentationMode__SavedCameraScenes : { PresentationMode__SavedCameraScenes__Enabled : false, [SCENES] : [ clone(authored) ] } };
+    check('a block already saved switched off with authored scenes (JW02 today) is switched back on at load',
+        [ Live.Na__SsLive__RepairPresentationBlock(savedOff), savedOff.PresentationMode__SavedCameraScenes.PresentationMode__SavedCameraScenes__Enabled ], [ true, true ]);
+    check('a block that is on, or holds no viewer scene, is left as it is',
+        [ Live.Na__SsLive__RepairPresentationBlock(savedOff),
+          Live.Na__SsLive__RepairPresentationBlock({ PresentationMode__SavedCameraScenes : { PresentationMode__SavedCameraScenes__Enabled : false, [SCENES] : [ Object.assign(clone(authored), { PresentationMode__Scene__LayoutEditorOnly : true }) ] } }),
+          Live.Na__SsLive__RepairPresentationBlock({ projectCode : 'XX00' }) ], [ false, false, false ]);
 
 // endregion -------------------------------------------------------------------
 

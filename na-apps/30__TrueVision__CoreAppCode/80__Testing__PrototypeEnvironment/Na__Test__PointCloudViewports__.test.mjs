@@ -33,6 +33,11 @@
 //   the Site Plan scene type.
 // - The layer refuses a 3D View, a scene looking the wrong way, a plan scene
 //   on an elevation, and says how far a near miss drifts.
+// - TWO KINDS OF OFF (19-Oct-2026). The working view (Point Cloud Tools'
+//   checkboxes) switches point clouds off on screen only: Fill draws and
+//   fetches nothing for one, while the export path still finds it ready. The
+//   drawing's own off (PointCloud__Hidden) is the Render Composites panel's
+//   Point Cloud row, read from the shipped config.
 //
 // =============================================================================
 
@@ -386,6 +391,54 @@ import { tmpdir } from 'node:os';
     const cross = prims.filter((p) => p.kind === 'line');
     check('the datum is drawn where the linework puts it: its cross meets at (100, 100) mm in the frame',
         cross.length === 2 ? [ Math.round(((cross[0].x1 + cross[0].x2) / 2) * 1000) / 1000, Math.round(cross[0].y1 * 1000) / 1000, Math.round(cross[1].x1 * 1000) / 1000 ] : cross, [ 100, 100, 100 ]);
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Two Kinds of Off: the Working View (on screen only) and the Drawing's
+// -----------------------------------------------------------------------------
+
+    console.log('\n  The working view and the Point Cloud composite');
+    const listed = [ 'pcs_7d342e28', 'pcs_73792e75', 'pcs_9f322302' ];
+    check('every point cloud is drawn while working until someone says otherwise',
+        [ Layer.Na__LeVp2d__PointCloudWorkingVisible('pcs_7d342e28'), Layer.Na__LeVp2d__PointCloudWorkingSummary(listed) ], [ true, 'on' ]);
+    const announced = [];
+    const dispatchBefore = window.dispatchEvent;
+    window.dispatchEvent = (event) => { announced.push(event.type); return dispatchBefore.call(window, event); };
+    Layer.Na__LeVp2d__PointCloudSetAllWorkingVisible(false);
+    await settle();
+    check('the title checkbox off: every scene off on screen, one not even listed too, and the change is announced',
+        [ listed.map((id) => Layer.Na__LeVp2d__PointCloudWorkingVisible(id)), Layer.Na__LeVp2d__PointCloudWorkingVisible('pcs_unlisted1'),
+          Layer.Na__LeVp2d__PointCloudWorkingSummary(listed), announced.includes('na-pointcloud-working-changed') ],
+        [ [ false, false, false ], false, 'off', true ]);
+    Layer.Na__LeVp2d__PointCloudSetWorkingVisible('pcs_73792e75', true, listed);
+    check('one scene ticked back on while all are off: that one alone, and the title reads mixed',
+        [ listed.map((id) => Layer.Na__LeVp2d__PointCloudWorkingVisible(id)), Layer.Na__LeVp2d__PointCloudWorkingSummary(listed) ], [ [ false, true, false ], 'mixed' ]);
+    const offOnScreen = viewportFor({ PointCloud__SceneId : 'pcs_7d342e28' });
+    check('a scene off on screen still resolves ready on the export path: the PDF prints the drawing\'s own state',
+        Layer.Na__LeVp2d__PointCloudResolve(offOnScreen, { definition : elevationDefinition(180) }, false).status, 'ready');
+    const askedBefore = asked.length;
+    const frameState  = {};
+    Layer.Na__LeVp2d__PointCloudFill(frameState, null, offOnScreen, { definition : elevationDefinition(180) }, 4);
+    await settle();
+    check('Fill draws nothing for a scene off on screen and fetches nothing for it', [ frameState.pc || null, asked.length - askedBefore ], [ null, 0 ]);
+    Layer.Na__LeVp2d__PointCloudSetAllWorkingVisible(true);
+    check('the title checkbox on: every scene drawn again', [ listed.map((id) => Layer.Na__LeVp2d__PointCloudWorkingVisible(id)), Layer.Na__LeVp2d__PointCloudWorkingSummary(listed) ],
+        [ [ true, true, true ], 'on' ]);
+    window.dispatchEvent = dispatchBefore;
+
+    // THE DRAWING'S OWN OFF: the Render Composites row, from the shipped config
+    const Composites = await load(LE + '25__System__RenderStyles/Na__LayoutEditor__RenderComposites__.js', {});
+    await Composites.Na__LeComposite__Ready();
+    const rows = Composites.Na__LeComposite__Rows();
+    const pcRow = rows.find((row) => row.key === 'pointCloud');
+    check('Render Composites lists Point Cloud first (it is laid over the linework and the fog), a 2D toggle with no weight',
+        pcRow ? [ rows[0].key, pcRow.label, pcRow.toggle, pcRow.twoDOnly, pcRow.weight.kind ] : null, [ 'pointCloud', 'Point Cloud', true, true, 'none' ]);
+    check('its toggle is bound to the viewport\'s point cloud block, every other row to Viewport__Styles',
+        [ pcRow && pcRow.binding, rows.filter((row) => row.key !== 'pointCloud').every((row) => row.binding === 'style') ], [ 'pointCloud', true ]);
+    check('a viewport that never touched a weight keys exactly as before: no token from the new row',
+        [ Composites.Na__LeComposite__Token(viewportFor({ PointCloud__SceneId : 'pcs_7d342e28', PointCloud__Hidden : true })), Composites.Na__LeComposite__RasterToken(viewportFor({ PointCloud__SceneId : 'pcs_7d342e28' })) ], [ '', '' ]);
 
 // endregion -------------------------------------------------------------------
 

@@ -34,6 +34,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.1.0
+// - Point clouds (TrueVision3D v2.176.0). Build registers a published
+//   drawing's point cloud opacities with Na__PubDoc__PointCloud__ before it
+//   paints, hands the painter PointCloudOpacity (the drawing's level now, so
+//   a tier swap keeps the client's slider), and returns PointClouds for the
+//   web viewer's dock.
+//
 // 23-Sep-2026 - Version 1.0.0
 // - Created with Phases 2 and 3 of TrueVision__PLAN__PublishingSystem__.md.
 //
@@ -57,7 +64,8 @@
     import { Na__PubSheet__Paper, Na__PubSheet__Ground, Na__PubSheet__Marks,
              Na__PubSheet__LayersBackToFront, Na__PubSheet__Lineweights } from './Na__PubDoc__Sheet__.js';
     import { Na__PubEl__Paint } from './Na__PubDoc__Elements__.js';
-    import { Na__PubVp__Paint, Na__PubVp__Release, Na__PubVp__SetBudget } from './Na__PubDoc__Viewports__.js';
+    import { Na__PubVp__Paint, Na__PubVp__Release, Na__PubVp__SetBudget, Na__PubVp__CloudBases } from './Na__PubDoc__Viewports__.js';
+    import { Na__PubPc__Register, Na__PubPc__OpacityFor } from './Na__PubDoc__PointCloud__.js';
     import { Na__PubMask__Paint } from './Na__PubDoc__Unpublished__.js';
 
 // endregion -------------------------------------------------------------------
@@ -315,7 +323,8 @@
     // ------------------------------------------------------------
     // THE FIRST BRANCH IS THE GUARD. An unpublished drawing never reaches its
     // own folder, a manifest or a raster. Returns { Ok, State, Markup, Paper,
-    // Reason }.
+    // Reason }, and for a published drawing PointClouds: its point clouds as
+    // Na__PubPc__Summary gives them, or null when it has none.
     //
     // options : { Density, Zoom } - device pixels per paper mm on screen (the
     //           reader's own rule for the raster tier), or a bare zoom factor.
@@ -394,6 +403,13 @@
         const defs    = Na__PubPaint__Sink();
         const body    = Na__PubPaint__Sink();
 
+        // THE POINT CLOUDS, registered before anything is painted, so every
+        // picture is painted at the drawing's level now: as issued, or where
+        // this reader's slider left it this session.
+        const viewportKind = Na__PubSchema__Kind('viewport');
+        const allViewports = (loaded.Elements.viewport && loaded.Elements.viewport[viewportKind.arrayKey]) || [];
+        const clouds       = Na__PubPc__Register(documentId, Na__PubVp__CloudBases(allViewports));
+
         const context = {
             DocumentId  : documentId,
             DefPrefix   : 'na-' + String(documentId).replace(/[^A-Za-z0-9_-]/g, ''),
@@ -405,7 +421,8 @@
             Density     : Number((options || {}).Density) || 0,
             Url         : (projectRelativePath) => projectRelativePath ? Na__PubDoc__Urls__Direct(projectRelativePath) : null,
             Resolve     : (viewport, reference) => Na__PubSchema__ResolveDocumentRef(documentId, reference),
-            Tokens      : (markup) => Na__PubDoc__ResolveTokens(documentId, markup)
+            Tokens      : (markup) => Na__PubDoc__ResolveTokens(documentId, markup),
+            PointCloudOpacity : (base) => Na__PubPc__OpacityFor(documentId, base)
         };
 
         body.push(Na__PubSheet__Ground(paper, context));
@@ -417,8 +434,7 @@
             // the editor drew; the plan says what goes under what. Nothing here
             // is laid out, formatted or arranged.
             body.push(context.Tokens(loaded.Sheet['PublishedSheet__UnderlaySvg'] || ''));
-            const viewportKind = Na__PubSchema__Kind('viewport');
-            const viewports    = (loaded.Elements.viewport && loaded.Elements.viewport[viewportKind.arrayKey]) || [];
+            const viewports    = allViewports;
             for (const step of plan) {
                 const kind = step['Step__Kind'];
                 if (kind === 'viewport') {
@@ -451,15 +467,16 @@
         }
 
         return {
-            Ok       : true,
-            State    : states.published,
-            Paper    : paper,
-            Manifest : loaded.Manifest,
-            Markup   : Na__PubPaint__Svg(paper.WidthMm, paper.HeightMm,
-                          Na__PubPaint__Done(defs), Na__PubPaint__Done(body),
-                          { Class : 'na-pubdoc__sheet', DocumentId : documentId,
-                            FontFamily : Na__PubDoc__Config.Sheet['Sheet__FontFamily'] }),
-            Reason   : null
+            Ok          : true,
+            State       : states.published,
+            Paper       : paper,
+            Manifest    : loaded.Manifest,
+            Markup      : Na__PubPaint__Svg(paper.WidthMm, paper.HeightMm,
+                             Na__PubPaint__Done(defs), Na__PubPaint__Done(body),
+                             { Class : 'na-pubdoc__sheet', DocumentId : documentId,
+                               FontFamily : Na__PubDoc__Config.Sheet['Sheet__FontFamily'] }),
+            PointClouds : clouds,                                                 // <-- Na__PubPc__Summary, or null when it has none
+            Reason      : null
         };
     }
     // ------------------------------------------------------------

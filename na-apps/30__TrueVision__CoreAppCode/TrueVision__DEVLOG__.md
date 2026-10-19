@@ -2,6 +2,269 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.177.1  -  19-Oct-2026
+### Fixed: Synced SketchUp Elevations Were Titled by the Scene Name, Not the Compass
+
+**What Adam saw**
+- JW02 D01: the Drawing Title under the north elevation read EXISTING ELEVATION__NORTH__FRONT, the SketchUp scene's
+  name, where it should read EXISTING NORTH ELEVATION. "It has all of the elements required, such as a view direction
+  and the north arrow placement being set."
+
+**Why**
+- Every fact was there. A synced elevation carries the exact bearing of SketchUp's camera (Elevation__AzimuthDeg) and
+  JW02's north is set (187.8 degrees). Read against each other, its four elevations face North (352.2), East (82.2),
+  South (172.2) and West (262.2), which agrees with Adam's own scene names.
+- Scene Sync 1.0.0 built every synced elevation with Elevation__NameIsAuto false, to keep the auto namer off
+  SketchUp's name. But false means "a name typed in Dev Tools > Elevations for the sheets to use", and the viewport
+  identity puts such a name ahead of the compass word (two east elevations on one sheet need two titles). So the scene
+  name became the title's subject, and the viewport's name in the panels and its frame caption too.
+
+**The fix**
+- Scene Sync Records 1.0.2: a synced elevation carries no Elevation__NameIsAuto. Absent promotes no name to a title,
+  and the auto namer renames only records marked automatic (a synced one has no Dev menu row either). Elevation__Name
+  stays SketchUp's, so the panels still show the scene by its SketchUp name. A copy detached in TrueVision is titled
+  the same way until a name is typed for it in Dev Tools.
+- Nothing is saved differently: synced records are never written. A sheet brings its titles into line when it opens
+  (the viewport link's refresh), so JW02's saved title rebuilds itself and is written with the next Save Sheets.
+- Existing or Proposed is unchanged: it comes from the model unless chosen on the title. JW02's only model group is
+  "Concept Design - Scheme-01", so on Auto its drawings read PROPOSED; its D01 title has Existing chosen.
+
+**How it was proved**
+- `Na__Test__SceneSync__.test.mjs`, 86 checks (12 new), on JW02's own manifest (copied into the fixture folder) and
+  its north, through the real viewport identity, title text, compass, auto namer and Drawing Title modules: EXISTING
+  NORTH, EAST, SOUTH and WEST ELEVATION; PROPOSED on Auto; the cause reproduced (a 1.0.1 record letters EXISTING
+  ELEVATION__NORTH__FRONT); a name typed in Dev Tools or on the viewport still wins; a detached copy; north not set
+  reads {{DIRECTION}}, never the scene name; the auto namer leaves SketchUp's name alone.
+- Unchanged and green: ViewportTitleText, ScrapbookDrawingTitle, NorthCompass, DraftGuard, DrawingDrafts,
+  PointCloudViewports (73), FloorPlanStoreyLevel, HideSwings, PublishedSchema (62).
+- The real app on localhost, JW02, served read-only (Worker URL blanked, every write refused; none attempted): D01's
+  four viewports described as North, East, South and West; Adam's saved title (Group_001, bar to the right) rebuilt
+  itself from EXISTING ELEVATION__NORTH__FRONT to EXISTING NORTH ELEVATION as the sheet opened; a fresh title dropped
+  under the north elevation read the same. The test origin's draft, storage, worker and caches were cleared.
+- No service worker token bump: 2026-10-19-04 is not live yet, and this changes no exports.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.177.0  -  19-Oct-2026
+### Custom Viewport Scales: Add Custom Scale
+
+**What Adam asked for**
+- In the Viewport panel's Scale row, "Add custom scale", for scales such as 1:500 that are not used all the time;
+  each one added joins the list as a button of its own. And first, a look at whether it would break anything bound
+  to the scales (dynamic dimensions, dynamic blocks and the like).
+
+**The look first: what the scales touch**
+- Twenty files read a viewport's scale. Nearly all of it is arithmetic on the number: a frame W paper mm wide at 1:N
+  shows W x N of the model; dash patterns and hatches scale by N; dimensions and Draw at scale read real sizes at N;
+  the PDF, the published drawings and the site plan block or location plan rule (1:500 or finer) work at any N. The
+  scale bar keeps a standard for each common scale (1:1 to 1:2500) and works out a sound bar for any other.
+- Three things were bound to the fixed list, and each would have gone wrong with a custom scale:
+  - Coerce, on every load and every scale change, reset a scale off the viewport's list to the default (1:50), and
+    the next save wrote 1:50 over it.
+  - Captions and the title block quoted an unlisted scale as the default.
+  - The Scale buttons were built once, from the list.
+
+**Built**
+- The project's own scales are kept once, on the drawings block (LayoutEditor__DrawingsData__CustomScaleDenominators,
+  whole numbers, finest first), like the common client and site address: they go wherever the project's drawings go,
+  R2 and the local copy, so both computers see them.
+- ScaleManager 1.3.0: the custom scales join both lists (architectural and site plan), in order; captions and the
+  title block quote them as they are; CustomValue reads "500" or "1:500", a whole number from 1 to 100,000.
+- THE KEEP RULE: Coerce keeps any whole scale from 1:1 to 1:100,000, on a list or not; only what is not a whole scale
+  takes the default. So a viewport never loses its scale: not to a list that has not loaded (a browser draft put
+  back over the saved list, a viewport pasted from another project), nor after its button is taken off the list.
+  Every scale saved before this was already on its list, so no existing drawing changes. The new test caught the
+  first cut of the rule resetting an architectural 1:500 (which is on the site plan list) whenever the project's
+  list was not yet known, and the rule was simplified to the above.
+- Viewport panel 1.12.0: Add custom scale, under the Scale buttons, opens 1:, a number box, Add and Cancel (Enter adds,
+  Escape cancels). The new scale's button appears in order and is not applied until clicked. A custom scale's button
+  has a dashed edge; right-click takes it off the list, refused while any viewport in the project is drawn at it. The
+  rows rebuild when the list changes, and a viewport at a scale on no list shows that scale lit while selected. Scale
+  buttons keep quarter-width columns, so a fifth wraps under 1:20.
+- Sheet model: AddCustomScale and RemoveCustomScale, announced as 'scales' (the panels rebuild, the browser draft is
+  written, the next save keeps it; no undo step, since choosing the scale is what gets undone).
+- Point Cloud Tools' Add Viewport takes the nearest listed scale, so a 1:500 point cloud scene gets a 1:500 viewport
+  once 1:500 is added.
+- AppConfig: the Scales description says all of this. Service worker token 2026-10-19-04.
+
+**Not changed, on purpose**
+- Floor area scale menus list the app's scales plus the one a room is reading, as before.
+- A custom scale added but never saved is not in the browser draft, which holds sheets only (as with the common
+  fields); a viewport drawn at it keeps its scale regardless.
+
+**Tested**
+- Na__Test__CustomScales__.test.mjs (new, 36 checks): the store; what may be typed; both lists; Coerce, kept and
+  reset; captions and the title block; the toggle; a load with and without the project's list; Add and Remove
+  (listed, invalid, in use, announced).
+- Na__Test__HideSwings__.test.mjs 1.1.0: its two checks of the old reset now assert the keep rule.
+- Unchanged and passing: Point Cloud Viewports (73), Viewport Rotation, Hatch Line Controls (47), Layer Stack, Site
+  Plan Composites (151), Vector Booleans (148), Draft Restore, Scene Sync (74), Share Links (68), Draft Guard, Set Move
+  Leader Tips. Na__Verify__Exports__ passes.
+- In the browser, read-only (writes refused, Worker URL blanked), on JW02: Add custom scale 500 put a dashed 1:500
+  after 1:200; clicking it drew the north elevation at 1:500 and the title block read "1:100 & 1:500 @ ISO A1";
+  right-click was refused while in use; 37.5 was refused; Escape closed the form; a browser draft applied over the
+  saved drawings kept the viewport at 1:500.
+
+**ValeVision**
+- ScaleManager and the Viewport panel are verbatim ports; this is TrueVision first, noted in both PORT NOTEs.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.176.0  -  19-Oct-2026
+### Point Clouds in Published Drawings, and a Point Cloud Slider for Clients
+
+**What Adam saw**
+- JW02 D01, published with Also push to R2: the client view showed the four elevations with no point clouds, while
+  the authoring view and the PDF showed them. "Are these being loaded and respected? Because this should be the
+  initial position of the point cloud's opacity rendered on the page."
+
+**Why**
+- Publishing bakes each viewport into opaque pictures (`Na__LePubVp__Bake`) from the PDF exporter's own sources: the
+  underlay, the fog and the linework. v2.173.0 taught the screen and the PDF exporter to draw a point cloud, but not
+  the bake, so a published drawing carried no point cloud and none of its settings were ever read.
+
+**The fix: a second picture for each point cloud viewport**
+- A point cloud viewport now publishes a second opaque picture at each screen tier: the same decks with the point cloud
+  laid in at FULL strength, exactly where the PDF lays it (under the linework with Linework On Top, over it otherwise;
+  under every deck of a site plan with Linework On Top). `<viewport>__PointCloud__<tier>__<name>__<hash>.webp`, beside
+  the rasters. No Print tier: the PDF is baked at publish.
+- The viewport element carries `Viewport__PointCloud`: `PointCloud__Opacity` (the viewport's own),
+  `PointCloud__OverLinework`, `PointCloud__Rasters` and the datum as `PointCloud__DatumSvg`. The manifest lists the
+  tiers. Additive, so the schema stays 1: an older reader shows the drawing without its point cloud, as before.
+- The reader lays that picture over the plain one at the viewport's opacity, so the drawing opens exactly as it
+  prints. plain x (1 - o) + full x o is exact, because laying decks over each other is linear in the point cloud's
+  strength. Both pictures are opaque, like every published picture. The tier choice holds both and counts both against
+  the decoded budget. The datum is vectors, drawn over both, and never faded.
+- The PDF is unchanged (its point cloud still carries the opacity in its alpha). `Publish__ByAppVersion` is now v2.176.0.
+
+**The client's point cloud slider**
+- A published drawing with point clouds gets a **Point cloud** button in the web viewer's dock, beside the zoom keys,
+  showing how strong they are now (31% on JW02 D01: the mean of 35, 30, 30 and 30). It opens a small panel above the
+  dock: a slider with a tick where the sheet as issued sits, a box for an exact figure, and three presets: Off (the
+  drawing on its own), As drawn (the sheet as issued) and Full (every point cloud opaque).
+- One level per sheet moves every point cloud on it together (`Na__PubDoc__PointCloud__`). At As drawn each shows its
+  own opacity exactly; below it each fades in proportion towards none; above it each rises in proportion towards full.
+  With equal opacities the figure IS the opacity.
+- A post effect on screen and nothing else: the PDF button still downloads the PDF baked at publish, a share link
+  carries no level, and a printed page shows the sheet as issued (a print rule reads each picture's own opacity). The
+  level is kept per drawing for the session, survives a zoom's tier swap, and resets on reload.
+- On a phone the button shows the mark and the figure only, the thumb is touch sized, and the box is 16px so the page
+  does not zoom when it is tapped.
+- The dock's actions row is centred by its end buttons' margins now. A row wider than the dock used to spill off the
+  left where it could not be scrolled to: on a 375px phone that was Fit, already clipped before this release.
+- The loading cover names the second picture's job "Point Cloud".
+
+**Seen on JW02**
+- Show Datum is ticked on the north elevation, but JW02's SketchUp exports record no datum points, so there is nothing
+  to draw: on screen, in the PDF or published.
+
+**Files**
+- `20__System__Viewports`: `Na__LayoutEditor__Viewport2d__PointCloud__.js` 1.2.0 (`PointCloudForPublish`, the drawing
+  loop shared with the PDF's through `PcCanvas`); `Na__LayoutEditor__Viewport2d__.js` 1.20.0 (re-export).
+- `65__Feature__DocumentPublishing`: Viewports 1.2.0 (`CloudPicture`, `CloudDecks`, the element and manifest
+  blocks); Publish 1.2.0 and its config (the v2.176.0 stamp).
+- `52__System__Layout__PublishedDocuments`: PointCloud 1.0.0 (new), Viewports 1.1.0, Document 1.1.0, Paint 1.1.0,
+  LoadingScreen 1.1.0, the reader config (`Label__PointCloud`) and stylesheet.
+- `53__Data__Layout__PublishedSchema`: Paths 1.2.0 (`PointCloudPath`), the schema JSON
+  (`RasterTiers__PointCloudSuffix` and its note), the README; and the example folder's ReadMe (the readable schema).
+- `80__Feature__WebViewer`: PointCloud 1.0.0 (new), WebViewer 1.3.0, the viewer stylesheet.
+- Service worker 1.14.0: token `2026-10-19-05`.
+
+**Tested**
+- Published Reader 87 (24 new: the slider's arithmetic; where the picture is painted, at which tier and opacity; the
+  budget; a viewport with no plain picture; a viewport with no point cloud; the loading cover). Published Schema 62
+  (3 new). Point Cloud Viewports 73.
+- In the browser on JW02, a real publish of D01 into a scratch copy of its published folder (the real local publish
+  API pointed at the copy, the Worker URL blanked, every other write refused): done in 50 s with no warnings. Each
+  elevation got three point cloud tiers (28 KB to 1.6 MB) with opacities 0.35, 0.3, 0.3 and 0.3 and Linework On Top
+  kept; the plain pictures came out byte for byte as before.
+- In the viewer (`?authoring=off`) on that copy: the elevations opened with their point clouds at those opacities.
+  Full, Off, a typed 60 and a drag all moved the four together (0.6232 and 0.5942 at 60). A zoom to the next tier kept
+  the level. D02, which has no point cloud, shows no button, and back on D01 the level was where it had been left. As
+  drawn restored 0.35 and 0.30 exactly. At 375px the row starts at Fit and scrolls to Share. The PDF path still writes
+  35% into its alpha (maximum 89 of 255). Nothing was written to the project, locally or on R2.
+
+**To see it on the live site**
+- Push, then publish JW02 D01 again with Also push to R2: a drawing carries its point clouds once it is published by
+  v2.176.0. Either order works, because the live site's current reader ignores the new files.
+
+**ValeVision**
+- Not ported: ValeVision has no point clouds and no web viewer.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.175.1  -  19-Oct-2026
+### Fixed: Presentation Scenes Did Not Show at Load on a Project With Synced SketchUp Scenes
+
+**What Adam saw**
+- JW02: "the presentation scenes don't appear until I go into the dev menu and press Update ... the carousel on both
+  the live version and the dev version, when you initialise, does not show the presentation."
+
+**Why**
+- v2.174.0 gives a project that has synced SketchUp scenes but no presentation scenes a placeholder block
+  (`Sync__Container`) to hold them, switched OFF so the viewer's carousel ignores it. The first scene authored in the
+  Dev menu went into that placeholder (the editor builds its own, switched on, block only when there is none), and the
+  save dropped the mark but kept `PresentationMode__SavedCameraScenes__Enabled: false`. The carousel reads false as
+  "explicitly disabled", so at load it never built; Update re-announced the scenes, which showed them until the next
+  load. JW02 was the only project affected (every other block in the portal is switched on).
+
+**The fix**
+- The placeholder becomes an ordinary, enabled block the moment it holds an authored scene: the Scene Sync config hook
+  promotes it (no mark, switched on, the default groups, a default scene and the schema note, exactly what the
+  Dev menu's own first scene makes), and the strip writes a container holding a real scene switched on
+  (`Na__SceneSync__Live__` and `Records__` 1.0.1).
+- JW02's saved block is repaired at load: on a project with synced scenes, a block holding authored viewer scenes
+  but switched off is switched back on before the carousel decides (`Na__SsLive__RepairPresentationBlock`, loading
+  sequence 1.4.1). Nothing in TrueVision ever writes a block switched off, so that state can only be this bug's. It is
+  repaired in the data the app loaded, so the next save of any key writes it back switched on.
+- The Presentation Scenes editor (1.5.1) switches the block on whenever it commits or saves scenes, as the block it
+  makes for a first scene always was.
+
+**How it was proved**
+- `Na__Test__SceneSync__.test.mjs`, 74 checks (5 new): the placeholder ignored while empty, promoted by the first
+  authored scene (and the carousel's own gate then passing), a saved switched off block repaired, an enabled block or
+  one without viewer scenes left alone, and the strip writing a container with a real scene switched on.
+- The real app on localhost, JW02, read-only: the carousel showed at load with 3D | North West and 3D | North East;
+  nothing was written.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.175.0  -  19-Oct-2026
+### Point Clouds: a Working On/Off for Every Scene, and the Drawing's Own Point Cloud Layer in Render Composites
+
+**Overview**
+- Adam, on JW02's elevation sheet: "Update the panel in TrueVision so visibility controls are there, so you can
+  globally turn off all of the point cloud layers or one by one. This is a working layer on/off rather than the actual
+  render composite layer ... the point cloud render composite layer should appear there [Render Composites] ... that's
+  the one that is bound to the actual layer state of the drawing and shows its published and printed state. The other
+  one in the bottom right-hand side is for when you're working, so you can pop them all on and off very fast."
+
+**The change**
+- TWO KINDS OF OFF, kept apart.
+  - THE WORKING VIEW (right, Point Cloud Tools): a checkbox on each exported scene and one on the list's title for
+    every scene at once (a dash when some are off). On screen only, for this session: never saved, never printed,
+    never published, and the sheet is not marked changed. A scene switched off draws nothing and fetches nothing, so
+    a heavy sheet gets lighter at once (`Na__LayoutEditor__Viewport2d__PointCloud__` 1.1.0: PointCloudWorkingVisible,
+    SetWorkingVisible, SetAllWorkingVisible, WorkingSummary and na-pointcloud-working-changed; Fill honours it, the
+    export path never asks; `Viewport2d` 1.19.0 re-exports them).
+  - THE DRAWING'S LAYER (left, Render Composites): a Point Cloud row, first in the list because the point cloud is laid
+    over the linework and the fog, shown only on a viewport that carries one. It is the viewport's saved
+    `PointCloud__Hidden`, one undo step: unticked, the point cloud stays attached but neither shows nor prints
+    (`Na__LayoutEditor__RenderComposites__` 1.4.0, rows carry a binding; the config 1.5.0 gains the row with
+    `Composite__Binding: "pointCloud"`; `Panel__Styles` 1.8.0).
+- Show Point Cloud has left Point Cloud Tools (1.2.0) for that Render Composites row, so the right hand panel is the
+  working one throughout. The selected viewport's sentence says which kind of off applies: "Off in this drawing, so it
+  neither shows nor prints" or "Off on screen while you work ... The drawing still shows and prints it."
+- The service worker 1.12.0, token 2026-10-19-03.
+
+**How it was proved**
+- `Na__Test__PointCloudViewports__.test.mjs`, 73 checks (9 new): the title checkbox off and on, one scene back on
+  while all are off (that one alone, the title mixed), a scene off on screen still resolving ready on the export path,
+  Fill drawing and fetching nothing for it, and the composite row (first, 2D, no weight, bound to the point cloud
+  block, no token).
+- The real app on localhost, JW02's D01 Elevations with its four real exports, served read-only (Worker URL blanked,
+  every write refused; none attempted). One scene off cleared only its own viewport and the title showed the dash;
+  all off and all on worked; the sheet stayed unchanged. Render Composites listed Point Cloud first; unticking it hid
+  that viewport's point cloud, marked the sheet changed and left the PDF picture out; with the scene off on screen
+  instead, the PDF picture was still made. The test origin's draft and storage were cleared.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.174.0  -  19-Oct-2026
 ### Scene Sync: SketchUp Scenes Kept in Step as TrueVision Plans, Elevations, Sections and 3D Views
 

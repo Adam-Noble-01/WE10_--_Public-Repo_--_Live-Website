@@ -37,6 +37,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.2.0
+// - pointCloudSuffix (RasterTiers__PointCloudSuffix) and
+//   Na__PubSchema__PointCloudPath: a point cloud viewport's second picture,
+//   <viewport>__PointCloud__<tier>__<name>__<hash>.webp at each screen tier,
+//   beside the rasters it belongs to (TrueVision v2.176.0). Additive: the
+//   schema version stays 1, because a reader of schema 1 that does not know
+//   the key shows the drawing without its point cloud, as before.
+//
 // 29-Sep-2026 - Version 1.1.0
 // - files.shareLinks (Files__ShareLinks) and Na__PubSchema__ShareLinksPath:
 //   the share link manifest, one file beside the index, written by
@@ -81,8 +89,9 @@
             hashLength    : 10
         },
         states : { published : 'published', unpublished : 'unpublished', superseded : 'superseded' },
-        vectorSuffix : 'Linework',
-        maskSuffix   : 'FogMask',
+        vectorSuffix     : 'Linework',
+        maskSuffix       : 'FogMask',
+        pointCloudSuffix : 'PointCloud',
         // name is the stable identity and is what a manifest records as File__Type.
         // It is NOT the layer type: "group" is a kind with no layer at all, so
         // matching on layerType alone silently fails for exactly one kind.
@@ -173,6 +182,7 @@
         const rasters = whole['PublishedSchema__RasterTiers'] || {};
         if (typeof rasters['RasterTiers__VectorSuffix'] === 'string') setup.vectorSuffix = rasters['RasterTiers__VectorSuffix'];
         if (typeof rasters['RasterTiers__MaskSuffix'] === 'string')   setup.maskSuffix   = rasters['RasterTiers__MaskSuffix'];
+        if (typeof rasters['RasterTiers__PointCloudSuffix'] === 'string') setup.pointCloudSuffix = rasters['RasterTiers__PointCloudSuffix'];
         const tiers = rasters['RasterTiers__Tiers'];
         if (Array.isArray(tiers) && tiers.length > 0) {
             setup.tiers = tiers.map((one) => ({
@@ -399,6 +409,27 @@
         const setup = Na__PubSchema__Get();
         const parts = (tier.name && tier.name !== tier.id) ? [ viewportId, setup.maskSuffix, tier.id, tier.name ] : [ viewportId, setup.maskSuffix, tier.id ];
         const name  = parts.concat([ Na__PubSchema__Hash(hash) ]).join('__') + '.webp';
+        return Na__PubSchema__Join(folder, setup.folders.raster, name);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | One Point Cloud Viewport's Second Picture at One Screen Tier
+    // ------------------------------------------------------------
+    // <viewport>__PointCloud__<tier>__<name>__<hash>.webp, beside the rasters
+    // it belongs to. Only a viewport that lays a point cloud over its drawing
+    // has one: the same picture with the point cloud in it at FULL strength,
+    // which the reader lays over the plain picture at the viewport's own
+    // opacity (and a client's slider moves). Opaque, like every published
+    // picture.
+    // ------------------------------------------------------------
+    function Na__PubSchema__PointCloudPath(documentId, viewportId, tierId, hash) {
+        const folder = Na__PubSchema__DocumentFolder(documentId);
+        const tier   = Na__PubSchema__Tier(tierId);
+        if (!folder || !tier || !tier.screen || !Na__PubSchema__SEGMENT.test(String(viewportId))) return null;
+        const setup = Na__PubSchema__Get();
+        const parts = (tier.name && tier.name !== tier.id) ? [ viewportId, setup.pointCloudSuffix, tier.id, tier.name ] : [ viewportId, setup.pointCloudSuffix, tier.id ];
+        const name  = parts.concat([ Na__PubSchema__Hash(hash) ]).join('__') + '.' + tier.extension;
         return Na__PubSchema__Join(folder, setup.folders.raster, name);
     }
     // ------------------------------------------------------------
@@ -656,6 +687,7 @@
         Na__PubSchema__VectorPath,
         Na__PubSchema__RasterPath,
         Na__PubSchema__MaskPath,
+        Na__PubSchema__PointCloudPath,
         Na__PubSchema__PdfPath,
         Na__PubSchema__SharedImagePath,
         Na__PubSchema__SharedPath,

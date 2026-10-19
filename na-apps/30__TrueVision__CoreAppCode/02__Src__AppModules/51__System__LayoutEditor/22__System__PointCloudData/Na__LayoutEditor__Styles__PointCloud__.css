@@ -87,9 +87,25 @@
    REGION | Point Cloud Tools Panel
    ----------------------------------------------------------------------------- */
 
+    /* The list's title carries the working view's every-scene checkbox, and
+       each row its own, in a first column of their own (19-Oct-2026). */
+    .na-le-pc__scenes-head {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 8px;
+        margin                             : 8px 0 2px 0;
+        font-size                          : 11px;
+        color                              : #6c757d;
+        cursor                             : pointer;
+    }
+
+    .na-le-pc__scenes-head[hidden] {
+        display                            : none;
+    }
+
     .na-le-pc__scene {
         display                            : grid;
-        grid-template-columns              : 1fr auto;
+        grid-template-columns              : auto minmax(0, 1fr) auto;
         gap                                : 2px 8px;
         align-items                        : center;
         padding                            : 6px 0;
@@ -109,7 +125,7 @@
     }
 
     .na-le-pc__scene-meta {
-        grid-column                        : 1 / -1;
+        grid-column                        : 2 / -1;
         font-size                          : 11px;
         color                              : #6c757d;
         line-height                        : 1.35;
@@ -122,6 +138,12 @@
 
     .na-le-pc__note--warn {
         color                              : #8a1c1c;
+    }
+
+    /* Off on screen while working: still listed, quieter */
+    .na-le-pc__scene--working-off .na-le-pc__scene-name,
+    .na-le-pc__scene--working-off .na-le-pc__scene-meta {
+        color                              : #a3abb4;
     }
 
 /* endregion ------------------------------------------------------------------- */

@@ -114,6 +114,7 @@
             "Label__Picture"    : "Picture",
             "Label__Linework"   : "Linework",
             "Label__Fog"        : "Depth Fog",
+            "Label__PointCloud" : "Point Cloud",
             "Label__Shared"     : "Title Block Images",
             "Label__SheetImage" : "Sheet Pictures",
             "Label__Pattern"    : "Hatch Patterns",

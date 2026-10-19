@@ -635,6 +635,19 @@
     check('the share link record\'s name is the same on the fallback',
         Fallback.Na__PubSchema__ShareLinksPath() === Paths.Na__PubSchema__ShareLinksPath());
 
+    // THE POINT CLOUD PICTURE (19-Oct-2026, TrueVision3D v2.176.0): beside the
+    // rasters, named like the fog mask, screen tiers only.
+    check('PointCloudPath names a point cloud viewport\'s second picture beside its rasters',
+        Paths.Na__PubSchema__PointCloudPath('AA00_T02_D02', 'Viewport_001', 'Tier01', '4f8a1c27d9') ===
+        '06__Layout__PublishedDocuments/AA00_T02_D02/03__Viewports__Raster/Viewport_001__PointCloud__Tier01__Fit__4f8a1c27d9.webp',
+        Paths.Na__PubSchema__PointCloudPath('AA00_T02_D02', 'Viewport_001', 'Tier01', '4f8a1c27d9'));
+    check('there is no Print tier of it (the PDF is baked at publish), and a bad id builds nothing',
+        Paths.Na__PubSchema__PointCloudPath('AA00_T02_D02', 'Viewport_001', 'Print', '4f8a1c27d9') === null &&
+        Paths.Na__PubSchema__PointCloudPath('AA00_T02_D02', '../x', 'Tier01', '4f8a1c27d9') === null);
+    check('its name is the same on the fallback',
+        setup.pointCloudSuffix === 'PointCloud' && fallbackSetup.pointCloudSuffix === setup.pointCloudSuffix &&
+        Fallback.Na__PubSchema__PointCloudPath('AA00_T02_D02', 'Viewport_001', 'Tier03', 'ab') === Paths.Na__PubSchema__PointCloudPath('AA00_T02_D02', 'Viewport_001', 'Tier03', 'ab'));
+
     globalThis.fetch = realFetch;
 
 // endregion -------------------------------------------------------------------
