@@ -11,11 +11,11 @@
     },
     "PublishedDocuments__Publish" : {
         "Publish__SchemaVersion"    : 1,
-        "Publish__AtIso"            : "2026-10-19T15:46:17.305Z",
-        "Publish__AtEpochMs"        : 1792424777305,
+        "Publish__AtIso"            : "2026-10-19T16:33:11.401Z",
+        "Publish__AtEpochMs"        : 1792427591401,
         "Publish__ByApp"            : "TrueVision3D Layout Editor",
-        "Publish__ByAppVersion"     : "v2.166.0",
-        "Publish__LastPublishedIso" : "2026-10-19T15:46:17.305Z",
+        "Publish__ByAppVersion"     : "v2.176.0",
+        "Publish__LastPublishedIso" : "2026-10-19T16:33:11.401Z",
         "Publish__DocumentCount"    : 3,
         "Publish__UnpublishedCount" : 0,
         "Publish__ArchiveFolder"    : "00__Archive__Revisions"
@@ -73,14 +73,14 @@
             "Document__DrawingAreaMm" : {
                 "X"        : 5,
                 "Y"        : 5,
-                "WidthMm"  : 831,
+                "WidthMm"  : 736,
                 "HeightMm" : 571
             },
             "Document__Revision"       : "A",
             "Document__Status"         : null,
             "Document__State"          : "published",
             "Document__Folder"         : "JW02_T01_D01",
-            "Document__PublishedAtIso" : "2026-10-19T15:45:16.402Z",
+            "Document__PublishedAtIso" : "2026-10-19T16:32:16.431Z",
             "Document__HasViewports"   : true,
             "Document__HasPdf"         : true,
             "Document__Order"          : 1
@@ -97,14 +97,14 @@
             "Document__DrawingAreaMm" : {
                 "X"        : 5,
                 "Y"        : 5,
-                "WidthMm"  : 831,
+                "WidthMm"  : 735.9,
                 "HeightMm" : 571
             },
             "Document__Revision"       : "A",
             "Document__Status"         : null,
             "Document__State"          : "published",
             "Document__Folder"         : "JW02_T01_D02",
-            "Document__PublishedAtIso" : "2026-10-19T15:45:52.114Z",
+            "Document__PublishedAtIso" : "2026-10-19T16:32:59.949Z",
             "Document__HasViewports"   : true,
             "Document__HasPdf"         : true,
             "Document__Order"          : 2
@@ -114,21 +114,21 @@
             "Document__Number"        : "D03",
             "Document__Phase"         : "T01",
             "Document__Name"          : "Existing Conditions | Site Plan",
-            "Document__PaperSize"     : "A1",
+            "Document__PaperSize"     : "A2",
             "Document__Orientation"   : "landscape",
-            "Document__PaperWidthMm"  : 841,
-            "Document__PaperHeightMm" : 594,
+            "Document__PaperWidthMm"  : 594,
+            "Document__PaperHeightMm" : 420,
             "Document__DrawingAreaMm" : {
                 "X"        : 5,
                 "Y"        : 5,
-                "WidthMm"  : 738,
-                "HeightMm" : 571
+                "WidthMm"  : 491,
+                "HeightMm" : 397
             },
             "Document__Revision"       : "A",
             "Document__Status"         : null,
             "Document__State"          : "published",
             "Document__Folder"         : "JW02_T01_D03",
-            "Document__PublishedAtIso" : "2026-10-19T15:46:13.472Z",
+            "Document__PublishedAtIso" : "2026-10-19T16:33:06.295Z",
             "Document__HasViewports"   : true,
             "Document__HasPdf"         : true,
             "Document__Order"          : 3

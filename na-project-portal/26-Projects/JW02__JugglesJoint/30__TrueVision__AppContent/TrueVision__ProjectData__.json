@@ -35,14 +35,14 @@
         "PointCloud__FolderName": "PointCloud__ViewportData",
         "PointCloud__BaseUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/JW02__JugglesJoint/30__TrueVision__AppContent/PointCloud__ViewportData",
         "PointCloud__ManifestUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/JW02__JugglesJoint/30__TrueVision__AppContent/PointCloud__ViewportData/TrueVision__PointCloudData__Manifest__.json",
-        "PointCloud__ExportedIso": "2026-10-19T17:11:59+0100",
+        "PointCloud__ExportedIso": "2026-10-19T17:35:56+0100",
         "PointCloud__SceneCount": 5
     },
     "SceneSync__DataStore": {
         "SceneSync__FolderName": "SceneSync__SketchUpSceneData",
         "SceneSync__BaseUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/JW02__JugglesJoint/30__TrueVision__AppContent/SceneSync__SketchUpSceneData",
         "SceneSync__ManifestUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/JW02__JugglesJoint/30__TrueVision__AppContent/SceneSync__SketchUpSceneData/TrueVision__SceneSyncData__Manifest__.json",
-        "SceneSync__ExportedIso": "2026-10-19T17:11:59+0100",
+        "SceneSync__ExportedIso": "2026-10-19T17:35:56+0100",
         "SceneSync__SceneCount": 5
     },
     "PresentationMode__SavedCameraScenes": {
@@ -121,6 +121,80 @@
                     }
                 },
                 "PresentationMode__Scene__Order": 2
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_005",
+                "PresentationMode__Scene__Name": "3D | West",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_005.webp",
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__GroupId": "Group_001",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 79168,
+                        "Camera__DefaultPos__PosY": 3632,
+                        "Camera__DefaultPos__PosZ": -62207
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -3.0823,
+                        "Camera__DefaultRotation__RotY": 0.8671,
+                        "Camera__DefaultRotation__RotZ": 3.0964
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 30
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 47946,
+                    "OrbitHelperCube__Position__PosY": 2062,
+                    "OrbitHelperCube__Position__PosZ": -35757
+                },
+                "PresentationMode__Scene__LensMm": 45,
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__MainBuildingModel__Existing": true,
+                        "TrueVision__LandscapeEnvironment": true
+                    }
+                },
+                "PresentationMode__Scene__Order": 3
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_006",
+                "PresentationMode__Scene__Name": "3D | Courtyard",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_006.webp",
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__GroupId": "Group_001",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 27417,
+                        "Camera__DefaultPos__PosY": 4035,
+                        "Camera__DefaultPos__PosZ": -71187
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -3.0887,
+                        "Camera__DefaultRotation__RotY": -0.5719,
+                        "Camera__DefaultRotation__RotZ": -3.1129
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 30
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 49580,
+                    "OrbitHelperCube__Position__PosY": 2213,
+                    "OrbitHelperCube__Position__PosZ": -36801
+                },
+                "PresentationMode__Scene__LensMm": 45,
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__MainBuildingModel__Existing": true,
+                        "TrueVision__LandscapeEnvironment": true
+                    }
+                },
+                "PresentationMode__Scene__Order": 4
             },
             {
                 "PresentationMode__Scene__Id": "Scene_003",
@@ -3953,6 +4027,70 @@
                     "IncludeGeneral": true,
                     "GroupHeadings": false
                 }
+            },
+            {
+                "Sheet__Id": "Sheet_004",
+                "Sheet__Name": "New Drawing",
+                "Sheet__Order": 4,
+                "Sheet__PaperSize": "A3",
+                "Sheet__Orientation": "landscape",
+                "Sheet__TitleBlockStyle": "modern",
+                "Sheet__Fields": {
+                    "Sheet__Fields__DrawingNumber": "D04"
+                },
+                "Sheet__Layers": [
+                    {
+                        "Layer__Id": "Layer_002",
+                        "Layer__Name": "Text",
+                        "Layer__Type": "annotation",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
+                        "Layer__Order": 1
+                    },
+                    {
+                        "Layer__Id": "Layer_003",
+                        "Layer__Name": "Dimensions",
+                        "Layer__Type": "dimension",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
+                        "Layer__Order": 2
+                    },
+                    {
+                        "Layer__Id": "Layer_004",
+                        "Layer__Name": "Vectors",
+                        "Layer__Type": "vector",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
+                        "Layer__Order": 3
+                    },
+                    {
+                        "Layer__Id": "Layer_005",
+                        "Layer__Name": "Floor Areas",
+                        "Layer__Type": "area",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
+                        "Layer__Order": 4
+                    },
+                    {
+                        "Layer__Id": "Layer_001",
+                        "Layer__Name": "Viewports",
+                        "Layer__Type": "viewport",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
+                        "Layer__Order": 5
+                    }
+                ],
+                "Sheet__Viewports": [],
+                "Sheet__Annotations": [],
+                "Sheet__Dimensions": [],
+                "Sheet__Shapes": [],
+                "Sheet__Leaders": [],
+                "Sheet__Groups": [],
+                "Sheet__LayerStack": 2,
+                "Sheet__Lineweights": {
+                    "ViewportPt": 0.3,
+                    "DimensionPt": 0.35
+                }
             }
         ],
         "LayoutEditor__DrawingsData__CommonSiteAddress": "Jimmy Jaws Joint, Highfield Farm, West Willoughby, Lincolnshire, NG32 3SJ",
@@ -3965,7 +4103,7 @@
             },
             "North__SetIso": "2026-10-19T13:13:36.963Z"
         },
-        "LayoutEditor__DrawingsData__SavedIso": "2026-10-19T16:31:08.095Z",
+        "LayoutEditor__DrawingsData__SavedIso": "2026-10-19T16:34:45.763Z",
         "LayoutEditor__DrawingsData__CommonClient": "Jimmy Jaws",
         "LayoutEditor__DrawingsData__CustomScaleDenominators": [
             500

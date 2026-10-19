@@ -12,10 +12,10 @@
             "Viewport__Name"    : "",
             "Viewport__LayerId" : "Layer_001",
             "Viewport__FrameMm" : {
-                "X"        : 7.753088588820901,
-                "Y"        : 17.57391962042209,
-                "WidthMm"  : 594.6998686692868,
-                "HeightMm" : 106.30637550406409
+                "X"        : 69.87921911183832,
+                "Y"        : 37.57391962042209,
+                "WidthMm"  : 569.8611324079022,
+                "HeightMm" : 106.02155289886075
             },
             "Viewport__RotationDeg"      : 0,
             "Viewport__ScaleDenominator" : 100,
@@ -23,41 +23,72 @@
             "Viewport__PictureRectMm"    : {
                 "X"        : 0,
                 "Y"        : 0,
-                "WidthMm"  : 594.6998686692868,
-                "HeightMm" : 106.30637550406409
+                "WidthMm"  : 569.8611324079022,
+                "HeightMm" : 106.02155289886075
             },
             "Viewport__BaseImage"    : true,
             "Viewport__RasterOpaque" : true,
             "Viewport__Rasters"      : [
                 {
                     "Tier__Id"     : "Print",
-                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Print__c2d0429490.png",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Print__36bd8c50f2.png",
                     "Tier__PixelW" : 8192,
-                    "Tier__PixelH" : 1464
+                    "Tier__PixelH" : 1524
                 },
                 {
                     "Tier__Id"     : "Tier03",
-                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier03__Detail__c2d0429490.webp",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier03__Detail__36bd8c50f2.webp",
                     "Tier__PixelW" : 5120,
-                    "Tier__PixelH" : 915
+                    "Tier__PixelH" : 953
                 },
                 {
                     "Tier__Id"     : "Tier02",
-                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier02__Read__c2d0429490.webp",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier02__Read__36bd8c50f2.webp",
                     "Tier__PixelW" : 3072,
-                    "Tier__PixelH" : 549
+                    "Tier__PixelH" : 572
                 },
                 {
                     "Tier__Id"     : "Tier01",
-                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier01__Fit__c2d0429490.webp",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier01__Fit__36bd8c50f2.webp",
                     "Tier__PixelW" : 1024,
-                    "Tier__PixelH" : 183
+                    "Tier__PixelH" : 191
                 }
             ],
-            "Viewport__FogMasks" : [],
-            "Viewport__Vector"   : null,
+            "Viewport__FogMasks"   : [],
+            "Viewport__PointCloud" : {
+                "PointCloud__Opacity"      : 0.35,
+                "PointCloud__OverLinework" : false,
+                "PointCloud__Rasters"      : [
+                    {
+                        "Tier__Id"     : "Tier03",
+                        "Tier__File"   : "03__Viewports__Raster/Viewport_001__PointCloud__Tier03__Detail__36bd8c50f2.webp",
+                        "Tier__PixelW" : 5120,
+                        "Tier__PixelH" : 953
+                    },
+                    {
+                        "Tier__Id"     : "Tier02",
+                        "Tier__File"   : "03__Viewports__Raster/Viewport_001__PointCloud__Tier02__Read__36bd8c50f2.webp",
+                        "Tier__PixelW" : 3072,
+                        "Tier__PixelH" : 572
+                    },
+                    {
+                        "Tier__Id"     : "Tier01",
+                        "Tier__File"   : "03__Viewports__Raster/Viewport_001__PointCloud__Tier01__Fit__36bd8c50f2.webp",
+                        "Tier__PixelW" : 1024,
+                        "Tier__PixelH" : 191
+                    }
+                ],
+                "PointCloud__DatumSvg" : ""
+            },
+            "Viewport__Vector" : {
+                "Vector__File"         : "02__Viewports__Vector/Viewport_001__Linework__36bd8c50f2.svg",
+                "Vector__WidthMm"      : 569.8611324079022,
+                "Vector__HeightMm"     : 106.02155289886075,
+                "Vector__PathCount"    : 4,
+                "Vector__SegmentCount" : 1785
+            },
             "Viewport__SceneSvg" : "",
-            "Viewport__FrameSvg" : "<rect x=\"7.753\" y=\"17.574\" width=\"594.7\" height=\"106.306\" fill=\"none\" stroke=\"#8a949c\" stroke-width=\"0.25\"/><rect x=\"7.753\" y=\"118.88\" width=\"64.917\" height=\"5\" fill=\"#ffffff\" stroke=\"#8a949c\" stroke-width=\"0.25\"/><text x=\"9.653\" y=\"122.244\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"700\" fill=\"#172b3a\" text-anchor=\"start\" letter-spacing=\"0.16\" xml:space=\"preserve\">PROPOSED ELEVATION__NORTH__FRONT   1:100</text>"
+            "Viewport__FrameSvg" : ""
         },
         {
             "Viewport__Id"      : "Viewport_002",
@@ -65,8 +96,8 @@
             "Viewport__Name"    : "",
             "Viewport__LayerId" : "Layer_001",
             "Viewport__FrameMm" : {
-                "X"        : 122.98693505910069,
-                "Y"        : 150.5,
+                "X"        : 145.40280430911798,
+                "Y"        : 444.86680352564315,
                 "WidthMm"  : 473.1478899073313,
                 "HeightMm" : 120
             },
@@ -84,33 +115,64 @@
             "Viewport__Rasters"      : [
                 {
                     "Tier__Id"     : "Print",
-                    "Tier__File"   : "03__Viewports__Raster/Viewport_002__Print__8f2597e422.png",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_002__Print__7bab30a5e4.png",
                     "Tier__PixelW" : 8192,
                     "Tier__PixelH" : 2078
                 },
                 {
                     "Tier__Id"     : "Tier03",
-                    "Tier__File"   : "03__Viewports__Raster/Viewport_002__Tier03__Detail__8f2597e422.webp",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_002__Tier03__Detail__7bab30a5e4.webp",
                     "Tier__PixelW" : 5120,
                     "Tier__PixelH" : 1299
                 },
                 {
                     "Tier__Id"     : "Tier02",
-                    "Tier__File"   : "03__Viewports__Raster/Viewport_002__Tier02__Read__8f2597e422.webp",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_002__Tier02__Read__7bab30a5e4.webp",
                     "Tier__PixelW" : 2839,
                     "Tier__PixelH" : 720
                 },
                 {
                     "Tier__Id"     : "Tier01",
-                    "Tier__File"   : "03__Viewports__Raster/Viewport_002__Tier01__Fit__8f2597e422.webp",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_002__Tier01__Fit__7bab30a5e4.webp",
                     "Tier__PixelW" : 946,
                     "Tier__PixelH" : 240
                 }
             ],
-            "Viewport__FogMasks" : [],
-            "Viewport__Vector"   : null,
+            "Viewport__FogMasks"   : [],
+            "Viewport__PointCloud" : {
+                "PointCloud__Opacity"      : 0.3,
+                "PointCloud__OverLinework" : false,
+                "PointCloud__Rasters"      : [
+                    {
+                        "Tier__Id"     : "Tier03",
+                        "Tier__File"   : "03__Viewports__Raster/Viewport_002__PointCloud__Tier03__Detail__7bab30a5e4.webp",
+                        "Tier__PixelW" : 5120,
+                        "Tier__PixelH" : 1299
+                    },
+                    {
+                        "Tier__Id"     : "Tier02",
+                        "Tier__File"   : "03__Viewports__Raster/Viewport_002__PointCloud__Tier02__Read__7bab30a5e4.webp",
+                        "Tier__PixelW" : 2839,
+                        "Tier__PixelH" : 720
+                    },
+                    {
+                        "Tier__Id"     : "Tier01",
+                        "Tier__File"   : "03__Viewports__Raster/Viewport_002__PointCloud__Tier01__Fit__7bab30a5e4.webp",
+                        "Tier__PixelW" : 946,
+                        "Tier__PixelH" : 240
+                    }
+                ],
+                "PointCloud__DatumSvg" : ""
+            },
+            "Viewport__Vector" : {
+                "Vector__File"         : "02__Viewports__Vector/Viewport_002__Linework__7bab30a5e4.svg",
+                "Vector__WidthMm"      : 473.1478899073313,
+                "Vector__HeightMm"     : 120,
+                "Vector__PathCount"    : 4,
+                "Vector__SegmentCount" : 549
+            },
             "Viewport__SceneSvg" : "",
-            "Viewport__FrameSvg" : "<rect x=\"122.987\" y=\"150.5\" width=\"473.148\" height=\"120\" fill=\"none\" stroke=\"#8a949c\" stroke-width=\"0.25\"/><rect x=\"122.987\" y=\"265.5\" width=\"59.08\" height=\"5\" fill=\"#ffffff\" stroke=\"#8a949c\" stroke-width=\"0.25\"/><text x=\"124.887\" y=\"268.864\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"700\" fill=\"#172b3a\" text-anchor=\"start\" letter-spacing=\"0.16\" xml:space=\"preserve\">PROPOSED ELEVATION__EAST__LEFT   1:100</text>"
+            "Viewport__FrameSvg" : ""
         },
         {
             "Viewport__Id"      : "Viewport_003",
@@ -118,8 +180,8 @@
             "Viewport__Name"    : "",
             "Viewport__LayerId" : "Layer_001",
             "Viewport__FrameMm" : {
-                "X"        : 123.54541094933654,
-                "Y"        : 420.5,
+                "X"        : 163.4425991208122,
+                "Y"        : 180.49657413885973,
                 "WidthMm"  : 534.1515879618953,
                 "HeightMm" : 103.30304344050882
             },
@@ -137,33 +199,64 @@
             "Viewport__Rasters"      : [
                 {
                     "Tier__Id"     : "Print",
-                    "Tier__File"   : "03__Viewports__Raster/Viewport_003__Print__742554c913.png",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_003__Print__607870ac9d.png",
                     "Tier__PixelW" : 8192,
                     "Tier__PixelH" : 1584
                 },
                 {
                     "Tier__Id"     : "Tier03",
-                    "Tier__File"   : "03__Viewports__Raster/Viewport_003__Tier03__Detail__742554c913.webp",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_003__Tier03__Detail__607870ac9d.webp",
                     "Tier__PixelW" : 5120,
                     "Tier__PixelH" : 990
                 },
                 {
                     "Tier__Id"     : "Tier02",
-                    "Tier__File"   : "03__Viewports__Raster/Viewport_003__Tier02__Read__742554c913.webp",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_003__Tier02__Read__607870ac9d.webp",
                     "Tier__PixelW" : 3072,
                     "Tier__PixelH" : 594
                 },
                 {
                     "Tier__Id"     : "Tier01",
-                    "Tier__File"   : "03__Viewports__Raster/Viewport_003__Tier01__Fit__742554c913.webp",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_003__Tier01__Fit__607870ac9d.webp",
                     "Tier__PixelW" : 1024,
                     "Tier__PixelH" : 198
                 }
             ],
-            "Viewport__FogMasks" : [],
-            "Viewport__Vector"   : null,
+            "Viewport__FogMasks"   : [],
+            "Viewport__PointCloud" : {
+                "PointCloud__Opacity"      : 0.3,
+                "PointCloud__OverLinework" : false,
+                "PointCloud__Rasters"      : [
+                    {
+                        "Tier__Id"     : "Tier03",
+                        "Tier__File"   : "03__Viewports__Raster/Viewport_003__PointCloud__Tier03__Detail__607870ac9d.webp",
+                        "Tier__PixelW" : 5120,
+                        "Tier__PixelH" : 990
+                    },
+                    {
+                        "Tier__Id"     : "Tier02",
+                        "Tier__File"   : "03__Viewports__Raster/Viewport_003__PointCloud__Tier02__Read__607870ac9d.webp",
+                        "Tier__PixelW" : 3072,
+                        "Tier__PixelH" : 594
+                    },
+                    {
+                        "Tier__Id"     : "Tier01",
+                        "Tier__File"   : "03__Viewports__Raster/Viewport_003__PointCloud__Tier01__Fit__607870ac9d.webp",
+                        "Tier__PixelW" : 1024,
+                        "Tier__PixelH" : 198
+                    }
+                ],
+                "PointCloud__DatumSvg" : ""
+            },
+            "Viewport__Vector" : {
+                "Vector__File"         : "02__Viewports__Vector/Viewport_003__Linework__607870ac9d.svg",
+                "Vector__WidthMm"      : 534.1515879618953,
+                "Vector__HeightMm"     : 103.30304344050882,
+                "Vector__PathCount"    : 4,
+                "Vector__SegmentCount" : 361
+            },
             "Viewport__SceneSvg" : "",
-            "Viewport__FrameSvg" : "<rect x=\"123.545\" y=\"420.5\" width=\"534.152\" height=\"103.303\" fill=\"none\" stroke=\"#8a949c\" stroke-width=\"0.25\"/><rect x=\"123.545\" y=\"518.803\" width=\"62.503\" height=\"5\" fill=\"#ffffff\" stroke=\"#8a949c\" stroke-width=\"0.25\"/><text x=\"125.445\" y=\"522.167\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"700\" fill=\"#172b3a\" text-anchor=\"start\" letter-spacing=\"0.16\" xml:space=\"preserve\">PROPOSED ELEVATION__SOUTH__REAR   1:100</text>"
+            "Viewport__FrameSvg" : ""
         },
         {
             "Viewport__Id"      : "Viewport_004",
@@ -171,9 +264,9 @@
             "Viewport__Name"    : "",
             "Viewport__LayerId" : "Layer_001",
             "Viewport__FrameMm" : {
-                "X"        : 154.4999981119792,
-                "Y"        : 300.5,
-                "WidthMm"  : 408.4849058406337,
+                "X"        : 142.98251932962455,
+                "Y"        : 320.4965741388597,
+                "WidthMm"  : 474.16945244479564,
                 "HeightMm" : 100.19426764287851
             },
             "Viewport__RotationDeg"      : 0,
@@ -182,7 +275,7 @@
             "Viewport__PictureRectMm"    : {
                 "X"        : 0,
                 "Y"        : 0,
-                "WidthMm"  : 408.4849058406337,
+                "WidthMm"  : 474.16945244479564,
                 "HeightMm" : 100.19426764287851
             },
             "Viewport__BaseImage"    : true,
@@ -190,33 +283,64 @@
             "Viewport__Rasters"      : [
                 {
                     "Tier__Id"     : "Print",
-                    "Tier__File"   : "03__Viewports__Raster/Viewport_004__Print__c8b99556f7.png",
-                    "Tier__PixelW" : 8170,
-                    "Tier__PixelH" : 2004
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_004__Print__de4baa67d1.png",
+                    "Tier__PixelW" : 8192,
+                    "Tier__PixelH" : 1731
                 },
                 {
                     "Tier__Id"     : "Tier03",
-                    "Tier__File"   : "03__Viewports__Raster/Viewport_004__Tier03__Detail__c8b99556f7.webp",
-                    "Tier__PixelW" : 4902,
-                    "Tier__PixelH" : 1202
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_004__Tier03__Detail__de4baa67d1.webp",
+                    "Tier__PixelW" : 5120,
+                    "Tier__PixelH" : 1082
                 },
                 {
                     "Tier__Id"     : "Tier02",
-                    "Tier__File"   : "03__Viewports__Raster/Viewport_004__Tier02__Read__c8b99556f7.webp",
-                    "Tier__PixelW" : 2451,
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_004__Tier02__Read__de4baa67d1.webp",
+                    "Tier__PixelW" : 2845,
                     "Tier__PixelH" : 601
                 },
                 {
                     "Tier__Id"     : "Tier01",
-                    "Tier__File"   : "03__Viewports__Raster/Viewport_004__Tier01__Fit__c8b99556f7.webp",
-                    "Tier__PixelW" : 817,
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_004__Tier01__Fit__de4baa67d1.webp",
+                    "Tier__PixelW" : 948,
                     "Tier__PixelH" : 200
                 }
             ],
-            "Viewport__FogMasks" : [],
-            "Viewport__Vector"   : null,
+            "Viewport__FogMasks"   : [],
+            "Viewport__PointCloud" : {
+                "PointCloud__Opacity"      : 0.3,
+                "PointCloud__OverLinework" : false,
+                "PointCloud__Rasters"      : [
+                    {
+                        "Tier__Id"     : "Tier03",
+                        "Tier__File"   : "03__Viewports__Raster/Viewport_004__PointCloud__Tier03__Detail__de4baa67d1.webp",
+                        "Tier__PixelW" : 5120,
+                        "Tier__PixelH" : 1082
+                    },
+                    {
+                        "Tier__Id"     : "Tier02",
+                        "Tier__File"   : "03__Viewports__Raster/Viewport_004__PointCloud__Tier02__Read__de4baa67d1.webp",
+                        "Tier__PixelW" : 2845,
+                        "Tier__PixelH" : 601
+                    },
+                    {
+                        "Tier__Id"     : "Tier01",
+                        "Tier__File"   : "03__Viewports__Raster/Viewport_004__PointCloud__Tier01__Fit__de4baa67d1.webp",
+                        "Tier__PixelW" : 948,
+                        "Tier__PixelH" : 200
+                    }
+                ],
+                "PointCloud__DatumSvg" : ""
+            },
+            "Viewport__Vector" : {
+                "Vector__File"         : "02__Viewports__Vector/Viewport_004__Linework__de4baa67d1.svg",
+                "Vector__WidthMm"      : 474.16945244479564,
+                "Vector__HeightMm"     : 100.19426764287851,
+                "Vector__PathCount"    : 4,
+                "Vector__SegmentCount" : 981
+            },
             "Viewport__SceneSvg" : "",
-            "Viewport__FrameSvg" : "<rect x=\"154.5\" y=\"300.5\" width=\"408.485\" height=\"100.194\" fill=\"none\" stroke=\"#8a949c\" stroke-width=\"0.25\"/><rect x=\"154.5\" y=\"395.694\" width=\"61.81\" height=\"5\" fill=\"#ffffff\" stroke=\"#8a949c\" stroke-width=\"0.25\"/><text x=\"156.4\" y=\"399.058\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"700\" fill=\"#172b3a\" text-anchor=\"start\" letter-spacing=\"0.16\" xml:space=\"preserve\">PROPOSED ELEVATION__WEST__RIGHT   1:100</text>"
+            "Viewport__FrameSvg" : ""
         }
     ]
 }

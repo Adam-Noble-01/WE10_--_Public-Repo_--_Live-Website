@@ -12,8 +12,8 @@
             "Viewport__Name"    : "",
             "Viewport__LayerId" : "Layer_001",
             "Viewport__FrameMm" : {
-                "X"        : 62.53163352901015,
-                "Y"        : 63.296559799023555,
+                "X"        : 72.53163352901015,
+                "Y"        : 53.296559799023555,
                 "WidthMm"  : 567.5575698942947,
                 "HeightMm" : 478.76762716608505
             },
@@ -31,33 +31,40 @@
             "Viewport__Rasters"      : [
                 {
                     "Tier__Id"     : "Print",
-                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Print__21de0d8384.png",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Print__12f0c06747.png",
                     "Tier__PixelW" : 8192,
                     "Tier__PixelH" : 6910
                 },
                 {
                     "Tier__Id"     : "Tier03",
-                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier03__Detail__21de0d8384.webp",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier03__Detail__12f0c06747.webp",
                     "Tier__PixelW" : 5120,
                     "Tier__PixelH" : 4319
                 },
                 {
                     "Tier__Id"     : "Tier02",
-                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier02__Read__21de0d8384.webp",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier02__Read__12f0c06747.webp",
                     "Tier__PixelW" : 3072,
                     "Tier__PixelH" : 2591
                 },
                 {
                     "Tier__Id"     : "Tier01",
-                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier01__Fit__21de0d8384.webp",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier01__Fit__12f0c06747.webp",
                     "Tier__PixelW" : 1024,
                     "Tier__PixelH" : 864
                 }
             ],
-            "Viewport__FogMasks" : [],
-            "Viewport__Vector"   : null,
+            "Viewport__FogMasks"   : [],
+            "Viewport__PointCloud" : null,
+            "Viewport__Vector"     : {
+                "Vector__File"         : "02__Viewports__Vector/Viewport_001__Linework__12f0c06747.svg",
+                "Vector__WidthMm"      : 567.5575698942947,
+                "Vector__HeightMm"     : 478.76762716608505,
+                "Vector__PathCount"    : 4,
+                "Vector__SegmentCount" : 1241
+            },
             "Viewport__SceneSvg" : "",
-            "Viewport__FrameSvg" : "<rect x=\"62.532\" y=\"63.297\" width=\"567.558\" height=\"478.768\" fill=\"none\" stroke=\"#8a949c\" stroke-width=\"0.25\"/><rect x=\"62.532\" y=\"537.064\" width=\"41.788\" height=\"5\" fill=\"#ffffff\" stroke=\"#8a949c\" stroke-width=\"0.25\"/><text x=\"64.432\" y=\"540.428\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"700\" fill=\"#172b3a\" text-anchor=\"start\" letter-spacing=\"0.16\" xml:space=\"preserve\">GROUND FLOOR PLAN   1:100</text>"
+            "Viewport__FrameSvg" : ""
         }
     ]
 }

@@ -1,0 +1,2301 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName"  : "Elements__Vectors__.json",
+        "Meta__Kind"      : "vector",
+        "Meta__LayerType" : "vector",
+        "Meta__Document"  : "JW02_T01_D01",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments",
+        "Meta__Note"      : "Published by TrueVision. The array is the elements as the sheet holds them, authoring keys verbatim, with resolved keys added. Elements__LayerSvg is each layer's markup exactly as the editor draws it; the reader paints that."
+    },
+    "Elements__Vectors" : [
+        {
+            "Shape__Id"      : "Shape_036",
+            "Shape__LayerId" : "Layer_004",
+            "Shape__Points"  : [
+                [
+                    163.50680585943576,
+                    260.02072045279067
+                ],
+                [
+                    198.33136787492646,
+                    260.03763709848295
+                ],
+                [
+                    199.53136787492647,
+                    260.03763709848295
+                ],
+                [
+                    259.1813678749265,
+                    260.3546372205533
+                ],
+                [
+                    260.6813678749265,
+                    260.38463722055326
+                ],
+                [
+                    298.33136787492646,
+                    261.13763709848297
+                ],
+                [
+                    338.33136787492646,
+                    262.03763709848295
+                ],
+                [
+                    381.9481647499265,
+                    263.28233711069
+                ],
+                [
+                    440.3549616249265,
+                    265.1337371045865
+                ],
+                [
+                    468.33136787492646,
+                    266.16263709848295
+                ],
+                [
+                    484.89847923895684,
+                    266.49365116606907
+                ],
+                [
+                    498.33136787492646,
+                    266.937637098483
+                ],
+                [
+                    551.9313678749265,
+                    267.190137098483
+                ],
+                [
+                    578.3313678749264,
+                    267.0332370740689
+                ],
+                [
+                    599.2556321949049,
+                    267.32909865660247
+                ],
+                [
+                    636.3498752610552,
+                    268.0977260126866
+                ],
+                [
+                    660.6783458077743,
+                    268.6324186480691
+                ],
+                [
+                    697.5052471455283,
+                    269.70181003789406
+                ],
+                [
+                    719.0265867106667,
+                    270.20308342746205
+                ],
+                [
+                    722.5397859115646,
+                    270.20308342746205
+                ],
+                [
+                    722.5397859115646,
+                    294.4636047820904
+                ],
+                [
+                    152.8394724736698,
+                    294.4636047820904
+                ],
+                [
+                    152.8394724736698,
+                    260.02072045279067
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 1,
+            "Shape__FillColour"    : "#ffffff",
+            "Shape__Stroked"       : false,
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null
+        },
+        {
+            "Shape__Id"      : "Shape_033",
+            "Shape__LayerId" : "Layer_004",
+            "Shape__Points"  : [
+                [
+                    645.9490487312646,
+                    123.76123021763073
+                ],
+                [
+                    645.9490487312646,
+                    140.3684022538615
+                ],
+                [
+                    7.4856815977051445,
+                    140.3684022538615
+                ],
+                [
+                    7.4856815977051445,
+                    135.9563689428506
+                ],
+                [
+                    10.014421281409122,
+                    135.9563689428506
+                ],
+                [
+                    16.69946618179388,
+                    135.75133807301182
+                ],
+                [
+                    29.684107612754175,
+                    135.3257982547493
+                ],
+                [
+                    41.77166817598478,
+                    134.99227142838484
+                ],
+                [
+                    60.88634851476234,
+                    134.48622419076978
+                ],
+                [
+                    74.46903964574686,
+                    134.14120021545088
+                ],
+                [
+                    94.62829203590736,
+                    133.73445508232294
+                ],
+                [
+                    115.5913887679702,
+                    133.14574628583537
+                ],
+                [
+                    130.0144212814091,
+                    132.7563689428506
+                ],
+                [
+                    146.4857237063971,
+                    132.40346637587436
+                ],
+                [
+                    160.0144212814091,
+                    132.1063689428506
+                ],
+                [
+                    172.8239734466812,
+                    131.66118412253263
+                ],
+                [
+                    185.6731518575082,
+                    131.32843343084937
+                ],
+                [
+                    199.05984088239586,
+                    131.1748576306145
+                ],
+                [
+                    218.28241031620942,
+                    131.04687389145084
+                ],
+                [
+                    232.0786332461363,
+                    130.9444962736429
+                ],
+                [
+                    252.3506482506651,
+                    130.6117432385789
+                ],
+                [
+                    269.2183918720513,
+                    130.58614649074616
+                ],
+                [
+                    283.19378969342654,
+                    130.2278060813724
+                ],
+                [
+                    296.40130382686584,
+                    129.89506007645062
+                ],
+                [
+                    309.0201185373405,
+                    129.66469168933682
+                ],
+                [
+                    320.0144212814091,
+                    129.1313689428506
+                ],
+                [
+                    342.32045872357577,
+                    128.30810857843625
+                ],
+                [
+                    353.3011284403706,
+                    127.97536257351447
+                ],
+                [
+                    373.80349777172876,
+                    127.54022957726178
+                ],
+                [
+                    389.13548339076607,
+                    126.95152546753567
+                ],
+                [
+                    404.54425690992076,
+                    126.51639481466376
+                ],
+                [
+                    433.95404608871013,
+                    125.64612647877763
+                ],
+                [
+                    461.0345804257167,
+                    125.0062265300053
+                ],
+                [
+                    500.0144212814091,
+                    124.1563689428506
+                ],
+                [
+                    522.0886518905962,
+                    124.03473560930533
+                ],
+                [
+                    564.8906866766177,
+                    123.64205653767348
+                ],
+                [
+                    606.0347325080922,
+                    123.77294956155077
+                ],
+                [
+                    640.7342035678925,
+                    123.77294956155077
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 1,
+            "Shape__FillColour"    : "#ffffff",
+            "Shape__Stroked"       : false,
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null
+        },
+        {
+            "Shape__Id"      : "Shape_001",
+            "Shape__LayerId" : "Layer_004",
+            "Shape__Points"  : [
+                [
+                    -133.27323679348393,
+                    28.618225120396612
+                ],
+                [
+                    -91.91258105577901,
+                    28.618225120396612
+                ],
+                [
+                    -91.91258105577901,
+                    57.445348816372764
+                ],
+                [
+                    -133.27323679348393,
+                    57.445348816372764
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#960000",
+            "Shape__StrokePt"      : 1,
+            "Shape__FillColour"    : null,
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null
+        },
+        {
+            "Shape__Id"      : "Shape_002",
+            "Shape__LayerId" : "Layer_004",
+            "Shape__Points"  : [
+                [
+                    -103.91886607239624,
+                    73.40494472373935
+                ],
+                [
+                    -68.13549299882112,
+                    73.40494472373935
+                ],
+                [
+                    -68.13549299882112,
+                    100.11993057500932
+                ],
+                [
+                    -103.91886607239624,
+                    100.11993057500932
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null
+        },
+        {
+            "Shape__Points" : [
+                [
+                    198.0464,
+                    160.9153
+                ],
+                [
+                    258.0464,
+                    160.9153
+                ]
+            ],
+            "Shape__Closed"        : false,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.4,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_003"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    370.0144,
+                    157.2843
+                ],
+                [
+                    375.0144,
+                    157.2843
+                ],
+                [
+                    375.0144,
+                    158.2843
+                ],
+                [
+                    370.0144,
+                    158.2843
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_004"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    370.0144,
+                    158.2843
+                ],
+                [
+                    375.0144,
+                    158.2843
+                ],
+                [
+                    375.0144,
+                    159.2843
+                ],
+                [
+                    370.0144,
+                    159.2843
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#858585",
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_005"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    375.0144,
+                    157.2843
+                ],
+                [
+                    380.0144,
+                    157.2843
+                ],
+                [
+                    380.0144,
+                    158.2843
+                ],
+                [
+                    375.0144,
+                    158.2843
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#858585",
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_006"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    375.0144,
+                    158.2843
+                ],
+                [
+                    380.0144,
+                    158.2843
+                ],
+                [
+                    380.0144,
+                    159.2843
+                ],
+                [
+                    375.0144,
+                    159.2843
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_007"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    380.0144,
+                    157.2843
+                ],
+                [
+                    385.0144,
+                    157.2843
+                ],
+                [
+                    385.0144,
+                    158.2843
+                ],
+                [
+                    380.0144,
+                    158.2843
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_008"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    380.0144,
+                    158.2843
+                ],
+                [
+                    385.0144,
+                    158.2843
+                ],
+                [
+                    385.0144,
+                    159.2843
+                ],
+                [
+                    380.0144,
+                    159.2843
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#858585",
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_009"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    385.0144,
+                    157.2843
+                ],
+                [
+                    390.0144,
+                    157.2843
+                ],
+                [
+                    390.0144,
+                    158.2843
+                ],
+                [
+                    385.0144,
+                    158.2843
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#858585",
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_010"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    385.0144,
+                    158.2843
+                ],
+                [
+                    390.0144,
+                    158.2843
+                ],
+                [
+                    390.0144,
+                    159.2843
+                ],
+                [
+                    385.0144,
+                    159.2843
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_011"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    390.0144,
+                    157.2843
+                ],
+                [
+                    410.0144,
+                    157.2843
+                ],
+                [
+                    410.0144,
+                    158.2843
+                ],
+                [
+                    390.0144,
+                    158.2843
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_012"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    390.0144,
+                    158.2843
+                ],
+                [
+                    410.0144,
+                    158.2843
+                ],
+                [
+                    410.0144,
+                    159.2843
+                ],
+                [
+                    390.0144,
+                    159.2843
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#858585",
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_013"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    410.0144,
+                    157.2843
+                ],
+                [
+                    430.0144,
+                    157.2843
+                ],
+                [
+                    430.0144,
+                    158.2843
+                ],
+                [
+                    410.0144,
+                    158.2843
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#858585",
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_014"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    410.0144,
+                    158.2843
+                ],
+                [
+                    430.0144,
+                    158.2843
+                ],
+                [
+                    430.0144,
+                    159.2843
+                ],
+                [
+                    410.0144,
+                    159.2843
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_015"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    430.0144,
+                    157.2843
+                ],
+                [
+                    450.0144,
+                    157.2843
+                ],
+                [
+                    450.0144,
+                    158.2843
+                ],
+                [
+                    430.0144,
+                    158.2843
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_016"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    430.0144,
+                    158.2843
+                ],
+                [
+                    450.0144,
+                    158.2843
+                ],
+                [
+                    450.0144,
+                    159.2843
+                ],
+                [
+                    430.0144,
+                    159.2843
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#858585",
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_017"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    450.0144,
+                    157.2843
+                ],
+                [
+                    470.0144,
+                    157.2843
+                ],
+                [
+                    470.0144,
+                    158.2843
+                ],
+                [
+                    450.0144,
+                    158.2843
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#858585",
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_018"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    450.0144,
+                    158.2843
+                ],
+                [
+                    470.0144,
+                    158.2843
+                ],
+                [
+                    470.0144,
+                    159.2843
+                ],
+                [
+                    450.0144,
+                    159.2843
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_019"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    470.0144,
+                    157.2843
+                ],
+                [
+                    490.0144,
+                    157.2843
+                ],
+                [
+                    490.0144,
+                    158.2843
+                ],
+                [
+                    470.0144,
+                    158.2843
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_020"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    470.0144,
+                    158.2843
+                ],
+                [
+                    490.0144,
+                    158.2843
+                ],
+                [
+                    490.0144,
+                    159.2843
+                ],
+                [
+                    470.0144,
+                    159.2843
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#858585",
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_021"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    490.0144,
+                    157.2843
+                ],
+                [
+                    510.0144,
+                    157.2843
+                ],
+                [
+                    510.0144,
+                    158.2843
+                ],
+                [
+                    490.0144,
+                    158.2843
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#858585",
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_022"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    490.0144,
+                    158.2843
+                ],
+                [
+                    510.0144,
+                    158.2843
+                ],
+                [
+                    510.0144,
+                    159.2843
+                ],
+                [
+                    490.0144,
+                    159.2843
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_023"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    510.0144,
+                    157.2843
+                ],
+                [
+                    530.0144,
+                    157.2843
+                ],
+                [
+                    530.0144,
+                    158.2843
+                ],
+                [
+                    510.0144,
+                    158.2843
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_024"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    510.0144,
+                    158.2843
+                ],
+                [
+                    530.0144,
+                    158.2843
+                ],
+                [
+                    530.0144,
+                    159.2843
+                ],
+                [
+                    510.0144,
+                    159.2843
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#858585",
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_025"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    530.0144,
+                    157.2843
+                ],
+                [
+                    550.0144,
+                    157.2843
+                ],
+                [
+                    550.0144,
+                    158.2843
+                ],
+                [
+                    530.0144,
+                    158.2843
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#858585",
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_026"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    530.0144,
+                    158.2843
+                ],
+                [
+                    550.0144,
+                    158.2843
+                ],
+                [
+                    550.0144,
+                    159.2843
+                ],
+                [
+                    530.0144,
+                    159.2843
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_027"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    550.0144,
+                    157.2843
+                ],
+                [
+                    570.0144,
+                    157.2843
+                ],
+                [
+                    570.0144,
+                    158.2843
+                ],
+                [
+                    550.0144,
+                    158.2843
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_028"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    550.0144,
+                    158.2843
+                ],
+                [
+                    570.0144,
+                    158.2843
+                ],
+                [
+                    570.0144,
+                    159.2843
+                ],
+                [
+                    550.0144,
+                    159.2843
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#858585",
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_029"
+        },
+        {
+            "Shape__Id"      : "Shape_030",
+            "Shape__LayerId" : "Layer_004",
+            "Shape__Points"  : [
+                [
+                    -103.91886607239624,
+                    109.91690523007884
+                ],
+                [
+                    -68.13549299882112,
+                    109.91690523007884
+                ],
+                [
+                    -68.13549299882112,
+                    136.6318910813488
+                ],
+                [
+                    -103.91886607239624,
+                    136.6318910813488
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 1,
+            "Shape__FillColour"    : null,
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null
+        },
+        {
+            "Shape__Id"      : "Shape_031",
+            "Shape__LayerId" : "Layer_004",
+            "Shape__Points"  : [
+                [
+                    41.77166817598478,
+                    134.99198029778177
+                ],
+                [
+                    60.88634851476234,
+                    134.4859330601667
+                ],
+                [
+                    74.46903964574686,
+                    134.1409090848478
+                ],
+                [
+                    94.62829203590736,
+                    133.73416395171986
+                ],
+                [
+                    115.5913887679702,
+                    133.1454551552323
+                ],
+                [
+                    130.0144212814091,
+                    132.75607781224753
+                ],
+                [
+                    146.4857237063971,
+                    132.40317524527129
+                ],
+                [
+                    160.0144212814091,
+                    132.10607781224752
+                ],
+                [
+                    172.8239734466812,
+                    131.66089299192956
+                ],
+                [
+                    185.6731518575082,
+                    131.3281423002463
+                ],
+                [
+                    199.05984088239586,
+                    131.17456650001142
+                ],
+                [
+                    218.28241031620942,
+                    131.04658276084777
+                ],
+                [
+                    232.0786332461363,
+                    130.94420514303982
+                ],
+                [
+                    252.3506482506651,
+                    130.61145210797582
+                ],
+                [
+                    269.2183918720513,
+                    130.58585536014309
+                ],
+                [
+                    283.19378969342654,
+                    130.22751495076932
+                ],
+                [
+                    296.40130382686584,
+                    129.89476894584755
+                ],
+                [
+                    309.0201185373405,
+                    129.66440055873375
+                ],
+                [
+                    320.0144212814091,
+                    129.13107781224753
+                ],
+                [
+                    342.32045872357577,
+                    128.30781744783317
+                ],
+                [
+                    353.3011284403706,
+                    127.9750714429114
+                ],
+                [
+                    373.80349777172876,
+                    127.53993844665871
+                ],
+                [
+                    389.13548339076607,
+                    126.95123433693261
+                ],
+                [
+                    404.54425690992076,
+                    126.51610368406067
+                ],
+                [
+                    433.95404608871013,
+                    125.64583534817454
+                ],
+                [
+                    461.0345804257167,
+                    125.00593539940223
+                ],
+                [
+                    500.0144212814091,
+                    124.15607781224752
+                ],
+                [
+                    522.0886518905962,
+                    124.03444447870226
+                ],
+                [
+                    564.8906866766177,
+                    123.64176540707042
+                ],
+                [
+                    606.0347325080922,
+                    123.7726584309477
+                ],
+                [
+                    640.7342035678925,
+                    123.7726584309477
+                ]
+            ],
+            "Shape__Closed"        : false,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 1,
+            "Shape__FillColour"    : null,
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null
+        },
+        {
+            "Shape__Id"      : "Shape_034",
+            "Shape__LayerId" : "Layer_004",
+            "Shape__Points"  : [
+                [
+                    -109.07870538234717,
+                    155.01093290908565
+                ],
+                [
+                    -65.54653009221059,
+                    155.01093290908565
+                ],
+                [
+                    -65.54653009221059,
+                    182.4874985521772
+                ],
+                [
+                    -109.07870538234717,
+                    182.4874985521772
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 1,
+            "Shape__FillColour"    : "#ffffff",
+            "Shape__Stroked"       : false,
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null
+        },
+        {
+            "Shape__Id"      : "Shape_035",
+            "Shape__LayerId" : "Layer_004",
+            "Shape__Points"  : [
+                [
+                    143.80507008856384,
+                    260.02072045279067
+                ],
+                [
+                    198.33136787492646,
+                    260.03763709848295
+                ],
+                [
+                    199.53136787492647,
+                    260.03763709848295
+                ],
+                [
+                    259.1813678749265,
+                    260.3546372205533
+                ],
+                [
+                    260.6813678749265,
+                    260.38463722055326
+                ],
+                [
+                    298.33136787492646,
+                    261.13763709848297
+                ],
+                [
+                    338.33136787492646,
+                    262.03763709848295
+                ],
+                [
+                    381.9481647499265,
+                    263.28233711069
+                ],
+                [
+                    440.3549616249265,
+                    265.1337371045865
+                ],
+                [
+                    468.33136787492646,
+                    266.16263709848295
+                ],
+                [
+                    484.89847923895684,
+                    266.49365116606907
+                ],
+                [
+                    498.33136787492646,
+                    266.937637098483
+                ],
+                [
+                    551.9313678749265,
+                    267.190137098483
+                ],
+                [
+                    578.3313678749264,
+                    267.0332370740689
+                ],
+                [
+                    599.2556321949049,
+                    267.32909865660247
+                ],
+                [
+                    636.3498752610552,
+                    268.0977260126866
+                ],
+                [
+                    660.6783458077743,
+                    268.6324186480691
+                ],
+                [
+                    697.5052471455283,
+                    269.70181003789406
+                ],
+                [
+                    719.0265867106667,
+                    270.20308342746205
+                ]
+            ],
+            "Shape__Closed"        : false,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 1,
+            "Shape__FillColour"    : null,
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null
+        },
+        {
+            "Shape__Points" : [
+                [
+                    198.0464,
+                    291.8593
+                ],
+                [
+                    258.0464,
+                    291.8593
+                ]
+            ],
+            "Shape__Closed"        : false,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.4,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_037"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    370.0144,
+                    288.2283
+                ],
+                [
+                    375.0144,
+                    288.2283
+                ],
+                [
+                    375.0144,
+                    289.2283
+                ],
+                [
+                    370.0144,
+                    289.2283
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_038"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    370.0144,
+                    289.2283
+                ],
+                [
+                    375.0144,
+                    289.2283
+                ],
+                [
+                    375.0144,
+                    290.2283
+                ],
+                [
+                    370.0144,
+                    290.2283
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#858585",
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_039"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    375.0144,
+                    288.2283
+                ],
+                [
+                    380.0144,
+                    288.2283
+                ],
+                [
+                    380.0144,
+                    289.2283
+                ],
+                [
+                    375.0144,
+                    289.2283
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#858585",
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_040"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    375.0144,
+                    289.2283
+                ],
+                [
+                    380.0144,
+                    289.2283
+                ],
+                [
+                    380.0144,
+                    290.2283
+                ],
+                [
+                    375.0144,
+                    290.2283
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_041"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    380.0144,
+                    288.2283
+                ],
+                [
+                    385.0144,
+                    288.2283
+                ],
+                [
+                    385.0144,
+                    289.2283
+                ],
+                [
+                    380.0144,
+                    289.2283
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_042"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    380.0144,
+                    289.2283
+                ],
+                [
+                    385.0144,
+                    289.2283
+                ],
+                [
+                    385.0144,
+                    290.2283
+                ],
+                [
+                    380.0144,
+                    290.2283
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#858585",
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_043"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    385.0144,
+                    288.2283
+                ],
+                [
+                    390.0144,
+                    288.2283
+                ],
+                [
+                    390.0144,
+                    289.2283
+                ],
+                [
+                    385.0144,
+                    289.2283
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#858585",
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_044"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    385.0144,
+                    289.2283
+                ],
+                [
+                    390.0144,
+                    289.2283
+                ],
+                [
+                    390.0144,
+                    290.2283
+                ],
+                [
+                    385.0144,
+                    290.2283
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_045"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    390.0144,
+                    288.2283
+                ],
+                [
+                    410.0144,
+                    288.2283
+                ],
+                [
+                    410.0144,
+                    289.2283
+                ],
+                [
+                    390.0144,
+                    289.2283
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_046"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    390.0144,
+                    289.2283
+                ],
+                [
+                    410.0144,
+                    289.2283
+                ],
+                [
+                    410.0144,
+                    290.2283
+                ],
+                [
+                    390.0144,
+                    290.2283
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#858585",
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_047"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    410.0144,
+                    288.2283
+                ],
+                [
+                    430.0144,
+                    288.2283
+                ],
+                [
+                    430.0144,
+                    289.2283
+                ],
+                [
+                    410.0144,
+                    289.2283
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#858585",
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_048"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    410.0144,
+                    289.2283
+                ],
+                [
+                    430.0144,
+                    289.2283
+                ],
+                [
+                    430.0144,
+                    290.2283
+                ],
+                [
+                    410.0144,
+                    290.2283
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_049"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    430.0144,
+                    288.2283
+                ],
+                [
+                    450.0144,
+                    288.2283
+                ],
+                [
+                    450.0144,
+                    289.2283
+                ],
+                [
+                    430.0144,
+                    289.2283
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_050"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    430.0144,
+                    289.2283
+                ],
+                [
+                    450.0144,
+                    289.2283
+                ],
+                [
+                    450.0144,
+                    290.2283
+                ],
+                [
+                    430.0144,
+                    290.2283
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#858585",
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_051"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    450.0144,
+                    288.2283
+                ],
+                [
+                    470.0144,
+                    288.2283
+                ],
+                [
+                    470.0144,
+                    289.2283
+                ],
+                [
+                    450.0144,
+                    289.2283
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#858585",
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_052"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    450.0144,
+                    289.2283
+                ],
+                [
+                    470.0144,
+                    289.2283
+                ],
+                [
+                    470.0144,
+                    290.2283
+                ],
+                [
+                    450.0144,
+                    290.2283
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_053"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    470.0144,
+                    288.2283
+                ],
+                [
+                    490.0144,
+                    288.2283
+                ],
+                [
+                    490.0144,
+                    289.2283
+                ],
+                [
+                    470.0144,
+                    289.2283
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_054"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    470.0144,
+                    289.2283
+                ],
+                [
+                    490.0144,
+                    289.2283
+                ],
+                [
+                    490.0144,
+                    290.2283
+                ],
+                [
+                    470.0144,
+                    290.2283
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#858585",
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_055"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    490.0144,
+                    288.2283
+                ],
+                [
+                    510.0144,
+                    288.2283
+                ],
+                [
+                    510.0144,
+                    289.2283
+                ],
+                [
+                    490.0144,
+                    289.2283
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#858585",
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_056"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    490.0144,
+                    289.2283
+                ],
+                [
+                    510.0144,
+                    289.2283
+                ],
+                [
+                    510.0144,
+                    290.2283
+                ],
+                [
+                    490.0144,
+                    290.2283
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_057"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    510.0144,
+                    288.2283
+                ],
+                [
+                    530.0144,
+                    288.2283
+                ],
+                [
+                    530.0144,
+                    289.2283
+                ],
+                [
+                    510.0144,
+                    289.2283
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_058"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    510.0144,
+                    289.2283
+                ],
+                [
+                    530.0144,
+                    289.2283
+                ],
+                [
+                    530.0144,
+                    290.2283
+                ],
+                [
+                    510.0144,
+                    290.2283
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#858585",
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_059"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    530.0144,
+                    288.2283
+                ],
+                [
+                    550.0144,
+                    288.2283
+                ],
+                [
+                    550.0144,
+                    289.2283
+                ],
+                [
+                    530.0144,
+                    289.2283
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#858585",
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_060"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    530.0144,
+                    289.2283
+                ],
+                [
+                    550.0144,
+                    289.2283
+                ],
+                [
+                    550.0144,
+                    290.2283
+                ],
+                [
+                    530.0144,
+                    290.2283
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_061"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    550.0144,
+                    288.2283
+                ],
+                [
+                    570.0144,
+                    288.2283
+                ],
+                [
+                    570.0144,
+                    289.2283
+                ],
+                [
+                    550.0144,
+                    289.2283
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_062"
+        },
+        {
+            "Shape__Points" : [
+                [
+                    550.0144,
+                    289.2283
+                ],
+                [
+                    570.0144,
+                    289.2283
+                ],
+                [
+                    570.0144,
+                    290.2283
+                ],
+                [
+                    550.0144,
+                    290.2283
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__Stroked"       : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#858585",
+            "Shape__LayerId"       : "Layer_004",
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_063"
+        }
+    ],
+    "Elements__LayerSvg" : {
+        "Layer_004" : "<path d=\"M163.507 260.021L198.331 260.038L199.531 260.038L259.181 260.355L260.681 260.385L298.331 261.138L338.331 262.038L381.948 263.282L440.355 265.134L468.331 266.163L484.898 266.494L498.331 266.938L551.931 267.19L578.331 267.033L599.256 267.329L636.35 268.098L660.678 268.632L697.505 269.702L719.027 270.203L722.54 270.203L722.54 294.464L152.839 294.464L152.839 260.021Z\" fill=\"#ffffff\" stroke=\"none\" stroke-width=\"0\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M645.949 123.761L645.949 140.368L7.486 140.368L7.486 135.956L10.014 135.956L16.699 135.751L29.684 135.326L41.772 134.992L60.886 134.486L74.469 134.141L94.628 133.734L115.591 133.146L130.014 132.756L146.486 132.403L160.014 132.106L172.824 131.661L185.673 131.328L199.06 131.175L218.282 131.047L232.079 130.944L252.351 130.612L269.218 130.586L283.194 130.228L296.401 129.895L309.02 129.665L320.014 129.131L342.32 128.308L353.301 127.975L373.803 127.54L389.135 126.952L404.544 126.516L433.954 125.646L461.035 125.006L500.014 124.156L522.089 124.035L564.891 123.642L606.035 123.773L640.734 123.773Z\" fill=\"#ffffff\" stroke=\"none\" stroke-width=\"0\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M-133.273 28.618L-91.913 28.618L-91.913 57.445L-133.273 57.445Z\" fill=\"none\" stroke=\"#960000\" stroke-width=\"0.353\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M-103.919 73.405L-68.135 73.405L-68.135 100.12L-103.919 100.12Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M198.046 160.915L258.046 160.915\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.141\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M370.014 157.284L375.014 157.284L375.014 158.284L370.014 158.284Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M370.014 158.284L375.014 158.284L375.014 159.284L370.014 159.284Z\" fill=\"#858585\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M375.014 157.284L380.014 157.284L380.014 158.284L375.014 158.284Z\" fill=\"#858585\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M375.014 158.284L380.014 158.284L380.014 159.284L375.014 159.284Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M380.014 157.284L385.014 157.284L385.014 158.284L380.014 158.284Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M380.014 158.284L385.014 158.284L385.014 159.284L380.014 159.284Z\" fill=\"#858585\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M385.014 157.284L390.014 157.284L390.014 158.284L385.014 158.284Z\" fill=\"#858585\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M385.014 158.284L390.014 158.284L390.014 159.284L385.014 159.284Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M390.014 157.284L410.014 157.284L410.014 158.284L390.014 158.284Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M390.014 158.284L410.014 158.284L410.014 159.284L390.014 159.284Z\" fill=\"#858585\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M410.014 157.284L430.014 157.284L430.014 158.284L410.014 158.284Z\" fill=\"#858585\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M410.014 158.284L430.014 158.284L430.014 159.284L410.014 159.284Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M430.014 157.284L450.014 157.284L450.014 158.284L430.014 158.284Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M430.014 158.284L450.014 158.284L450.014 159.284L430.014 159.284Z\" fill=\"#858585\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M450.014 157.284L470.014 157.284L470.014 158.284L450.014 158.284Z\" fill=\"#858585\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M450.014 158.284L470.014 158.284L470.014 159.284L450.014 159.284Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M470.014 157.284L490.014 157.284L490.014 158.284L470.014 158.284Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M470.014 158.284L490.014 158.284L490.014 159.284L470.014 159.284Z\" fill=\"#858585\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M490.014 157.284L510.014 157.284L510.014 158.284L490.014 158.284Z\" fill=\"#858585\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M490.014 158.284L510.014 158.284L510.014 159.284L490.014 159.284Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M510.014 157.284L530.014 157.284L530.014 158.284L510.014 158.284Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M510.014 158.284L530.014 158.284L530.014 159.284L510.014 159.284Z\" fill=\"#858585\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M530.014 157.284L550.014 157.284L550.014 158.284L530.014 158.284Z\" fill=\"#858585\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M530.014 158.284L550.014 158.284L550.014 159.284L530.014 159.284Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M550.014 157.284L570.014 157.284L570.014 158.284L550.014 158.284Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M550.014 158.284L570.014 158.284L570.014 159.284L550.014 159.284Z\" fill=\"#858585\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M-103.919 109.917L-68.135 109.917L-68.135 136.632L-103.919 136.632Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.353\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M41.772 134.992L60.886 134.486L74.469 134.141L94.628 133.734L115.591 133.145L130.014 132.756L146.486 132.403L160.014 132.106L172.824 131.661L185.673 131.328L199.06 131.175L218.282 131.047L232.079 130.944L252.351 130.611L269.218 130.586L283.194 130.228L296.401 129.895L309.02 129.664L320.014 129.131L342.32 128.308L353.301 127.975L373.803 127.54L389.135 126.951L404.544 126.516L433.954 125.646L461.035 125.006L500.014 124.156L522.089 124.034L564.891 123.642L606.035 123.773L640.734 123.773\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.353\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M-109.079 155.011L-65.547 155.011L-65.547 182.487L-109.079 182.487Z\" fill=\"#ffffff\" stroke=\"none\" stroke-width=\"0\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M143.805 260.021L198.331 260.038L199.531 260.038L259.181 260.355L260.681 260.385L298.331 261.138L338.331 262.038L381.948 263.282L440.355 265.134L468.331 266.163L484.898 266.494L498.331 266.938L551.931 267.19L578.331 267.033L599.256 267.329L636.35 268.098L660.678 268.632L697.505 269.702L719.027 270.203\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.353\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M198.046 291.859L258.046 291.859\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.141\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M370.014 288.228L375.014 288.228L375.014 289.228L370.014 289.228Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M370.014 289.228L375.014 289.228L375.014 290.228L370.014 290.228Z\" fill=\"#858585\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M375.014 288.228L380.014 288.228L380.014 289.228L375.014 289.228Z\" fill=\"#858585\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M375.014 289.228L380.014 289.228L380.014 290.228L375.014 290.228Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M380.014 288.228L385.014 288.228L385.014 289.228L380.014 289.228Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M380.014 289.228L385.014 289.228L385.014 290.228L380.014 290.228Z\" fill=\"#858585\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M385.014 288.228L390.014 288.228L390.014 289.228L385.014 289.228Z\" fill=\"#858585\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M385.014 289.228L390.014 289.228L390.014 290.228L385.014 290.228Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M390.014 288.228L410.014 288.228L410.014 289.228L390.014 289.228Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M390.014 289.228L410.014 289.228L410.014 290.228L390.014 290.228Z\" fill=\"#858585\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M410.014 288.228L430.014 288.228L430.014 289.228L410.014 289.228Z\" fill=\"#858585\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M410.014 289.228L430.014 289.228L430.014 290.228L410.014 290.228Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M430.014 288.228L450.014 288.228L450.014 289.228L430.014 289.228Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M430.014 289.228L450.014 289.228L450.014 290.228L430.014 290.228Z\" fill=\"#858585\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M450.014 288.228L470.014 288.228L470.014 289.228L450.014 289.228Z\" fill=\"#858585\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M450.014 289.228L470.014 289.228L470.014 290.228L450.014 290.228Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M470.014 288.228L490.014 288.228L490.014 289.228L470.014 289.228Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M470.014 289.228L490.014 289.228L490.014 290.228L470.014 290.228Z\" fill=\"#858585\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M490.014 288.228L510.014 288.228L510.014 289.228L490.014 289.228Z\" fill=\"#858585\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M490.014 289.228L510.014 289.228L510.014 290.228L490.014 290.228Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M510.014 288.228L530.014 288.228L530.014 289.228L510.014 289.228Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M510.014 289.228L530.014 289.228L530.014 290.228L510.014 290.228Z\" fill=\"#858585\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M530.014 288.228L550.014 288.228L550.014 289.228L530.014 289.228Z\" fill=\"#858585\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M530.014 289.228L550.014 289.228L550.014 290.228L530.014 290.228Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M550.014 288.228L570.014 288.228L570.014 289.228L550.014 289.228Z\" fill=\"none\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M550.014 289.228L570.014 289.228L570.014 290.228L550.014 290.228Z\" fill=\"#858585\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/>"
+    }
+}

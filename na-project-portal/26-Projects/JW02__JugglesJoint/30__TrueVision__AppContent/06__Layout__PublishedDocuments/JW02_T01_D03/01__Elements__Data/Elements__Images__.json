@@ -1,0 +1,62 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName"  : "Elements__Images__.json",
+        "Meta__Kind"      : "image",
+        "Meta__LayerType" : "image",
+        "Meta__Document"  : "JW02_T01_D03",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments",
+        "Meta__Note"      : "Published by TrueVision. The array is the elements as the sheet holds them, authoring keys verbatim, with resolved keys added. Elements__LayerSvg is each layer's markup exactly as the editor draws it; the reader paints that."
+    },
+    "Elements__Images" : [
+        {
+            "Shape__Id"      : "Shape_001",
+            "Shape__LayerId" : "Layer_006",
+            "Shape__Points"  : [
+                [
+                    13.645898933970035,
+                    14.461353210250024
+                ],
+                [
+                    489.59394773471325,
+                    14.461353210250024
+                ],
+                [
+                    489.59394773471325,
+                    394.34542999665945
+                ],
+                [
+                    13.645898933970035,
+                    394.34542999665945
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__Stroked"       : false,
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Image"         : {
+                "Image__File"   : "OrhtoCloud__SitePlan__1-500__a1af734d6a.webp",
+                "Image__Folder" : "JW02_T01_D03",
+                "Image__PixelW" : 2635,
+                "Image__PixelH" : 1846,
+                "Image__Frame"  : true,
+                "Image__Crop"   : {
+                    "L" : 0.050968639124589835,
+                    "T" : 0.008119767011152166,
+                    "R" : 0.9051926740344033,
+                    "B" : 0.9813425093444219
+                },
+                "Image__Name"    : "OrhtoCloud__SitePlan__1-500__.png",
+                "Image__SourceW" : 2635,
+                "Image__SourceH" : 1846
+            }
+        }
+    ],
+    "Elements__LayerSvg" : {
+        "Layer_006" : "<g data-na-picture=\"1\"><defs><filter id=\"naLeImgShadow_55406cbe_10\" x=\"-10%\" y=\"-10%\" width=\"120%\" height=\"120%\" color-interpolation-filters=\"sRGB\"><feDropShadow dx=\"0\" dy=\"0.9\" stdDeviation=\"1.6\" flood-color=\"#1f1d18\" flood-opacity=\"0.3\"/></filter></defs><rect x=\"13.646\" y=\"14.461\" width=\"475.948\" height=\"379.884\" fill=\"#ffffff\" stroke=\"none\" filter=\"url(#naLeImgShadow_55406cbe_10)\"/><svg x=\"13.646\" y=\"14.461\" width=\"475.948\" height=\"379.884\" viewBox=\"134.302 14.989 2250.88 1796.569\" preserveAspectRatio=\"none\" overflow=\"hidden\"><image x=\"0\" y=\"0\" width=\"2635\" height=\"1846\" preserveAspectRatio=\"none\" href=\"na-published:/../05__Layout__DrawingDocs__Images/JW02_T01_D03/OrhtoCloud__SitePlan__1-500__a1af734d6a.webp\"/></svg><rect x=\"13.646\" y=\"14.461\" width=\"475.948\" height=\"379.884\" fill=\"none\" stroke=\"#555041\" stroke-width=\"0.529\"/></g>"
+    }
+}

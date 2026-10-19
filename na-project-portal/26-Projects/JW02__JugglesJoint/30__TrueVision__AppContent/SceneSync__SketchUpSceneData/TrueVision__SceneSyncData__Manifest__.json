@@ -1,7 +1,7 @@
 {
   "SceneSyncData__Schema": "TrueVision__SceneSyncData__Manifest",
   "SceneSyncData__SchemaVersion": 1,
-  "SceneSyncData__ExportedIso": "2026-10-19T17:11:59+0100",
+  "SceneSyncData__ExportedIso": "2026-10-19T17:35:56+0100",
   "SceneSyncData__ExporterVersion": "2.12.0",
   "SceneSyncData__CoordinateSystem": {
     "Units": "metres (camera, section), millimetres (drawing)",
