@@ -339,6 +339,7 @@
                 { patch : 'linePt',         field : 'Leader__LinePt'         },
                 { patch : 'lineStyle',      field : 'Leader__LineStyle'      },
                 { patch : 'lineOpacity',    field : 'Leader__LineOpacity'    },
+                { patch : 'hideLine',       field : 'Leader__HideLine', absent : false },   // <-- Stored only as true: a missing field is a leader with its line, a real value to copy
                 { patch : 'endpointFilled', field : 'Leader__EndpointFilled' },
                 { patch : 'endpointPt',     field : 'Leader__EndpointPt'     },
                 { patch : 'endpointSizeMm', field : 'Leader__EndpointSizeMm' },

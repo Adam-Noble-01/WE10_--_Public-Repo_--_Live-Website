@@ -1,0 +1,458 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName"  : "Elements__Areas__.json",
+        "Meta__Kind"      : "area",
+        "Meta__LayerType" : "area",
+        "Meta__Document"  : "JW02_T01_D02",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments",
+        "Meta__Note"      : "Published by TrueVision. The array is the elements as the sheet holds them, authoring keys verbatim, with resolved keys added. Elements__LayerSvg is each layer's markup exactly as the editor draws it; the reader paints that."
+    },
+    "Elements__Areas" : [
+        {
+            "Shape__Id"      : "Shape_032",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    240.65999999999997,
+                    100.15000000000003
+                ],
+                [
+                    352.25660156249995,
+                    100.15000000000003
+                ],
+                [
+                    352.25660156249995,
+                    320.8
+                ],
+                [
+                    410.6621875,
+                    320.8
+                ],
+                [
+                    410.6378125,
+                    406.05
+                ],
+                [
+                    289.51,
+                    406.05
+                ],
+                [
+                    289.51,
+                    320.8
+                ],
+                [
+                    245.65999999999997,
+                    320.8
+                ],
+                [
+                    245.65999999999997,
+                    306.5
+                ],
+                [
+                    240.65999999999997,
+                    306.5
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#d5e1c7",
+            "Shape__Stroked"       : false,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"      : "Covered Vehicular Workshop",
+                "Area__Group"     : "Proposed For Development",
+                "Area__LabelDXMm" : -24.84080017115764,
+                "Area__LabelDYMm" : 1.7105979379805945,
+                "Area__AreaM2"    : null,
+                "Area__LabelText" : "Covered Vehicular Workshop"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_034",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    96.75999999999998,
+                    98.55000000000004
+                ],
+                [
+                    234.21619140624998,
+                    98.55000000000004
+                ],
+                [
+                    234.21619140624998,
+                    236.90000000000003
+                ],
+                [
+                    96.75999999999998,
+                    236.90000000000003
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#bcd9ee",
+            "Shape__Stroked"       : false,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"      : "Large Barn",
+                "Area__Group"     : "Earmarked For Demolition",
+                "Area__AreaM2"    : null,
+                "Area__LabelText" : "Large Barn"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_056",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    227.80999999999997,
+                    326.1
+                ],
+                [
+                    283.71,
+                    326.1
+                ],
+                [
+                    283.71,
+                    411.35
+                ],
+                [
+                    326.46,
+                    411.35
+                ],
+                [
+                    326.46,
+                    467.50000000000006
+                ],
+                [
+                    227.80999999999997,
+                    467.50000000000006
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#c6e0c6",
+            "Shape__Stroked"       : false,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : {
+                "LineStyle__Kind"   : "dashed",
+                "LineStyle__Scale"  : 0.5,
+                "LineStyle__DashMm" : 2.5,
+                "LineStyle__GapMm"  : 1.5,
+                "LineStyle__MarkMm" : 0.1
+            },
+            "Shape__Area" : {
+                "Area__Name"      : "Holiday Cottage",
+                "Area__Group"     : "Proposed For Development",
+                "Area__LabelDXMm" : -11.57081199385533,
+                "Area__LabelDYMm" : 33.75952930710446,
+                "Area__AreaM2"    : null,
+                "Area__LabelText" : "Holiday Cottage"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_058",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    330.46,
+                    411.35
+                ],
+                [
+                    501.11,
+                    411.35
+                ],
+                [
+                    501.11,
+                    454.75000000000006
+                ],
+                [
+                    497.11,
+                    454.75000000000006
+                ],
+                [
+                    497.11,
+                    455.75000000000006
+                ],
+                [
+                    497.11,
+                    467.50000000000006
+                ],
+                [
+                    330.46,
+                    467.50000000000006
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#e1c7c7",
+            "Shape__Stroked"       : false,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : {
+                "LineStyle__Kind"   : "dashed",
+                "LineStyle__Scale"  : 0.5,
+                "LineStyle__DashMm" : 2.5,
+                "LineStyle__GapMm"  : 1.5,
+                "LineStyle__MarkMm" : 0.1
+            },
+            "Shape__Area" : {
+                "Area__Name"      : "Jimmy's Residence",
+                "Area__Group"     : "Proposed For Development",
+                "Area__AreaM2"    : null,
+                "Area__LabelText" : "Jimmy's Residence"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_060",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    501.11,
+                    467.50000000000006
+                ],
+                [
+                    501.11,
+                    411.35
+                ],
+                [
+                    588.96,
+                    411.35
+                ],
+                [
+                    588.96,
+                    467.50000000000006
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#c7d9e1",
+            "Shape__Stroked"       : false,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : {
+                "LineStyle__Kind"   : "dashed",
+                "LineStyle__Scale"  : 0.5,
+                "LineStyle__DashMm" : 2.5,
+                "LineStyle__GapMm"  : 1.5,
+                "LineStyle__MarkMm" : 0.1
+            },
+            "Shape__Area" : {
+                "Area__Name"      : "Barn",
+                "Area__Group"     : "Proposed For Development",
+                "Area__AreaM2"    : null,
+                "Area__LabelText" : "Barn"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_094",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    533.4100000000001,
+                    105.10000000000002
+                ],
+                [
+                    587.26,
+                    105.10000000000002
+                ],
+                [
+                    587.26,
+                    199.75000000000003
+                ],
+                [
+                    531.9100000000001,
+                    199.75000000000003
+                ],
+                [
+                    531.9100000000001,
+                    106.50000000000003
+                ],
+                [
+                    531.9100000000001,
+                    105.10000000000002
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#d4efbe",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : {
+                "LineStyle__Kind"   : "dashed",
+                "LineStyle__Scale"  : 0.5,
+                "LineStyle__DashMm" : 2.5,
+                "LineStyle__GapMm"  : 1.5,
+                "LineStyle__MarkMm" : 0.1
+            },
+            "Shape__Area" : {
+                "Area__Name"      : "Open Sided Storage Shed",
+                "Area__Group"     : "Earmarked For Demolition",
+                "Area__LabelDXMm" : 0,
+                "Area__LabelDYMm" : 5.793248776683612,
+                "Area__AreaM2"    : null,
+                "Area__LabelText" : "Open Sided Storage Shed"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_096",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    539.1600000000001,
+                    204.25000000000003
+                ],
+                [
+                    587.8100000000001,
+                    204.25000000000003
+                ],
+                [
+                    587.8100000000001,
+                    280.55000000000007
+                ],
+                [
+                    539.1600000000001,
+                    280.55000000000007
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#c7e1df",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : {
+                "LineStyle__Kind"   : "dashed",
+                "LineStyle__Scale"  : 0.5,
+                "LineStyle__DashMm" : 2.5,
+                "LineStyle__GapMm"  : 1.5,
+                "LineStyle__MarkMm" : 0.1
+            },
+            "Shape__Area" : {
+                "Area__Name"      : "Storage Barn 02",
+                "Area__Group"     : "Proposed For Development",
+                "Area__AreaM2"    : null,
+                "Area__LabelText" : "Storage Barn 02"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_098",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    534.6600000000001,
+                    285.05000000000007
+                ],
+                [
+                    593.0600000000001,
+                    285.05000000000007
+                ],
+                [
+                    593.0600000000001,
+                    299.10001953125004
+                ],
+                [
+                    534.6600000000001,
+                    299.10001953125004
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#d8c7e1",
+            "Shape__Stroked"       : false,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : {
+                "LineStyle__Kind"   : "dashed",
+                "LineStyle__Scale"  : 0.5,
+                "LineStyle__DashMm" : 2.5,
+                "LineStyle__GapMm"  : 1.5,
+                "LineStyle__MarkMm" : 0.1
+            },
+            "Shape__Area" : {
+                "Area__Name"      : "Passage",
+                "Area__Group"     : "Proposed For Development",
+                "Area__AreaM2"    : null,
+                "Area__LabelText" : "Passage"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_100",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    539.1600000000001,
+                    303.6
+                ],
+                [
+                    588.3100000000001,
+                    303.6
+                ],
+                [
+                    588.3100000000001,
+                    406.05
+                ],
+                [
+                    539.1600000000001,
+                    406.05
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#e1d2c7",
+            "Shape__Stroked"       : false,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : {
+                "LineStyle__Kind"   : "dashed",
+                "LineStyle__Scale"  : 0.5,
+                "LineStyle__DashMm" : 2.5,
+                "LineStyle__GapMm"  : 1.5,
+                "LineStyle__MarkMm" : 0.1
+            },
+            "Shape__Area" : {
+                "Area__Name"      : "Storage Barn 01",
+                "Area__Group"     : "Proposed For Development",
+                "Area__AreaM2"    : null,
+                "Area__LabelText" : "Storage Barn 01"
+            }
+        }
+    ],
+    "Elements__LayerSvg" : {
+        "Layer_005" : "<path d=\"M240.66 100.15L352.257 100.15L352.257 320.8L410.662 320.8L410.638 406.05L289.51 406.05L289.51 320.8L245.66 320.8L245.66 306.5L240.66 306.5Z\" fill=\"#d5e1c7\" fill-opacity=\"0.3\" stroke=\"none\" stroke-width=\"0\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"300.82\" y=\"254.469\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Covered Vehicular Workshop</text><text x=\"300.82\" y=\"256.881\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.1\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">348.79 m²</text><path d=\"M96.76 98.55L234.216 98.55L234.216 236.9L96.76 236.9Z\" fill=\"#bcd9ee\" fill-opacity=\"0.3\" stroke=\"none\" stroke-width=\"0\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"165.488\" y=\"167.383\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Large Barn</text><text x=\"165.488\" y=\"169.795\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.1\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">190.17 m²</text><path d=\"M227.81 326.1L283.71 326.1L283.71 411.35L326.46 411.35L326.46 467.5L227.81 467.5Z\" fill=\"#c6e0c6\" fill-opacity=\"0.3\" stroke=\"none\" stroke-width=\"0\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"265.564\" y=\"430.218\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Holiday Cottage</text><text x=\"265.564\" y=\"432.63\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.1\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">103.05 m²</text><path d=\"M330.46 411.35L501.11 411.35L501.11 454.75L497.11 454.75L497.11 455.75L497.11 467.5L330.46 467.5Z\" fill=\"#e1c7c7\" fill-opacity=\"0.3\" stroke=\"none\" stroke-width=\"0\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"415.785\" y=\"439.083\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Jimmy&#39;s Residence</text><text x=\"415.785\" y=\"441.495\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.1\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">95.31 m²</text><path d=\"M501.11 467.5L501.11 411.35L588.96 411.35L588.96 467.5Z\" fill=\"#c7d9e1\" fill-opacity=\"0.3\" stroke=\"none\" stroke-width=\"0\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"545.035\" y=\"439.083\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Barn</text><text x=\"545.035\" y=\"441.495\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.1\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">49.33 m²</text><path d=\"M533.41 105.1L587.26 105.1L587.26 199.75L531.91 199.75L531.91 106.5L531.91 105.1Z\" fill=\"#d4efbe\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"butt\" stroke-dasharray=\"1.25 0.75\"/><text x=\"559.585\" y=\"157.876\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Open Sided Storage Shed</text><text x=\"559.585\" y=\"160.288\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.1\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">52.39 m²</text><path d=\"M539.16 204.25L587.81 204.25L587.81 280.55L539.16 280.55Z\" fill=\"#c7e1df\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"butt\" stroke-dasharray=\"1.25 0.75\"/><text x=\"563.485\" y=\"242.058\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Storage Barn 02</text><text x=\"563.485\" y=\"244.47\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.1\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">37.12 m²</text><path d=\"M534.66 285.05L593.06 285.05L593.06 299.1L534.66 299.1Z\" fill=\"#d8c7e1\" fill-opacity=\"0.3\" stroke=\"none\" stroke-width=\"0\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"563.86\" y=\"291.733\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Passage</text><text x=\"563.86\" y=\"294.145\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.1\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">8.21 m²</text><path d=\"M539.16 303.6L588.31 303.6L588.31 406.05L539.16 406.05Z\" fill=\"#e1d2c7\" fill-opacity=\"0.3\" stroke=\"none\" stroke-width=\"0\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"563.735\" y=\"354.483\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Storage Barn 01</text><text x=\"563.735\" y=\"356.895\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.1\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">50.35 m²</text>"
+    },
+    "Elements__AreaGroups" : [
+        {
+            "AreaGroup__Name"   : "Earmarked For Demolition",
+            "AreaGroup__Colour" : "#bcd9ee"
+        },
+        {
+            "AreaGroup__Name"   : "Proposed For Development",
+            "AreaGroup__Colour" : "#c6e0c6"
+        }
+    ]
+}

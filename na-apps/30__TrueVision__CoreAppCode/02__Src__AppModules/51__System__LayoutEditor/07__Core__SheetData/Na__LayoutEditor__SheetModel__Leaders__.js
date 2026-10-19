@@ -125,7 +125,8 @@
     // where it lands on its note or bubble. options: { type, text, textSizeMm,
     // fontWeight, textColour, lineColour, linePt, lineStyle, lineOpacity,
     // endpointFilled, endpointPt, endpointSizeMm, bubbleSizeMm, bubbleEdgePt,
-    // fillColour (null for no fill), fillOpacity, layerId, silent }. Anything
+    // fillColour (null for no fill), fillOpacity, hideLine (true for the
+    // bubble or note on its own), layerId, silent }. Anything
     // left out takes the Leader setup's default in the normaliser, and a new
     // leader lands on the sheet's text layer.
     // ------------------------------------------------------------
@@ -156,6 +157,7 @@
             Leader__FillOpacity    : opts.fillOpacity
         }, Na__LeModel__DefaultLayerId(sheet, 'annotation'));
         if (typeof opts.specNoteId === 'string' && opts.specNoteId.trim()) item.Leader__SpecNoteId = opts.specNoteId.trim();   // <-- A bubble placed already linked to a specification note
+        if (opts.hideLine === true) item.Leader__HideLine = true;              // <-- The bubble or note on its own; stored only as true
         sheet.Sheet__Leaders.push(item);
         if (opts.silent) Na__LeModel__AssignDirty(true); else Na__LeModel__Touch('leaders', sheet.Sheet__Id, item.Leader__Id);   // <-- The leader tool announces once, when the head lands
         return item;
@@ -173,6 +175,10 @@
             if (typeof patch[name] === 'string') item['Leader__' + key] = patch[name];
         });
         if (typeof patch.endpointFilled === 'boolean') item.Leader__EndpointFilled = patch.endpointFilled;
+        if (typeof patch.hideLine === 'boolean') {                              // <-- Line off: stored only as true, the tip kept for when it comes back
+            if (patch.hideLine) item.Leader__HideLine = true;
+            else delete item.Leader__HideLine;
+        }
         if (patch.fillColour !== undefined) item.Leader__FillColour = (typeof patch.fillColour === 'string') ? patch.fillColour : null;   // <-- null clears the fill
         if (typeof patch.layerId === 'string') item.Leader__LayerId = patch.layerId;
         if (patch.specNoteId !== undefined) {                                   // <-- A note id links a bubble to the specification; null or empty unlinks it

@@ -293,7 +293,8 @@
             Leader__BubbleSizeMm   : d.bubbleSizeMm,
             Leader__BubbleEdgePt   : d.bubbleEdgePt,
             Leader__FillColour     : (typeof d.filled === 'boolean') ? (d.filled ? d.fillColour : null) : undefined,   // <-- Left out: the normaliser's default fill
-            Leader__FillOpacity    : d.fillOpacity
+            Leader__FillOpacity    : d.fillOpacity,
+            Leader__HideLine       : d.hideLine === true ? true : undefined     // <-- Leader line unticked: dropped bubbles are on their own too (the normaliser drops an undefined key)
         };
     }
     // ------------------------------------------------------------

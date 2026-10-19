@@ -1,7 +1,7 @@
 {
   "PointCloudData__Schema": "TrueVision__PointCloudData__Manifest",
   "PointCloudData__SchemaVersion": 1,
-  "PointCloudData__ExportedIso": "2026-10-19T17:35:56+0100",
+  "PointCloudData__ExportedIso": "2026-10-19T18:51:19+0100",
   "PointCloudData__ExporterVersion": "2.11.0",
   "PointCloudData__CoordinateSystem": {
     "Units": "metres",
@@ -38,12 +38,12 @@
       "Scene__DefaultOpacity": 0.6,
       "Scene__Status": "active",
       "Scene__SourceStoreId": "pcss_6ead0fe1c81a",
-      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.0__",
+      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.1__",
       "Scene__Folder": "PointCloudScene__pcs_42e47ceb",
       "Scene__CurrentRevision": "Rev__a643f6d7c5",
       "Scene__CurrentManifest": "PointCloudScene__pcs_42e47ceb/Rev__a643f6d7c5/PointCloudScene__RevisionManifest__.json",
       "Scene__Preview": "PointCloudScene__pcs_42e47ceb/Rev__a643f6d7c5/PointCloudScene__Preview__.webp",
-      "Scene__UpdatedIso": "2026-10-19T17:35:56+0100"
+      "Scene__UpdatedIso": "2026-10-19T18:51:19+0100"
     },
     {
       "Scene__Id": "pcs_d5daef4a",
@@ -79,12 +79,12 @@
       "Scene__DefaultOpacity": 0.6,
       "Scene__Status": "active",
       "Scene__SourceStoreId": "pcss_6ead0fe1c81a",
-      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.0__",
+      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.1__",
       "Scene__Folder": "PointCloudScene__pcs_d5daef4a",
       "Scene__CurrentRevision": "Rev__6bada7125b",
       "Scene__CurrentManifest": "PointCloudScene__pcs_d5daef4a/Rev__6bada7125b/PointCloudScene__RevisionManifest__.json",
       "Scene__Preview": "PointCloudScene__pcs_d5daef4a/Rev__6bada7125b/PointCloudScene__Preview__.webp",
-      "Scene__UpdatedIso": "2026-10-19T17:35:56+0100"
+      "Scene__UpdatedIso": "2026-10-19T18:51:19+0100"
     },
     {
       "Scene__Id": "pcs_7d8afead",
@@ -120,12 +120,12 @@
       "Scene__DefaultOpacity": 0.6,
       "Scene__Status": "active",
       "Scene__SourceStoreId": "pcss_6ead0fe1c81a",
-      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.0__",
+      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.1__",
       "Scene__Folder": "PointCloudScene__pcs_7d8afead",
       "Scene__CurrentRevision": "Rev__c02a67c6ef",
       "Scene__CurrentManifest": "PointCloudScene__pcs_7d8afead/Rev__c02a67c6ef/PointCloudScene__RevisionManifest__.json",
       "Scene__Preview": "PointCloudScene__pcs_7d8afead/Rev__c02a67c6ef/PointCloudScene__Preview__.webp",
-      "Scene__UpdatedIso": "2026-10-19T17:35:56+0100"
+      "Scene__UpdatedIso": "2026-10-19T18:51:19+0100"
     },
     {
       "Scene__Id": "pcs_4208d708",
@@ -156,12 +156,12 @@
       "Scene__DefaultOpacity": 0.6,
       "Scene__Status": "active",
       "Scene__SourceStoreId": "pcss_6ead0fe1c81a",
-      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.0__",
+      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.1__",
       "Scene__Folder": "PointCloudScene__pcs_4208d708",
       "Scene__CurrentRevision": "Rev__af6890d201",
       "Scene__CurrentManifest": "PointCloudScene__pcs_4208d708/Rev__af6890d201/PointCloudScene__RevisionManifest__.json",
       "Scene__Preview": "PointCloudScene__pcs_4208d708/Rev__af6890d201/PointCloudScene__Preview__.webp",
-      "Scene__UpdatedIso": "2026-10-19T17:35:56+0100"
+      "Scene__UpdatedIso": "2026-10-19T18:51:19+0100"
     },
     {
       "Scene__Id": "pcs_13b09fe2",
@@ -179,12 +179,81 @@
       "Scene__DefaultOpacity": 0.6,
       "Scene__Status": "active",
       "Scene__SourceStoreId": "pcss_6ead0fe1c81a",
-      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.0__",
+      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.1__",
       "Scene__Folder": "PointCloudScene__pcs_13b09fe2",
       "Scene__CurrentRevision": "Rev__71c3e6f1b4",
       "Scene__CurrentManifest": "PointCloudScene__pcs_13b09fe2/Rev__71c3e6f1b4/PointCloudScene__RevisionManifest__.json",
       "Scene__Preview": "PointCloudScene__pcs_13b09fe2/Rev__71c3e6f1b4/PointCloudScene__Preview__.webp",
-      "Scene__UpdatedIso": "2026-10-19T17:35:56+0100"
+      "Scene__UpdatedIso": "2026-10-19T18:51:19+0100"
+    },
+    {
+      "Scene__Id": "pcs_0e71ba1b",
+      "Scene__Revisions": [
+        {
+          "Revision__Id": "Rev__8d957cb24a",
+          "Revision__ExportedIso": "2026-10-19T18:44:30+0100",
+          "Revision__Manifest": "PointCloudScene__pcs_0e71ba1b/Rev__8d957cb24a/PointCloudScene__RevisionManifest__.json"
+        }
+      ],
+      "Scene__Name": "IMG02__3dView__View-02__",
+      "Scene__ViewType": "view3d",
+      "Scene__Projection": "perspective",
+      "Scene__Scale": null,
+      "Scene__DefaultOpacity": 0.6,
+      "Scene__Status": "active",
+      "Scene__SourceStoreId": "pcss_6ead0fe1c81a",
+      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.1__",
+      "Scene__Folder": "PointCloudScene__pcs_0e71ba1b",
+      "Scene__CurrentRevision": "Rev__8d957cb24a",
+      "Scene__CurrentManifest": "PointCloudScene__pcs_0e71ba1b/Rev__8d957cb24a/PointCloudScene__RevisionManifest__.json",
+      "Scene__Preview": "PointCloudScene__pcs_0e71ba1b/Rev__8d957cb24a/PointCloudScene__Preview__.webp",
+      "Scene__UpdatedIso": "2026-10-19T18:51:19+0100"
+    },
+    {
+      "Scene__Id": "pcs_895c6d9c",
+      "Scene__Revisions": [
+        {
+          "Revision__Id": "Rev__4a3b071cbd",
+          "Revision__ExportedIso": "2026-10-19T18:44:30+0100",
+          "Revision__Manifest": "PointCloudScene__pcs_895c6d9c/Rev__4a3b071cbd/PointCloudScene__RevisionManifest__.json"
+        }
+      ],
+      "Scene__Name": "IMG03__BirdseyeView__View-01__",
+      "Scene__ViewType": "view3d",
+      "Scene__Projection": "perspective",
+      "Scene__Scale": null,
+      "Scene__DefaultOpacity": 0.6,
+      "Scene__Status": "active",
+      "Scene__SourceStoreId": "pcss_6ead0fe1c81a",
+      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.1__",
+      "Scene__Folder": "PointCloudScene__pcs_895c6d9c",
+      "Scene__CurrentRevision": "Rev__4a3b071cbd",
+      "Scene__CurrentManifest": "PointCloudScene__pcs_895c6d9c/Rev__4a3b071cbd/PointCloudScene__RevisionManifest__.json",
+      "Scene__Preview": "PointCloudScene__pcs_895c6d9c/Rev__4a3b071cbd/PointCloudScene__Preview__.webp",
+      "Scene__UpdatedIso": "2026-10-19T18:51:19+0100"
+    },
+    {
+      "Scene__Id": "pcs_46bda801",
+      "Scene__Revisions": [
+        {
+          "Revision__Id": "Rev__922660c006",
+          "Revision__ExportedIso": "2026-10-19T18:44:30+0100",
+          "Revision__Manifest": "PointCloudScene__pcs_46bda801/Rev__922660c006/PointCloudScene__RevisionManifest__.json"
+        }
+      ],
+      "Scene__Name": "IMG04__BirdseyeView__View-02__",
+      "Scene__ViewType": "view3d",
+      "Scene__Projection": "perspective",
+      "Scene__Scale": null,
+      "Scene__DefaultOpacity": 0.6,
+      "Scene__Status": "active",
+      "Scene__SourceStoreId": "pcss_6ead0fe1c81a",
+      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.1__",
+      "Scene__Folder": "PointCloudScene__pcs_46bda801",
+      "Scene__CurrentRevision": "Rev__922660c006",
+      "Scene__CurrentManifest": "PointCloudScene__pcs_46bda801/Rev__922660c006/PointCloudScene__RevisionManifest__.json",
+      "Scene__Preview": "PointCloudScene__pcs_46bda801/Rev__922660c006/PointCloudScene__Preview__.webp",
+      "Scene__UpdatedIso": "2026-10-19T18:51:19+0100"
     }
   ],
   "PointCloudData__Datums": [

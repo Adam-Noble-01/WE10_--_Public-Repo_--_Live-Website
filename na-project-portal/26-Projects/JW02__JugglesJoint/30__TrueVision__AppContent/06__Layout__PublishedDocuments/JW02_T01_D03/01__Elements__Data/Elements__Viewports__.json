@@ -32,11 +32,11 @@
             "Viewport__FogMasks"     : [],
             "Viewport__PointCloud"   : null,
             "Viewport__Vector"       : {
-                "Vector__File"         : "02__Viewports__Vector/Viewport_001__Linework__f1be443211.svg",
+                "Vector__File"         : "02__Viewports__Vector/Viewport_001__Linework__9540d5063e.svg",
                 "Vector__WidthMm"      : 129.72815658138086,
                 "Vector__HeightMm"     : 111.61278687861554,
                 "Vector__PathCount"    : 2,
-                "Vector__SegmentCount" : 149
+                "Vector__SegmentCount" : 148
             },
             "Viewport__SceneSvg" : "",
             "Viewport__FrameSvg" : ""

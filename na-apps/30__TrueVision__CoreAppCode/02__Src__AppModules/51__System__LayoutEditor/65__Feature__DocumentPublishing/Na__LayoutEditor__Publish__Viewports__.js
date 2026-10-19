@@ -52,6 +52,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.3.0
+// - A 3D viewport's point cloud (a 3D View scene seen from the same camera,
+//   TrueVision3D v2.178.0) is published the same way: its second picture is
+//   the 3D picture with the point cloud over it at full strength, covering
+//   the picture's own rectangle, over an empty frame too.
+//
 // 19-Oct-2026 - Version 1.2.0
 // - Point cloud viewports are published WITH their point cloud (Adam: the
 //   client view of JW02 showed none). Bake adds Viewport__PointCloud to the
@@ -88,7 +94,7 @@
         Na__LeVp2d__RenderFogForExport, Na__LeVp2d__StyleBands, Na__LeVp2d__SitePlanDrawing,
         Na__LeVp2d__PointCloudForPublish
     } from '../20__System__Viewports/Na__LayoutEditor__Viewport2d__.js';
-    import { Na__LeVp3d__RenderForExport, Na__LeVp3d__ExportRectMm } from '../20__System__Viewports/Na__LayoutEditor__Viewport3d__.js';
+    import { Na__LeVp3d__RenderForExport, Na__LeVp3d__ExportRectMm, Na__LeVp3d__PointCloudForPublish } from '../20__System__Viewports/Na__LayoutEditor__Viewport3d__.js';
 
     import {
         Na__PubSchema__VectorPath, Na__PubSchema__RasterPath, Na__PubSchema__MaskPath,
@@ -300,9 +306,11 @@
     // site plan: the point cloud with Linework On Top (under every deck),
     // fills and patterns, linework, the point cloud otherwise. The linework
     // is in this picture only where the point cloud goes over it; under it,
-    // the reader's own linework is drawn over this picture.
+    // the reader's own linework is drawn over this picture. A 3D viewport:
+    // its picture, then the point cloud over it.
     // ------------------------------------------------------------
     function Na__LePubVp__CloudDecks(cloud, layers) {
+        if (layers.threeD) return [ layers.underlay, cloud.canvas ];
         const over = !cloud.lineworkOnTop;
         if (layers.site) {
             return over ? [ layers.fills, layers.lines, cloud.canvas ] : [ cloud.canvas, layers.fills ];
@@ -353,7 +361,9 @@
             say('point cloud');
             let cloud = null;
             try {
-                cloud = await Na__LeVp2d__PointCloudForPublish(viewport, size ? size.w : 0, size ? size.h : 0);
+                cloud = layers.threeD
+                    ? await Na__LeVp3d__PointCloudForPublish(viewport, size ? size.w : 0, size ? size.h : 0)
+                    : await Na__LeVp2d__PointCloudForPublish(viewport, size ? size.w : 0, size ? size.h : 0);
             } catch (error) {
                 console.warn('[TrueVision3D LayoutEditor] A point cloud was left out of a published drawing.', error);
             }
@@ -430,19 +440,24 @@
             }
         } else {
             say('3D picture');
+            const rect    = Na__LeVp3d__ExportRectMm(viewport);                     // <-- The picture's own rectangle inside the frame
             const dataUrl = await Na__LeVp3d__RenderForExport(sheet, viewport);
+            let image = null;
             if (dataUrl) {
-                const rect  = Na__LeVp3d__ExportRectMm(viewport);                   // <-- The picture's own rectangle inside the frame
                 pictureMm   = { X : rect.X, Y : rect.Y, WidthMm : rect.WidthMm, HeightMm : rect.HeightMm };
-                const image = await Na__LePubRas__Load(dataUrl);
+                image = await Na__LePubRas__Load(dataUrl);
                 picture = Na__LePubRas__Canvas(image.naturalWidth, image.naturalHeight, true);
                 picture.context.fillStyle = Na__LePubVp__PAPER;
                 picture.context.fillRect(0, 0, picture.canvas.width, picture.canvas.height);
                 picture.context.drawImage(image, 0, 0);
             } else if (viewport.Viewport__Styles && viewport.Viewport__Styles.baseImage === false) {
-                // An empty frame prints empty, and publishes empty.
+                // An empty frame prints empty, and publishes empty - bar a point cloud over it.
             } else {
                 warnings.push(viewport.Viewport__Id + ': the 3D picture could not be rendered.');
+            }
+            if (viewport.Viewport__PointCloud) {
+                pictureMm = { X : rect.X, Y : rect.Y, WidthMm : rect.WidthMm, HeightMm : rect.HeightMm };   // <-- The point cloud covers the picture's rectangle, empty frame or not
+                await bakeCloud(picture ? { w : picture.canvas.width, h : picture.canvas.height } : null, { threeD : true, underlay : image });
             }
         }
 

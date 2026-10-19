@@ -22,11 +22,11 @@
                 ],
                 [
                     489.59394773471325,
-                    394.34542999665945
+                    376.3927361727436
                 ],
                 [
                     13.645898933970035,
-                    394.34542999665945
+                    376.3927361727436
                 ]
             ],
             "Shape__Closed"        : true,
@@ -48,7 +48,7 @@
                     "L" : 0.050968639124589835,
                     "T" : 0.008119767011152166,
                     "R" : 0.9051926740344033,
-                    "B" : 0.9813425093444219
+                    "B" : 0.9353496105017453
                 },
                 "Image__Name"    : "OrhtoCloud__SitePlan__1-500__.png",
                 "Image__SourceW" : 2635,
@@ -57,6 +57,6 @@
         }
     ],
     "Elements__LayerSvg" : {
-        "Layer_006" : "<g data-na-picture=\"1\"><defs><filter id=\"naLeImgShadow_55406cbe_10\" x=\"-10%\" y=\"-10%\" width=\"120%\" height=\"120%\" color-interpolation-filters=\"sRGB\"><feDropShadow dx=\"0\" dy=\"0.9\" stdDeviation=\"1.6\" flood-color=\"#1f1d18\" flood-opacity=\"0.3\"/></filter></defs><rect x=\"13.646\" y=\"14.461\" width=\"475.948\" height=\"379.884\" fill=\"#ffffff\" stroke=\"none\" filter=\"url(#naLeImgShadow_55406cbe_10)\"/><svg x=\"13.646\" y=\"14.461\" width=\"475.948\" height=\"379.884\" viewBox=\"134.302 14.989 2250.88 1796.569\" preserveAspectRatio=\"none\" overflow=\"hidden\"><image x=\"0\" y=\"0\" width=\"2635\" height=\"1846\" preserveAspectRatio=\"none\" href=\"na-published:/../05__Layout__DrawingDocs__Images/JW02_T01_D03/OrhtoCloud__SitePlan__1-500__a1af734d6a.webp\"/></svg><rect x=\"13.646\" y=\"14.461\" width=\"475.948\" height=\"379.884\" fill=\"none\" stroke=\"#555041\" stroke-width=\"0.529\"/></g>"
+        "Layer_006" : "<g data-na-picture=\"1\"><defs><filter id=\"naLeImgShadow_55406cbe_10\" x=\"-10%\" y=\"-10%\" width=\"120%\" height=\"120%\" color-interpolation-filters=\"sRGB\"><feDropShadow dx=\"0\" dy=\"0.9\" stdDeviation=\"1.6\" flood-color=\"#1f1d18\" flood-opacity=\"0.3\"/></filter></defs><rect x=\"13.646\" y=\"14.461\" width=\"475.948\" height=\"361.931\" fill=\"#ffffff\" stroke=\"none\" filter=\"url(#naLeImgShadow_55406cbe_10)\"/><svg x=\"13.646\" y=\"14.461\" width=\"475.948\" height=\"361.931\" viewBox=\"134.302 14.989 2250.88 1711.666\" preserveAspectRatio=\"none\" overflow=\"hidden\"><image x=\"0\" y=\"0\" width=\"2635\" height=\"1846\" preserveAspectRatio=\"none\" href=\"na-published:/../05__Layout__DrawingDocs__Images/JW02_T01_D03/OrhtoCloud__SitePlan__1-500__a1af734d6a.webp\"/></svg><rect x=\"13.646\" y=\"14.461\" width=\"475.948\" height=\"361.931\" fill=\"none\" stroke=\"#555041\" stroke-width=\"0.529\"/></g>"
     }
 }

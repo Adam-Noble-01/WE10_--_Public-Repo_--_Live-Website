@@ -44,6 +44,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.2.0
+// - A finger's single tap is offered to a tap handler first (SetTapHandler,
+//   the web viewer's measuring tools, TrueVision3D v2.180.0). One it uses is
+//   not the first half of a double tap; one it does not use is left alone.
+//
 // 18-Sep-2026 - Version 1.1.0
 // - The page turn is gone from this surface (Adam, on an iPad: "it tries to
 //   change to next tab as i try to pan on the main canvas"). A fitted sheet has
@@ -97,6 +102,7 @@
     // MODULE VARIABLES | Attachment
     // ------------------------------------------------------------
     let Na__LeVwDraw__Attached = false;
+    let Na__LeVwDraw__TapHandler = null;                                         // <-- Asked first about a finger's tap (the measuring tools); true means it used it
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -227,6 +233,20 @@
     }
     // ------------------------------------------------------------
 
+
+    // HELPER FUNCTION | A Single Tap: Offered to the Tap Handler First
+    // ------------------------------------------------------------
+    // While a measuring tool is on, a tap puts a point down; the recogniser is
+    // told it was used, so two quick taps are two points and never a double
+    // tap zoom. A tap nobody uses is left to become one.
+    // ------------------------------------------------------------
+    function Na__LeVwDraw__OnTap(clientX, clientY) {
+        if (!Na__LeVwDraw__TapHandler) return false;
+        try { return Na__LeVwDraw__TapHandler(clientX, clientY) === true; }
+        catch (error) { console.warn('[TrueVision3D] Viewer tap handler:', error); return false; }
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -251,8 +271,21 @@
         Na__LeVwTouch__Attach(els.stage, {
             onPan       : Na__LeVwDraw__OnPan,
             onPinch     : Na__LeVwDraw__OnPinch,
+            onTap       : Na__LeVwDraw__OnTap,
             onDoubleTap : Na__LeVwDraw__OnDoubleTap
         });
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Who Is Offered a Finger's Single Tap First (null for nobody)
+    // ------------------------------------------------------------
+    // fn(clientX, clientY) answers true when it used the tap. Set once by the
+    // web viewer for its measuring tools; kept across attach and detach.
+    // ------------------------------------------------------------
+    function Na__LeVwDraw__SetTapHandler(fn) {
+        Na__LeVwDraw__TapHandler = (typeof fn === 'function') ? fn : null;
         return true;
     }
     // ------------------------------------------------------------
@@ -325,6 +358,7 @@
     export {
         Na__LeVwDraw__Attach,
         Na__LeVwDraw__Detach,
+        Na__LeVwDraw__SetTapHandler,
         Na__LeVwDraw__Fit,
         Na__LeVwDraw__ZoomBy,
         Na__LeVwDraw__ZoomPercent,

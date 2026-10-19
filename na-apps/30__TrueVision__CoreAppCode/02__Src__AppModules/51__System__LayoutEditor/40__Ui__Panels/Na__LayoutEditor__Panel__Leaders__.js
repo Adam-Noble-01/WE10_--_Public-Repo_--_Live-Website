@@ -16,6 +16,11 @@
 // - TYPE: a Note (multi-line text on a leader) or a Specification bubble (a
 //   code in a circle). Switching a selected leader keeps its text; a bubble
 //   shows the first line of it.
+// - LEADER LINE, ticked unless asked otherwise: untick it for the bubble or
+//   note on its own, no line and no endpoint, as a plan wants. The line and
+//   endpoint rows go with it; the point is kept for when it comes back. With
+//   nothing selected it sets new leaders, which the Leader tool then places
+//   with a single click.
 // - LINE: dashed or solid, its weight in points and its colour. The endpoint
 //   and the bubble edge are drawn in the line colour too.
 // - FILL sits behind the text and the line, so a leader laid over a drawing
@@ -45,6 +50,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.3.0 (TrueVision v2.179.0)
+// - Leader line: a switch under Type that takes the line and the endpoint
+//   away (Leader__HideLine), for a selected leader, several, or new ones.
+//   Line, Line pt and the Endpoint fold go while it is off.
+//
 // 17-Sep-2026 - Version 1.2.0
 // - Several selected: the panel reads the first leader and writes all of them.
 //   The type is a palette-only trait, so nine leaders take a size and a colour
@@ -153,6 +163,7 @@
         return {
             type : it.Leader__Type, textSizeMm : it.Leader__TextSizeMm, fontWeight : it.Leader__FontWeight, textColour : it.Leader__TextColour,
             lineStyle : it.Leader__LineStyle, linePt : it.Leader__LinePt, lineColour : it.Leader__LineColour, lineOpacity : it.Leader__LineOpacity,
+            hideLine : it.Leader__HideLine === true,
             endpointFilled : it.Leader__EndpointFilled, endpointPt : it.Leader__EndpointPt, endpointSizeMm : it.Leader__EndpointSizeMm,
             bubbleSizeMm : it.Leader__BubbleSizeMm, bubbleEdgePt : it.Leader__BubbleEdgePt,
             filled : typeof it.Leader__FillColour === 'string', fillColour : it.Leader__FillColour || d.fillColour, fillOpacity : it.Leader__FillOpacity
@@ -184,6 +195,7 @@
         button.className = 'na-le-adv-toggle na-le-subfold-toggle';
         button.innerHTML = '<span class="na-le-adv-toggle__chevron" aria-hidden="true"></span><span class="na-le-adv-toggle__label"></span>';
         button.querySelector('.na-le-adv-toggle__label').textContent = L('LeaderEndpoint', 'Endpoint');
+        button.setAttribute('data-na-block', 'endpoint-toggle');               // <-- Goes away with the line, the endpoint with it
 
         const block = document.createElement('div');
         block.className = 'na-le-block na-le-subfold';
@@ -223,6 +235,11 @@
             { value : 'bubble', label : L('LeaderTypeBubble', 'Specification bubble') },
             { value : 'text',   label : L('LeaderTypeText', 'Note') }
         ])));
+
+        // LEADER LINE | Untick for the bubble or note on its own: no line, no endpoint
+        const showLine = Na__LePanels__Row(L('LeaderShowLine', 'Leader line'), Na__LePanels__Input('checkbox', 'leader-show-line'), 'na-le-row--toggle');
+        showLine.title = L('LeaderShowLineTitle', 'The line and its endpoint circle. Untick for a bubble or note on its own: good on plans. Its point is kept, so ticking it again brings the line back.');
+        body.appendChild(showLine);
 
         // SPECIFICATION | A selected bubble's link to a project specification note
         const specSelect = document.createElement('select');
@@ -323,6 +340,18 @@
         el('leader-fill-opacity').parentNode.hidden = !filled;
         el('leader-line-opacity').parentNode.hidden = !clear;
         el('leader-end-pt').parentNode.hidden       = v.endpointFilled === true;   // <-- A solid dot has no ring to weigh
+
+        // LEADER LINE | Off: the rows that only draw the line and the endpoint
+        // go too. Line colour stays (it draws the bubble edge), and so does
+        // Transparent lines, which the edge takes as well.
+        const lineShown = v.hideLine !== true;
+        el('leader-show-line').checked             = lineShown;
+        el('leader-line-style').parentNode.hidden  = !lineShown;
+        el('leader-line-pt').parentNode.hidden     = !lineShown;
+        const endToggle = body.querySelector('[data-na-block="endpoint-toggle"]');
+        const endBlock  = body.querySelector('[data-na-block="endpoint"]');
+        if (endToggle) endToggle.style.display = lineShown ? '' : 'none';      // <-- Not .hidden: the fold toggle's own display rule outranks the attribute
+        if (endBlock)  endBlock.hidden  = !lineShown || !(endToggle && endToggle.classList.contains('is-open'));   // <-- Back on: the fold as it was left
 
         const many = selected ? null : Na__LePanelLeaders__Many();
         body.querySelector('[data-na-block="note"]').textContent = selected
@@ -432,6 +461,7 @@
         const num  = (key) => (e, el) => { const value = parseFloat(el.value); if (Number.isFinite(value)) both(key, value); };
 
         on('change', 'leader-type',        (e, el) => both('type', el.value));
+        on('change', 'leader-show-line',   (e, el) => both('hideLine', !el.checked));
         on('change', 'leader-text-size',   num('textSizeMm'));
         on('change', 'leader-weight',      (e, el) => { const value = parseInt(el.value, 10); if (Number.isFinite(value)) both('fontWeight', value); });
         on('change', 'leader-text-colour', (e, el) => both('textColour', el.value));

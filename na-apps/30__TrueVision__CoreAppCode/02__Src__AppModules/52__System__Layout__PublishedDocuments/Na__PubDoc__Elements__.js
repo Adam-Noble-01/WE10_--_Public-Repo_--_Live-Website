@@ -446,6 +446,10 @@
                 Kind  : 'leader'
             });
 
+            // LINE OFF (Leader__HideLine): the bubble on its own, no line and
+            // no tip mark, as the editor and the PDF draw it.
+            const lineShown = leader['Leader__HideLine'] !== true;
+
             // THE LEADER LINE, stopping at the bubble's edge rather than its
             // centre so it does not show through the fill.
             let endX = boxX, endY = boxY;
@@ -455,7 +459,7 @@
                 endX = boxX - (dx / length) * radius;
                 endY = boxY - (dy / length) * radius;
             }
-            Na__PubPaint__Line(sink, tipX, tipY, endX, endY, {
+            if (lineShown) Na__PubPaint__Line(sink, tipX, tipY, endX, endY, {
                 StrokeColour  : leader['Leader__LineColour'] || Na__PubEl__INK,
                 StrokePt      : Na__PubEl__N(leader['Leader__LinePt'], 0.35),
                 StrokeOpacity : leader['Leader__LineOpacity'],
@@ -465,7 +469,7 @@
 
             // THE TIP MARK
             const endSize = Na__PubEl__N(leader['Leader__EndpointSizeMm'], 1.6);
-            if (endSize > 0) {
+            if (lineShown && endSize > 0) {
                 Na__PubPaint__Circle(sink, tipX, tipY, endSize / 2, {
                     FillColour   : (leader['Leader__EndpointFilled'] === true) ? (leader['Leader__LineColour'] || Na__PubEl__INK) : '#ffffff',
                     StrokeColour : leader['Leader__LineColour'] || Na__PubEl__INK,

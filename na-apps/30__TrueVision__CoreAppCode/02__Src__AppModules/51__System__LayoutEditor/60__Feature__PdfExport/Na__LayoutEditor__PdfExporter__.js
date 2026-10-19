@@ -41,6 +41,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.14.0 (TrueVision)
+// - A 3D viewport's point cloud (a 3D View scene seen from the same camera,
+//   TrueVision3D v2.178.0) prints over its picture, at the same rectangle,
+//   with the viewport's opacity in its alpha (Na__LeVp3d__PointCloudForExport).
+//   Like a 2D point cloud it is cosmetic: one that cannot be drawn is left out
+//   and never fails a strict export.
+//
 // 19-Oct-2026 - Version 1.13.0 (TrueVision)
 // - Point cloud viewports (Viewport__PointCloud). A plan, elevation, section
 //   or site plan viewport that lays a SketchUp point cloud scene over its
@@ -176,7 +183,7 @@
     import { Na__LePaint__STEP_VIEWPORT, Na__LePaint__STEP_SHEET, Na__LePaint__Plan } from '../15__Core__Markup/Na__LayoutEditor__PaintOrder__.js';   // <-- The page is laid down in the Layers list's order, as the screen stacks it
     import { Na__LeVp2d__Describe, Na__LeVp2d__EnsureLinework, Na__LeVp2d__RenderForExport, Na__LeVp2d__RenderFogForExport, Na__LeVp2d__StyleBands, Na__LeVp2d__SitePlanDrawing, Na__LeVp2d__PointCloudForExport } from '../20__System__Viewports/Na__LayoutEditor__Viewport2d__.js';
     import { Na__LeHatch__DrawPdf } from '../36__System__HatchPatternTools/Na__LayoutEditor__HatchPatterns__.js';
-    import { Na__LeVp3d__RenderForExport, Na__LeVp3d__ExportRectMm } from '../20__System__Viewports/Na__LayoutEditor__Viewport3d__.js';
+    import { Na__LeVp3d__RenderForExport, Na__LeVp3d__ExportRectMm, Na__LeVp3d__PointCloudForExport } from '../20__System__Viewports/Na__LayoutEditor__Viewport3d__.js';
     import { Na__DrawData__GetProjectCode } from '../../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     import { Na__LeCfg__GetSpecificationSetup, Na__LeCfg__FormatLabel } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__LeSpec__EnsureLoaded } from '../50__Feature__Specification/Na__LayoutEditor__SpecData__.js';
@@ -419,6 +426,20 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | A 3D Viewport's Point Cloud for the Page, or null (never throws)
+    // ------------------------------------------------------------
+    async function Na__LePdf__PointCloud3d(viewport) {
+        if (!viewport || !viewport.Viewport__PointCloud) return null;
+        try {
+            return await Na__LeVp3d__PointCloudForExport(viewport);
+        } catch (error) {
+            console.warn('[TrueVision3D LayoutEditor] A 3D point cloud was left out of the PDF.', error);
+            return null;
+        }
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Put a Point Cloud Picture, and Then Its Datum, on the Page
     // ------------------------------------------------------------
     function Na__LePdf__DrawPointCloud(doc, cloud, frame, options, withPicture) {
@@ -502,6 +523,10 @@
                 const rect = Na__LeVp3d__ExportRectMm(viewport);                   // <-- The picture's own rectangle, or the frame when it shows a window of a zoomed picture
                 Na__LePdf__AddPicture(doc, dataUrl, frame.X + rect.X, frame.Y + rect.Y, rect.WidthMm, rect.HeightMm, options);
             }
+            // POINT CLOUD | A 3D View scene seen from this camera, over the
+            // picture at the same rectangle; over an empty frame too.
+            const cloud3d = await Na__LePdf__PointCloud3d(viewport);
+            if (cloud3d) Na__LePdf__AddPicture(doc, cloud3d.dataUrl, frame.X + cloud3d.rectMm.X, frame.Y + cloud3d.rectMm.Y, cloud3d.rectMm.WidthMm, cloud3d.rectMm.HeightMm, options);
         } finally {
             Na__LePdf__EndClip(doc, clipped);
             if (turned) { try { doc.restoreGraphicsState(); } catch (e) { /* nothing to restore */ } }

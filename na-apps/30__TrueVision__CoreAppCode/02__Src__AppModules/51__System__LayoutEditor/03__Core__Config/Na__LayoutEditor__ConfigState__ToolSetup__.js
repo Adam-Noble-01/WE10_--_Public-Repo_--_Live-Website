@@ -267,6 +267,7 @@
             dashMm             : Math.max(0.1, Na__LeCfg__Num('Leader', 'DashMm', 0.8)),
             lineOpacity        : Na__LeCfg__Unit('Leader', 'LineOpacity', 1),
             transparentOpacity : Na__LeCfg__Unit('Leader', 'TransparentOpacity', 0.5),
+            hideLine           : Na__LeCfg__Val('Leader', 'HideLine', false) === true,   // <-- A new leader as its bubble or note on its own
             endpointFilled     : Na__LeCfg__Val('Leader', 'EndpointFilled', false) === true,
             endpointPt         : Na__LeCfg__Num('Leader', 'EndpointPt', 0.35),
             endpointSizeMm     : Na__LeCfg__Num('Leader', 'EndpointSizeMm', 1.6),

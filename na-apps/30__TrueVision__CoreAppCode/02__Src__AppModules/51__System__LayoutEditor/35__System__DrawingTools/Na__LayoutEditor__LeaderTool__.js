@@ -159,6 +159,7 @@
             bubbleSizeMm : d.bubbleSizeMm, bubbleEdgePt : d.bubbleEdgePt,
             fillColour : (typeof d.filled === 'boolean') ? (d.filled ? d.fillColour : null) : undefined,
             fillOpacity : d.fillOpacity,
+            hideLine : d.hideLine === true,
             silent : true                                                     // <-- Announced once, when the head lands
         };
     }
@@ -188,6 +189,7 @@
     function Na__LeLeader__Press(sheet, pointMm, defaults, pointerId) {
         if (!sheet || !pointMm) return false;
         if (Na__LeLeader__Placement) return Na__LeLeader__Land(sheet, pointMm);
+        if (defaults && defaults.hideLine === true) return Na__LeLeader__Drop(sheet, pointMm, defaults);   // <-- Leader line off: one click places the head on its own
         const snap = Na__LeOsnap__Snap(sheet, pointMm, null);
         Na__LeLeader__Placement = {
             tipMm     : { x : snap.x, y : snap.y },
@@ -268,6 +270,34 @@
         }
         Na__LeModel__UpdateLeader(sheet, id, { anchorXMm : pointMm.x, anchorYMm : pointMm.y }, false);   // <-- One announcement: one history step
         Na__LeModel__SetSelection({ kind : 'leader', id : id });
+        window.setTimeout(() => { Na__LeLeader__BeginEdit(id); }, 0);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Place a Head on Its Own With One Click (Leader Line Off)
+    // ------------------------------------------------------------
+    // The bubble (or note) is centred on the click, on the drawing grid while
+    // Grid Snap is on. Its hidden tip is kept down and to the left, where the
+    // normaliser puts a tip it is not given, so ticking Leader line later
+    // shows a short leader ready to be pointed. One announcement: one undo
+    // step, then the text field opens as it does after a two-click leader.
+    // ------------------------------------------------------------
+    function Na__LeLeader__Drop(sheet, pointMm, defaults) {
+        const at   = Na__LeGrid__SnapPoint(pointMm);
+        const item = Na__LeModel__CreateLeader(sheet, { x : at.x - 15, y : at.y + 10 }, { x : at.x, y : at.y }, Na__LeLeader__Options(sheet, defaults));
+        if (!item) return false;
+        const head   = Na__LeLeadGeo__Layout(item).head;
+        const centre = head.centre || { x : head.box.X + (head.box.WidthMm / 2), y : head.box.Y + (head.box.HeightMm / 2) };
+        const dx = at.x - centre.x, dy = at.y - centre.y;
+        Na__LeModel__UpdateLeader(sheet, item.Leader__Id, {
+            tipXMm    : item.Leader__TipXMm + dx,    tipYMm    : item.Leader__TipYMm + dy,
+            anchorXMm : item.Leader__AnchorXMm + dx, anchorYMm : item.Leader__AnchorYMm + dy
+        }, false);
+        Na__LeOsnap__HideMarker();
+        Na__LeModel__SetSelection({ kind : 'leader', id : item.Leader__Id });
+        const id = item.Leader__Id;
         window.setTimeout(() => { Na__LeLeader__BeginEdit(id); }, 0);
         return true;
     }

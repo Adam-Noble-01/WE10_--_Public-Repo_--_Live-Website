@@ -6,7 +6,7 @@
 // NAMESPACE  : Na__LePanelPc
 // MODULE     : Layout Editor - Panel Point Cloud Tools
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : Lay the point cloud scenes exported from SketchUp over 2D viewports, and set how each one draws
+// PURPOSE    : Lay the point cloud scenes exported from SketchUp over 2D viewports and 3D viewports, and set how each one draws
 // CREATED    : 19-Oct-2026
 //
 // DESCRIPTION:
@@ -22,7 +22,10 @@
 //   - THE EXPORTED SCENES. Every active scene, what it is and when it was
 //     exported, which TrueVision drawing it lays on, and Add Viewport: a new
 //     2D viewport of that drawing at the nearest scale on the list, with the
-//     point cloud attached and centred on it.
+//     point cloud attached and centred on it. A 3D View scene lays on a new
+//     3D viewport of the TrueVision scene seen from its own camera (the one
+//     Scene Sync made from the same SketchUp scene), framed to the export's
+//     shape, with the point cloud over its picture.
 //   - RELOAD. The exports are read once per session; a new export from
 //     SketchUp is picked up by Reload Exports (or Force Render), never by
 //     polling.
@@ -51,6 +54,19 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.3.0
+// - 3D VIEW SCENES (TrueVision3D v2.178.0). Adam: "3D perspective from SketchUp
+//   fails currently". It was refused here by design ("Listed for later"):
+//   nothing in TrueVision could place a perspective picture. Now a 3D View
+//   scene lays on the TrueVision scene seen from its own camera - the scene
+//   synced from the same SketchUp scene first (Sync__PointCloudSceneId), else
+//   any scene within the perspective tolerances - and Add Viewport makes a 3D
+//   viewport of that scene in the export's shape with the point cloud on it.
+//   A 3D viewport selected shows the scene list of 3D View scenes, Opacity and
+//   SketchUp Sync (no Linework On Top, Show Datum or Centre: a 3D picture has
+//   no linework or datum, and its camera is the scene's). A 2D viewport now
+//   lists only the scenes that can lay on a drawing.
+//
 // 19-Oct-2026 - Version 1.2.0
 // - THE WORKING VIEW. Adam: "visibility controls ... so you can globally turn
 //   off all of the point cloud layers or one by one. This is a working layer
@@ -87,6 +103,7 @@
     import {
         Na__LeModel__CHANGED_EVENT,
         Na__LeModel__KIND_2D,
+        Na__LeModel__KIND_3D,
         Na__LeModel__GetActiveSheet,
         Na__LeModel__GetSelectedViewport,
         Na__LeModel__IsSitePlanViewport,
@@ -118,6 +135,7 @@
         Na__LeVp2d__PointCloudSetZoom,
         Na__LeVp2d__PointCloudReload
     } from '../20__System__Viewports/Na__LayoutEditor__Viewport2d__.js';
+    import { Na__LeVp3d__PointCloudResolve } from '../20__System__Viewports/Na__LayoutEditor__Viewport3d__.js';   // <-- A 3D viewport's own answer, the one its frame draws by
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Point Cloud Data
@@ -144,9 +162,13 @@
         Na__PcPlace__IsOrthoFrame,
         Na__PcPlace__AlignmentDeg,
         Na__PcPlace__Matrix,
-        Na__PcPlace__BoundsMm
+        Na__PcPlace__BoundsMm,
+        Na__PcPlace__IsPerspectiveFrame,
+        Na__PcPlace__FrameAspect,
+        Na__PcPlace__SceneCamera,
+        Na__PcPlace__CameraGap
     } from '../22__System__PointCloudData/Na__PointCloud__Placement__.js';
-    import { Na__PcCfg__Ready, Na__PcCfg__Alignment } from '../22__System__PointCloudData/Na__PointCloud__Config__.js';
+    import { Na__PcCfg__Ready, Na__PcCfg__Alignment, Na__PcCfg__Perspective } from '../22__System__PointCloudData/Na__PointCloud__Config__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Drawing Records and Scenes
@@ -222,11 +244,37 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | The Selected 2D Viewport, or null
+    // HELPER FUNCTION | The Selected Viewport (2D or 3D), or null
     // ------------------------------------------------------------
     function Na__LePanelPc__Selected() {
         const viewport = Na__LeModel__GetSelectedViewport();
-        return (viewport && viewport.Viewport__Kind === Na__LeModel__KIND_2D) ? viewport : null;
+        return (viewport && (viewport.Viewport__Kind === Na__LeModel__KIND_2D || viewport.Viewport__Kind === Na__LeModel__KIND_3D)) ? viewport : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Is a Viewport a 3D One
+    // ------------------------------------------------------------
+    function Na__LePanelPc__Is3d(viewport) {
+        return !!viewport && viewport.Viewport__Kind === Na__LeModel__KIND_3D;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Where a Viewport's Point Cloud Stands, as Its Frame Has It (2D or 3D)
+    // ------------------------------------------------------------
+    function Na__LePanelPc__Resolve(viewport, kick) {
+        if (Na__LePanelPc__Is3d(viewport)) return Na__LeVp3d__PointCloudResolve(viewport, kick);
+        const described = Na__LeModel__IsSitePlanViewport(viewport) ? null : Na__LeVp2d__Describe(viewport);
+        return Na__LeVp2d__PointCloudResolve(viewport, described, kick);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Is a Scene a Perspective (3D View) One
+    // ------------------------------------------------------------
+    function Na__LePanelPc__IsPerspectiveScene(scene) {
+        return !!scene && scene.Scene__Projection !== 'orthographic';
     }
     // ------------------------------------------------------------
 
@@ -304,7 +352,7 @@
     // ------------------------------------------------------------
     function Na__LePanelPc__MatchFor(scene) {
         if (!scene) return { why : '' };
-        if (scene.Scene__Projection !== 'orthographic') return { why : Na__LePanelPc__Label('PointCloudNo3d', 'Listed for later: a perspective scene cannot be laid on a drawing yet.') };
+        if (Na__LePanelPc__IsPerspectiveScene(scene)) return Na__LePanelPc__MatchFor3d(scene);
         const revision = Na__PcStore__GetRevision(scene.Scene__CurrentRevision);
         if (!revision) {
             if (Na__PcStore__GetRevisionNote(scene.Scene__CurrentRevision)) return { why : Na__LePanelPc__Label('PointCloudExportFailed', 'Its export did not load.') };
@@ -354,6 +402,48 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | Which TrueVision Scene a 3D View Scene Lays On
+    // ------------------------------------------------------------
+    // A perspective export lines up only with its own camera, so the scene it
+    // lays on is one SEEN FROM that camera: the scene Scene Sync made from the
+    // same SketchUp scene (Sync__PointCloudSceneId) when its camera still
+    // agrees with the export's, else the nearest scene within the perspective
+    // tolerances. Returns { pending }, { why }, or { kind : 'view3d', label,
+    // sceneId, aspect } - aspect being the export's, which a new viewport's
+    // frame takes so the export fills it exactly.
+    // ------------------------------------------------------------
+    function Na__LePanelPc__MatchFor3d(scene) {
+        const revision = Na__PcStore__GetRevision(scene.Scene__CurrentRevision);
+        if (!revision) {
+            if (Na__PcStore__GetRevisionNote(scene.Scene__CurrentRevision)) return { why : Na__LePanelPc__Label('PointCloudExportFailed', 'Its export did not load.') };
+            Na__PcStore__LoadRevision(scene.Scene__Id, scene.Scene__CurrentRevision).catch(() => null);
+            return { pending : true };
+        }
+        if (!Na__PcPlace__IsPerspectiveFrame(revision.Frame) || !revision.Camera) return { why : Na__LePanelPc__Label('PointCloudNoCamera', 'Its export has no camera to place it by. Export it again from SketchUp.') };
+        const tolerance = Na__PcCfg__Perspective();
+        const within = (gap) => gap.PositionMm <= tolerance.positionMm && gap.AngleDeg <= tolerance.angleDeg && gap.UpDeg <= tolerance.angleDeg
+            && (gap.FovDeg === null || gap.FovDeg <= tolerance.fovDeg);
+        const config = Na__PresentationMode__ProjectJson__GetActiveConfig();
+        const scenes = (config && Array.isArray(config[Na__LePanelPc__SCENES_KEY])) ? config[Na__LePanelPc__SCENES_KEY] : [];
+        const fits = scenes.filter((one) => one && one.PresentationMode__Scene__Id)
+            .map((one) => ({ scene : one, gap : Na__PcPlace__CameraGap(Na__PcPlace__SceneCamera(one), revision.Camera), paired : one.Sync__PointCloudSceneId === scene.Scene__Id }));
+        const best = fits.filter((fit) => within(fit.gap))
+            .sort((x, y) => ((x.paired ? 0 : 1) - (y.paired ? 0 : 1)) || (x.gap.AngleDeg - y.gap.AngleDeg) || (x.gap.PositionMm - y.gap.PositionMm))[0];
+        if (!best) {
+            const paired = fits.find((fit) => fit.paired);
+            if (paired) {
+                return { why : Na__LePanelPc__Label('PointCloudSyncedMoved', 'The scene synced from the same SketchUp scene, {name}, is no longer seen from this export\'s camera. Export the point cloud scene again from SketchUp.')
+                    .replace('{name}', paired.scene.PresentationMode__Scene__Name || paired.scene.PresentationMode__Scene__Id) };
+            }
+            return { why : Na__LePanelPc__Label('PointCloudNoCameraScene', 'No TrueVision scene is seen from its camera. Switch {name} on in TrueVision Sync\'s Scene Sync tab, then reload TrueVision.')
+                .replace('{name}', scene.Scene__Name) };
+        }
+        return { kind : 'view3d', label : best.scene.PresentationMode__Scene__Name || best.scene.PresentationMode__Scene__Id,
+                 sceneId : best.scene.PresentationMode__Scene__Id, aspect : Na__PcPlace__FrameAspect(revision.Frame) };
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -379,6 +469,7 @@
         const scene = Na__PcStore__GetScene(sceneId);
         const match = Na__LePanelPc__MatchFor(scene);
         if (!sheet || !scene || !match || !match.kind) return null;
+        if (match.kind === 'view3d') return Na__LePanelPc__Add3d(sheet, scene, match);
         const revision = Na__PcStore__GetRevision(scene.Scene__CurrentRevision);
         const isSite   = match.kind === 'siteplan';
         const scale    = Na__LePanelPc__NearestScale(Na__LeScale__ListDenominators(isSite), scene.Scene__ScaleDenominator || 0);
@@ -406,12 +497,37 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Add a 3D Viewport of the Scene Seen From a 3D View's Camera, in the Export's Shape
+    // ------------------------------------------------------------
+    // The frame takes the export's aspect, so the picture (which a new 3D
+    // viewport draws at its frame's size) and the export are one rectangle:
+    // the point cloud fills the frame exactly. As wide as a new viewport
+    // usually is, narrower when the drawing area would cut its height.
+    // ------------------------------------------------------------
+    function Na__LePanelPc__Add3d(sheet, scene, match) {
+        const setup  = Na__LeCfg__GetViewportSetup();
+        const layout = Na__LeLayout__Solve(sheet);
+        const aspect = match.aspect > 0 ? match.aspect : 1.5;
+        const width  = Math.max(setup.minSizeMm || 10, Math.min(setup.defaultWidthMm, layout.Drawing.WidthMm, layout.Drawing.HeightMm * aspect));
+        const viewport = Na__LeScope__WithAdoption(sheet, [ 'viewport' ], () => Na__LeModel__CreateViewport(sheet, {
+            kind       : Na__LeModel__KIND_3D,
+            sceneId    : match.sceneId,
+            rect       : Na__LeLayout__DefaultViewportRect(layout, width, width / aspect),
+            pointCloud : { PointCloud__SceneId : scene.Scene__Id }
+        }));
+        if (!viewport) return null;
+        Na__LeModel__SetSelection({ kind : 'viewport', id : viewport.Viewport__Id });
+        return viewport;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Centre the Selected Viewport on Its Point Cloud
     // ------------------------------------------------------------
     function Na__LePanelPc__Centre() {
         const sheet    = Na__LeModel__GetActiveSheet();
         const viewport = Na__LePanelPc__Selected();
-        if (!sheet || !viewport) return;
+        if (!sheet || !viewport || Na__LePanelPc__Is3d(viewport)) return;   // <-- A 3D viewport's camera is its scene's: nothing to centre
         const described = Na__LeModel__IsSitePlanViewport(viewport) ? null : Na__LeVp2d__Describe(viewport);
         const resolved  = Na__LeVp2d__PointCloudResolve(viewport, described, false);
         if (resolved.status !== Na__LeVp2d__PC_READY) return;
@@ -445,7 +561,7 @@
 
         block('status', Na__LePanels__Note(''));
 
-        const vpNote = block('vp-note', Na__LePanels__Note(Na__LePanelPc__Label('PointCloudSelectViewport', 'Select a plan, elevation, section or site plan viewport to lay a point cloud over it.')));
+        const vpNote = block('vp-note', Na__LePanels__Note(Na__LePanelPc__Label('PointCloudSelectViewport', 'Select a plan, elevation, section, site plan or 3D viewport to lay a point cloud over it.')));
         vpNote.classList.add('na-le-pc__hint');
 
         const viewportRows = block('vp-rows', document.createElement('div'));
@@ -500,10 +616,21 @@
         }
         if (resolved.status !== Na__LeVp2d__PC_READY) {
             parts.push(resolved.message);
-            if (resolved.status === Na__LeVp2d__PC_MISALIGNED && resolved.neededAzimuthDeg !== null) {
+            if (resolved.status === Na__LeVp2d__PC_MISALIGNED && Number.isFinite(resolved.neededAzimuthDeg)) {
                 parts.push(Na__LePanelPc__Label('PointCloudNeedsAzimuth', 'It needs an elevation at an azimuth of {deg}.').replace('{deg}', Na__LePanelPc__Deg(resolved.neededAzimuthDeg)));
             }
             return parts.filter(Boolean).join(' ');
+        }
+        if (resolved.threeD) {                                                   // <-- A 3D viewport: its camera, and which export
+            parts.push(Na__LePanelPc__Label('PointCloudSameCamera', 'Seen from the point cloud\'s own camera.'));
+            const when3d = Na__LePanelPc__When(resolved.revision.Revision__ExportedIso);
+            if (resolved.pinned) {
+                parts.push(Na__LePanelPc__Label('PointCloudPinned', 'Kept at the export of {when}.').replace('{when}', when3d || resolved.revisionId));
+                if (resolved.newerExists) parts.push(Na__LePanelPc__Label('PointCloudNewer', 'A newer export exists: tick SketchUp Sync to follow it.'));
+            } else if (when3d) {
+                parts.push(Na__LePanelPc__Label('PointCloudExportOf', 'Export of {when}.').replace('{when}', when3d));
+            }
+            return parts.join(' ');
         }
         const tolerance = Na__PcCfg__Alignment();
         if (resolved.angleDeg <= tolerance.quietDeg) {
@@ -542,8 +669,11 @@
 
         const block    = Na__LeModel__IsPointCloudViewport(viewport) ? viewport.Viewport__PointCloud : null;
         const sceneId  = block ? block.PointCloud__SceneId : '';
+        const threeD   = Na__LePanelPc__Is3d(viewport);
         const options  = [ { value : '', label : Na__LePanelPc__Label('PointCloudNone', 'None') } ];
-        Na__PcStore__GetScenes(false).forEach((scene) => options.push({ value : scene.Scene__Id, label : scene.Scene__Name + ' (' + Na__LePanelPc__Kind(scene) + ')' }));
+        Na__PcStore__GetScenes(false)
+            .filter((scene) => Na__LePanelPc__IsPerspectiveScene(scene) === threeD)   // <-- A 3D viewport takes 3D View scenes; a drawing takes the rest
+            .forEach((scene) => options.push({ value : scene.Scene__Id, label : scene.Scene__Name + ' (' + Na__LePanelPc__Kind(scene) + ')' }));
         if (sceneId && !options.some((option) => option.value === sceneId)) {
             const known = Na__PcStore__GetScene(sceneId);
             options.push({ value : sceneId, label : known ? known.Scene__Name + ' (' + Na__LePanelPc__Label('PointCloudRetired', 'no longer exported') + ')'
@@ -552,8 +682,7 @@
         const select = rows.querySelector('[data-na-control="pc-scene"]');
         if (document.activeElement !== select) Na__LePanels__FillSelect(select, options, sceneId);
 
-        const described = Na__LeModel__IsSitePlanViewport(viewport) ? null : Na__LeVp2d__Describe(viewport);
-        const resolved  = Na__LeVp2d__PointCloudResolve(viewport, described, true);
+        const resolved  = Na__LePanelPc__Resolve(viewport, true);
         const attached  = !!block;
         const opacity   = Math.round((Number.isFinite(resolved.opacity) ? resolved.opacity : 0.65) * 100);
         Na__LePanels__ShowSlider(rows, 'pc-opacity', opacity, opacity + '%');
@@ -568,7 +697,7 @@
             const row   = rows.querySelector('[data-na-toggle="' + toggle.role + '"]');
             const input = row ? row.querySelector('[data-na-control="pc-toggle"]') : null;
             if (!row || !input) return;
-            row.hidden     = !attached;
+            row.hidden     = !attached || (threeD && toggle.role !== 'sync');      // <-- A 3D picture has no linework and no datum
             input.checked  = values[toggle.role];
             input.disabled = !Na__LePanels__IsEditable() || (toggle.role === 'sync' && !resolved.revisionId);
         });
@@ -580,7 +709,7 @@
         status.classList.toggle('na-le-pc__note--warn', attached && resolved.status !== Na__LeVp2d__PC_READY && resolved.status !== Na__LeVp2d__PC_HIDDEN
             && Na__LeVp2d__PointCloudWorkingVisible(block.PointCloud__SceneId));
         const centre = rows.querySelector('[data-na-block="vp-centre"]');
-        centre.hidden   = !attached;
+        centre.hidden   = !attached || threeD;
         centre.disabled = resolved.status !== Na__LeVp2d__PC_READY || !Na__LePanels__IsEditable();
     }
     // ------------------------------------------------------------
@@ -616,7 +745,8 @@
             meta.className = 'na-le-pc__scene-meta';
             const when = Na__LePanelPc__When(scene.Scene__UpdatedIso);
             const lays = match.pending ? Na__LePanelPc__Label('PointCloudChecking', 'Checking which drawing it lays on.')
-                : (match.kind ? Na__LePanelPc__Label('PointCloudLaysOn', 'Lays on {name}.').replace('{name}', match.label || '') : (match.why || ''));
+                : (match.kind === 'view3d' ? Na__LePanelPc__Label('PointCloudLaysOn3d', 'Lays on a 3D viewport of {name}, seen from its own camera.').replace('{name}', match.label || '')
+                : (match.kind ? Na__LePanelPc__Label('PointCloudLaysOn', 'Lays on {name}.').replace('{name}', match.label || '') : (match.why || '')));
             meta.textContent = Na__LePanelPc__Kind(scene) + '. ' + (when ? Na__LePanelPc__Label('PointCloudExported', 'Exported {when}.').replace('{when}', when) + ' ' : '') + lays;
             row.appendChild(check);
             row.appendChild(name);
@@ -702,8 +832,7 @@
             if (role === 'datum')         Na__LePanelPc__Patch({ PointCloud__ShowDatum : el.checked ? true : null });
             if (role === 'sync') {
                 if (el.checked) { Na__LePanelPc__Patch({ PointCloud__PinnedRevision : null }); return; }
-                const described = Na__LeModel__IsSitePlanViewport(viewport) ? null : Na__LeVp2d__Describe(viewport);
-                const resolved  = Na__LeVp2d__PointCloudResolve(viewport, described, false);
+                const resolved  = Na__LePanelPc__Resolve(viewport, false);
                 if (resolved.revisionId) Na__LePanelPc__Patch({ PointCloud__PinnedRevision : resolved.revisionId });   // <-- Pinned to what it shows NOW
                 else el.checked = true;
             }

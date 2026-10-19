@@ -16,8 +16,8 @@
     },
     "PublishedDocument__Publish" : {
         "Publish__SchemaVersion"  : 1,
-        "Publish__AtIso"          : "2026-10-19T16:32:59.949Z",
-        "Publish__AtEpochMs"      : 1792427579949,
+        "Publish__AtIso"          : "2026-10-19T18:19:36.948Z",
+        "Publish__AtEpochMs"      : 1792433976948,
         "Publish__ByApp"          : "TrueVision3D Layout Editor",
         "Publish__ByAppVersion"   : "v2.176.0",
         "Publish__RevisionAction" : "overwritten",
@@ -26,66 +26,104 @@
     "PublishedDocument__Files" : {
         "Files__Sheet" : {
             "File__Path"   : "Document__Sheet__.json",
-            "File__Bytes"  : 15022,
-            "File__Sha256" : "e0e13da95b"
+            "File__Bytes"  : 28552,
+            "File__Sha256" : "9fbd34dffe"
         },
         "Files__Elements" : [
+            {
+                "File__Type"   : "annotation",
+                "File__Layers" : [
+                    "Layer_002"
+                ],
+                "File__Path"   : "01__Elements__Data/Elements__Text__.json",
+                "File__Count"  : 85,
+                "File__Bytes"  : 66637,
+                "File__Sha256" : "7741bdc2fa"
+            },
+            {
+                "File__Type"   : "group",
+                "File__Layers" : [],
+                "File__Path"   : "01__Elements__Data/Elements__Groups__.json",
+                "File__Count"  : 5,
+                "File__Bytes"  : 36707,
+                "File__Sha256" : "be33edafcc"
+            },
+            {
+                "File__Type"   : "vector",
+                "File__Layers" : [
+                    "Layer_004"
+                ],
+                "File__Path"   : "01__Elements__Data/Elements__Vectors__.json",
+                "File__Count"  : 107,
+                "File__Bytes"  : 153655,
+                "File__Sha256" : "8f72d58dc2"
+            },
+            {
+                "File__Type"   : "area",
+                "File__Layers" : [
+                    "Layer_005"
+                ],
+                "File__Path"   : "01__Elements__Data/Elements__Areas__.json",
+                "File__Count"  : 9,
+                "File__Bytes"  : 21320,
+                "File__Sha256" : "d624ce0633"
+            },
             {
                 "File__Type"   : "viewport",
                 "File__Layers" : [],
                 "File__Path"   : "01__Elements__Data/Elements__Viewports__.json",
                 "File__Count"  : 1,
-                "File__Bytes"  : 2812,
-                "File__Sha256" : "870398709e"
+                "File__Bytes"  : 2809,
+                "File__Sha256" : "ca697f5609"
             }
         ],
         "Files__Viewports" : [
             {
                 "Viewport__Id"     : "Viewport_001",
-                "Viewport__Hash"   : "12f0c06747",
+                "Viewport__Hash"   : "96757df7b0",
                 "Viewport__Vector" : {
-                    "File__Path"     : "02__Viewports__Vector/Viewport_001__Linework__12f0c06747.svg",
-                    "File__Bytes"    : 39655,
-                    "File__Sha256"   : "12f0c06747",
+                    "File__Path"     : "02__Viewports__Vector/Viewport_001__Linework__96757df7b0.svg",
+                    "File__Bytes"    : 41371,
+                    "File__Sha256"   : "96757df7b0",
                     "File__Paths"    : 4,
-                    "File__Segments" : 1241
+                    "File__Segments" : 1295
                 },
                 "Viewport__Rasters" : [
                     {
                         "Tier__Id"           : "Print",
-                        "File__Path"         : "03__Viewports__Raster/Viewport_001__Print__12f0c06747.png",
+                        "File__Path"         : "03__Viewports__Raster/Viewport_001__Print__96757df7b0.png",
                         "File__PixelW"       : 8192,
-                        "File__PixelH"       : 6910,
-                        "File__Bytes"        : 843929,
-                        "File__DecodedBytes" : 226426880,
-                        "File__Sha256"       : "12f0c06747"
+                        "File__PixelH"       : 6392,
+                        "File__Bytes"        : 778271,
+                        "File__DecodedBytes" : 209453056,
+                        "File__Sha256"       : "96757df7b0"
                     },
                     {
                         "Tier__Id"           : "Tier03",
-                        "File__Path"         : "03__Viewports__Raster/Viewport_001__Tier03__Detail__12f0c06747.webp",
+                        "File__Path"         : "03__Viewports__Raster/Viewport_001__Tier03__Detail__96757df7b0.webp",
                         "File__PixelW"       : 5120,
-                        "File__PixelH"       : 4319,
-                        "File__Bytes"        : 48284,
-                        "File__DecodedBytes" : 88453120,
-                        "File__Sha256"       : "12f0c06747"
+                        "File__PixelH"       : 3995,
+                        "File__Bytes"        : 44692,
+                        "File__DecodedBytes" : 81817600,
+                        "File__Sha256"       : "96757df7b0"
                     },
                     {
                         "Tier__Id"           : "Tier02",
-                        "File__Path"         : "03__Viewports__Raster/Viewport_001__Tier02__Read__12f0c06747.webp",
+                        "File__Path"         : "03__Viewports__Raster/Viewport_001__Tier02__Read__96757df7b0.webp",
                         "File__PixelW"       : 3072,
-                        "File__PixelH"       : 2591,
-                        "File__Bytes"        : 20152,
-                        "File__DecodedBytes" : 31838208,
-                        "File__Sha256"       : "12f0c06747"
+                        "File__PixelH"       : 2397,
+                        "File__Bytes"        : 18538,
+                        "File__DecodedBytes" : 29454336,
+                        "File__Sha256"       : "96757df7b0"
                     },
                     {
                         "Tier__Id"           : "Tier01",
-                        "File__Path"         : "03__Viewports__Raster/Viewport_001__Tier01__Fit__12f0c06747.webp",
+                        "File__Path"         : "03__Viewports__Raster/Viewport_001__Tier01__Fit__96757df7b0.webp",
                         "File__PixelW"       : 1024,
-                        "File__PixelH"       : 864,
-                        "File__Bytes"        : 4124,
-                        "File__DecodedBytes" : 3538944,
-                        "File__Sha256"       : "12f0c06747"
+                        "File__PixelH"       : 799,
+                        "File__Bytes"        : 3776,
+                        "File__DecodedBytes" : 3272704,
+                        "File__Sha256"       : "96757df7b0"
                     }
                 ],
                 "Viewport__FogMasks"   : [],
@@ -93,11 +131,11 @@
             }
         ],
         "Files__Pdf" : {
-            "File__Path"   : "Document__Print__9e321abb91.pdf",
-            "File__Bytes"  : 423211,
-            "File__Sha256" : "9e321abb91",
+            "File__Path"   : "Document__Print__dae54ac7cc.pdf",
+            "File__Bytes"  : 428947,
+            "File__Sha256" : "dae54ac7cc",
             "File__Name"   : "JW02_T01_D02__ExistingConditionsPreliminaryAreaPlan__A1__RevA__19-Oct-2026__.pdf"
         },
-        "Files__TotalBytes" : 1397189
+        "Files__TotalBytes" : 1625275
     }
 }

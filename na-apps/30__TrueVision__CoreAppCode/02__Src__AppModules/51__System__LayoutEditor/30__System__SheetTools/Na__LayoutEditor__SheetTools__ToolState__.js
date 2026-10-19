@@ -242,6 +242,7 @@
             const s = Na__LeCfg__GetLeaderSetup();
             Na__LeTools__LeaderDefaults = { type : s.defaultType, textSizeMm : s.textSizeMm, fontWeight : s.fontWeight, textColour : s.textColour,
                                             lineStyle : s.lineStyle, linePt : s.linePt, lineColour : s.lineColour, lineOpacity : s.lineOpacity,
+                                            hideLine : s.hideLine === true,   // <-- Leader line unticked: new leaders are the head on its own, placed with one click
                                             endpointFilled : s.endpointFilled, endpointPt : s.endpointPt, endpointSizeMm : s.endpointSizeMm,
                                             bubbleSizeMm : s.bubbleSizeMm, bubbleEdgePt : s.bubbleEdgePt,
                                             filled : s.filled, fillColour : s.fillColour, fillOpacity : s.fillOpacity };   // <-- The fill is a switch beside its colour, as for shapes

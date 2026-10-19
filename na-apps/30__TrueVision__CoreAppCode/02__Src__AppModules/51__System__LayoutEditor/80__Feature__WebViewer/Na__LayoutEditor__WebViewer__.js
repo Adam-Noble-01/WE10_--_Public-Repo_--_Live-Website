@@ -35,7 +35,8 @@
 //   document is being looked at - Fit, zoom and PDF for a drawing, the page
 //   keys for the specification. A published drawing with point clouds also
 //   gets the point cloud slider's button beside the zoom keys
-//   (Na__LayoutEditor__WebViewer__PointCloud__).
+//   (Na__LayoutEditor__WebViewer__PointCloud__), and one with a 2D drawing
+//   the measuring tools' tape measure (Na__LayoutEditor__WebViewer__Measure__).
 // - WHAT IS NOT SHOWN AT ALL. The panel columns, the drawing toolbar, the
 //   measurements box and the specification's authoring bar. Not disabled: not
 //   built. The two view modules own the reading surfaces (Drawings, Spec) and
@@ -57,6 +58,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.4.0
+// - THE MEASURING TOOLS (TrueVision3D v2.180.0). A published drawing with a
+//   2D drawing on it (Na__LeVwMs__Summary) puts a Measure button in the dock
+//   after the point cloud's: a tape measure that opens PlanVision's tools,
+//   each with its own icon (Na__LayoutEditor__WebViewer__Measure__). The
+//   tools are bound as the drawing arrives and let go with it; its linework,
+//   read to snap to, is let go too, and what the reader measured stays for
+//   the session. A finger's tap is handed to them through the drawing
+//   surface's tap handler.
+//
 // 19-Oct-2026 - Version 1.3.0
 // - THE POINT CLOUD SLIDER (TrueVision3D v2.176.0). A published drawing with
 //   point clouds puts a Point cloud button in the dock after the zoom keys,
@@ -112,7 +123,8 @@
         Na__LeVwDraw__Attach,
         Na__LeVwDraw__Detach,
         Na__LeVwDraw__Fit,
-        Na__LeVwDraw__ZoomBy
+        Na__LeVwDraw__ZoomBy,
+        Na__LeVwDraw__SetTapHandler
     } from './Na__LayoutEditor__WebViewer__Drawings__.js';
     import {
         Na__LeVwSpec__Show,
@@ -124,6 +136,10 @@
     import {
         Na__LeVwPc__ACTION, Na__LeVwPc__DockButton, Na__LeVwPc__Toggle, Na__LeVwPc__Sync, Na__LeVwPc__Close
     } from './Na__LayoutEditor__WebViewer__PointCloud__.js';   // <-- The point cloud slider, beside the zoom keys
+    import {
+        Na__LeVwMs__ACTION, Na__LeVwMs__DockButton, Na__LeVwMs__Summary, Na__LeVwMs__Show, Na__LeVwMs__Hide,
+        Na__LeVwMs__Release, Na__LeVwMs__Toggle, Na__LeVwMs__Sync, Na__LeVwMs__OnTap
+    } from './Na__LayoutEditor__WebViewer__Measure__.js';   // <-- The measuring tools, behind one tape measure beside it
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -303,6 +319,16 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Drawing on Screen When It Is Published With a 2D Drawing to Measure (null otherwise)
+    // ------------------------------------------------------------
+    function Na__LeVw__MeasureShown() {
+        const shown = Na__LeVw__Shown;
+        if (!shown || shown.SheetId !== Na__LeVw__Current || shown.State !== 'published' || !shown.Measure) return null;
+        return shown;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | The Actions for Whatever Is Showing
     // ------------------------------------------------------------
     // A drawing is a picture: fit it, zoom it, take it away as a PDF. The
@@ -327,6 +353,7 @@
             const button = Na__LeVwPc__DockButton(cloud.DocumentId);
             if (button) actions.appendChild(button);
         }
+        if (Na__LeVw__MeasureShown()) actions.appendChild(Na__LeVwMs__DockButton());   // <-- Only a published drawing with a 2D drawing on it: one tape measure, its tools behind it
         actions.appendChild(Na__LeVw__Button(Na__LeCfg__GetLabel('ViewerPdf', 'PDF'), 'pdf', Na__LeCfg__GetLabel('ViewerPdfTitle', 'Download this sheet as a PDF at paper size')));
         actions.appendChild(Na__LeVw__Button(Na__LeCfg__GetLabel('ViewerShare', 'Share'), 'share', Na__LeCfg__GetLabel('ViewerShareTitle', 'A link that opens this drawing, read-only, on any device')));   // <-- Beside the PDF, as Adam asked (66__Feature__DocumentSharing)
     }
@@ -407,6 +434,11 @@
                 if (cloud) Na__LeVwPc__Toggle(target, cloud.DocumentId, cloud.Host);
                 break;
             }
+            case Na__LeVwMs__ACTION : {
+                const measure = Na__LeVw__MeasureShown();
+                if (measure) Na__LeVwMs__Toggle(target, measure.DocumentId, measure.Measure);
+                break;
+            }
             case 'page-up'    : Na__LeVwSpec__StepPage(-1);                                           break;
             case 'page-down'  : Na__LeVwSpec__StepPage(1);                                            break;
             default           : break;
@@ -475,6 +507,7 @@
         host.addEventListener('click', Na__LeVw__OnClick);
         Na__LeVw__Keys = Na__LeVw__OnKeyDown;
         window.addEventListener('keydown', Na__LeVw__Keys);
+        Na__LeVwDraw__SetTapHandler(Na__LeVwMs__OnTap);                          // <-- A finger's tap puts a measuring point down while a tool is on
         return true;
     }
     // ------------------------------------------------------------
@@ -587,8 +620,21 @@
         host.innerHTML = built.Markup || '';                                     // <-- One parse for the whole sheet
         const painted = Na__PubLoad__WatchPaint(loading, host);                  // <-- In the SAME task as the markup, so no load event can be missed
         Na__LeVw__Shown = { SheetId : sheet.Sheet__Id, DocumentId : documentId, State : built.State, Host : host, Markup : built.Markup, Fallback : fallback,
-                            PointClouds : built.PointClouds || null };   // <-- The dock's point cloud slider, when it has any
+                            PointClouds : built.PointClouds || null,   // <-- The dock's point cloud slider, when it has any
+                            Measure     : null };                      // <-- The dock's tape measure, once Summary says there is a 2D drawing to measure
         if (!built.Ok) console.warn('[TrueVision3D] ' + documentId + ' could not be shown: ' + built.Reason);
+        if (built.State === 'published') {
+            const shown = Na__LeVw__Shown;
+            void Na__LeVwMs__Summary(documentId).then((summary) => {             // <-- The document is already loaded: a lookup, not a fetch
+                if (Na__LeVw__Shown !== shown || token !== Na__LeVw__Token) return;
+                if (!summary) { Na__LeVwMs__Hide(); return; }
+                shown.Measure = summary;
+                Na__LeVwMs__Show(documentId);                                    // <-- What this reader measured on it this session, back on the paper
+                Na__LeVw__Sync();
+            });
+        } else {
+            Na__LeVwMs__Hide();
+        }
         Na__LeVw__WatchZoom();
         Na__LeVw__Sync();
         await painted;
@@ -631,8 +677,10 @@
         const shown = Na__LeVw__Shown;
         Na__LeVw__Shown = null;
         Na__LeVwPc__Close();                                                     // <-- Its point cloud panel goes with it
+        Na__LeVwMs__Hide();                                                      // <-- ...and its measuring tools (what was measured stays for the session)
         if (!shown) return;
         if (shown.Host) shown.Host.innerHTML = '';
+        Na__LeVwMs__Release(shown.DocumentId);                                   // <-- ...and the linework it read to snap to
         Na__PubDoc__Forget(shown.DocumentId);
     }
     // ------------------------------------------------------------
@@ -644,6 +692,7 @@
         Na__PubLoad__CancelAll();                                                // <-- A drawing still loading must not leave its cover over the specification
         Na__LeVwDraw__Detach();                                                  // <-- One surface owns the touch recogniser at a time
         Na__LeVwPc__Close();
+        Na__LeVwMs__Hide();
         Na__LeVw__Current = Na__LeVw__SPEC_ID;
         Na__LeVwSpec__Show({ onSwipe : Na__LeVw__Step });
         Na__LeVw__Sync();
@@ -659,6 +708,7 @@
         Na__LeVwSpec__Hide();
         Na__LeVwDraw__Detach();
         Na__LeVwPc__Close();
+        Na__LeVwMs__Hide();
         Na__LeVw__Current = 'register';
     }
 
@@ -691,6 +741,9 @@
         const cloud = Na__LeVw__CloudShown();
         Na__LeVwPc__Sync(Na__LeVw__Dock.querySelector('[data-na-viewer="' + Na__LeVwPc__ACTION + '"]'),
                          cloud ? cloud.DocumentId : null, cloud ? cloud.Host : null);   // <-- An open point cloud panel follows the rebuilt button, or closes
+        const measure = Na__LeVw__MeasureShown();
+        Na__LeVwMs__Sync(Na__LeVw__Dock.querySelector('[data-na-viewer="' + Na__LeVwMs__ACTION + '"]'),
+                         measure ? measure.DocumentId : null);                   // <-- ...and so does an open measure menu
         const previous = Na__LeVw__Dock.querySelector('[data-na-viewer="previous"]');
         const next     = Na__LeVw__Dock.querySelector('[data-na-viewer="next"]');
         const count    = Na__LeVw__Dock.querySelector('.na-le-viewer__count');

@@ -34,6 +34,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.15.0
+// - Token BUMPED to 2026-10-19-06 for v2.178.0 (3D View point cloud scenes on
+//   3D viewports). The point cloud placement, config and store, the 3D
+//   viewport and the point cloud unit gained exports that the panel, the PDF
+//   exporter and the publisher import: a warm client must not mix old and
+//   new copies.
+//
 // 19-Oct-2026 - Version 1.14.0
 // - Token BUMPED to 2026-10-19-05 for v2.176.0 (point clouds in published
 //   drawings and the client's point cloud slider). The published reader gained
@@ -724,7 +731,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-10-19-05';                                                            // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-10-19-06';                                                            // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

@@ -6,7 +6,7 @@
 // NAMESPACE  : Na__LeVp2d
 // MODULE     : Layout Editor - Viewport 2D - Point Cloud
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : Lay a SketchUp point cloud scene over (or under) a 2D viewport's linework, on screen, in the PDF and in a published drawing
+// PURPOSE    : Lay a SketchUp point cloud scene over (or under) a 2D viewport's linework, or a 3D View scene over a 3D viewport's picture, on screen, in the PDF and in a published drawing
 // CREATED    : 19-Oct-2026
 //
 // DESCRIPTION:
@@ -55,6 +55,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.3.0
+// - 3D View scenes on 3D viewports (TrueVision3D v2.178.0): PointCloudResolve3d
+//   (the viewport's scene camera against the export's, within the
+//   perspective tolerances, then PerspectiveRect), PointCloudFill3d (the layer
+//   over the 3D picture, the preview or every tile), PointCloudDrop3d, and
+//   PointCloudForExport3d / ForPublish3d for the PDF and the publisher.
+//   RefreshAll repaints the 3D frames too, so the store, the working view and
+//   the paper's zoom reach them. Na__LayoutEditor__Viewport3d__ is the caller;
+//   this unit still never imports it. A perspective scene on a drawing now says
+//   it lays on a 3D viewport.
+//
 // 19-Oct-2026 - Version 1.2.0
 // - PointCloudForPublish: the point cloud at FULL strength on a canvas of a
 //   given size across the frame, with the viewport's own opacity beside it,
@@ -117,9 +128,13 @@
         Na__PcPlace__Matrix,
         Na__PcPlace__BoundsMm,
         Na__PcPlace__VisibleTiles,
-        Na__PcPlace__PreviewSuffices
+        Na__PcPlace__PreviewSuffices,
+        Na__PcPlace__IsPerspectiveFrame,
+        Na__PcPlace__SceneCamera,
+        Na__PcPlace__CameraGap,
+        Na__PcPlace__PerspectiveRect
     } from '../22__System__PointCloudData/Na__PointCloud__Placement__.js';
-    import { Na__PcCfg__Ready, Na__PcCfg__Alignment, Na__PcCfg__Display, Na__PcCfg__Datum } from '../22__System__PointCloudData/Na__PointCloud__Config__.js';
+    import { Na__PcCfg__Ready, Na__PcCfg__Alignment, Na__PcCfg__Perspective, Na__PcCfg__Display, Na__PcCfg__Datum } from '../22__System__PointCloudData/Na__PointCloud__Config__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Viewport 2D Window and Frame Units
@@ -161,6 +176,11 @@
     const Na__LeVp2d__PC_WORKING_EVENT = 'na-pointcloud-working-changed';
     let   Na__LeVp2d__PcWorkingAllOff  = false;                                 // <-- Every point cloud off on screen, whatever the list says
     const Na__LeVp2d__PcWorkingOff     = new Set();                             // <-- Scene ids switched off one by one
+    // ------------------------------------------------------------
+
+    // MODULE VARIABLES | The 3D Frames That Carry a Point Cloud (Fill3d registers them; RefreshAll repaints them)
+    // ------------------------------------------------------------
+    const Na__LeVp2d__Pc3dStates = new Set();
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -244,7 +264,7 @@
         out.neededAzimuthDeg = Na__PcStore__IsFacing(revision.Scene__ViewType) ? Na__LeVp2d__PcNeededAzimuth(revision.Frame) : null;
 
         if (!Na__PcPlace__IsOrthoFrame(revision.Frame)) {
-            out.status = Na__LeVp2d__PC_PERSPECTIVE; out.message = 'A 3D View scene cannot be laid on a drawing.';
+            out.status = Na__LeVp2d__PC_PERSPECTIVE; out.message = 'A 3D View scene lays on a 3D viewport, not on a drawing.';
             return out;
         }
         const axes = Na__LeModel__IsSitePlanViewport(viewport)
@@ -610,6 +630,10 @@
 
     // FUNCTION | Repaint Every Point Cloud Frame on Screen (booked once per frame of animation)
     // ------------------------------------------------------------
+    // The 2D frames, and the 3D frames that carry a point cloud (Fill3d
+    // registers them), so the store, the working view and the paper's zoom
+    // reach both.
+    // ------------------------------------------------------------
     function Na__LeVp2d__PointCloudRefreshAll() {
         if (Na__LeVp2d__PcBooked) return;
         Na__LeVp2d__PcBooked = window.requestAnimationFrame(() => {
@@ -620,6 +644,12 @@
                 const described = Na__LeModel__IsSitePlanViewport(args.viewport) ? null : Na__LeVp2d__Describe(args.viewport);
                 if (state.pc) state.pc.key = null;                               // <-- What the store said may change what is drawn without changing the key
                 Na__LeVp2d__PointCloudFill(state, args.sheet, args.viewport, described, args.ppm);
+            });
+            Na__LeVp2d__Pc3dStates.forEach((state) => {
+                const args = state.pcArgs;
+                if (!args || !state.body || !state.body.isConnected) { Na__LeVp2d__Pc3dStates.delete(state); return; }   // <-- Its frame has gone: Fill registers it again when it is drawn
+                if (state.pc) state.pc.key = null;
+                Na__LeVp2d__PointCloudFill3d(state, args.viewport, args.scene, args.pictureRect, args.ppm);
             });
         });
     }
@@ -780,6 +810,298 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Perspective Exports on 3D Viewports
+// -----------------------------------------------------------------------------
+//
+// A 3D View scene is the SketchUp camera's whole view. It lies over a 3D
+// viewport whose TrueVision scene is seen from that same camera - the scene
+// Scene Sync made from the same SketchUp scene - as one rectangle of the
+// viewport's picture (Na__PcPlace__PerspectiveRect), over the picture, at the
+// viewport's opacity. A 3D viewport has no linework or datum of its own, so
+// Linework On Top and Show Datum mean nothing here. The callers live in
+// Na__LayoutEditor__Viewport3d__, which hands in the viewport's scene and its
+// picture rectangle: this unit must not import that file (it imports this).
+//
+// -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | A Distance and an Angle for a Sentence ("2.4 mm and 0.31° away")
+    // ------------------------------------------------------------
+    function Na__LeVp2d__PcGapText(gap) {
+        const mm  = Number.isFinite(gap.PositionMm) ? (Math.round(gap.PositionMm * 10) / 10) + ' mm' : 'far';
+        const deg = Na__LeVp2d__PcDeg(Math.max(gap.AngleDeg, gap.UpDeg));
+        return mm + ' and ' + deg;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Where a 3D Viewport's Point Cloud Stands (never throws; fetches only when kick is true)
+    // ------------------------------------------------------------
+    // scene       : the viewport's TrueVision scene record, or null
+    // pictureRect : its whole picture in frame millimetres (Na__LeVp3d__PictureRect)
+    // Returns the 2D resolve's shape (status, message, block, scene,
+    // revisionId, revision, opacity, pinned, newerExists, ...) plus rectMm,
+    // where the export lies in frame millimetres, and gap, how far the
+    // viewport's camera stands and looks from the export's.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__PointCloudResolve3d(viewport, scene, pictureRect, kick) {
+        const out = { status : Na__LeVp2d__PC_NONE, message : '', block : null, scene : null, revisionId : null, revision : null,
+                      opacity : null, lineworkOnTop : false, showDatum : false, pinned : false, newerExists : false,
+                      rectMm : null, gap : null, threeD : true };
+        if (!Na__LeModel__IsPointCloudViewport(viewport)) return out;
+        const block = viewport.Viewport__PointCloud;
+        out.block  = block;
+        out.pinned = typeof block.PointCloud__PinnedRevision === 'string';
+        if (block.PointCloud__Hidden === true) { out.status = Na__LeVp2d__PC_HIDDEN; return out; }
+
+        const storeStatus = Na__PcStore__GetStatus();
+        if (storeStatus !== Na__PcStore__STATUS_READY && storeStatus !== Na__PcStore__STATUS_EMPTY) {
+            if (kick) { Na__PcCfg__Ready(); Na__PcStore__Resolve(); }
+            out.status = Na__LeVp2d__PC_LOADING; out.message = 'Loading the point cloud.';
+            return out;
+        }
+        if (storeStatus === Na__PcStore__STATUS_EMPTY) {
+            out.status = Na__LeVp2d__PC_EMPTY; out.message = 'This project has no point cloud exports to draw.';
+            return out;
+        }
+        const pcScene = Na__PcStore__GetScene(block.PointCloud__SceneId);
+        out.scene = pcScene;
+        if (!pcScene) { out.status = Na__LeVp2d__PC_MISSING; out.message = 'This point cloud scene is not in the project\'s exports.'; return out; }
+        out.opacity     = Number.isFinite(block.PointCloud__Opacity) ? block.PointCloud__Opacity : pcScene.Scene__DefaultOpacity;
+        out.revisionId  = Na__PcStore__RevisionIdFor(block, pcScene);
+        out.newerExists = out.pinned && out.revisionId !== pcScene.Scene__CurrentRevision;
+
+        const revision = Na__PcStore__GetRevision(out.revisionId);
+        if (!revision) {
+            if (Na__PcStore__GetRevisionNote(out.revisionId)) { out.status = Na__LeVp2d__PC_FAILED; out.message = 'The point cloud export did not load.'; return out; }
+            if (kick) Na__PcStore__LoadRevision(pcScene.Scene__Id, out.revisionId).catch(() => null);
+            out.status = Na__LeVp2d__PC_LOADING; out.message = 'Loading the point cloud.';
+            return out;
+        }
+        out.revision = revision;
+        if (!Na__PcPlace__IsPerspectiveFrame(revision.Frame) || !revision.Camera) {
+            out.status = Na__LeVp2d__PC_MISALIGNED; out.message = 'A plan, elevation or section scene lays on a 2D viewport, not on a 3D one.';
+            return out;
+        }
+        const camera = scene ? Na__PcPlace__SceneCamera(scene) : null;
+        if (!scene) { out.status = Na__LeVp2d__PC_NO_DRAWING; out.message = 'Link a scene to this viewport to place its point cloud.'; return out; }
+        if (!camera || !(camera.FovVerticalDeg > 0)) { out.status = Na__LeVp2d__PC_NO_DRAWING; out.message = 'This viewport\'s scene keeps no camera to match the point cloud with.'; return out; }
+
+        const gap = Na__PcPlace__CameraGap(camera, revision.Camera);
+        const tolerance = Na__PcCfg__Perspective();
+        out.gap = gap;
+        if (gap.PositionMm > tolerance.positionMm || gap.AngleDeg > tolerance.angleDeg || gap.UpDeg > tolerance.angleDeg
+            || (gap.FovDeg !== null && gap.FovDeg > tolerance.fovDeg)) {
+            out.status  = Na__LeVp2d__PC_MISALIGNED;
+            out.message = 'This viewport\'s scene is not seen from the point cloud\'s camera (' + Na__LeVp2d__PcGapText(gap) +
+                          ' away), so it is not drawn. Use the scene synced from the same SketchUp scene.';
+            return out;
+        }
+        out.rectMm = Na__PcPlace__PerspectiveRect(pictureRect, camera.FovVerticalDeg, revision.Frame);
+        out.status = Na__LeVp2d__PC_READY;
+        return out;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Pictures to Draw for a Rectangle: the Preview, or Every Tile
+    // ------------------------------------------------------------
+    // A perspective export is a few tiles at most, all of it in view, so the
+    // choice is only whether the preview carries enough pixels across the
+    // rectangle for the screen (or the export) asking.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__PcPictures3d(revision, rectWidthMm, devicePxPerMm) {
+        const display = Na__PcCfg__Display();
+        const preview = revision.Image.Preview;
+        if (preview && preview.HasFile && rectWidthMm > 0 && (preview.WidthPx / rectWidthMm) >= devicePxPerMm * display.previewSlack) {
+            return [ { key : preview.Urls[0], urls : preview.Urls, x : 0, y : 0, w : preview.WidthPx, h : preview.HeightPx, scale : preview.Factor } ];
+        }
+        return revision.Image.Tiles.filter((tile) => tile.HasFile)
+            .map((tile) => ({ key : tile.Urls[0], urls : tile.Urls, x : tile.X, y : tile.Y, w : tile.W, h : tile.H, scale : 1 }));
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | One Picture's Map Into a Target: [a, b, c, d, e, f], the Export Lying at rectMm
+    // ------------------------------------------------------------
+    // kxMm, kyMm: target pixels per frame millimetre; originMm: the frame
+    // millimetre the target's top left is.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__PcTargetMatrix3d(revision, rectMm, picture, kxMm, kyMm, originMm) {
+        const width  = revision.Image.WidthPx  || revision.Frame.WidthPx;
+        const height = revision.Image.HeightPx || revision.Frame.HeightPx;
+        const kx = (rectMm.WidthMm * kxMm) / width, ky = (rectMm.HeightMm * kyMm) / height;   // <-- Target pixels per export pixel
+        const ex = (rectMm.X - originMm.X) * kxMm, ey = (rectMm.Y - originMm.Y) * kyMm;
+        return [ kx * picture.scale, 0, 0, ky * picture.scale, ex + (kx * picture.x), ey + (ky * picture.y) ];
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Take a 3D Frame's Point Cloud Down and Forget the Frame (its state is being let go)
+    // ------------------------------------------------------------
+    function Na__LeVp2d__PointCloudDrop3d(state) {
+        if (!state) return;
+        Na__LeVp2d__Pc3dStates.delete(state);
+        Na__LeVp2d__PointCloudClear(state);
+        state.pcArgs = null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Fill (or Refresh) a 3D Frame's Point Cloud
+    // ------------------------------------------------------------
+    // state is Na__LayoutEditor__Viewport3d__'s per-frame state (body, img):
+    // the layer goes over its picture, the badge after everything. Quick when
+    // nothing has moved: one key compared.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__PointCloudFill3d(state, viewport, scene, pictureRect, ppm) {
+        if (!state || !state.body) return;
+        if (!Na__LeModel__IsPointCloudViewport(viewport)) { Na__LeVp2d__PointCloudDrop3d(state); return; }
+        Na__LeVp2d__PcListen();
+        Na__LeVp2d__Pc3dStates.add(state);
+        state.pcArgs = { viewport : viewport, scene : scene, pictureRect : pictureRect, ppm : ppm };
+        if (!Na__LeVp2d__PointCloudWorkingVisible(viewport.Viewport__PointCloud.PointCloud__SceneId)) {   // <-- Off while working: nothing drawn or fetched, still listened for
+            Na__LeVp2d__PointCloudClear(state);
+            return;
+        }
+        const resolved = Na__LeVp2d__PointCloudResolve3d(viewport, scene, pictureRect, true);
+        const pc       = Na__LeVp2d__PcEnsure(state);
+        if (pc.layer.parentNode !== state.body || pc.layer.nextSibling !== pc.note) state.body.insertBefore(pc.layer, pc.note);   // <-- Over the picture, under the badge
+
+        const shout = resolved.status !== Na__LeVp2d__PC_READY && resolved.status !== Na__LeVp2d__PC_HIDDEN ? resolved.message : '';
+        if (pc.note.textContent !== shout) pc.note.textContent = shout;
+        pc.note.hidden = shout === '';
+
+        if (resolved.status !== Na__LeVp2d__PC_READY) {
+            if (resolved.status === Na__LeVp2d__PC_LOADING && pc.images.size) return;   // <-- A newer export on its way: the last one stays meanwhile
+            pc.images.forEach((entry) => { if (entry.img.parentNode) entry.img.parentNode.removeChild(entry.img); });
+            pc.images.clear();
+            pc.key = null;
+            return;
+        }
+
+        const rect = resolved.rectMm;
+        const dpr  = window.devicePixelRatio || 1;
+        const pictures = Na__LeVp2d__PcPictures3d(resolved.revision, rect.WidthMm, ppm * Na__LeVp2d__PcZoom * dpr);
+        const key = [ resolved.revisionId, rect.X, rect.Y, rect.WidthMm, rect.HeightMm, ppm, resolved.opacity,
+                      pictures.map((p) => p.key).join(',') ].join('|');
+        if (key === pc.key) return;
+        pc.key = key;
+
+        pc.layer.style.opacity = String(resolved.opacity);
+        pc.images.forEach((entry) => { entry.wanted = false; });
+        pictures.forEach((picture) => {
+            let entry = pc.images.get(picture.key);
+            if (!entry) {
+                entry = Na__LeVp2d__PcImage(pc, picture);
+                pc.images.set(picture.key, entry);
+                pc.layer.appendChild(entry.img);
+            }
+            entry.wanted  = true;
+            entry.picture = picture;
+        });
+        pc.images.forEach((entry) => {                                           // <-- Every picture by its own place, the one on its way out too
+            const t = Na__LeVp2d__PcTargetMatrix3d(resolved.revision, rect, entry.picture, ppm, ppm, { X : 0, Y : 0 });
+            entry.img.style.width     = entry.picture.w + 'px';
+            entry.img.style.height    = entry.picture.h + 'px';
+            entry.img.style.transform = 'matrix(' + t.join(',') + ')';
+        });
+        Na__LeVp2d__PcSweep(pc);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A 3D Viewport's Point Cloud, Fully Loaded (for the PDF and for publishing)
+    // ------------------------------------------------------------
+    async function Na__LeVp2d__PcLoaded3d(viewport, scene, pictureRect) {
+        if (!Na__LeModel__IsPointCloudViewport(viewport)) return null;
+        await Na__PcCfg__Ready();
+        await Na__PcStore__Resolve();
+        let resolved = Na__LeVp2d__PointCloudResolve3d(viewport, scene, pictureRect, false);
+        if (resolved.status === Na__LeVp2d__PC_LOADING && resolved.scene && resolved.revisionId) {
+            await Na__PcStore__LoadRevision(resolved.scene.Scene__Id, resolved.revisionId).catch(() => null);
+            resolved = Na__LeVp2d__PointCloudResolve3d(viewport, scene, pictureRect, false);
+        }
+        return resolved;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Draw a 3D Viewport's Point Cloud Into a New Canvas Covering a Rectangle of Its Frame
+    // ------------------------------------------------------------
+    // coverMm: the frame rectangle the canvas covers (the 3D export picture's,
+    // Na__LeVp3d__ExportRectMm), at width x height pixels; the point cloud at
+    // FULL strength. Null when no picture loaded.
+    // ------------------------------------------------------------
+    async function Na__LeVp2d__PcCanvas3d(resolved, coverMm, width, height, why) {
+        const kxMm = width / coverMm.WidthMm, kyMm = height / coverMm.HeightMm;
+        const pictures = Na__LeVp2d__PcPictures3d(resolved.revision, resolved.rectMm.WidthMm, Math.max(kxMm, kyMm));
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        let drawn = 0;
+        for (const picture of pictures) {
+            const bitmap = await Na__LeVp2d__PcBitmap(picture.urls);
+            if (!bitmap) { console.warn('[TrueVision3D LayoutEditor] A point cloud tile did not load for ' + why + ': ' + picture.urls[0]); continue; }
+            const t = Na__LeVp2d__PcTargetMatrix3d(resolved.revision, resolved.rectMm, picture, kxMm, kyMm, coverMm);
+            ctx.setTransform(t[0], t[1], t[2], t[3], t[4], t[5]);
+            ctx.drawImage(bitmap, 0, 0);
+            if (typeof bitmap.close === 'function') bitmap.close();
+            drawn += 1;
+        }
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        if (!drawn) { canvas.width = 1; canvas.height = 1; return null; }
+        return { canvas : canvas, context : ctx };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | A 3D Viewport's Point Cloud for the PDF (not cached)
+    // ------------------------------------------------------------
+    // Resolves { dataUrl, rectMm } or null: a PNG covering coverMm at the
+    // export level, the viewport's opacity in its alpha, for the PDF to lay
+    // at rectMm (frame millimetres) over the 3D picture.
+    // ------------------------------------------------------------
+    async function Na__LeVp2d__PointCloudForExport3d(viewport, scene, pictureRect, coverMm) {
+        const resolved = await Na__LeVp2d__PcLoaded3d(viewport, scene, pictureRect);
+        if (!resolved || resolved.status !== Na__LeVp2d__PC_READY || !coverMm || !(coverMm.WidthMm > 0) || !(coverMm.HeightMm > 0)) return null;
+        const px    = Na__LeRaster__Fit(coverMm.WidthMm, coverMm.HeightMm, Na__LeRaster__Export());
+        const drawn = await Na__LeVp2d__PcCanvas3d(resolved, coverMm, px.w, px.h, 'the PDF');
+        if (!drawn) return null;
+        const ctx = drawn.context;
+        ctx.globalCompositeOperation = 'destination-in';                         // <-- Every pixel's alpha times the opacity, its colour untouched
+        ctx.fillStyle = 'rgba(0, 0, 0, ' + resolved.opacity + ')';
+        ctx.fillRect(0, 0, px.w, px.h);
+        ctx.globalCompositeOperation = 'source-over';
+        const dataUrl = drawn.canvas.toDataURL('image/png');
+        drawn.canvas.width = 1; drawn.canvas.height = 1;
+        return { dataUrl : dataUrl, rectMm : Object.assign({}, coverMm) };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | A 3D Viewport's Point Cloud at Full Strength, for a Published Drawing (not cached)
+    // ------------------------------------------------------------
+    // Resolves { canvas, opacity, lineworkOnTop, datum } or null, as
+    // PointCloudForPublish does for a 2D viewport: width x height pixels
+    // covering coverMm, the point cloud at full strength. The caller frees it.
+    // ------------------------------------------------------------
+    async function Na__LeVp2d__PointCloudForPublish3d(viewport, scene, pictureRect, coverMm, width, height) {
+        const resolved = await Na__LeVp2d__PcLoaded3d(viewport, scene, pictureRect);
+        if (!resolved || resolved.status !== Na__LeVp2d__PC_READY || !coverMm || !(coverMm.WidthMm > 0) || !(coverMm.HeightMm > 0)) return null;
+        const px = (width > 0 && height > 0) ? { w : Math.round(width), h : Math.round(height) }
+                                             : Na__LeRaster__Fit(coverMm.WidthMm, coverMm.HeightMm, Na__LeRaster__Export());
+        const drawn = await Na__LeVp2d__PcCanvas3d(resolved, coverMm, px.w, px.h, 'publishing');
+        if (!drawn) return null;
+        return { canvas : drawn.canvas, opacity : resolved.opacity, lineworkOnTop : false, datum : [] };
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Module Exports
 // -----------------------------------------------------------------------------
 
@@ -810,7 +1132,12 @@
         Na__LeVp2d__PointCloudBoundsMm,
         Na__LeVp2d__PointCloudDatumPrimitives,
         Na__LeVp2d__PointCloudForExport,
-        Na__LeVp2d__PointCloudForPublish
+        Na__LeVp2d__PointCloudForPublish,
+        Na__LeVp2d__PointCloudResolve3d,
+        Na__LeVp2d__PointCloudFill3d,
+        Na__LeVp2d__PointCloudDrop3d,
+        Na__LeVp2d__PointCloudForExport3d,
+        Na__LeVp2d__PointCloudForPublish3d
     };
     // ------------------------------------------------------------
 

@@ -1,7 +1,7 @@
 {
   "SceneSyncData__Schema": "TrueVision__SceneSyncData__Manifest",
   "SceneSyncData__SchemaVersion": 1,
-  "SceneSyncData__ExportedIso": "2026-10-19T17:35:56+0100",
+  "SceneSyncData__ExportedIso": "2026-10-19T18:51:19+0100",
   "SceneSyncData__ExporterVersion": "2.12.0",
   "SceneSyncData__CoordinateSystem": {
     "Units": "metres (camera, section), millimetres (drawing)",
@@ -107,7 +107,7 @@
       },
       "Scene__Revision": "dbe2450dd5",
       "Scene__SourceStoreId": "suss_60a7278058dc",
-      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.0__",
+      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.1__",
       "Scene__PointCloudSceneId": "pcs_42e47ceb",
       "Scene__State": "synced",
       "Scene__SyncedIso": "2026-10-19T16:04:36+0100"
@@ -210,7 +210,7 @@
       },
       "Scene__Revision": "79a68fa28b",
       "Scene__SourceStoreId": "suss_60a7278058dc",
-      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.0__",
+      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.1__",
       "Scene__PointCloudSceneId": "pcs_d5daef4a",
       "Scene__State": "synced",
       "Scene__SyncedIso": "2026-10-19T15:49:28+0100"
@@ -313,7 +313,7 @@
       },
       "Scene__Revision": "07da671a55",
       "Scene__SourceStoreId": "suss_60a7278058dc",
-      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.0__",
+      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.1__",
       "Scene__PointCloudSceneId": "pcs_7d8afead",
       "Scene__State": "synced",
       "Scene__SyncedIso": "2026-10-19T17:11:59+0100"
@@ -416,7 +416,7 @@
       },
       "Scene__Revision": "9fb315c84b",
       "Scene__SourceStoreId": "suss_60a7278058dc",
-      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.0__",
+      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.1__",
       "Scene__PointCloudSceneId": "pcs_4208d708",
       "Scene__State": "synced",
       "Scene__SyncedIso": "2026-10-19T16:04:36+0100"
@@ -502,10 +502,268 @@
       },
       "Scene__Revision": "1a99016abd",
       "Scene__SourceStoreId": "suss_60a7278058dc",
-      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.0__",
+      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.1__",
       "Scene__PointCloudSceneId": "pcs_13b09fe2",
       "Scene__State": "synced",
       "Scene__SyncedIso": "2026-10-19T16:25:47+0100"
+    },
+    {
+      "Scene__Id": "sus_549a3cba",
+      "Scene__PagePid": 29104071,
+      "Scene__Name": "IMG02__3dView__View-02__",
+      "Scene__Description": "",
+      "Scene__Type": "view3d",
+      "Scene__TypeLabel": "3D View",
+      "Scene__TypeSuggested": "view3d",
+      "Camera": {
+        "Projection": "perspective",
+        "SketchUp": {
+          "Units": "inches",
+          "UpAxis": "Z",
+          "Eye": [
+            -111.585106,
+            -566.637431,
+            122.264277
+          ],
+          "Target": [
+            802.735604,
+            723.014013,
+            101.630105
+          ],
+          "Up": [
+            0.007548323,
+            0.010646927,
+            0.999914829
+          ],
+          "Direction": [
+            0.578312419,
+            0.815710985,
+            -0.013051216
+          ],
+          "Perspective": true,
+          "FovDeg": 36.24372,
+          "FovIsHeight": true,
+          "AspectRatio": 0.0,
+          "OrthoHeight": null
+        },
+        "ThreeJs": {
+          "Units": "metres",
+          "UpAxis": "Y",
+          "Position": [
+            -2.834262,
+            3.105513,
+            14.392591
+          ],
+          "Target": [
+            20.389484,
+            2.581405,
+            -18.364556
+          ],
+          "Up": [
+            0.007548323,
+            0.999914829,
+            -0.010646927
+          ],
+          "Direction": [
+            0.578312419,
+            -0.013051216,
+            -0.815710985
+          ],
+          "Right": [
+            0.815780466,
+            0.0,
+            0.578361679
+          ],
+          "FovVerticalDeg": 36.24372,
+          "Aspect": null,
+          "OrthoHeightM": null
+        }
+      },
+      "Section": null,
+      "Drawing": null,
+      "ModelLayers": {
+        "Hidden": [
+          "01__OrbitHelperCube"
+        ]
+      },
+      "Scene__Revision": "bb19d1e811",
+      "Scene__SourceStoreId": "suss_60a7278058dc",
+      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.1__",
+      "Scene__PointCloudSceneId": "pcs_0e71ba1b",
+      "Scene__State": "synced",
+      "Scene__SyncedIso": "2026-10-19T18:44:12+0100"
+    },
+    {
+      "Scene__Id": "sus_951422a0",
+      "Scene__PagePid": 29104072,
+      "Scene__Name": "IMG03__BirdseyeView__View-01__",
+      "Scene__Description": "",
+      "Scene__Type": "view3d",
+      "Scene__TypeLabel": "3D View",
+      "Scene__TypeSuggested": "view3d",
+      "Camera": {
+        "Projection": "perspective",
+        "SketchUp": {
+          "Units": "inches",
+          "UpAxis": "Z",
+          "Eye": [
+            -308.405994,
+            -579.088903,
+            1718.103987
+          ],
+          "Target": [
+            476.645265,
+            371.017233,
+            727.85057
+          ],
+          "Up": [
+            0.398959138,
+            0.482839204,
+            0.779549812
+          ],
+          "Direction": [
+            0.496548846,
+            0.60094688,
+            -0.626340236
+          ],
+          "Perspective": true,
+          "FovDeg": 36.24372,
+          "FovIsHeight": true,
+          "AspectRatio": 0.0,
+          "OrthoHeight": null
+        },
+        "ThreeJs": {
+          "Units": "metres",
+          "UpAxis": "Y",
+          "Position": [
+            -7.833512,
+            43.639841,
+            14.708858
+          ],
+          "Target": [
+            12.10679,
+            18.487404,
+            -9.423838
+          ],
+          "Up": [
+            0.398959138,
+            0.779549812,
+            -0.482839204
+          ],
+          "Direction": [
+            0.496548846,
+            -0.626340236,
+            -0.60094688
+          ],
+          "Right": [
+            0.770889648,
+            0.0,
+            0.63696872
+          ],
+          "FovVerticalDeg": 36.24372,
+          "Aspect": null,
+          "OrthoHeightM": null
+        }
+      },
+      "Section": null,
+      "Drawing": null,
+      "ModelLayers": {
+        "Hidden": [
+          "01__OrbitHelperCube"
+        ]
+      },
+      "Scene__Revision": "c174a495ed",
+      "Scene__SourceStoreId": "suss_60a7278058dc",
+      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.1__",
+      "Scene__PointCloudSceneId": "pcs_895c6d9c",
+      "Scene__State": "synced",
+      "Scene__SyncedIso": "2026-10-19T18:44:12+0100"
+    },
+    {
+      "Scene__Id": "sus_0fe59f7d",
+      "Scene__PagePid": 29104073,
+      "Scene__Name": "IMG04__BirdseyeView__View-02__",
+      "Scene__Description": "",
+      "Scene__Type": "view3d",
+      "Scene__TypeLabel": "3D View",
+      "Scene__TypeSuggested": "view3d",
+      "Camera": {
+        "Projection": "perspective",
+        "SketchUp": {
+          "Units": "inches",
+          "UpAxis": "Z",
+          "Eye": [
+            3174.36715,
+            2796.090013,
+            1808.62421
+          ],
+          "Target": [
+            2269.131974,
+            2042.546983,
+            753.953098
+          ],
+          "Up": [
+            -0.512696925,
+            -0.426783232,
+            0.744981836
+          ],
+          "Direction": [
+            -0.572565774,
+            -0.476619734,
+            -0.66708475
+          ],
+          "Perspective": true,
+          "FovDeg": 36.24372,
+          "FovIsHeight": true,
+          "AspectRatio": 0.0,
+          "OrthoHeight": null
+        },
+        "ThreeJs": {
+          "Units": "metres",
+          "UpAxis": "Y",
+          "Position": [
+            80.628926,
+            45.939055,
+            -71.020686
+          ],
+          "Target": [
+            57.635952,
+            19.150409,
+            -51.880693
+          ],
+          "Up": [
+            -0.512696925,
+            0.744981836,
+            0.426783232
+          ],
+          "Direction": [
+            -0.572565774,
+            -0.66708475,
+            0.476619734
+          ],
+          "Right": [
+            -0.63977363,
+            0.0,
+            -0.768563402
+          ],
+          "FovVerticalDeg": 36.24372,
+          "Aspect": null,
+          "OrthoHeightM": null
+        }
+      },
+      "Section": null,
+      "Drawing": null,
+      "ModelLayers": {
+        "Hidden": [
+          "01__OrbitHelperCube"
+        ]
+      },
+      "Scene__Revision": "d8ea2df2fa",
+      "Scene__SourceStoreId": "suss_60a7278058dc",
+      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.1__",
+      "Scene__PointCloudSceneId": "pcs_46bda801",
+      "Scene__State": "synced",
+      "Scene__SyncedIso": "2026-10-19T18:44:12+0100"
     }
   ]
 }

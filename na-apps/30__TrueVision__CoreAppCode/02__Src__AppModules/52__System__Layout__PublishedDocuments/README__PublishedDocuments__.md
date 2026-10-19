@@ -57,5 +57,9 @@ the editor's viewer shell may reach in here; nothing here reaches back.
 | `Na__PubDoc__LoadingScreen__.js` | The cover over a drawing while it arrives: "D02 - Elevations is now loading", the work outstanding underneath, lifted when every file, picture and font is on the page. Imports nothing. |
 | `Na__PubDoc__Config__.json` | Every setting the reader may decide: fetch, tiers, sheet, grey panel, loading screen, labels. |
 | `Na__PubDoc__Styles__Main__.css` | Host-only styles. Nothing on a published sheet depends on it. |
+| `Na__PubDoc__Measure__.js` | The measuring tools' data, without the tools (TrueVision v2.180.0): which 2D drawings on a sheet can be measured and at what scale, their linework read and indexed the first time a reader opens the tools (never before), and the reader's measurements for each sheet this session. Never saved, shared or printed. The tools are `51__System__LayoutEditor/80__Feature__WebViewer/Na__LayoutEditor__WebViewer__Measure__*.js`. |
+| `Na__PubDoc__Measure__Linework__.js` | One viewport's published linework SVG as exact segments on the sheet: clipped to the frame (a cut end is not an end), pieces of one straight line joined, turned with the viewport, in a grid for snapping. Pure: no DOM, no fetch, no imports. |
+| `Na__PubDoc__Measure__Snap__.js` | The snap a reader means: endpoint, intersection, midpoint, perpendicular, square off the last point (and where that crosses a line), on a line. Pure. |
+| `Na__PubDoc__Measure__Maths__.js` | Lengths, rectangles (square to a turned drawing) and areas at the drawing's own scale, exact or an estimate ("≈"), metres on a site plan. Pure. |
 
-Namespaces `Na__PubDoc__` (and `Na__PubLoad__` for the loading screen, `Na__PubPc__` for the point cloud level).
+Namespaces `Na__PubDoc__` (and `Na__PubLoad__` for the loading screen, `Na__PubPc__` for the point cloud level, `Na__PubMs__` for measuring, with `Na__PubMsLw__`, `Na__PubMsSnap__` and `Na__PubMsMath__`). The measuring modules import only from this folder and `53__Data__Layout__PublishedSchema`; the rule above holds for them too.

@@ -175,7 +175,7 @@
     import { Na__LeMarkup__DimensionSkeleton, Na__LeMarkup__DimensionTextLayout, Na__LeMarkup__AnnotationRotateGrip } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
     import { Na__LeDimGeo__HitText, Na__LeDimGeo__DistanceToPolyline } from '../15__Core__Markup/Na__LayoutEditor__DimensionGeometry__.js';
     import { Na__LeShapeGeo__Points, Na__LeShapeGeo__VertexAt } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
-    import { Na__LeLeadGeo__Hit } from '../15__Core__Markup/Na__LayoutEditor__LeaderGeometry__.js';
+    import { Na__LeLeadGeo__Hit, Na__LeLeadGeo__IsLineShown } from '../15__Core__Markup/Na__LayoutEditor__LeaderGeometry__.js';
     import { Na__LeGroup__Render } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
     import { Na__LeScope__GetVectorId, Na__LeScope__GetDimensionId, Na__LeScope__HasVertex, Na__LeScope__VertexCount, Na__LeScope__HasGrip } from './Na__LayoutEditor__EditScope__.js';
     import { Na__LeOsnap__OnLinework } from '../28__System__ObjectSnap/Na__LayoutEditor__ObjectSnap__Search__.js';   // <-- Is this point ON the drawing: what a vertex grip's colour says
@@ -471,7 +471,7 @@
         if (selection.kind === 'leader') {
             const leader = (sheet.Sheet__Leaders || []).find((l) => l.Leader__Id === selection.id);
             if (!leader || Na__LeModel__IsLayerLocked(sheet, leader.Leader__LayerId)) return false;
-            Na__LeGrips__Add(layer, leader.Leader__TipXMm, leader.Leader__TipYMm, ppm, sizePx, zoom, null);
+            if (Na__LeLeadGeo__IsLineShown(leader)) Na__LeGrips__Add(layer, leader.Leader__TipXMm, leader.Leader__TipYMm, ppm, sizePx, zoom, null);   // <-- No line, no tip to re-point
             Na__LeGrips__Add(layer, leader.Leader__AnchorXMm, leader.Leader__AnchorYMm, ppm, sizePx, zoom, 'anchor');   // <-- Round: the head goes with it, the tip stays
             return true;
         }
@@ -726,6 +726,7 @@
     // ------------------------------------------------------------
     function Na__LeGrips__LeaderGrab(leader, pointMm, toleranceMm) {
         const tol = toleranceMm * 2;
+        if (!Na__LeLeadGeo__IsLineShown(leader)) return 'whole';               // <-- Line off: the head on its own moves as one, its hidden tip with it, so the line comes back where it was relative to the head
         if (Math.hypot(pointMm.x - leader.Leader__TipXMm, pointMm.y - leader.Leader__TipYMm) <= tol) return 'tip';
         if (Math.hypot(pointMm.x - leader.Leader__AnchorXMm, pointMm.y - leader.Leader__AnchorYMm) <= tol) return 'anchor';
         const part = Na__LeLeadGeo__Hit(leader, pointMm, toleranceMm);

@@ -53,6 +53,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.2.0
+// - onTap: a finger that lands and lifts without moving is offered to the
+//   surface first (the web viewer's measuring tools put a point down with it,
+//   TrueVision3D v2.180.0). A tap it uses starts no double tap, so two quick
+//   taps are two points rather than a zoom; one it does not use is read for a
+//   double tap exactly as before.
+//
 // 18-Sep-2026 - Version 1.1.0
 // - Moves are gathered and applied once per animation frame. Applying per event
 //   measured the stage and the paper immediately after resizing them, several
@@ -363,7 +370,12 @@
         if (Na__LeVwTouch__Frame) { window.cancelAnimationFrame(Na__LeVwTouch__Frame); Na__LeVwTouch__Apply(); }
 
         if (Na__LeVwTouch__Drag && Na__LeVwTouch__Drag.pointerId === event.pointerId) {
-            if (!Na__LeVwTouch__Drag.moved && point) Na__LeVwTouch__TestDoubleTap(point);
+            if (!Na__LeVwTouch__Drag.moved && point) {
+                // A TAP THE SURFACE USES (a measuring point put down) is not the
+                // first half of a double tap: two quick taps are two points.
+                if (Na__LeVwTouch__Ask('onTap', point.x, point.y) === true) Na__LeVwTouch__LastTap = null;
+                else Na__LeVwTouch__TestDoubleTap(point);
+            }
             Na__LeVwTouch__Drag = null;
         }
         if (Na__LeVwTouch__Points.size < 2) Na__LeVwTouch__Pinch = null;
@@ -387,6 +399,8 @@
     // handlers:
     //   onPan(dx, dy)                -> optionally { x, y } actually moved
     //   onPinch(factor, x, y)        -> multiply the zoom about that point
+    //   onTap(x, y)                  -> true when it used the tap (it then
+    //                                   starts no double tap)
     //   onDoubleTap(x, y)
     //   onSwipe('next' | 'previous')
     //   onGestureEnd()

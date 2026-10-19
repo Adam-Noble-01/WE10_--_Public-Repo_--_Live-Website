@@ -6,7 +6,7 @@
 // NAMESPACE  : Na__PcCfg
 // MODULE     : Point Cloud Data - Config
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : The point cloud viewports' settings: alignment tolerance, preview sharpness and the datum symbol
+// PURPOSE    : The point cloud viewports' settings: alignment tolerances, preview sharpness and the datum symbol
 // CREATED    : 19-Oct-2026
 //
 // DESCRIPTION:
@@ -25,6 +25,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.1.0
+// - Perspective: how far a 3D viewport's scene camera may stand and look
+//   from a 3D View export's camera before the export is refused
+//   (TrueVision3D v2.178.0).
+//
 // 19-Oct-2026 - Version 1.0.0
 // - Initial implementation (point cloud viewports).
 //
@@ -41,6 +46,7 @@
 
     const Na__PcCfg__FALLBACK = {
         alignment : { quietDeg : 0.05, toleranceDeg : 1.0 },
+        perspective : { positionMm : 5, angleDeg : 0.1, fovDeg : 1.0 },
         display   : { defaultOpacity : 0.65, previewSlack : 0.85, tileMarginPx : 64 },
         datum     : { symbolMm : 5, crossOverhang : 0.6, strokeMm : 0.25, colourHex : '#C81E1E' }
     };
@@ -104,6 +110,19 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | The Perspective Tolerances { positionMm, angleDeg, fovDeg }
+    // ------------------------------------------------------------
+    function Na__PcCfg__Perspective() {
+        const fb = Na__PcCfg__FALLBACK.perspective;
+        return {
+            positionMm : Na__PcCfg__Num('Perspective', 'PositionToleranceMm', fb.positionMm, 0, 1000),
+            angleDeg   : Na__PcCfg__Num('Perspective', 'AngleToleranceDeg', fb.angleDeg, 0, 5),
+            fovDeg     : Na__PcCfg__Num('Perspective', 'FovToleranceDeg', fb.fovDeg, 0, 20)
+        };
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | The Display Settings { defaultOpacity, previewSlack, tileMarginPx }
     // ------------------------------------------------------------
     function Na__PcCfg__Display() {
@@ -144,6 +163,7 @@
     export {
         Na__PcCfg__Ready,
         Na__PcCfg__Alignment,
+        Na__PcCfg__Perspective,
         Na__PcCfg__Display,
         Na__PcCfg__Datum
     };

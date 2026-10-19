@@ -2,6 +2,239 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.180.0  -  19-Oct-2026
+### Web Viewer: Measuring Tools, Snapped to the Drawing's Own Vectors
+
+**What Adam asked for**
+- "Add some kind of measurement tool icon that then opens up the same 2D drawing tools ... create all of the same tools
+  from PlanVision, but to be able to snap to the different vectors ... rather than relying on the screen space pixels,
+  we need to create a really robust vector measuring tool. All of its modes are hidden within a new pop-up menu ... just
+  have a simple measurement symbol to get to it in the first place. Once it's open, show all of the various tools, each
+  with their own logo."
+
+**What a reader sees**
+- A Measure button in the dock, after the point cloud button (v2.176.0): the tape measure from the new measure icon set
+  (`UiIcons__MenuIcons__MeasureTools`, v2.178.1) and the word, which goes on a phone. Only a published drawing with a 2D
+  drawing on it shows it (JW02: D01 to D03 yes, D04's 3D views no).
+- It opens a menu above the dock, like the point cloud panel: Linear, Rectangle and Area, each with its own icon and one
+  line on what it measures; Clear all (a second press clears); Snap to the drawing lines; and a note that nothing is
+  saved. Picking a tool closes it and puts a bar above the dock: the tool's icon, what to do next ("Click the first
+  point", "Tap the next corner") and Finish, Undo and Done.
+- PlanVision's tools: Linear (two clicks, or one drag), Rectangle (two opposite corners), Area (corner by corner, closed on
+  the first corner, a double click, Enter or Finish). No Accept step: a measurement is kept the moment its last point
+  lands and the tool stays on for the next. With no tool on, a measurement is picked by its line, shape or label; its
+  grips pull (snapping as they go) and its red chip or Delete removes it.
+- Lengths read along their lines like dimensions, a rectangle's width and height sit outside it, an area's value and
+  perimeter sit inside it (inside an L too), and an area's sides show while it is drawn or picked.
+
+**Snapping to vectors, not pixels**
+- A published viewport's linework is an SVG of `M x,y L x,y` runs in paper mm inside its frame. The reader fetches it
+  (only when the tools first open on a sheet), cuts it to the frame (a cut end is not an end), joins the pieces the
+  projection split one straight line into (same class, nothing else at the joint, within a quarter degree of the run's
+  FIRST piece, so a gently curved line is never straightened), turns it with the viewport and indexes it on a grid.
+- Snaps, with the editor's own AutoCAD glyphs (`Na__LeOsnap__GlyphSvg`) in its purple for viewport linework: Endpoint,
+  Intersection, Midpoint, Perpendicular, square off the last point (red along the drawing's x, green along its y, and
+  where that square crosses a line), On line. Shift keeps a line square, Alt places a point freely, Escape stops.
+- A length is the sheet distance times the drawing's own Viewport__ScaleDenominator. A rectangle is square to its drawing
+  (Viewport__RotationDeg). A value whose every point is a point of the drawing is exact to the millimetre; one with any
+  point placed by eye or slid along a line starts with "≈" and rounds to 5 mm (PlanVision's rounding). At 1:500 and
+  coarser lengths are metres, and a large area also gives hectares.
+- A measurement belongs to the drawing its first point is on (the topmost 2D viewport there); a first point off every
+  drawing is refused with a word in the bar.
+
+**A finger**
+- One finger still pans and two still pinch. A TAP puts a point down: the touch recogniser now offers a still tap to the
+  surface first (`onTap`), and a tap it uses starts no double tap, so two quick taps are two points, never a zoom. A
+  finger landing on a picked measurement's grip is taken before the pan sees it, and pulls the grip.
+
+**Files**
+- New, `52__System__Layout__PublishedDocuments`: `Na__PubDoc__Measure__Linework__.js`, `__Measure__Snap__.js`,
+  `__Measure__Maths__.js` (pure, no imports but each other) and `__Measure__.js` (which drawings, reading the linework,
+  the session's measurements). README file table updated.
+- New, `80__Feature__WebViewer`: `Na__LayoutEditor__WebViewer__Measure__.js` (button, menu, bar),
+  `__Measure__Tool__.js` (the tools), `__Measure__Overlay__.js` (the drawing on the paper) and
+  `Na__LayoutEditor__Styles__WebViewer__Measure__.css` (imported after the web viewer's sheet in
+  `Na__CoreUi__Styles__Index__.css`).
+- Changed: `Na__LayoutEditor__WebViewer__.js` 1.4.0 (the button, its action, Sync, Show and Hide with each drawing),
+  `Na__LayoutEditor__WebViewer__Drawings__.js` 1.2.0 (SetTapHandler) and `Na__LayoutEditor__WebViewer__TouchControls__.js`
+  1.2.0 (onTap).
+- Measurements are never saved, shared or printed (the print stylesheet hides them); the PDF stays as issued.
+
+**Tested**
+- `Na__Test__ViewerMeasure__.test.mjs`, 72 checks: path data (M L H V Z, relative, curves and arcs whose inner joints are
+  not ends), the file (viewBox, groups' classes and transforms, comments), the frame cut, the joins (T junctions, class
+  changes, a gentle curve kept as 14 runs), turned and stretched viewports, every snap kind, the values and their
+  wording, then JW02 D01 as published end to end through the store with the reader stubbed to the disk. Every published
+  linework file in the project folders (34, 159,539 segments) builds in 386 ms all told, the slowest 55 ms (RB05 D06);
+  a snap on the biggest (23,655 segments) takes 20 us.
+- The real app on localhost, JW02, served read-only (Worker URL blanked, every write refused; none attempted), as the
+  viewer (`?authoring=off`): D02 at 1:100, mouse events 1 px off each end of the longest wall snapped to its exact ends
+  ("Endpoint"), 30,405 mm, then the grip pulled to the true end, 30,525 mm; on D03 at 1:500 the same wall read 30.53 m.
+  Rectangle and Area kept (a free corner made every value an estimate); Escape, pick, pull, delete chip and the two
+  press Clear all; two finger taps through the recogniser made a snapped length and left the zoom alone; D04 (3D only)
+  has no Measure button; a sheet's measurement was back on it after a trip round the set; the phone layout (375 px) fits
+  the menu and the bar. The test origin's storage, caches and worker were cleared.
+- No service worker token bump: `2026-10-19-06` (point clouds) is not live yet (origin has -05) and carries this.
+- ValeVision: nothing to port (it has no web viewer).
+
+# ---------------------------------------------------------
+## TrueVision3D v2.179.0  -  19-Oct-2026
+### Leaders: Leader Line Off, for a Bubble or Note on Its Own
+
+**What Adam asked for**
+- "Make it so you can turn off the endpoint and the line, so you just have the bubble on its own ... the leaders are
+  really good for elevations, but we need a way of just switching them off for plans ... they both get switched off if
+  the option is untoggled. Add an option to the menu."
+
+**Built**
+- Leaders panel 1.3.0: a Leader line tick box under Type. Unticked, the line and the endpoint circle both go and the
+  bubble (or note) stands on its own. It works like every other leader setting: on the selected leader, on several at
+  once, or, with nothing selected, on new leaders. While it is off, Line, Line pt and the Endpoint fold leave the panel;
+  Line colour and Transparent lines stay, because the bubble edge takes them.
+- The record: `Leader__HideLine`, stored only as true (normaliser, model create and update), so every leader saved
+  before today normalises byte identical. The tip is kept, so ticking the box again brings the line back as it was.
+- Leader geometry 1.4.0: `IsLineShown`; Layout gives no path, no endpoint radius and `lineShown` false, so neither the
+  screen nor the PDF draws them (one Push serves both), Bounds stops at the head and Hit finds no hidden tip or line.
+  Box selection catches the head only. The tip grip goes; grabbing a bubble on its own moves it whole, its hidden tip
+  with it, so the line comes back in the same place relative to the bubble.
+- Leader tool: with the setting off for new leaders, ONE click places the bubble centred where you click (on the grid
+  with Grid Snap), numbered on from the last as before, and opens its code field. Its hidden tip waits down and to the
+  left for when the line is switched on.
+- Carried everywhere a leader's style goes: the eyedropper (`hideLine`, a missing field reads as shown), the settings
+  for new leaders, Specification Scrapbook bubbles (dropped on their own too), and the published viewer's bubble
+  painter. Config: `LayoutEditor__Leader__HideLine` (false) with its note, and two labels.
+
+**How it was proved**
+- `Na__Test__LeaderLineOff__.test.mjs`, 21 checks, through the real records, leader model, leader geometry and grips:
+  old leaders unchanged; stored only as true; off and on again keeps the tip; what Push draws with and without the
+  line (bubble and note); layout, bounds, hits and grabs.
+- Every node test in the folder was run. Four fail on things changed elsewhere today, and none of them loads a file
+  this touches: Leaderless Notes (it reads RB05's live project file, edited at 18:51), Statement Finishes and Statement
+  Standard (statement wording), and Storey Band (a build token).
+- The real app on localhost, JW02 D03 site plan, served read-only (Worker URL blanked, every write refused; none
+  attempted): unticking Leader line on SP06 stored the flag, kept its tip and took the line rows and the Endpoint fold
+  out of the panel (the fold first stayed, its toggle's own display rule outranking `hidden`, fixed with a style); SP06
+  then drew three primitives where SP11 draws five. With nothing selected the setting went to new leaders, and one
+  click placed SP15 with no line, centred on the click to the millimetre. The test origin was cleared.
+- No service worker token bump: 2026-10-19-06 is not live yet.
+
+**ValeVision**: the leader files are ported there (geometry, tool and panel at 1.0.0). Not ported until Adam confirms.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.178.1  -  19-Oct-2026
+### Menu and Toolbar Icons Are SVG, Not PNG
+
+**What Adam asked**
+- Repopulate the tools, menus and toolbar with the proper SVGs from the vector graphic artist's converted set
+  (`D:\08__Cloud__Repo__AgentSkills__Private\09-vector-graphic-artist\10__SvgFiles__Converted`), copied into the
+  assets folder, to get away from PNG files.
+
+**What changed**
+- `01__AppAssets__TrueVision/UiIcons__MenuIcons__ToolsMenu/`: the ten Tools Menu SVGs (`10__Outputs__MenuItems`),
+  among them Drawings, RenderEngine, ElevationView and ShareLink, which nothing uses yet.
+- `01__AppAssets__TrueVision/UiIcons__MenuIcons__NavigationMenu/`: the five Navigation Menu SVGs (`11__Outputs__NavMenu`).
+- `Index.html`: all 17 icon images now load the `.svg` (Tools & Settings and its rows, the navigation toolbar, the
+  navigation help panel). Each SVG is a vector trace of the PNG it replaces: same drawing, same navy (#172b3a),
+  same line weight at 20 to 24 px, and no off-white box behind it.
+- The 21 replaced PNGs are deleted (8 Tools Menu icons at 540p and 1080p, 5 Navigation Menu icons).
+  `Icon__NavigationMenu__IconsCollectionArtboard__.png` and `UI__Idea__NavigationMenu__.png` stay: design references,
+  never loaded by the app.
+- `Na__UiFeature__Styles__NavigationToolbar__.css`: the toolbar icon comment says SVG. No style changed.
+- The two PNGs left in `Index.html` are shared brand assets, not icons: the iOS home screen icon (iOS needs a PNG)
+  and the Noble Architecture logo.
+
+**Tested**
+- The real app on localhost, PS01, served read-only (Worker URL blanked, every write refused; none attempted): all 17
+  icons load as SVG, none broken, and the toolbar and Tools & Settings menu draw them as crisply as before.
+- No service worker token bump: `Index.html` is network first and the `.svg` paths were never cached, so a client
+  picks them up on its next load.
+
+**Measuring tool icons (for the coming measuring system; nothing loads them yet)**
+- `01__AppAssets__TrueVision/UiIcons__MenuIcons__MeasureTools/`: PlanVision's five measure panel icons
+  (`20__PlanVision__CoreAppCode/02__AppAssets__PlanVision/MeasureToolIcons/`) as SVG, under PlanVision's own names
+  (its "Measurment" spelling kept, so the two apps' sets match by name): TapeMeasure (the panel header), Linear,
+  Rectangular, Area and ClearMeasurements. PlanVision's `TOOL_DEFINITIONS` in
+  `UserInterface__MeasurementToolsPanel__.js` maps each to its tool.
+- Rebuilt with the vector-graphic-artist skill: each PNG measured and fitted (IoU 0.94 to 0.98 against the 421 px
+  source), then restyled to the TrueVision house: navy #172b3a instead of the PNGs' warm grey, round caps and joins
+  instead of square ends and mitred corners, stroke 34 per 1024 instead of about 21, and each drawing scaled to the
+  house size (the PNGs left about 27% padding). The tape's thumb tab was made taller by the added weight so its slot
+  stays open.
+- Specs, register rows: `10__SvgFiles__Converted/01__ProductionFiles/Icon__MeasureTools__*`. Work, proofs and the
+  faithful thin-line versions: `09-vector-graphic-artist/15_TestOutputs/2026-10-19__MeasureTools/`.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.178.0  -  19-Oct-2026
+### 3D View (Perspective) Point Cloud Scenes on 3D Viewports
+
+**What Adam saw**
+- JW02, Point Cloud Tools: "IMG01__3dView__MainShot__ ... 3D View. Exported 19 Oct 2026 17:35. Listed for later: a
+  perspective scene cannot be laid on a drawing yet", with Add Viewport greyed. "3D perspective from SketchUp fails
+  currently. Maybe it's just a placeholder, but trace through all of the Point Cloud Viewer plugin, TrueVision GLB
+  Builder plugin, and TrueVision itself."
+
+**The trace: a placeholder, and only TrueVision's**
+- Point Cloud Viewer 0.9 (Scenes tab, `Na__PointCloudViewer__Scenes__ImageExport__.rb`): COMPLETE. A perspective scene
+  is rendered as the SketchUp camera's whole view (a centred pinhole picture at the scene's image width and saved
+  aspect, square pixels, 2 px dots), and its record carries the camera in SketchUp and three.js form (eye, target, up,
+  axes, the vertical field of view) and a perspective frame (4000 x 2362 px, aspect 1.69, 36.24 degrees on JW02).
+- GLB Builder (Point Cloud tab and Scene Sync): COMPLETE. The export writes all of it into the revision manifest, and
+  Scene Sync pairs the synced 3D scene with its point cloud scene (`Scene__PointCloudSceneId`), which TrueVision's
+  synced scene record carries as `Sync__PointCloudSceneId`. JW02's synced IMG01 camera matches the export's to 0.66 mm
+  and 0.0036 degrees (a quarter of a pixel).
+- TrueVision: refused it at four places, by design since v2.173.0 ("needs a camera override in the 3D viewport"):
+  the store dropped the export's camera and field of view, the viewport record dropped a point cloud from any 3D
+  viewport, the 2D layer refused a perspective frame, and the panel listed 3D Views "for later".
+
+**What is new**
+- A 3D View scene lays on a 3D VIEWPORT whose TrueVision scene is seen from the export's own camera: Scene Sync's
+  scene of the same SketchUp scene first, else any scene within the new perspective tolerances (5 mm, 0.1 degrees,
+  1 degree of field of view; Point Cloud config 1.1.0). The export is the camera's whole view and so is the 3D
+  viewport's picture, both centred on the camera's axis, so the export lies over the picture as one rectangle: the
+  same centre, heights in the ratio of the half field of view tangents, its own aspect (`Na__PcPlace__PerspectiveRect`,
+  Placement 1.1.0). No warp, no guess.
+- Add Viewport on a 3D View scene makes a 3D viewport of that scene, framed to the export's shape (180 x 106.29 mm
+  on JW02), with the point cloud on it at the scene's opacity. Selected, it shows the 3D View scenes, Opacity and
+  SketchUp Sync, and says "Seen from the point cloud's own camera." A scene moved away from the export's camera
+  draws nothing and says how far, and what to use; a 2D viewport now lists only the scenes that lay on drawings.
+- The PDF prints it over the 3D picture at the same rectangle with the opacity in its alpha; a published drawing
+  carries it as the second picture (the 3D picture with the point cloud at full strength), so the client view shows
+  it at the viewport's opacity and the client's point cloud slider fades it. The Render Composites Point Cloud row and
+  the working view's checkboxes work on 3D viewports too. Draft mode hides it with every other picture.
+
+**Files**
+- `22__System__PointCloudData`: Store 1.1.0 (the frame's `Aspect` and `FovVerticalDeg`, the revision's `Camera`),
+  Placement 1.1.0 (`IsPerspectiveFrame`, `FrameAspect`, `SceneCamera`, `CameraGap`, `PerspectiveRect`), Config 1.1.0
+  and its JSON (`LayoutEditor__PointCloud__Perspective`).
+- `20__System__Viewports`: `Na__LayoutEditor__Viewport2d__PointCloud__.js` 1.3.0 (`PointCloudResolve3d`,
+  `PointCloudFill3d`, `PointCloudDrop3d`, `PointCloudForExport3d`, `PointCloudForPublish3d`; RefreshAll reaches 3D
+  frames); `Na__LayoutEditor__Viewport3d__.js` 1.9.0 (Fill draws it, a state let go drops it; `PointCloudResolve`,
+  `PointCloudForExport`, `PointCloudForPublish`).
+- SheetRecords 1.41.0 (a 3D viewport keeps the block, without Linework On Top or Show Datum); RenderComposites 1.4.1
+  and config 1.5.1 (the Point Cloud row is not 2D only); PdfExporter 1.14.0; Publish Viewports 1.3.0; Point Cloud
+  Tools panel 1.3.0.
+- Service worker 1.15.0: token `2026-10-19-06`.
+
+**Tested**
+- Point Cloud Viewports 92 (19 new): the store keeps the camera; Scene Sync's own record builder, fed the fixture's
+  camera, gives a scene within a millimetre and a hundredth of a degree; half a degree of turn is read back; the
+  rectangle for the same shape, a wider picture and a wider field of view; the record; ready, turned, no scene, an
+  elevation on a 3D viewport, hidden; Fill3d on a stand-in DOM (layer over the picture, the opacity, the transform,
+  the working view off and on through the refresh, a frame let go).
+- In the browser on JW02, sandboxed (writes refused, the Worker URL blanked, publishing into a scratch copy): the
+  IMG01 row read "Lays on a 3D viewport of IMG01__3dView__MainShot__, seen from its own camera"; Add Viewport made a
+  3D viewport of the synced scene in the export's shape; the survey's arches, windows, door and plinth sat on the
+  model's own edges; the PDF picture came out 3600 x 2126 px with 60% in its alpha; a publish carried it (three tiers,
+  opacity 0.6); the client view showed it, and Off, Full and As drawn gave 0, 1 and 0.6. Nothing was written to JW02.
+
+**To use it on the live site**
+- In SketchUp, keep IMG01__3dView__MainShot__ switched on in TrueVision Sync's Scene Sync tab (it is on JW02). After
+  the push: Point Cloud Tools, Add Viewport on the 3D View scene, then publish the sheet.
+
+**ValeVision**
+- Not ported: ValeVision has no point clouds.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.177.1  -  19-Oct-2026
 ### Fixed: Synced SketchUp Elevations Were Titled by the Scene Name, Not the Compass
 

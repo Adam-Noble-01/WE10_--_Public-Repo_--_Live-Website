@@ -47,6 +47,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.1.0
+// - A perspective (3D View) export is read whole: the frame keeps its Aspect
+//   and FovVerticalDeg, and the revision keeps the camera it was rendered
+//   from (Camera.ThreeJs: PositionM, TargetM, UpM, RightM, DirectionM,
+//   FovVerticalDeg, Aspect), so a 3D viewport can lay it over the scene
+//   seen from that same camera (TrueVision3D v2.178.0). Until now both were
+//   dropped here, which is one reason a 3D View could not be placed.
+//
 // 19-Oct-2026 - Version 1.0.0
 // - Initial implementation (point cloud viewports). Reads store schema 1 and
 //   revision schema 1; Site Plan scenes (siteplan) from the start.
@@ -98,7 +106,7 @@
     // A Plan and a Site Plan both look straight down and are drawn in world X
     // and Z, so either lays on a plan viewport or a site plan viewport. An
     // Elevation and a Section look level, along a bearing. A 3D View is a
-    // perspective picture and has no drawing to lay on yet.
+    // perspective picture: it lays on a 3D viewport seen from its own camera.
     // ------------------------------------------------------------
     const Na__PcStore__VIEW_TYPES = [
         { id : 'plan',      label : 'Plan' },
@@ -381,8 +389,36 @@
             OriginM          : Na__PcStore__Vec(frame.OriginM),
             RightM           : Na__PcStore__Vec(frame.RightM),
             DownM            : Na__PcStore__Vec(frame.DownM),
-            NormalM          : Na__PcStore__Vec(frame.NormalM)
+            NormalM          : Na__PcStore__Vec(frame.NormalM),
+            Aspect           : num(frame.Aspect),                               // <-- A perspective frame: width over height of the camera's whole view
+            FovVerticalDeg   : num(frame.FovVerticalDeg)                        // <-- ...and its vertical field of view
         };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Camera an Export Was Rendered From (three.js form), or null
+    // ------------------------------------------------------------
+    // { PositionM, TargetM, UpM, RightM, DirectionM, FovVerticalDeg, Aspect }
+    // in TrueVision's world (metres, Y up), as the Point Cloud Viewer wrote it
+    // beside its SketchUp form. A perspective export lines up only with this
+    // camera, so a 3D viewport is checked against it before it draws.
+    // ------------------------------------------------------------
+    function Na__PcStore__Camera(raw) {
+        const three = (raw && typeof raw === 'object' && raw.ThreeJs && typeof raw.ThreeJs === 'object') ? raw.ThreeJs : null;
+        if (!three) return null;
+        const num = (value) => (Number.isFinite(value) ? value : null);
+        const camera = {
+            Projection     : raw.Projection === 'perspective' ? 'perspective' : 'orthographic',
+            PositionM      : Na__PcStore__Vec(three.Position),
+            TargetM        : Na__PcStore__Vec(three.Target),
+            UpM            : Na__PcStore__Vec(three.Up),
+            RightM         : Na__PcStore__Vec(three.Right),
+            DirectionM     : Na__PcStore__Vec(three.Direction),
+            FovVerticalDeg : num(three.FovVerticalDeg),
+            Aspect         : num(three.Aspect)
+        };
+        return (camera.PositionM && camera.DirectionM) ? camera : null;
     }
     // ------------------------------------------------------------
 
@@ -427,6 +463,7 @@
             Scene__ScaleDenominator : (raw.Scene__Scale && Number.isFinite(raw.Scene__Scale.Denominator)) ? raw.Scene__Scale.Denominator : scene.Scene__ScaleDenominator,
             Scene__DefaultOpacity : Number.isFinite(raw.Scene__DefaultOpacity) ? Math.max(0, Math.min(1, raw.Scene__DefaultOpacity)) : scene.Scene__DefaultOpacity,
             Frame                 : Na__PcStore__Frame(raw.Frame),
+            Camera                : Na__PcStore__Camera(raw.Camera),
             Image : {
                 WidthPx     : Number.isFinite(image.WidthPx)  ? image.WidthPx  : null,
                 HeightPx    : Number.isFinite(image.HeightPx) ? image.HeightPx : null,

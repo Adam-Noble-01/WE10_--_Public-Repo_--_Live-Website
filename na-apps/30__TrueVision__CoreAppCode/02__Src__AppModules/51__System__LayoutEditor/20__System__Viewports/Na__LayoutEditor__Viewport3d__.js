@@ -32,6 +32,17 @@
 //   screen is placed by the window it was rendered for, so a zoom or a slide
 //   shows at once and the sharp render replaces it when the input rests.
 //
+// - A POINT CLOUD (1.9.0). A 3D viewport may carry a SketchUp 3D View point
+//   cloud scene (Viewport__PointCloud): the camera's whole view, laid over the
+//   picture where that view falls, at the viewport's opacity. It is drawn only
+//   while the viewport's scene is seen from the export's own camera - the
+//   scene Scene Sync made from the same SketchUp scene - and says why in a
+//   badge otherwise. The layer is the point cloud unit's
+//   (Na__LayoutEditor__Viewport2d__PointCloud__, PointCloudFill3d); this file
+//   hands it the scene and the picture's rectangle, and gives the PDF, the
+//   publisher and the Point Cloud Tools panel their entry points
+//   (PointCloudForExport, PointCloudForPublish, PointCloudResolve).
+//
 // INTEGRATION:
 // - The sheet surface calls Fill for every visible 3D frame; the PDF
 //   exporter asks for the picture at export resolution, and puts it at
@@ -53,6 +64,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.9.0 (TrueVision, point clouds)
+// - Perspective point cloud viewports (TrueVision3D v2.178.0). Fill hands the
+//   frame to the point cloud unit's PointCloudFill3d with the viewport's scene
+//   and PictureRect, before any early return (a point cloud is drawn over an
+//   empty frame too, and still says why when it cannot be). A state let go or
+//   replaced drops its point cloud. PointCloudResolve, PointCloudForExport
+//   and PointCloudForPublish give the panel, the PDF and the publisher the
+//   same answers the frame draws by.
+//
 // 28-Sep-2026 - Version 1.8.1 (per-scene lighting, v2.161.0)
 // - A scene's own lighting (PresentationMode__Scene__Lighting) joins the
 //   fingerprint, so relighting a scene re-renders the pictures of it. Only
@@ -146,6 +166,10 @@
     import { Na__LeComposite__Weight, Na__LeComposite__RasterToken } from '../25__System__RenderStyles/Na__LayoutEditor__RenderComposites__.js';
     import { Na__LeRaster__Working, Na__LeRaster__Export, Na__LeRaster__Fit } from './Na__LayoutEditor__RasterQuality__.js';
     import { Na__LeDraft__IsOn } from '../26__System__DraftMode/Na__LayoutEditor__DraftMode__State__.js';
+    import {
+        Na__LeVp2d__PointCloudResolve3d, Na__LeVp2d__PointCloudFill3d, Na__LeVp2d__PointCloudDrop3d,
+        Na__LeVp2d__PointCloudForExport3d, Na__LeVp2d__PointCloudForPublish3d
+    } from './Na__LayoutEditor__Viewport2d__PointCloud__.js';   // <-- A 3D View point cloud laid over the picture; that unit never imports this file
     import {
         Na__LeAssets__CanvasToBlob,
         Na__LeAssets__BlobToDataUrl,
@@ -351,6 +375,7 @@
     function Na__LeVp3d__State(body, viewportId) {
         let state = Na__LeVp3d__States.get(viewportId);
         if (state && state.body === body) return state;
+        if (state) Na__LeVp2d__PointCloudDrop3d(state);                           // <-- The frame it drew in is not this one: its point cloud goes with it
         body.innerHTML = '';
         const img = document.createElement('img');
         img.className = 'na-le-frame__snapshot';
@@ -512,6 +537,7 @@
         const scene = Na__LeModel__ResolveViewportSource(viewport).scene;
 
         Na__LeVp3d__Place(state);                                                  // <-- A zoom, a slide or a crop shows at once on the picture held; the render for it follows
+        Na__LeVp2d__PointCloudFill3d(state, viewport, scene || null, Na__LeVp3d__PictureRect(viewport), ppm);   // <-- Before every return below: over an empty frame too, and its badge says why when it cannot draw
 
         if (!scene) {
             state.empty.textContent = Na__LeCfg__GetLabel('NoSceneLinked', 'No scene linked to this viewport.');
@@ -591,6 +617,7 @@
         const state = Na__LeVp3d__States.get(viewportId);
         if (!state || (body && state.body !== body)) return;
         if (state.timer) window.clearTimeout(state.timer);
+        Na__LeVp2d__PointCloudDrop3d(state);
         Na__LeVp3d__States.delete(viewportId);
     }
     // ------------------------------------------------------------
@@ -736,6 +763,47 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | The Point Cloud's Entry Points
+// -----------------------------------------------------------------------------
+
+    // FUNCTION | Where a 3D Viewport's Point Cloud Stands (the frame's own answer, for the panel)
+    // ------------------------------------------------------------
+    function Na__LeVp3d__PointCloudResolve(viewport, kick) {
+        const scene = Na__LeModel__ResolveViewportSource(viewport).scene;
+        return Na__LeVp2d__PointCloudResolve3d(viewport, scene || null, Na__LeVp3d__PictureRect(viewport), kick === true);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | A 3D Viewport's Point Cloud for the PDF: { dataUrl, rectMm } or null
+    // ------------------------------------------------------------
+    // rectMm is ExportRectMm, where the PDF already lays this viewport's
+    // picture, so the point cloud goes over it at the same rectangle.
+    // ------------------------------------------------------------
+    async function Na__LeVp3d__PointCloudForExport(viewport) {
+        if (!viewport || !viewport.Viewport__PointCloud) return null;
+        const scene = Na__LeModel__ResolveViewportSource(viewport).scene;
+        return Na__LeVp2d__PointCloudForExport3d(viewport, scene || null, Na__LeVp3d__PictureRect(viewport), Na__LeVp3d__ExportRectMm(viewport));
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | A 3D Viewport's Point Cloud at Full Strength for Publishing: { canvas, opacity, ... } or null
+    // ------------------------------------------------------------
+    // width x height pixels covering ExportRectMm: the published picture's
+    // own rectangle and size.
+    // ------------------------------------------------------------
+    async function Na__LeVp3d__PointCloudForPublish(viewport, width, height) {
+        if (!viewport || !viewport.Viewport__PointCloud) return null;
+        const scene = Na__LeModel__ResolveViewportSource(viewport).scene;
+        return Na__LeVp2d__PointCloudForPublish3d(viewport, scene || null, Na__LeVp3d__PictureRect(viewport), Na__LeVp3d__ExportRectMm(viewport), width, height);
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Module Exports
 // -----------------------------------------------------------------------------
 
@@ -753,7 +821,10 @@
         Na__LeVp3d__SetInteracting,
         Na__LeVp3d__RenderForExport,
         Na__LeVp3d__ForceRender,
-        Na__LeVp3d__Bake
+        Na__LeVp3d__Bake,
+        Na__LeVp3d__PointCloudResolve,
+        Na__LeVp3d__PointCloudForExport,
+        Na__LeVp3d__PointCloudForPublish
     };
     // ------------------------------------------------------------
 

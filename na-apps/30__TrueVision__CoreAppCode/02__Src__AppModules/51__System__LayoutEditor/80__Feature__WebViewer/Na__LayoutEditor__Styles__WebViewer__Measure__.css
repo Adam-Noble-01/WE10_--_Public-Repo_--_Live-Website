@@ -1,0 +1,538 @@
+/* ================================================================= */
+/* REGION  |  TrueVision3D - Layout Editor Web Viewer - Measure      */
+/* ================================================================= */
+/*
+ * The web viewer's measuring tools (Na__LayoutEditor__WebViewer__Measure__,
+ * ...__Measure__Tool__ and ...__Measure__Overlay__): the dock button, the
+ * menu behind it, the bar while a tool is on, and the overlay drawn on the
+ * paper. Imported straight after Na__LayoutEditor__Styles__WebViewer__.css,
+ * whose measurements (--Na_ViewerDockHeight and the viewer's colours) it uses.
+ *
+ * LINE WIDTHS ARE NOT SET HERE. The overlay is drawn in paper millimetres and
+ * writes every stroke width and text size itself, in millimetres for the zoom
+ * of the moment, so they stay the same size on screen. A stroke-width set in
+ * this sheet would win over those and break that, so colours only.
+ *
+ * - Ported from : none. TrueVision original.
+ * - Created     : 19-Oct-2026 for TrueVision3D v2.180.0
+ */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Colours                                                */
+/* ----------------------------------------------------------------- */
+
+:root {
+    --Na_MeasureInk                    : #1a7fc4;                     /* <-- The viewer's accent blue: every measurement */
+    --Na_MeasureInkStrong              : #0e4f7d;                     /* <-- Its labels, and a picked one */
+    --Na_MeasureFill                   : rgba(26, 127, 196, 0.10);
+    --Na_MeasureFillPicked             : rgba(26, 127, 196, 0.17);
+    --Na_MeasureSnap                   : rgb(147, 51, 234);           /* <-- The editor's colour for a snap to a viewport's linework (Na__LayoutEditor__Styles__ObjectSnap__.css) */
+    --Na_MeasureAxisH                  : #dc2626;                     /* <-- Square off the last point, along the drawing's x */
+    --Na_MeasureAxisV                  : #16a34a;                     /* <-- ...and along its y */
+    --Na_MeasureDelete                 : #c0392b;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Dock Button                                        */
+/* ----------------------------------------------------------------- */
+
+/* A dock button like the point cloud's: the tape measure and the word, the
+   word going on a phone. Ringed in blue while its menu is up or a tool is on. */
+
+.na-le-viewer__btn--ms {
+    gap                                : 6px;
+    padding                            : 0 10px;
+}
+
+.na-le-viewer__ms-icon {
+    flex                               : 0 0 auto;
+    width                              : 20px;
+    height                             : 20px;
+    pointer-events                     : none;
+}
+
+.na-le-viewer__btn--ms[aria-expanded="true"],
+.na-le-viewer__btn--ms[data-na-active="true"] {
+    border-color                       : var(--Na_ViewerAccent);
+    background                         : #eef5fb;
+}
+
+@media (max-width: 479px) {
+    .na-le-viewer__ms-label {
+        display                        : none;
+    }
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Menu                                               */
+/* ----------------------------------------------------------------- */
+
+/* Above the button and over the drawing, like the point cloud panel. Each
+   tool is a row a thumb can hit (48px): its icon, its name and one line of
+   what it measures. */
+
+.na-le-viewer-ms {
+    position                           : fixed;
+    top                                : 0;
+    left                               : 0;
+    z-index                            : 1100;
+    box-sizing                         : border-box;
+    width                              : 320px;
+    max-width                          : calc(100vw - 16px);
+    padding                            : 10px 10px 12px;
+    background                         : var(--Na_ViewerPaper);
+    border                             : 1px solid var(--Na_ViewerLine);
+    border-radius                      : 8px;
+    box-shadow                         : 0 10px 32px rgba(23, 43, 58, 0.22);
+    color                              : var(--Na_ViewerInk);
+    font-family                        : var(--Vale_FontFamily, 'Open Sans', sans-serif);
+    font-size                          : 0.78rem;
+    line-height                        : 1.4;
+    text-align                         : left;
+}
+
+.na-le-viewer-ms__head {
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 8px;
+    padding                            : 0 2px 0 4px;
+    margin-bottom                      : 6px;
+}
+
+.na-le-viewer-ms__head-icon {
+    flex                               : 0 0 auto;
+    width                              : 22px;
+    height                             : 22px;
+}
+
+.na-le-viewer-ms__title {
+    flex                               : 0 0 auto;
+    font-size                          : 0.74rem;
+    font-weight                        : 600;
+    letter-spacing                     : 0.06em;
+    text-transform                     : uppercase;
+}
+
+.na-le-viewer-ms__what {
+    flex                               : 1 1 auto;
+    min-width                          : 0;
+    overflow                           : hidden;
+    color                              : var(--Na_ViewerMuted);
+    text-overflow                      : ellipsis;
+    white-space                        : nowrap;
+}
+
+.na-le-viewer-ms__close {
+    flex                               : 0 0 auto;
+    width                              : 28px;
+    height                             : 28px;
+    padding                            : 0;
+    border                             : 0;
+    border-radius                      : 5px;
+    background                         : transparent;
+    color                              : var(--Na_ViewerMuted);
+    font-size                          : 1.15rem;
+    line-height                        : 1;
+    cursor                             : pointer;
+}
+
+.na-le-viewer-ms__close:hover {
+    background                         : #e8edf3;
+    color                              : var(--Na_ViewerInk);
+}
+
+.na-le-viewer-ms__tools {
+    display                            : flex;
+    flex-direction                     : column;
+    gap                                : 4px;
+}
+
+.na-le-viewer-ms__tool {
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 12px;
+    width                              : 100%;
+    min-height                         : 48px;
+    padding                            : 6px 10px;
+    box-sizing                         : border-box;
+    background                         : transparent;
+    border                             : 1px solid transparent;
+    border-radius                      : 7px;
+    color                              : var(--Na_ViewerInk);
+    font-family                        : inherit;
+    text-align                         : left;
+    cursor                             : pointer;
+    -webkit-tap-highlight-color        : transparent;
+}
+
+.na-le-viewer-ms__tool:hover:not(:disabled) {
+    background                         : #f1f5f9;
+}
+
+.na-le-viewer-ms__tool--on,
+.na-le-viewer-ms__tool--on:hover:not(:disabled) {
+    background                         : #eef5fb;
+    border-color                       : var(--Na_ViewerAccent);
+}
+
+.na-le-viewer-ms__tool:disabled {
+    opacity                            : 0.45;
+    cursor                             : default;
+}
+
+.na-le-viewer-ms__icon {
+    flex                               : 0 0 auto;
+    width                              : 30px;
+    height                             : 30px;
+    pointer-events                     : none;
+}
+
+.na-le-viewer-ms__words {
+    display                            : flex;
+    flex-direction                     : column;
+    min-width                          : 0;
+    pointer-events                     : none;
+}
+
+.na-le-viewer-ms__name {
+    font-size                          : 0.84rem;
+    font-weight                        : 600;
+}
+
+.na-le-viewer-ms__hint {
+    color                              : var(--Na_ViewerMuted);
+    font-size                          : 0.74rem;
+}
+
+.na-le-viewer-ms__sep {
+    height                             : 1px;
+    margin                             : 2px 6px;
+    background                         : var(--Na_ViewerLine);
+}
+
+/* CLEAR ALL ASKS TWICE: armed, it turns red and says so. */
+
+.na-le-viewer-ms__tool--confirm,
+.na-le-viewer-ms__tool--confirm:hover:not(:disabled) {
+    background                         : #fdecea;
+    border-color                       : var(--Na_MeasureDelete);
+}
+
+.na-le-viewer-ms__tool--confirm .na-le-viewer-ms__name {
+    color                              : var(--Na_MeasureDelete);
+}
+
+.na-le-viewer-ms__option {
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 8px;
+    margin                             : 8px 4px 0;
+    padding                            : 6px 6px;
+    border-top                         : 1px solid var(--Na_ViewerLine);
+    cursor                             : pointer;
+}
+
+.na-le-viewer-ms__checkbox {
+    width                              : 18px;
+    height                             : 18px;
+    margin                             : 0;
+    accent-color                       : var(--Na_ViewerAccent);
+}
+
+.na-le-viewer-ms__status {
+    margin                             : 4px 6px 0;
+    color                              : var(--Na_ViewerAccent);
+    font-size                          : 0.72rem;
+}
+
+.na-le-viewer-ms__status[hidden] {
+    display                            : none;
+}
+
+.na-le-viewer-ms__note {
+    margin                             : 4px 6px 0;
+    color                              : var(--Na_ViewerMuted);
+    font-size                          : 0.72rem;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Bar While a Tool Is On                             */
+/* ----------------------------------------------------------------- */
+
+/* Just above the dock, centred: the tool's icon, what to do next, and the
+   buttons a phone needs because it has no Escape key and no double click. */
+
+.na-le-viewer-ms-bar {
+    position                           : fixed;
+    left                               : 50%;
+    bottom                             : calc(var(--Na_ViewerDockHeight) + env(safe-area-inset-bottom, 0px) + 10px);
+    z-index                            : 1050;
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 8px;
+    box-sizing                         : border-box;
+    max-width                          : calc(100vw - 16px);
+    padding                            : 6px 6px 6px 10px;
+    transform                          : translateX(-50%);
+    background                         : var(--Na_ViewerPaper);
+    border                             : 1px solid var(--Na_ViewerLine);
+    border-radius                      : 10px;
+    box-shadow                         : 0 6px 22px rgba(23, 43, 58, 0.18);
+    color                              : var(--Na_ViewerInk);
+    font-family                        : var(--Vale_FontFamily, 'Open Sans', sans-serif);
+    font-size                          : 0.8rem;
+    line-height                        : 1.3;
+}
+
+.na-le-viewer-ms-bar[hidden] {
+    display                            : none;
+}
+
+.na-le-viewer-ms-bar__icon {
+    flex                               : 0 0 auto;
+    width                              : 24px;
+    height                             : 24px;
+}
+
+.na-le-viewer-ms-bar__words {
+    display                            : flex;
+    flex                               : 1 1 auto;
+    flex-direction                     : column;
+    min-width                          : 0;
+}
+
+.na-le-viewer-ms-bar__text {
+    font-weight                        : 600;
+}
+
+.na-le-viewer-ms-bar--flash .na-le-viewer-ms-bar__text {
+    color                              : #b45309;
+}
+
+.na-le-viewer-ms-bar__note {
+    color                              : var(--Na_ViewerMuted);
+    font-size                          : 0.7rem;
+}
+
+.na-le-viewer-ms-bar__note[hidden] {
+    display                            : none;
+}
+
+.na-le-viewer-ms-bar__btn {
+    flex                               : 0 0 auto;
+    height                             : 32px;
+    padding                            : 0 11px;
+    background                         : #f4f6f8;
+    border                             : 1px solid var(--Na_ViewerLine);
+    border-radius                      : 7px;
+    color                              : var(--Na_ViewerInk);
+    font-family                        : inherit;
+    font-size                          : 0.76rem;
+    font-weight                        : 600;
+    white-space                        : nowrap;
+    cursor                             : pointer;
+    -webkit-tap-highlight-color        : transparent;
+}
+
+.na-le-viewer-ms-bar__btn:hover {
+    background                         : #e7ecf1;
+}
+
+.na-le-viewer-ms-bar__btn[hidden] {
+    display                            : none;
+}
+
+.na-le-viewer-ms-bar__btn--done {
+    background                         : var(--Na_ViewerAccent);
+    border-color                       : var(--Na_ViewerAccent);
+    color                              : #ffffff;
+}
+
+.na-le-viewer-ms-bar__btn--done:hover {
+    background                         : #156aa4;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Stage While Measuring                              */
+/* ----------------------------------------------------------------- */
+
+.na-le-viewer-ms--measuring,
+.na-le-viewer-ms--measuring * {
+    cursor                             : crosshair;
+}
+
+.na-le-viewer-ms--over-measure,
+.na-le-viewer-ms--over-measure * {
+    cursor                             : pointer;
+}
+
+.na-le-viewer-ms--over-grip,
+.na-le-viewer-ms--over-grip * {
+    cursor                             : move;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Overlay on the Paper                               */
+/* ----------------------------------------------------------------- */
+
+.na-le-viewer-ms__overlay {
+    position                           : absolute;
+    top                                : 0;
+    left                               : 0;
+    z-index                            : 3;                           /* <-- Over the published drawing's host */
+    width                              : 100%;
+    height                             : 100%;
+    overflow                           : visible;
+    pointer-events                     : none;                        /* <-- The tools hit-test; the overlay takes nothing */
+}
+
+.na-le-viewer-ms__line,
+.na-le-viewer-ms__shape,
+.na-le-viewer-ms__closing {
+    stroke                             : var(--Na_MeasureInk);
+    stroke-linecap                     : round;
+    stroke-linejoin                    : round;
+}
+
+.na-le-viewer-ms__line,
+.na-le-viewer-ms__shape--open,
+.na-le-viewer-ms__closing {
+    fill                               : none;
+}
+
+.na-le-viewer-ms__shape {
+    fill                               : var(--Na_MeasureFill);
+}
+
+.na-le-viewer-ms__closing {
+    opacity                            : 0.55;
+}
+
+.na-le-viewer-ms__dot {
+    fill                               : var(--Na_MeasureInk);
+}
+
+.na-le-viewer-ms__grip {
+    fill                               : #ffffff;
+    stroke                             : var(--Na_MeasureInkStrong);
+}
+
+.na-le-viewer-ms__label {
+    fill                               : var(--Na_MeasureInkStrong);
+    stroke                             : #ffffff;
+    stroke-linejoin                    : round;
+    paint-order                        : stroke;                      /* <-- The white edge under the letters, so a label reads over any line */
+    font-family                        : var(--Vale_FontFamily, 'Open Sans', sans-serif);
+    font-weight                        : 600;
+    text-anchor                        : middle;
+    dominant-baseline                  : central;
+    font-variant-numeric               : tabular-nums;
+}
+
+.na-le-viewer-ms__label--area {
+    font-weight                        : 700;
+}
+
+.na-le-viewer-ms__label--small {
+    font-weight                        : 600;
+    fill                               : #33556f;
+}
+
+.na-le-viewer-ms__measure--draft {
+    opacity                            : 0.9;
+}
+
+.na-le-viewer-ms__measure--selected .na-le-viewer-ms__line,
+.na-le-viewer-ms__measure--selected .na-le-viewer-ms__shape {
+    stroke                             : var(--Na_MeasureInkStrong);
+}
+
+.na-le-viewer-ms__measure--selected .na-le-viewer-ms__shape {
+    fill                               : var(--Na_MeasureFillPicked);
+}
+
+.na-le-viewer-ms__measure--hover .na-le-viewer-ms__line,
+.na-le-viewer-ms__measure--hover .na-le-viewer-ms__shape {
+    stroke                             : var(--Na_MeasureInkStrong);
+}
+
+.na-le-viewer-ms__chip circle {
+    fill                               : #ffffff;
+    stroke                             : var(--Na_MeasureDelete);
+}
+
+.na-le-viewer-ms__chip path {
+    fill                               : none;
+    stroke                             : var(--Na_MeasureDelete);
+    stroke-linecap                     : round;
+}
+
+/* THE SNAP: the editor's glyph, in the editor's colour for a viewport's
+   linework; squaring off the last point in red along the drawing's x and green
+   along its y, as SketchUp colours its axes. */
+
+.na-le-viewer-ms__marker {
+    color                              : var(--Na_MeasureSnap);
+}
+
+.na-le-viewer-ms__marker--h,
+.na-le-viewer-ms__guide--h {
+    color                              : var(--Na_MeasureAxisH);
+}
+
+.na-le-viewer-ms__marker--v,
+.na-le-viewer-ms__guide--v {
+    color                              : var(--Na_MeasureAxisV);
+}
+
+.na-le-viewer-ms__guide {
+    fill                               : none;
+    stroke                             : currentColor;
+    opacity                            : 0.85;
+}
+
+.na-le-viewer-ms__name rect {
+    fill                               : rgba(23, 43, 58, 0.9);
+}
+
+.na-le-viewer-ms__name text {
+    fill                               : #ffffff;
+    font-family                        : var(--Vale_FontFamily, 'Open Sans', sans-serif);
+    font-weight                        : 600;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Print                                                  */
+/* ----------------------------------------------------------------- */
+
+/* A printed page is the drawing as issued: a reader's measurements are theirs
+   to see, not to print. */
+
+@media print {
+    .na-le-viewer-ms__overlay,
+    .na-le-viewer-ms-bar,
+    .na-le-viewer-ms {
+        display                        : none !important;
+    }
+}
+
+/* endregion ------------------------------------------------------- */

@@ -1,0 +1,177 @@
+{
+  "Revision__Schema": "TrueVision__PointCloudScene__Revision",
+  "Revision__SchemaVersion": 1,
+  "Revision__Id": "Rev__922660c006",
+  "Revision__Key": "922660c006",
+  "Revision__ExportedIso": "2026-10-19T18:44:30+0100",
+  "Revision__Exporter": {
+    "GlbBuilder": "2.11.0",
+    "PointCloudViewer": "0.9.0"
+  },
+  "Project__Code": "JW02",
+  "Scene__Id": "pcs_46bda801",
+  "Scene__Name": "IMG04__BirdseyeView__View-02__",
+  "Scene__ViewType": "view3d",
+  "Scene__Projection": "perspective",
+  "Scene__Scale": null,
+  "Scene__DefaultOpacity": 0.6,
+  "Camera": {
+    "Projection": "perspective",
+    "SketchUp": {
+      "Units": "inches",
+      "UpAxis": "Z",
+      "Eye": [
+        3174.3671503324995,
+        2796.090013143744,
+        1808.6242099314934
+      ],
+      "Target": [
+        2269.131973896734,
+        2042.5469827639922,
+        753.9530983611118
+      ],
+      "Up": [
+        -0.51269692479942,
+        -0.42678323206670976,
+        0.7449818361060295
+      ],
+      "XAxis": [
+        -0.639773629926072,
+        0.7685634017120627,
+        -1.942890293094024e-16
+      ],
+      "YAxis": [
+        -0.5126969247994198,
+        -0.4267832320667096,
+        0.7449818361060297
+      ],
+      "ZAxis": [
+        -0.5725657741713485,
+        -0.47661973351454473,
+        -0.6670847501420555
+      ],
+      "Perspective": true,
+      "AspectRatio": 0.0,
+      "FovDeg": 36.24372049580271,
+      "FovIsHeight": true
+    },
+    "ThreeJs": {
+      "Units": "metres",
+      "UpAxis": "Y",
+      "Position": [
+        80.62892561844548,
+        45.93905493225993,
+        -71.02068633385109
+      ],
+      "Target": [
+        57.63595213697704,
+        19.15040869837224,
+        -51.8806933622054
+      ],
+      "Up": [
+        -0.5126969247994198,
+        0.7449818361060297,
+        0.4267832320667096
+      ],
+      "Right": [
+        -0.639773629926072,
+        -1.942890293094024e-16,
+        -0.7685634017120627
+      ],
+      "Direction": [
+        -0.5725657741713485,
+        -0.6670847501420555,
+        0.47661973351454473
+      ],
+      "FovVerticalDeg": 36.24372049580271,
+      "Aspect": 1.6934801016088061
+    }
+  },
+  "Frame": {
+    "Kind": "perspective",
+    "WidthPx": 4000,
+    "HeightPx": 2362,
+    "Aspect": 1.6934801016088061,
+    "FovVerticalDeg": 36.24372049580271
+  },
+  "Image": {
+    "Format": "webp",
+    "Quality": 90,
+    "WidthPx": 4000,
+    "HeightPx": 2362,
+    "TileSizePx": 2048,
+    "PointSizePx": 2,
+    "Tiles": [
+      {
+        "Row": 0,
+        "Col": 0,
+        "X": 0,
+        "Y": 0,
+        "W": 2048,
+        "H": 2048,
+        "File": "PointCloud__Tile__R00__C00__.webp",
+        "Bytes": 868122
+      },
+      {
+        "Row": 0,
+        "Col": 1,
+        "X": 2048,
+        "Y": 0,
+        "W": 1952,
+        "H": 2048,
+        "File": "PointCloud__Tile__R00__C01__.webp",
+        "Bytes": 1018162
+      },
+      {
+        "Row": 1,
+        "Col": 0,
+        "X": 0,
+        "Y": 2048,
+        "W": 2048,
+        "H": 314,
+        "File": "PointCloud__Tile__R01__C00__.webp",
+        "Bytes": 11990
+      },
+      {
+        "Row": 1,
+        "Col": 1,
+        "X": 2048,
+        "Y": 2048,
+        "W": 1952,
+        "H": 314,
+        "File": "PointCloud__Tile__R01__C01__.webp",
+        "Bytes": 24846
+      }
+    ],
+    "Preview": {
+      "File": "PointCloudScene__Preview__.webp",
+      "WidthPx": 2000,
+      "HeightPx": 1181,
+      "Factor": 2,
+      "Bytes": 478122
+    },
+    "RenderMs": 807
+  },
+  "PointCloud": {
+    "FileName": "JW02__RealityCapture__LasExportTest__0.1.0__.las",
+    "ContentKey": "503c0aa1e2011e16",
+    "TotalPoints": 10758745,
+    "PointBudget": 10758745,
+    "ColourMode": "rgb",
+    "Clip": {
+      "MinSketchUpIn": [
+        -35.12763793123986,
+        395.36673996768525,
+        -137.99212598425197
+      ],
+      "MaxSketchUpIn": [
+        2302.136543496826,
+        2172.4466526955603,
+        406.4169594622033
+      ]
+    }
+  },
+  "Datums": [
+
+  ]
+}

@@ -68,6 +68,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.4.1
+// - The Point Cloud row means something on a 3D viewport too (a 3D View point
+//   cloud laid over its picture, TrueVision3D v2.178.0), so it is no longer
+//   2D only; its binding still shows it only on a viewport that has one.
+//
 // 19-Oct-2026 - Version 1.4.0
 // - A Point Cloud row, first: a SketchUp point cloud is laid over the
 //   linework and the fog (Viewport__PointCloud). Its toggle is the drawing's
@@ -124,7 +129,7 @@
     // weights fall back to these.
     // ------------------------------------------------------------
     const Na__LeComposite__FALLBACK = [
-        { key : 'pointCloud',        label : 'Point Cloud',             twoDOnly : true,  toggle : true,  binding : 'pointCloud', weight : { kind : 'none' } },
+        { key : 'pointCloud',        label : 'Point Cloud',             twoDOnly : false, toggle : true,  binding : 'pointCloud', weight : { kind : 'none' } },
         { key : 'depthFog',          label : 'Depth Fog',               twoDOnly : true,  toggle : true,  weight : { kind : 'none' } },
         { key : 'projectedLinework', label : 'Projected Linework',      twoDOnly : true,  toggle : true,  weight : { kind : 'factor', value : 1.00, min : 0.10, max : 3.00, step : 0.05, label : 'Weight'  } },
         { key : 'profileLinework',   label : 'Profile Linework Effect', twoDOnly : false, toggle : true,  weight : { kind : 'pixels', value : 1.00, min : 0.10, max : 4.00, step : 0.05, label : 'Edge px', twoDOnly : true } },

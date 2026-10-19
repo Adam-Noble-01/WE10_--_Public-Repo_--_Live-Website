@@ -16,8 +16,8 @@
     },
     "PublishedDocument__Publish" : {
         "Publish__SchemaVersion"  : 1,
-        "Publish__AtIso"          : "2026-10-19T16:33:06.295Z",
-        "Publish__AtEpochMs"      : 1792427586295,
+        "Publish__AtIso"          : "2026-10-19T18:19:46.023Z",
+        "Publish__AtEpochMs"      : 1792433986023,
         "Publish__ByApp"          : "TrueVision3D Layout Editor",
         "Publish__ByAppVersion"   : "v2.176.0",
         "Publish__RevisionAction" : "overwritten",
@@ -26,10 +26,28 @@
     "PublishedDocument__Files" : {
         "Files__Sheet" : {
             "File__Path"   : "Document__Sheet__.json",
-            "File__Bytes"  : 15781,
-            "File__Sha256" : "506b3ee20f"
+            "File__Bytes"  : 29170,
+            "File__Sha256" : "ad6f4502d4"
         },
         "Files__Elements" : [
+            {
+                "File__Type"   : "annotation",
+                "File__Layers" : [
+                    "Layer_002"
+                ],
+                "File__Path"   : "01__Elements__Data/Elements__Text__.json",
+                "File__Count"  : 17,
+                "File__Bytes"  : 13494,
+                "File__Sha256" : "660a0c220e"
+            },
+            {
+                "File__Type"   : "group",
+                "File__Layers" : [],
+                "File__Path"   : "01__Elements__Data/Elements__Groups__.json",
+                "File__Count"  : 1,
+                "File__Bytes"  : 7780,
+                "File__Sha256" : "02ad543fa0"
+            },
             {
                 "File__Type"   : "image",
                 "File__Layers" : [
@@ -37,8 +55,8 @@
                 ],
                 "File__Path"   : "01__Elements__Data/Elements__Images__.json",
                 "File__Count"  : 1,
-                "File__Bytes"  : 3335,
-                "File__Sha256" : "732b4a8e53"
+                "File__Bytes"  : 3333,
+                "File__Sha256" : "ca9e5932f5"
             },
             {
                 "File__Type"   : "vector",
@@ -47,9 +65,9 @@
                     "Layer_004"
                 ],
                 "File__Path"   : "01__Elements__Data/Elements__Vectors__.json",
-                "File__Count"  : 3,
-                "File__Bytes"  : 4658,
-                "File__Sha256" : "954f80e56d"
+                "File__Count"  : 34,
+                "File__Bytes"  : 39299,
+                "File__Sha256" : "59b98964c1"
             },
             {
                 "File__Type"   : "viewport",
@@ -57,19 +75,19 @@
                 "File__Path"   : "01__Elements__Data/Elements__Viewports__.json",
                 "File__Count"  : 1,
                 "File__Bytes"  : 1719,
-                "File__Sha256" : "553565b653"
+                "File__Sha256" : "c432a2f720"
             }
         ],
         "Files__Viewports" : [
             {
                 "Viewport__Id"     : "Viewport_001",
-                "Viewport__Hash"   : "f1be443211",
+                "Viewport__Hash"   : "9540d5063e",
                 "Viewport__Vector" : {
-                    "File__Path"     : "02__Viewports__Vector/Viewport_001__Linework__f1be443211.svg",
-                    "File__Bytes"    : 4761,
-                    "File__Sha256"   : "f1be443211",
+                    "File__Path"     : "02__Viewports__Vector/Viewport_001__Linework__9540d5063e.svg",
+                    "File__Bytes"    : 4731,
+                    "File__Sha256"   : "9540d5063e",
                     "File__Paths"    : 2,
-                    "File__Segments" : 149
+                    "File__Segments" : 148
                 },
                 "Viewport__Rasters"    : [],
                 "Viewport__FogMasks"   : [],
@@ -77,11 +95,11 @@
             }
         ],
         "Files__Pdf" : {
-            "File__Path"   : "Document__Print__2d12ff0bf4.pdf",
-            "File__Bytes"  : 1761278,
-            "File__Sha256" : "2d12ff0bf4",
+            "File__Path"   : "Document__Print__ea83990b69.pdf",
+            "File__Bytes"  : 1714830,
+            "File__Sha256" : "ea83990b69",
             "File__Name"   : "JW02_T01_D03__ExistingConditionsSitePlan__A2__RevA__19-Oct-2026__.pdf"
         },
-        "Files__TotalBytes" : 1791532
+        "Files__TotalBytes" : 1814356
     }
 }

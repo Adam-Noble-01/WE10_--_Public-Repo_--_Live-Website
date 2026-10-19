@@ -391,7 +391,7 @@
         const parts  = [];
         if (layout.path.length) parts.push({ points : layout.path.map((p) => [ p[0], p[1] ]), closed : false, area : false });
         if (layout.tipRadius > 0) parts.push({ points : Na__LeLeadGeo__Circle(layout.tip.x, layout.tip.y, layout.tipRadius), closed : true, area : true });
-        else parts.push({ points : [ [ layout.tip.x, layout.tip.y ] ], closed : false, area : false });
+        else if (layout.lineShown !== false) parts.push({ points : [ [ layout.tip.x, layout.tip.y ] ], closed : false, area : false });   // <-- Line off: the head is all there is to catch
         if (head.type === Na__LeLeadGeo__TYPE_BUBBLE) parts.push({ points : Na__LeLeadGeo__Circle(head.centre.x, head.centre.y, head.radius), closed : true, area : true });
         else if (Na__LeLeadGeo__HasText(head)) parts.push(Na__LeSelBox__RectPart(head.box.X, head.box.Y, head.box.WidthMm, head.box.HeightMm, true));
         return parts;

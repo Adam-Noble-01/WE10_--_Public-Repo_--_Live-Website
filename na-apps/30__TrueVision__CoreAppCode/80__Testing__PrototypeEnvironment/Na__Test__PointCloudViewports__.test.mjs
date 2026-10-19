@@ -31,8 +31,12 @@
 //   patch changes one setting at a time.
 // - The store reads scene ids (never names), current and pinned exports, and
 //   the Site Plan scene type.
-// - The layer refuses a 3D View, a scene looking the wrong way, a plan scene
-//   on an elevation, and says how far a near miss drifts.
+// - The layer refuses a 3D View on a drawing, a scene looking the wrong way, a
+//   plan scene on an elevation, and says how far a near miss drifts.
+// - PERSPECTIVE (TrueVision3D v2.178.0). A 3D View export lays on a 3D
+//   viewport whose scene is seen from its camera: the store keeps the camera,
+//   Scene Sync's scene of the same SketchUp scene matches it to a millimetre,
+//   PerspectiveRect places it, and Fill3d draws it over the picture.
 // - TWO KINDS OF OFF (19-Oct-2026). The working view (Point Cloud Tools'
 //   checkboxes) switches point clouds off on screen only: Fill draws and
 //   fetches nothing for one, while the export path still finds it ready. The
@@ -124,7 +128,7 @@ import { tmpdir } from 'node:os';
     globalThis.window = {
         location : { origin : 'http://127.0.0.1:8523' }, devicePixelRatio : 1,
         dispatchEvent (event) { events.push(event.detail && event.detail.reason); }, addEventListener () {},
-        requestAnimationFrame (fn) { fn(); return 1; }
+        requestAnimationFrame (fn) { setTimeout(fn, 0); return 1; }                // <-- After the caller has booked it, as a browser does
     };
     globalThis.CustomEvent = class { constructor (type, init) { this.type = type; Object.assign(this, init); } };
     const settle = () => new Promise((done) => setTimeout(done, 0));
@@ -173,7 +177,9 @@ import { tmpdir } from 'node:os';
         'PointCloud__PinnedRevision' in norm(Object.assign({}, base, { Viewport__PointCloud : { PointCloud__SceneId : 'pcs_a', PointCloud__PinnedRevision : '../Rev__x' } })).Viewport__PointCloud, false);
     check('a scene id that could be a path is refused outright',
         'Viewport__PointCloud' in norm(Object.assign({}, base, { Viewport__PointCloud : { PointCloud__SceneId : '../../etc' } })), false);
-    check('a 3D viewport loses the block', 'Viewport__PointCloud' in norm(Object.assign({}, base, { Viewport__Kind : '3d', Viewport__PointCloud : { PointCloud__SceneId : 'pcs_a' } })), false);
+    check('a 3D viewport keeps the block (a 3D View scene is laid over its picture, TrueVision3D v2.178.0)',
+        norm(Object.assign({}, base, { Viewport__Kind : '3d', Viewport__PointCloud : { PointCloud__SceneId : 'pcs_a' } })).Viewport__PointCloud, { PointCloud__SceneId : 'pcs_a' });
+    check('a viewport of no kind it knows becomes 2D, as every viewport always has', norm(Object.assign({}, base, { Viewport__Kind : 'odd', Viewport__PointCloud : { PointCloud__SceneId : 'pcs_a' } })).Viewport__Kind, '2d');
     check('a SITE PLAN viewport keeps it (a Site Plan scene lays on it as on a plan)',
         norm({ Viewport__Id : 'Viewport_002', Viewport__Kind : '2d', Viewport__SitePlan : {}, Viewport__PointCloud : { PointCloud__SceneId : 'pcs_site' } }).Viewport__PointCloud, { PointCloud__SceneId : 'pcs_site' });
     check('IsPointCloudViewport reads it', [ Records.Na__LeRec__IsPointCloudViewport(norm(Object.assign({}, base, { Viewport__PointCloud : { PointCloud__SceneId : 'pcs_a' } }))), Records.Na__LeRec__IsPointCloudViewport(norm(base)) ], [ true, false ]);
@@ -358,7 +364,7 @@ import { tmpdir } from 'node:os';
     r = await verdict({ PointCloud__SceneId : 'pcs_9f322302', PointCloud__PinnedRevision : 'Rev__abf7eb2d45' }, elevationDefinition(180));
     check('a plan scene on an elevation: refused the same way', [ r.status, r.message ], [ 'misaligned', 'A plan scene lays on a plan or site plan viewport, not this one.' ]);
     r = await verdict({ PointCloud__SceneId : 'pcs_fb6ee416' }, elevationDefinition(180));
-    check('a 3D View: refused', [ r.status, r.message ], [ 'perspective', 'A 3D View scene cannot be laid on a drawing.' ]);
+    check('a 3D View on a drawing: refused, saying it lays on a 3D viewport', [ r.status, r.message ], [ 'perspective', 'A 3D View scene lays on a 3D viewport, not on a drawing.' ]);
     r = await verdict({ PointCloud__SceneId : 'pcs_nothere1' }, elevationDefinition(180));
     check('a scene not in the exports: says so', r.status, 'missing');
     r = await verdict({ PointCloud__SceneId : 'pcs_7d342e28', PointCloud__Hidden : true }, elevationDefinition(180));
@@ -433,12 +439,125 @@ import { tmpdir } from 'node:os';
     await Composites.Na__LeComposite__Ready();
     const rows = Composites.Na__LeComposite__Rows();
     const pcRow = rows.find((row) => row.key === 'pointCloud');
-    check('Render Composites lists Point Cloud first (it is laid over the linework and the fog), a 2D toggle with no weight',
-        pcRow ? [ rows[0].key, pcRow.label, pcRow.toggle, pcRow.twoDOnly, pcRow.weight.kind ] : null, [ 'pointCloud', 'Point Cloud', true, true, 'none' ]);
+    check('Render Composites lists Point Cloud first (it is laid over the linework and the fog), a toggle with no weight, on 3D viewports too',
+        pcRow ? [ rows[0].key, pcRow.label, pcRow.toggle, pcRow.twoDOnly, pcRow.weight.kind ] : null, [ 'pointCloud', 'Point Cloud', true, false, 'none' ]);
     check('its toggle is bound to the viewport\'s point cloud block, every other row to Viewport__Styles',
         [ pcRow && pcRow.binding, rows.filter((row) => row.key !== 'pointCloud').every((row) => row.binding === 'style') ], [ 'pointCloud', true ]);
     check('a viewport that never touched a weight keys exactly as before: no token from the new row',
         [ Composites.Na__LeComposite__Token(viewportFor({ PointCloud__SceneId : 'pcs_7d342e28', PointCloud__Hidden : true })), Composites.Na__LeComposite__RasterToken(viewportFor({ PointCloud__SceneId : 'pcs_7d342e28' })) ], [ '', '' ]);
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Perspective Exports on 3D Viewports (TrueVision3D v2.178.0)
+// -----------------------------------------------------------------------------
+//
+// A 3D View export is laid over a 3D viewport whose scene is seen from the
+// export's own camera. The scene here is built by Scene Sync's own record
+// builder from the export's camera, exactly as a synced SketchUp scene is, so
+// the check is the production path end to end: Scene Sync's Euler angles,
+// read back by SceneCamera, against the export's three.js camera.
+//
+// -----------------------------------------------------------------------------
+
+    console.log('\n  Perspective exports on 3D viewports');
+    const streetRev = await Store.Na__PcStore__LoadRevision('pcs_fb6ee416', 'Rev__146c88cd1d');
+    check('the store keeps a 3D View export whole: its frame\'s field of view and aspect, and the camera it was rendered from',
+        [ streetRev.Frame.Kind, streetRev.Frame.FovVerticalDeg, Math.round(streetRev.Frame.Aspect * 1000), !!streetRev.Camera, streetRev.Camera && streetRev.Camera.FovVerticalDeg ],
+        [ 'perspective', 35, 1778, true, 35 ]);
+    check('and an elevation export, which has no field of view, keeps none', [ revision.Frame.FovVerticalDeg, revision.Frame.Aspect ], [ null, null ]);
+
+    const SyncRec = await load('23__System__SceneSync/Na__SceneSync__Records__.js', {});
+    const streetRaw = JSON.parse(readFileSync(join(FIXTURE, 'PointCloudScene__pcs_fb6ee416/Rev__146c88cd1d/PointCloudScene__RevisionManifest__.json'), 'utf8'));
+    const syncRow = (camera) => ({ Scene__Id : 'sus_street01', Scene__PagePid : 7, Scene__Name : 'Street View', Scene__Type : 'view3d', Scene__TypeLabel : '3D View',
+        Camera : camera, Section : null, Drawing : null, ModelLayers : { Hidden : [] }, Scene__Revision : 'aaaaaaaaaa', Scene__PointCloudSceneId : 'pcs_fb6ee416', Scene__State : 'synced' });
+    const syncedScene = SyncRec.Na__SceneSync__Build({ rows : [ syncRow(streetRaw.Camera) ] }, {}).scenes[0];
+    const gap = Place.Na__PcPlace__CameraGap(Place.Na__PcPlace__SceneCamera(syncedScene), streetRev.Camera);
+    check('Scene Sync\'s scene of the same SketchUp scene is seen from the export\'s camera (to a millimetre and a hundredth of a degree)',
+        [ syncedScene.Sync__PointCloudSceneId, gap.PositionMm < 1, gap.AngleDeg < 0.01, gap.UpDeg < 0.01, gap.FovDeg < 0.001 ], [ 'pcs_fb6ee416', true, true, true, true ]);
+    const turned = JSON.parse(JSON.stringify(syncedScene));
+    turned.PresentationMode__Scene__CameraPosition.Camera__DefaultRotation.Camera__DefaultRotation__RotY += 0.5 * Math.PI / 180;
+    near('SceneCamera reads a turn of the record: half a degree about Y', Place.Na__PcPlace__CameraGap(Place.Na__PcPlace__SceneCamera(turned), streetRev.Camera).AngleDeg, 0.5, 0.02);
+
+    const sameShape = Place.Na__PcPlace__PerspectiveRect({ X : 10, Y : 20, WidthMm : 320, HeightMm : 180 }, 35, streetRev.Frame);
+    check('a picture in the export\'s own shape: the export IS the picture',
+        [ sameShape.X, sameShape.Y, sameShape.WidthMm, sameShape.HeightMm ].map((v) => Math.round(v * 1000) / 1000), [ 10, 20, 320, 180 ]);
+    const wider = Place.Na__PcPlace__PerspectiveRect({ X : 0, Y : 0, WidthMm : 400, HeightMm : 180 }, 35, streetRev.Frame);
+    check('a wider picture: the export keeps its height and its shape, centred (the picture shows more scene each side)',
+        [ wider.X, wider.Y, wider.WidthMm, wider.HeightMm ].map((v) => Math.round(v * 1000) / 1000), [ 40, 0, 320, 180 ]);
+    const wideAngle = Place.Na__PcPlace__PerspectiveRect({ X : 0, Y : 0, WidthMm : 320, HeightMm : 180 }, 40, streetRev.Frame);
+    near('a picture drawn with a wider field of view: the export shrinks by the ratio of the half angle tangents',
+        wideAngle.HeightMm, 180 * Math.tan(17.5 * Math.PI / 180) / Math.tan(20 * Math.PI / 180), 1e-9);
+
+    const base3d = { Viewport__Id : 'Viewport_003', Viewport__Kind : '3d', Viewport__SceneId : 'sus_street01',
+                     Viewport__FrameMm : { X : 10, Y : 20, WidthMm : 320, HeightMm : 180 } };
+    const view3d = (block) => norm(Object.assign({}, base3d, { Viewport__PointCloud : block }));
+    check('a 3D viewport keeps its point cloud: the scene, the opacity, the pin and Hidden, never Linework On Top or Show Datum',
+        view3d({ PointCloud__SceneId : 'pcs_fb6ee416', PointCloud__Opacity : 0.5, PointCloud__LineworkOnTop : true, PointCloud__ShowDatum : true,
+                 PointCloud__PinnedRevision : 'Rev__146c88cd1d', PointCloud__Hidden : true }).Viewport__PointCloud,
+        { PointCloud__SceneId : 'pcs_fb6ee416', PointCloud__Opacity : 0.5, PointCloud__PinnedRevision : 'Rev__146c88cd1d', PointCloud__Hidden : true });
+
+    const picture3d = { X : 0, Y : 0, WidthMm : 320, HeightMm : 180 };
+    const verdict3d = async (block, scene) => {
+        const viewport = view3d(block);
+        Layer.Na__LeVp2d__PointCloudResolve3d(viewport, scene, picture3d, true);
+        await settle(); await settle();
+        return Layer.Na__LeVp2d__PointCloudResolve3d(viewport, scene, picture3d, true);
+    };
+    let v3 = await verdict3d({ PointCloud__SceneId : 'pcs_fb6ee416' }, syncedScene);
+    check('the 3D View on a 3D viewport of its synced scene: drawn, over the whole picture, at the scene\'s own opacity',
+        [ v3.status, v3.opacity, v3.threeD, [ v3.rectMm.X, v3.rectMm.Y, v3.rectMm.WidthMm, v3.rectMm.HeightMm ].map((v) => Math.round(v * 100) / 100) ],
+        [ 'ready', 0.65, true, [ 0, 0, 320, 180 ] ]);
+    v3 = await verdict3d({ PointCloud__SceneId : 'pcs_fb6ee416' }, turned);
+    check('its scene turned half a degree: refused, saying how far and what to use',
+        [ v3.status, /not seen from the point cloud's camera \(0\.\d mm and 0\.(49|50|51)° away\)/.test(v3.message), /synced from the same SketchUp scene/.test(v3.message) ], [ 'misaligned', true, true ]);
+    v3 = await verdict3d({ PointCloud__SceneId : 'pcs_fb6ee416' }, null);
+    check('no scene linked: says so', [ v3.status, v3.message ], [ 'nodrawing', 'Link a scene to this viewport to place its point cloud.' ]);
+    v3 = await verdict3d({ PointCloud__SceneId : 'pcs_7d342e28' }, syncedScene);
+    check('an elevation scene on a 3D viewport: refused, saying what it lays on', [ v3.status, v3.message ],
+        [ 'misaligned', 'A plan, elevation or section scene lays on a 2D viewport, not on a 3D one.' ]);
+    v3 = await verdict3d({ PointCloud__SceneId : 'pcs_fb6ee416', PointCloud__Hidden : true }, syncedScene);
+    check('hidden on a 3D viewport: attached, not drawn, nothing to complain about', [ v3.status, v3.message ], [ 'hidden', '' ]);
+
+    // THE FRAME LAYER, on a small stand-in for the DOM
+    class FakeEl {
+        constructor (tag) { this.tagName = tag; this.children = []; this.parentNode = null; this.style = {}; this.hidden = false; this.textContent = ''; this.className = ''; this.isConnected = true; }
+        appendChild (child) { if (child.parentNode) child.parentNode.removeChild(child); child.parentNode = this; this.children.push(child); return child; }
+        insertBefore (child, ref) { if (child.parentNode) child.parentNode.removeChild(child); child.parentNode = this; const at = ref ? this.children.indexOf(ref) : -1; if (at < 0) this.children.push(child); else this.children.splice(at, 0, child); return child; }
+        removeChild (child) { const at = this.children.indexOf(child); if (at >= 0) this.children.splice(at, 1); child.parentNode = null; return child; }
+        get nextSibling () { if (!this.parentNode) return null; const all = this.parentNode.children; return all[all.indexOf(this) + 1] || null; }
+        addEventListener () {}
+    }
+    globalThis.document = { createElement : (tag) => new FakeEl(tag) };
+    const body3d = new FakeEl('div');
+    const snapshot = body3d.appendChild(new FakeEl('img'));
+    const state3d = { body : body3d, img : snapshot };
+    const vp3 = view3d({ PointCloud__SceneId : 'pcs_fb6ee416' });
+    Layer.Na__LeVp2d__PointCloudFill3d(state3d, vp3, syncedScene, picture3d, 4);
+    await settle();
+    Layer.Na__LeVp2d__PointCloudFill3d(state3d, vp3, syncedScene, picture3d, 4);
+    const layer3d = state3d.pc && state3d.pc.layer;
+    const tile3d  = layer3d && layer3d.children[0];
+    check('Fill3d lays the layer over the picture, at the opacity, the badge last and quiet',
+        [ body3d.children.indexOf(snapshot) < body3d.children.indexOf(layer3d), layer3d.style.opacity, body3d.children[body3d.children.length - 1] === state3d.pc.note, state3d.pc.note.hidden ],
+        [ true, '0.65', true, true ]);
+    const pic3d = streetRev.Image.Preview;                                        // <-- 4 px a mm across 320 mm wants 1088 px: the preview has them
+    const k3d = (320 * 4 / streetRev.Image.WidthPx) * pic3d.Factor;
+    check('its picture is placed by its own pixels: 320 mm at 4 px a mm across the export\'s width, from the frame\'s corner',
+        tile3d ? [ tile3d.style.transform, tile3d.style.width ] : null, [ 'matrix(' + [ k3d, 0, 0, (180 * 4 / streetRev.Image.HeightPx) * pic3d.Factor, 0, 0 ].join(',') + ')', pic3d.WidthPx + 'px' ]);
+    Layer.Na__LeVp2d__PointCloudSetWorkingVisible('pcs_fb6ee416', false, [ 'pcs_fb6ee416' ]);
+    await settle();
+    check('switched off on screen while working: the 3D layer goes too', [ !!state3d.pc, body3d.children.length ], [ false, 1 ]);
+    Layer.Na__LeVp2d__PointCloudSetAllWorkingVisible(true);
+    await settle();
+    check('and comes back when switched on, without the viewport being asked again (the refresh reaches 3D frames)',
+        [ !!state3d.pc, !!state3d.pc && state3d.pc.layer.parentNode === body3d ], [ true, true ]);
+    Layer.Na__LeVp2d__PointCloudDrop3d(state3d);
+    Layer.Na__LeVp2d__PointCloudSetAllWorkingVisible(true);
+    await settle();
+    check('a frame let go is forgotten: nothing redraws into it', [ !!state3d.pc, body3d.children.length ], [ false, 1 ]);
+    delete globalThis.document;
 
 // endregion -------------------------------------------------------------------
 

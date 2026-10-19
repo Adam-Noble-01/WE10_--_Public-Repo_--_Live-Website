@@ -33,6 +33,10 @@
 //               BubbleSizeMm is its diameter; a code too wide for it grows
 //               the circle rather than spilling out. Only the first line
 //               with anything on it shows.
+// - THE LINE CAN BE SWITCHED OFF (Leader__HideLine, stored only as true): the
+//   bubble or note on its own, as a plan wants it. The line and the endpoint
+//   both go, from the drawing, the bounds, box selection and hit testing; the
+//   tip stays on the record, so switching the line back on restores it.
 // - PAINT ORDER: the fill, the line, the endpoint, the bubble edge, the text.
 //   The fill is BEHIND the text and the line, so a leader laid over a busy
 //   drawing masks what it sits on; lower the fill opacity to let it show.
@@ -60,6 +64,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.4.0 (TrueVision v2.179.0)
+// - The line can be switched off: Leader__HideLine leaves the bubble or note
+//   on its own - Adam: "for plans where you just want to pop a bubble on
+//   something". IsLineShown says which; Layout gives an empty path, a zero
+//   endpoint radius and lineShown false, so Push draws neither the line nor
+//   the endpoint (on screen and in the PDF), Bounds leaves the tip out and
+//   Hit never finds a tip or a line that is not drawn.
+//
 // 22-Sep-2026 - Version 1.3.0
 // - SetNoteResolver and NoteFor: the specification note a bubble stands for
 //   - its id, its code, its title and a locate() that shows it in the
@@ -366,9 +378,18 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | The Endpoint Circle's Radius (0 when it is switched off)
+    // FUNCTION | Does a Leader Draw Its Line and Endpoint (false: the head on its own)
+    // ------------------------------------------------------------
+    function Na__LeLeadGeo__IsLineShown(leader) {
+        return !leader || leader.Leader__HideLine !== true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Endpoint Circle's Radius (0 when it is switched off, or the line is)
     // ------------------------------------------------------------
     function Na__LeLeadGeo__EndpointRadius(leader) {
+        if (!Na__LeLeadGeo__IsLineShown(leader)) return 0;
         const size = leader.Leader__EndpointSizeMm;
         return (Number.isFinite(size) && size > 0) ? size / 2 : 0;
     }
@@ -488,15 +509,20 @@
 
     // FUNCTION | Everything About a Leader's Shape in One Call
     // ------------------------------------------------------------
-    // Returns { tip {x, y}, tipRadius, head, path }.
+    // Returns { tip {x, y}, tipRadius, head, path, lineShown }. With the line
+    // off (Leader__HideLine) the path is empty and the endpoint has no radius,
+    // so nothing draws, bounds, selects or hits either; the tip is still
+    // reported, and kept on the record, for when the line comes back.
     // ------------------------------------------------------------
     function Na__LeLeadGeo__Layout(leader) {
-        const head = Na__LeLeadGeo__Head(leader);
+        const head  = Na__LeLeadGeo__Head(leader);
+        const shown = Na__LeLeadGeo__IsLineShown(leader);
         return {
             tip       : { x : leader.Leader__TipXMm, y : leader.Leader__TipYMm },
             tipRadius : Na__LeLeadGeo__EndpointRadius(leader),
             head      : head,
-            path      : Na__LeLeadGeo__Path(leader, head)
+            path      : shown ? Na__LeLeadGeo__Path(leader, head) : [],
+            lineShown : shown
         };
     }
     // ------------------------------------------------------------
@@ -588,8 +614,10 @@
         let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
         const take = (x, y) => { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); };
         l.path.forEach((p) => take(p[0], p[1]));
-        take(l.tip.x - l.tipRadius, l.tip.y - l.tipRadius);
-        take(l.tip.x + l.tipRadius, l.tip.y + l.tipRadius);
+        if (l.lineShown !== false) {                                            // <-- A head on its own is only as big as the head
+            take(l.tip.x - l.tipRadius, l.tip.y - l.tipRadius);
+            take(l.tip.x + l.tipRadius, l.tip.y + l.tipRadius);
+        }
         if (l.head.type === Na__LeLeadGeo__TYPE_BUBBLE || Na__LeLeadGeo__HasText(l.head)) {
             const b = l.head.box;
             take(b.X, b.Y);
@@ -610,7 +638,7 @@
         if (!leader || !pointMm) return null;
         const tol = Number.isFinite(toleranceMm) ? toleranceMm : 1.5;
         const l   = Na__LeLeadGeo__Layout(leader);
-        if (Math.hypot(pointMm.x - l.tip.x, pointMm.y - l.tip.y) <= l.tipRadius + tol) return 'tip';
+        if (l.lineShown && Math.hypot(pointMm.x - l.tip.x, pointMm.y - l.tip.y) <= l.tipRadius + tol) return 'tip';   // <-- A hidden tip is not there to be hit
 
         const head = l.head;
         if (head.type === Na__LeLeadGeo__TYPE_BUBBLE) {
@@ -665,6 +693,7 @@
         Na__LeLeadGeo__HasText,
         Na__LeLeadGeo__Circle,
         Na__LeLeadGeo__EndpointRadius,
+        Na__LeLeadGeo__IsLineShown,
         Na__LeLeadGeo__Head,
         Na__LeLeadGeo__Path,
         Na__LeLeadGeo__Layout,

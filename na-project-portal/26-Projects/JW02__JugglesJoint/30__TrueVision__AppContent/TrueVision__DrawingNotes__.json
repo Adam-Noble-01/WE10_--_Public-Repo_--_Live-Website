@@ -2,12 +2,83 @@
     "ProjectSpecification__Description": "Project specification notes for the TrueVision drawings. Groups hold notes in order; a note’s code is its group’s prefix and its place in the group (GN01, EE02), so the order is the truth and Note__Code is written for readers and recomputed on every load. Specification bubbles on the Layout Editor sheets link to notes by Note__Id. General groups are listed on every sheet’s notes margin, after the notes that sheet’s bubbles link to. LastIdNumber only ever goes up, so no id is used twice.",
     "ProjectSpecification__Version": 1,
     "ProjectSpecification__ProjectCode": "JW02",
-    "ProjectSpecification__UpdatedIso": "2026-10-19T14:56:09.704Z",
+    "ProjectSpecification__UpdatedIso": "2026-10-19T18:55:53.358Z",
     "ProjectSpecification__NumberDigits": 2,
-    "ProjectSpecification__LastIdNumber": 16,
+    "ProjectSpecification__LastIdNumber": 26,
     "ProjectSpecification__Revision": "A",
     "ProjectSpecification__DocumentNumber": "",
     "ProjectSpecification__Groups": [
+        {
+            "Group__Id": "SpecGroup_017",
+            "Group__Prefix": "GN",
+            "Group__Title": "General Notes",
+            "Group__IsGeneral": true,
+            "Group__Notes": [
+                {
+                    "Note__Id": "SpecNote_018",
+                    "Note__Code": "GN01",
+                    "Note__Title": "Massing survey only",
+                    "Note__Body": "Feasibility massing survey of the barn: external envelope, overall massing and gross floor areas, for spatial blockout and early costing only. Do not use for planning drawings, structural design, procurement, fabrication or construction. Take no internal layout or dimension from these drawings or the 3D model.",
+                    "Note__UpdatedIso": "2026-10-19T17:57:23.166Z"
+                },
+                {
+                    "Note__Id": "SpecNote_019",
+                    "Note__Code": "GN02",
+                    "Note__Title": "Exclusion of liability",
+                    "Note__Body": "Survey, drawings and 3D model provided free of charge as a favour. So far as the law allows, Noble Architecture accepts no liability to the client or any third party for any use of, or reliance on, this information. Anyone relying on it does so at their own risk.",
+                    "Note__UpdatedIso": "2026-10-19T17:57:23.166Z"
+                },
+                {
+                    "Note__Id": "SpecNote_020",
+                    "Note__Code": "GN03",
+                    "Note__Title": "Full measured resurvey required",
+                    "Note__Body": "Client to commission a full measured resurvey with a GeoSLAM ZEB Revo 3D laser scanner before a planning application is prepared: an internal digital twin of the barn and a more accurate capture of the external envelope, tied to a fixed site datum, with an existing conditions report.",
+                    "Note__UpdatedIso": "2026-10-19T17:57:23.166Z"
+                },
+                {
+                    "Note__Id": "SpecNote_021",
+                    "Note__Code": "GN04",
+                    "Note__Title": "Survey method and datum",
+                    "Note__Body": "Drone photogrammetry survey of the exterior, 26 September 2026, scaled and aligned to temporary ground control points. No fixed site datum, level or grid: all levels and positions are relative to an arbitrary datum. Elevations drawn from orthographic photographs of the survey model. Records the site as seen on that date.",
+                    "Note__UpdatedIso": "2026-10-19T17:57:23.166Z"
+                },
+                {
+                    "Note__Id": "SpecNote_022",
+                    "Note__Code": "GN05",
+                    "Note__Title": "Photogrammetry limitations",
+                    "Note__Body": "Photogrammetry records only what the drone camera saw clearly. Glazing, reflective, dark, uniform or shadowed surfaces, soffits, recesses and anything screened from view are distorted, incomplete or estimated. Fine detail such as cills, reveals, eaves, verges and rainwater goods is not reliably captured. Accuracy depends on image coverage, lighting and the control points.",
+                    "Note__UpdatedIso": "2026-10-19T17:57:23.166Z"
+                },
+                {
+                    "Note__Id": "SpecNote_023",
+                    "Note__Code": "GN06",
+                    "Note__Title": "Areas hidden by foliage",
+                    "Note__Body": "Foliage hid parts of the buildings and ground from the drone. There the survey is estimated or blank: no guarantee is given of what lies within or behind foliage, including walls, openings, structures, ground levels and obstructions. Clear vegetation and resurvey before relying on these areas. Courtyard to SP11.",
+                    "Note__UpdatedIso": "2026-10-19T17:57:23.166Z"
+                },
+                {
+                    "Note__Id": "SpecNote_026",
+                    "Note__Code": "GN07",
+                    "Note__Title": "Inferred internal layout",
+                    "Note__Body": "No building was entered: buildings and roofs were reported dangerous. Apart from the arched area on the north elevation, none is open to the elements, so interiors were not captured. Internal walls and spaces shown are guesswork, inferred from external building lines and the few internal surfaces photogrammetry recorded; other internal walls may exist. Plan drawn only to give rough floor areas for feasibility and costing, before full design services, a planning application package and the survey it requires.",
+                    "Note__UpdatedIso": "2026-10-19T18:07:08.885Z"
+                },
+                {
+                    "Note__Id": "SpecNote_024",
+                    "Note__Code": "GN08",
+                    "Note__Title": "Not surveyed",
+                    "Note__Body": "Not surveyed or assessed: interiors, including floor levels and wall thicknesses; roof structure; foundations; structural condition; below-ground and overhead services and drainage; boundaries and legal ownership; trees; ecology; asbestos and other hazardous materials.",
+                    "Note__UpdatedIso": "2026-10-19T17:57:23.166Z"
+                },
+                {
+                    "Note__Id": "SpecNote_025",
+                    "Note__Code": "GN09",
+                    "Note__Title": "Dimensions, levels and areas",
+                    "Note__Body": "Do not scale. Dimensions, levels and areas are approximate; levels are relative to the arbitrary survey datum. Verify on site before use. Gross floor areas are for testing the division of the barn into units only; not for valuation, sale, letting or funding.",
+                    "Note__UpdatedIso": "2026-10-19T17:57:23.166Z"
+                }
+            ]
+        },
         {
             "Group__Id": "SpecGroup_002",
             "Group__Prefix": "SP",
@@ -109,8 +180,8 @@
                     "Note__Id": "SpecNote_016",
                     "Note__Code": "SP14",
                     "Note__Title": "Auxiliary agricultural building",
-                    "Note__Body": "Tall agricultural barn, presumed still in active use; use unknown. Outside the proposed works. Marked for reference only; no measurements taken.",
-                    "Note__UpdatedIso": "2026-10-03T12:28:33.795Z"
+                    "Note__Body": "Agricultural barn, presumed still in active use; use unknown. Outside the proposed works. Marked for reference only; no measurements taken.",
+                    "Note__UpdatedIso": "2026-10-19T18:55:43.075Z"
                 }
             ]
         }

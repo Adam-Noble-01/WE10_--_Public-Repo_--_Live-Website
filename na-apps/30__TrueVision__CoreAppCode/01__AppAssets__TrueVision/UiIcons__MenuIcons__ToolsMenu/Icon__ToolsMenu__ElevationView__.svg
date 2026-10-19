@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" stroke="#172b3a" stroke-width="33.1" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="112.1" y="263.4" width="682.2" height="74.9" rx="37.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="391.3" y="455.3" width="526.2" height="74.6" rx="37.3" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="179.3" y1="338.3" x2="179.3" y2="795.9" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="726.3" y1="338.3" x2="726.3" y2="455.3" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="460.5" y1="529.9" x2="460.5" y2="795.9" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="848.1" y1="529.9" x2="848.1" y2="795.9" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M268.3 795.9V640.9A25.6 25.6 0 0 1 293.9 615.3H345.8A25.6 25.6 0 0 1 371.4 640.9V795.9" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M545.5 795.9V640.8A25.5 25.5 0 0 1 571 615.3H737.7A25.5 25.5 0 0 1 763.2 640.8V795.9" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="101.6" y1="795.9" x2="917.1" y2="795.9" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

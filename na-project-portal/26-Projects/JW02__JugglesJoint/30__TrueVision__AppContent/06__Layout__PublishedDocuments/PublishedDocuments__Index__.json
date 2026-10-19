@@ -11,12 +11,12 @@
     },
     "PublishedDocuments__Publish" : {
         "Publish__SchemaVersion"    : 1,
-        "Publish__AtIso"            : "2026-10-19T16:33:11.401Z",
-        "Publish__AtEpochMs"        : 1792427591401,
+        "Publish__AtIso"            : "2026-10-19T18:20:35.857Z",
+        "Publish__AtEpochMs"        : 1792434035857,
         "Publish__ByApp"            : "TrueVision3D Layout Editor",
         "Publish__ByAppVersion"     : "v2.176.0",
-        "Publish__LastPublishedIso" : "2026-10-19T16:33:11.401Z",
-        "Publish__DocumentCount"    : 3,
+        "Publish__LastPublishedIso" : "2026-10-19T18:20:35.857Z",
+        "Publish__DocumentCount"    : 4,
         "Publish__UnpublishedCount" : 0,
         "Publish__ArchiveFolder"    : "00__Archive__Revisions"
     },
@@ -80,7 +80,7 @@
             "Document__Status"         : null,
             "Document__State"          : "published",
             "Document__Folder"         : "JW02_T01_D01",
-            "Document__PublishedAtIso" : "2026-10-19T16:32:16.431Z",
+            "Document__PublishedAtIso" : "2026-10-19T18:18:50.449Z",
             "Document__HasViewports"   : true,
             "Document__HasPdf"         : true,
             "Document__Order"          : 1
@@ -104,7 +104,7 @@
             "Document__Status"         : null,
             "Document__State"          : "published",
             "Document__Folder"         : "JW02_T01_D02",
-            "Document__PublishedAtIso" : "2026-10-19T16:32:59.949Z",
+            "Document__PublishedAtIso" : "2026-10-19T18:19:36.948Z",
             "Document__HasViewports"   : true,
             "Document__HasPdf"         : true,
             "Document__Order"          : 2
@@ -128,10 +128,34 @@
             "Document__Status"         : null,
             "Document__State"          : "published",
             "Document__Folder"         : "JW02_T01_D03",
-            "Document__PublishedAtIso" : "2026-10-19T16:33:06.295Z",
+            "Document__PublishedAtIso" : "2026-10-19T18:19:46.023Z",
             "Document__HasViewports"   : true,
             "Document__HasPdf"         : true,
             "Document__Order"          : 3
+        },
+        {
+            "Document__Id"            : "JW02_T01_D04",
+            "Document__Number"        : "D04",
+            "Document__Phase"         : "T01",
+            "Document__Name"          : "Existing Conditions | 3D Views",
+            "Document__PaperSize"     : "A3",
+            "Document__Orientation"   : "landscape",
+            "Document__PaperWidthMm"  : 420,
+            "Document__PaperHeightMm" : 297,
+            "Document__DrawingAreaMm" : {
+                "X"        : 5,
+                "Y"        : 5,
+                "WidthMm"  : 410,
+                "HeightMm" : 274
+            },
+            "Document__Revision"       : "A",
+            "Document__Status"         : null,
+            "Document__State"          : "published",
+            "Document__Folder"         : "JW02_T01_D04",
+            "Document__PublishedAtIso" : "2026-10-19T18:20:18.873Z",
+            "Document__HasViewports"   : true,
+            "Document__HasPdf"         : true,
+            "Document__Order"          : 4
         }
     ],
     "PublishedDocuments__Superseded" : {

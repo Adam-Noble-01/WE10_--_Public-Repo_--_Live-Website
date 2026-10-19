@@ -6,7 +6,7 @@
 // NAMESPACE  : Na__PcPlace
 // MODULE     : Point Cloud Data - Placement
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : Where a point cloud scene's picture lands on a 2D drawing: one affine map from its pixels to drawing millimetres
+// PURPOSE    : Where a point cloud scene's picture lands: on a 2D drawing, one affine map from its pixels to drawing millimetres; on a 3D viewport, the rectangle its camera's view fills
 // CREATED    : 19-Oct-2026
 //
 // DESCRIPTION:
@@ -29,6 +29,17 @@
 //   when the scene and the drawing look the same way. AlignmentDeg says how
 //   far apart they look; a point d metres off the target plane is drawn
 //   d x tan(angle) from where the linework puts it.
+// - A PERSPECTIVE (3D View) export is the SketchUp camera's whole view, a
+//   pinhole picture centred on the camera's axis. A 3D viewport's picture is
+//   the TrueVision scene camera's whole view, framed the same way by the
+//   tiled renderer (vertical field of view, the picture's own aspect, centred).
+//   When the two cameras stand in the same place and look the same way, the
+//   export lies over the picture exactly as one rectangle: the same centre,
+//   heights in the ratio of the tangents of the half fields of view, and the
+//   export's own aspect (PerspectiveRect). SceneCamera reads a TrueVision
+//   scene's camera off its record and CameraGap says how far apart two
+//   cameras are, so a viewport whose scene was moved draws nothing rather
+//   than a survey in the wrong place.
 // - Pure arithmetic: no DOM, no fetch, no state, so it runs in Node tests.
 //
 // INTEGRATION:
@@ -38,6 +49,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.1.0
+// - Perspective exports on 3D viewports (TrueVision3D v2.178.0):
+//   IsPerspectiveFrame, FrameAspect, SceneCamera, CameraGap, PerspectiveRect.
+//
 // 19-Oct-2026 - Version 1.0.0
 // - Initial implementation (point cloud viewports).
 //
@@ -282,6 +297,122 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Perspective Exports on 3D Viewports
+// -----------------------------------------------------------------------------
+
+    // FUNCTION | Is a Frame Record One a 3D Viewport Can Take (perspective, every number present)
+    // ------------------------------------------------------------
+    function Na__PcPlace__IsPerspectiveFrame(frame) {
+        return !!frame && frame.Kind === Na__PcPlace__KIND_PERSPECT
+            && Number.isFinite(frame.WidthPx)        && frame.WidthPx  > 0
+            && Number.isFinite(frame.HeightPx)       && frame.HeightPx > 0
+            && Number.isFinite(frame.FovVerticalDeg) && frame.FovVerticalDeg > 0 && frame.FovVerticalDeg < 179;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | A Perspective Frame's Width Over Its Height (its own, else its pixels')
+    // ------------------------------------------------------------
+    function Na__PcPlace__FrameAspect(frame) {
+        if (frame && Number.isFinite(frame.Aspect) && frame.Aspect > 0) return frame.Aspect;
+        return (frame && frame.HeightPx > 0) ? frame.WidthPx / frame.HeightPx : 1;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | A TrueVision Scene's Camera { PositionM, DirectionM, UpM, FovVerticalDeg }, or null
+    // ------------------------------------------------------------
+    // Read off the record exactly as Na__PresentationMode__Camera__
+    // ParseSceneToRuntimeValues reads it: the position in millimetres, the
+    // rotation as three.js Euler XYZ radians, the vertical field of view in
+    // degrees (null when the scene keeps none). A three.js camera looks down
+    // its own -Z with its own +Y up, so where it looks is minus the third
+    // column of its rotation and up is the second; the columns are written
+    // out as three.js's makeRotationFromEuler writes them for order XYZ.
+    // ------------------------------------------------------------
+    function Na__PcPlace__SceneCamera(scene) {
+        const cam = scene ? scene.PresentationMode__Scene__CameraPosition : null;
+        if (!cam || typeof cam !== 'object') return null;
+        const pos  = cam.Camera__DefaultPos      || {};
+        const rot  = cam.Camera__DefaultRotation || {};
+        const misc = cam.Camera__DefaultMisc     || {};
+        const n = (value) => (Number.isFinite(value) ? value : 0);
+        const x = n(rot.Camera__DefaultRotation__RotX), y = n(rot.Camera__DefaultRotation__RotY), z = n(rot.Camera__DefaultRotation__RotZ);
+        const a = Math.cos(x), b = Math.sin(x), c = Math.cos(y), d = Math.sin(y), e = Math.cos(z), f = Math.sin(z);
+        const ae = a * e, af = a * f, be = b * e, bf = b * f;
+        return {
+            PositionM      : [ n(pos.Camera__DefaultPos__PosX) / Na__PcPlace__MM_PER_M, n(pos.Camera__DefaultPos__PosY) / Na__PcPlace__MM_PER_M, n(pos.Camera__DefaultPos__PosZ) / Na__PcPlace__MM_PER_M ],
+            DirectionM     : [ -d, b * c, -(a * c) ],                            // <-- Minus the third column
+            UpM            : [ -(c * f), ae - (bf * d), be + (af * d) ],         // <-- The second column
+            FovVerticalDeg : (Number.isFinite(misc.Camera__DefaultMisc__Fov) && misc.Camera__DefaultMisc__Fov > 0) ? misc.Camera__DefaultMisc__Fov : null
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Angle Between Two Directions, in Degrees (atan2, for precision at hundredths)
+    // ------------------------------------------------------------
+    function Na__PcPlace__AngleDeg(a, b) {
+        if (!Na__PcPlace__Vec(a) || !Na__PcPlace__Vec(b) || !(Na__PcPlace__Length(a) > 0) || !(Na__PcPlace__Length(b) > 0)) return 180;
+        return Math.atan2(Na__PcPlace__Length(Na__PcPlace__Cross(a, b)), Na__PcPlace__Dot(a, b)) * (180 / Math.PI);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | How Far Apart Two Cameras Are: { PositionMm, AngleDeg, UpDeg, FovDeg }
+    // ------------------------------------------------------------
+    // sceneCamera from SceneCamera, exportCamera the store's revision Camera.
+    // AngleDeg is between where the two look; UpDeg between their ups, which
+    // with the same look is the roll about it; FovDeg between their vertical
+    // fields of view (null when either has none). PerspectiveRect absorbs a
+    // field of view that differs; nothing can absorb a camera moved or turned.
+    // ------------------------------------------------------------
+    function Na__PcPlace__CameraGap(sceneCamera, exportCamera) {
+        if (!sceneCamera || !exportCamera || !Na__PcPlace__Vec(sceneCamera.PositionM) || !Na__PcPlace__Vec(exportCamera.PositionM)) {
+            return { PositionMm : Infinity, AngleDeg : 180, UpDeg : 180, FovDeg : null };
+        }
+        const p = sceneCamera.PositionM, q = exportCamera.PositionM;
+        const offset = [ p[0] - q[0], p[1] - q[1], p[2] - q[2] ];
+        const fovs = [ sceneCamera.FovVerticalDeg, exportCamera.FovVerticalDeg ];
+        return {
+            PositionMm : Na__PcPlace__Length(offset) * Na__PcPlace__MM_PER_M,
+            AngleDeg   : Na__PcPlace__AngleDeg(sceneCamera.DirectionM, exportCamera.DirectionM),
+            UpDeg      : Na__PcPlace__AngleDeg(sceneCamera.UpM, exportCamera.UpM),
+            FovDeg     : fovs.every((fov) => Number.isFinite(fov) && fov > 0) ? Math.abs(fovs[0] - fovs[1]) : null
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Where a Perspective Export Lies Over a 3D Viewport's Picture, in Millimetres From the Frame's Top-Left
+    // ------------------------------------------------------------
+    // pictureRect : the 3D viewport's whole picture { X, Y, WidthMm, HeightMm }
+    //               (Na__LeVp3d__PictureRect: its offset, and its size at its zoom)
+    // sceneFovDeg : the vertical field of view the picture is rendered with
+    // frame       : the export's perspective frame
+    // The same centre (both are centred on the camera's axis), the export's
+    // height in the ratio of the tangents of the half fields of view, and its
+    // own aspect: with the same camera, every point of the export lands on
+    // the pixel of the picture that sees the same thing.
+    // ------------------------------------------------------------
+    function Na__PcPlace__PerspectiveRect(pictureRect, sceneFovDeg, frame) {
+        const half  = (deg) => Math.tan((deg * Math.PI) / 360);
+        const scale = (sceneFovDeg > 0 && Na__PcPlace__IsPerspectiveFrame(frame)) ? half(frame.FovVerticalDeg) / half(sceneFovDeg) : 1;
+        const h = pictureRect.HeightMm * scale;
+        const w = h * Na__PcPlace__FrameAspect(frame);
+        return {
+            X        : pictureRect.X + ((pictureRect.WidthMm - w) / 2),
+            Y        : pictureRect.Y + ((pictureRect.HeightMm - h) / 2),
+            WidthMm  : w,
+            HeightMm : h
+        };
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Module Exports
 // -----------------------------------------------------------------------------
 
@@ -302,7 +433,12 @@
         Na__PcPlace__PixelsPerMm,
         Na__PcPlace__BoundsMm,
         Na__PcPlace__VisibleTiles,
-        Na__PcPlace__PreviewSuffices
+        Na__PcPlace__PreviewSuffices,
+        Na__PcPlace__IsPerspectiveFrame,
+        Na__PcPlace__FrameAspect,
+        Na__PcPlace__SceneCamera,
+        Na__PcPlace__CameraGap,
+        Na__PcPlace__PerspectiveRect
     };
     // ------------------------------------------------------------
 

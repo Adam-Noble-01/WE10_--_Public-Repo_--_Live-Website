@@ -33,6 +33,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.41.0 (TrueVision)
+// - A 3D viewport keeps Viewport__PointCloud: a 3D View point cloud scene laid
+//   over its picture from the same camera (TrueVision3D v2.178.0). It keeps
+//   the scene, the opacity, SketchUp Sync's pin and Hidden, never
+//   LineworkOnTop or ShowDatum: a 3D picture has no linework or datum.
+//
 // 19-Oct-2026 - Version 1.40.0 (TrueVision)
 // - Viewport__PointCloud on the viewport record: a point cloud scene exported
 //   from SketchUp, laid over or under a 2D viewport's linework
@@ -942,11 +948,14 @@
     // ------------------------------------------------------------
     // { PointCloud__SceneId, PointCloud__Opacity, PointCloud__LineworkOnTop,
     //   PointCloud__PinnedRevision, PointCloud__ShowDatum, PointCloud__Hidden }
-    // A 2D viewport only - a plan, an elevation, a section or a site plan - as
-    // a 3D viewport has no drawing plane to lay a picture on. A site plan is
-    // drawn in world X and Z millimetres exactly as a plan is, so a Plan or
-    // Site Plan scene lays on either. The block is REBUILT from the keys named
-    // here, so a key set back to its default leaves no trace:
+    // A 2D viewport - a plan, an elevation, a section or a site plan - takes a
+    // Plan, Site Plan, Elevation or Section scene. A site plan is drawn in
+    // world X and Z millimetres exactly as a plan is, so a Plan or Site Plan
+    // scene lays on either. A 3D viewport takes a 3D View scene, laid over its
+    // picture from the same camera (TrueVision3D v2.178.0); it has no linework
+    // and no datum, so it keeps no LineworkOnTop and no ShowDatum. The block
+    // is REBUILT from the keys named here, so a key set back to its default
+    // leaves no trace:
     //   Opacity        kept once somebody has set it; absent, the viewport
     //                  follows the opacity the scene was exported with
     //   LineworkOnTop  kept only as true; absent, the point cloud is on top
@@ -960,7 +969,8 @@
         const id    = (block && typeof block === 'object' && !Array.isArray(block) && typeof block.PointCloud__SceneId === 'string')
             ? block.PointCloud__SceneId.trim()
             : '';
-        if (!Na__LeRec__POINTCLOUD_SCENE_ID.test(id) || viewport.Viewport__Kind !== Na__LeRec__KIND_2D) {
+        const threeD = viewport.Viewport__Kind === Na__LeRec__KIND_3D;
+        if (!Na__LeRec__POINTCLOUD_SCENE_ID.test(id) || (viewport.Viewport__Kind !== Na__LeRec__KIND_2D && !threeD)) {
             delete viewport.Viewport__PointCloud;
             return;
         }
@@ -968,11 +978,11 @@
         if (typeof block.PointCloud__Opacity === 'number' && Number.isFinite(block.PointCloud__Opacity)) {
             kept.PointCloud__Opacity = Math.round(Na__LeRec__Unit(block.PointCloud__Opacity, 1) * 100) / 100;
         }
-        if (block.PointCloud__LineworkOnTop === true) kept.PointCloud__LineworkOnTop = true;
+        if (block.PointCloud__LineworkOnTop === true && !threeD) kept.PointCloud__LineworkOnTop = true;
         if (typeof block.PointCloud__PinnedRevision === 'string' && Na__LeRec__POINTCLOUD_REVISION.test(block.PointCloud__PinnedRevision)) {
             kept.PointCloud__PinnedRevision = block.PointCloud__PinnedRevision;
         }
-        if (block.PointCloud__ShowDatum === true) kept.PointCloud__ShowDatum = true;
+        if (block.PointCloud__ShowDatum === true && !threeD) kept.PointCloud__ShowDatum = true;
         if (block.PointCloud__Hidden === true) kept.PointCloud__Hidden = true;
         viewport.Viewport__PointCloud = kept;
     }
@@ -1011,8 +1021,8 @@
             delete viewport[Na__LeHatch__FIELD];                                 // <-- A hatch has no meaning off a site plan viewport
         }
         // POINT CLOUD | A SketchUp point cloud scene laid over this viewport's
-        // drawing (22__System__PointCloudData). After the kind is settled, so a
-        // 3D viewport loses the block.
+        // drawing, or a 3D viewport's picture (22__System__PointCloudData).
+        // After the kind is settled, so the block keeps only what the kind uses.
         Na__LeRec__NormalisePointCloud(viewport);
         // MODEL SOURCE | The design phase drawn: a model group's groupId, or null
         // for the Project Default (Na__LayoutEditor__ModelSource__). An id the
@@ -1289,6 +1299,11 @@
         if (item.Leader__FillColour === undefined) item.Leader__FillColour = setup.filled ? setup.fillColour : null;   // <-- Never written: the default
         else if (typeof item.Leader__FillColour !== 'string') item.Leader__FillColour = null;                        // <-- Null is "no fill", and stays
         item.Leader__FillOpacity = Na__LeRec__Unit(item.Leader__FillOpacity, setup.fillOpacity);
+        // LINE OFF | Stored only as true: the bubble or note on its own, no line
+        // and no endpoint. Its tip is kept, so the line comes back where it was.
+        // A leader without the key is left without it, so every leader saved
+        // before it normalises exactly as it was.
+        if ('Leader__HideLine' in item && item.Leader__HideLine !== true) delete item.Leader__HideLine;
         // SPECIFICATION LINK | Only where the key exists: the id of the project
         // specification note a bubble shows the code of (Na__LayoutEditor__SpecLinks__).
         // A leader without it is left without it, so every record from before the

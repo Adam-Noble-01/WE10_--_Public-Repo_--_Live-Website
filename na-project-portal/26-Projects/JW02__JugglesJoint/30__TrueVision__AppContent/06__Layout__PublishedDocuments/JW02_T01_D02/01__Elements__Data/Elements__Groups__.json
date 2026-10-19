@@ -1,0 +1,1016 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName"  : "Elements__Groups__.json",
+        "Meta__Kind"      : "group",
+        "Meta__LayerType" : null,
+        "Meta__Document"  : "JW02_T01_D02",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments",
+        "Meta__Note"      : "Published by TrueVision. The array is the elements as the sheet holds them, authoring keys verbatim, with resolved keys added. Elements__LayerSvg is each layer's markup exactly as the editor draws it; the reader paints that."
+    },
+    "Elements__Groups" : [
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_001"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_002"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_003"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_004"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_005"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_006"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_007"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_008"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_009"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_010"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_011"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_012"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_013"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_014"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_015"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_016"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_017"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_018"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_019"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_020"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_021"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_024"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_025"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_001"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_002"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_003"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_004"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_005"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_006"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_007"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_008"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_009"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_010"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_011"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_012"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_013"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "DrawingTitle",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "ScaleDenominator" : 100,
+                    "DivisionMm"       : 2000,
+                    "Divisions"        : 11,
+                    "SubdivideFirst"   : false,
+                    "SubdivisionMm"    : 500,
+                    "Units"            : "m",
+                    "ShowUnits"        : false,
+                    "ShowScaleBar"     : true,
+                    "PhaseMode"        : "existing",
+                    "TitleText"        : "",
+                    "Uppercase"        : true,
+                    "UnderlineMm"      : 60,
+                    "BarPlacement"     : "right",
+                    "BarOffsetMm"      : 152.676,
+                    "ViewKind"         : "plan",
+                    "ViewPhase"        : "proposed",
+                    "ViewFacing"       : "",
+                    "ViewLevel"        : "Ground Floor Plan",
+                    "ViewName"         : "",
+                    "ViewDrawing"      : "Ground Floor Plan"
+                },
+                "Parametric__Link" : {
+                    "Link__SheetId"    : "Sheet_002",
+                    "Link__ViewportId" : "Viewport_001"
+                }
+            },
+            "Group__Id" : "Group_001"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_029"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_030"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_031"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_033"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_035"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_057"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_059"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_061"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_065"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_068"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_095"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_097"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_099"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_101"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_014"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_015"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_016"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_017"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_018"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_019"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_020"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_021"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_022"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_023"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_024"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_025"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_026"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_027"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_028"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_035"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_036"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_037"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_038"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_042"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_043"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_044"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_045"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_046"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_047"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_048"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_049"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "AreaSchedule",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "Form"        : "areas",
+                    "Group"       : "",
+                    "ShowGroups"  : true,
+                    "ShowTotal"   : true,
+                    "ShowSwatch"  : true,
+                    "Units"       : "m2",
+                    "Decimals"    : 2,
+                    "TitleText"   : "",
+                    "TitleSuffix" : "",
+                    "WidthMm"     : 78,
+                    "TextSizeMm"  : 2.4,
+                    "Data"        : {
+                        "Areas" : [
+                            {
+                                "Name"   : "Covered Vehicular Workshop",
+                                "AreaM2" : 348.794751,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#d5e1c7"
+                            },
+                            {
+                                "Name"   : "Large Barn",
+                                "AreaM2" : 190.170641,
+                                "Group"  : "Earmarked For Demolition",
+                                "Colour" : "#bcd9ee"
+                            },
+                            {
+                                "Name"   : "Holiday Cottage",
+                                "AreaM2" : 103.046725,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#c6e0c6"
+                            },
+                            {
+                                "Name"   : "Jimmy's Residence",
+                                "AreaM2" : 95.309975,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#e1c7c7"
+                            },
+                            {
+                                "Name"   : "Barn",
+                                "AreaM2" : 49.327775,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#c7d9e1"
+                            },
+                            {
+                                "Name"   : "Open Sided Storage Shed",
+                                "AreaM2" : 52.388775,
+                                "Group"  : "Earmarked For Demolition",
+                                "Colour" : "#d4efbe"
+                            },
+                            {
+                                "Name"   : "Storage Barn 02",
+                                "AreaM2" : 37.11995,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#c7e1df"
+                            },
+                            {
+                                "Name"   : "Passage",
+                                "AreaM2" : 8.205211,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#d8c7e1"
+                            },
+                            {
+                                "Name"   : "Storage Barn 01",
+                                "AreaM2" : 50.354175,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#e1d2c7"
+                            }
+                        ],
+                        "Groups" : [
+                            {
+                                "Name"   : "Earmarked For Demolition",
+                                "AreaM2" : 242.559416,
+                                "Colour" : "#bcd9ee",
+                                "Count"  : 2
+                            },
+                            {
+                                "Name"   : "Proposed For Development",
+                                "AreaM2" : 692.158563,
+                                "Colour" : "#c6e0c6",
+                                "Count"  : 7
+                            }
+                        ],
+                        "TotalM2" : 934.717979
+                    }
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_002"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_062"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_063"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_064"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_066"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_067"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_029"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_030"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_031"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_032"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_033"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_034"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_039"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_040"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_041"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "AreaSchedule",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "Form"        : "groups",
+                    "Group"       : "",
+                    "ShowGroups"  : true,
+                    "ShowTotal"   : true,
+                    "ShowSwatch"  : true,
+                    "Units"       : "m2",
+                    "Decimals"    : 2,
+                    "TitleText"   : "",
+                    "TitleSuffix" : "",
+                    "WidthMm"     : 78,
+                    "TextSizeMm"  : 2.4,
+                    "Data"        : {
+                        "Areas" : [
+                            {
+                                "Name"   : "Covered Vehicular Workshop",
+                                "AreaM2" : 348.794751,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#d5e1c7"
+                            },
+                            {
+                                "Name"   : "Large Barn",
+                                "AreaM2" : 190.170641,
+                                "Group"  : "Earmarked For Demolition",
+                                "Colour" : "#bcd9ee"
+                            },
+                            {
+                                "Name"   : "Holiday Cottage",
+                                "AreaM2" : 103.046725,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#c6e0c6"
+                            },
+                            {
+                                "Name"   : "Jimmy's Residence",
+                                "AreaM2" : 95.309975,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#e1c7c7"
+                            },
+                            {
+                                "Name"   : "Barn",
+                                "AreaM2" : 49.327775,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#c7d9e1"
+                            },
+                            {
+                                "Name"   : "Open Sided Storage Shed",
+                                "AreaM2" : 52.388775,
+                                "Group"  : "Earmarked For Demolition",
+                                "Colour" : "#d4efbe"
+                            },
+                            {
+                                "Name"   : "Storage Barn 02",
+                                "AreaM2" : 37.11995,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#c7e1df"
+                            },
+                            {
+                                "Name"   : "Passage",
+                                "AreaM2" : 8.205211,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#d8c7e1"
+                            },
+                            {
+                                "Name"   : "Storage Barn 01",
+                                "AreaM2" : 50.354175,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#e1d2c7"
+                            }
+                        ],
+                        "Groups" : [
+                            {
+                                "Name"   : "Earmarked For Demolition",
+                                "AreaM2" : 242.559416,
+                                "Colour" : "#bcd9ee",
+                                "Count"  : 2
+                            },
+                            {
+                                "Name"   : "Proposed For Development",
+                                "AreaM2" : 692.158563,
+                                "Colour" : "#c6e0c6",
+                                "Count"  : 7
+                            }
+                        ],
+                        "TotalM2" : 934.717979
+                    }
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_003"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_102"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_103"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_104"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_105"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_106"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_050"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_051"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_052"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_053"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_054"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_055"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_056"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_057"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_058"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "AreaSchedule",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "Form"        : "groups",
+                    "Group"       : "",
+                    "ShowGroups"  : true,
+                    "ShowTotal"   : true,
+                    "ShowSwatch"  : true,
+                    "Units"       : "ft2",
+                    "Decimals"    : 2,
+                    "TitleText"   : "",
+                    "TitleSuffix" : "",
+                    "WidthMm"     : 78,
+                    "TextSizeMm"  : 2.4,
+                    "Data"        : {
+                        "Areas" : [
+                            {
+                                "Name"   : "Covered Vehicular Workshop",
+                                "AreaM2" : 348.794751,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#d5e1c7"
+                            },
+                            {
+                                "Name"   : "Large Barn",
+                                "AreaM2" : 190.170641,
+                                "Group"  : "Earmarked For Demolition",
+                                "Colour" : "#bcd9ee"
+                            },
+                            {
+                                "Name"   : "Holiday Cottage",
+                                "AreaM2" : 103.046725,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#c6e0c6"
+                            },
+                            {
+                                "Name"   : "Jimmy's Residence",
+                                "AreaM2" : 95.309975,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#e1c7c7"
+                            },
+                            {
+                                "Name"   : "Barn",
+                                "AreaM2" : 49.327775,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#c7d9e1"
+                            },
+                            {
+                                "Name"   : "Open Sided Storage Shed",
+                                "AreaM2" : 52.388775,
+                                "Group"  : "Earmarked For Demolition",
+                                "Colour" : "#d4efbe"
+                            },
+                            {
+                                "Name"   : "Storage Barn 02",
+                                "AreaM2" : 37.11995,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#c7e1df"
+                            },
+                            {
+                                "Name"   : "Passage",
+                                "AreaM2" : 8.205211,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#d8c7e1"
+                            },
+                            {
+                                "Name"   : "Storage Barn 01",
+                                "AreaM2" : 50.354175,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#e1d2c7"
+                            }
+                        ],
+                        "Groups" : [
+                            {
+                                "Name"   : "Earmarked For Demolition",
+                                "AreaM2" : 242.559416,
+                                "Colour" : "#bcd9ee",
+                                "Count"  : 2
+                            },
+                            {
+                                "Name"   : "Proposed For Development",
+                                "AreaM2" : 692.158563,
+                                "Colour" : "#c6e0c6",
+                                "Count"  : 7
+                            }
+                        ],
+                        "TotalM2" : 934.717979
+                    }
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_004"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_107"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_108"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_109"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_110"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_111"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_112"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_113"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_114"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_115"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_116"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_117"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_118"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_119"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_120"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_059"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_060"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_061"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_062"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_063"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_064"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_065"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_066"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_067"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_068"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_069"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_070"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_071"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_072"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_073"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_074"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_075"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_076"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_077"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_078"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_079"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_080"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_081"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_082"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_083"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_084"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_085"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "AreaSchedule",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "Form"        : "areas",
+                    "Group"       : "",
+                    "ShowGroups"  : true,
+                    "ShowTotal"   : true,
+                    "ShowSwatch"  : true,
+                    "Units"       : "ft2",
+                    "Decimals"    : 2,
+                    "TitleText"   : "",
+                    "TitleSuffix" : "",
+                    "WidthMm"     : 78,
+                    "TextSizeMm"  : 2.4,
+                    "Data"        : {
+                        "Areas" : [
+                            {
+                                "Name"   : "Covered Vehicular Workshop",
+                                "AreaM2" : 348.794751,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#d5e1c7"
+                            },
+                            {
+                                "Name"   : "Large Barn",
+                                "AreaM2" : 190.170641,
+                                "Group"  : "Earmarked For Demolition",
+                                "Colour" : "#bcd9ee"
+                            },
+                            {
+                                "Name"   : "Holiday Cottage",
+                                "AreaM2" : 103.046725,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#c6e0c6"
+                            },
+                            {
+                                "Name"   : "Jimmy's Residence",
+                                "AreaM2" : 95.309975,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#e1c7c7"
+                            },
+                            {
+                                "Name"   : "Barn",
+                                "AreaM2" : 49.327775,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#c7d9e1"
+                            },
+                            {
+                                "Name"   : "Open Sided Storage Shed",
+                                "AreaM2" : 52.388775,
+                                "Group"  : "Earmarked For Demolition",
+                                "Colour" : "#d4efbe"
+                            },
+                            {
+                                "Name"   : "Storage Barn 02",
+                                "AreaM2" : 37.11995,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#c7e1df"
+                            },
+                            {
+                                "Name"   : "Passage",
+                                "AreaM2" : 8.205211,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#d8c7e1"
+                            },
+                            {
+                                "Name"   : "Storage Barn 01",
+                                "AreaM2" : 50.354175,
+                                "Group"  : "Proposed For Development",
+                                "Colour" : "#e1d2c7"
+                            }
+                        ],
+                        "Groups" : [
+                            {
+                                "Name"   : "Earmarked For Demolition",
+                                "AreaM2" : 242.559416,
+                                "Colour" : "#bcd9ee",
+                                "Count"  : 2
+                            },
+                            {
+                                "Name"   : "Proposed For Development",
+                                "AreaM2" : 692.158563,
+                                "Colour" : "#c6e0c6",
+                                "Count"  : 7
+                            }
+                        ],
+                        "TotalM2" : 934.717979
+                    }
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_005"
+        }
+    ],
+    "Elements__LayerSvg" : {}
+}
