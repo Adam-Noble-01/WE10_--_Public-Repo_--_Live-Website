@@ -98,6 +98,8 @@ SITEPLAN_MANIFEST_FILENAME         = 'TrueVision__SitePlanData__Manifest__.json'
 POINTCLOUD_FOLDER_NAME             = 'PointCloud__ViewportData'                   # Point cloud store (GLB Builder 2.11+): WebP tiles + manifests, never a design phase
 POINTCLOUD_MANIFEST_FILENAME       = 'TrueVision__PointCloudData__Manifest__.json'
 POINTCLOUD_FILE_PATTERN            = re.compile(r'^.+\.(webp|json)$', re.IGNORECASE)
+SCENESYNC_FOLDER_NAME              = 'SceneSync__SketchUpSceneData'               # Scene Sync store (GLB Builder 2.12+): one manifest of synced SketchUp scenes
+SCENESYNC_MANIFEST_FILENAME        = 'TrueVision__SceneSyncData__Manifest__.json'
 PLANVISION_CONTENT_FOLDER          = '20__PlanVision__AppContent'
 GLB_FILE_PATTERN                   = re.compile(r'^.+\.glb$', re.IGNORECASE)
 PLANVISION_FILE_PATTERN            = re.compile(r'^.+\.(png|pdf|json)$', re.IGNORECASE)
@@ -366,6 +368,8 @@ def discover_model_groups(project_path: Path) -> List[Dict]:
             continue
         if item.name.startswith(POINTCLOUD_FOLDER_NAME):
             continue                                                     # <-- The point cloud store syncs on its own (discover_pointcloud_files)
+        if item.name.startswith(SCENESYNC_FOLDER_NAME):
+            continue                                                     # <-- So does the Scene Sync store (discover_scenesync_files)
 
         glb_files = sorted([
             f.name for f in item.iterdir()
@@ -1031,25 +1035,48 @@ def discover_pointcloud_files(project_path: Path) -> List[Dict]:
     # ------------------------------------------------------------
 
 
+    # FUNCTION | Discover the Scene Sync Store's Manifest
+    # ------------------------------------------------------------
+def discover_scenesync_files(project_path: Path) -> List[Dict]:
+    """The Scene Sync manifest, when the project has one (GLB Builder 2.12+).
+
+    SceneSync__SketchUpSceneData/ holds a single file: every SketchUp scene
+    switched on for TrueVision, written whole by each sync. Nothing else in the
+    folder is uploaded.
+    """
+    content_path  = project_path / TRUEVISION_CONTENT_FOLDER
+    manifest_path = content_path / SCENESYNC_FOLDER_NAME / SCENESYNC_MANIFEST_FILENAME
+    if not manifest_path.is_file():
+        return []
+    return [{
+        'local_path'    : manifest_path,
+        'relative_path' : manifest_path.relative_to(content_path),
+        'filename'      : SCENESYNC_MANIFEST_FILENAME,
+    }]
+    # ------------------------------------------------------------
+
+
     # FUNCTION | Collect Point Cloud Sync Operations for a Project
     # ------------------------------------------------------------
 def collect_pointcloud_sync_operations(
     s3_client, bucket_name: str,
-    year_folder_name: str, project: Dict, pc_files: List[Dict]
+    year_folder_name: str, project: Dict, pc_files: List[Dict],
+    store_folder: str = POINTCLOUD_FOLDER_NAME
 ) -> List[Dict]:
     """Upload what R2 lacks or holds older. One LIST call for the whole store
     instead of a HEAD per tile; the same new / update / skip rule as everything
     else. Point cloud files are NEVER deleted from R2: a TrueVision viewport may
     be pinned to an older revision, and the other computer may hold revisions
-    this one does not (the tiles are not in git)."""
-    prefix = f"{R2_BASE_PREFIX}/{year_folder_name}/{project['project_folder']}/{TRUEVISION_CONTENT_FOLDER}/{POINTCLOUD_FOLDER_NAME}/"
+    this one does not (the tiles are not in git). The Scene Sync store goes
+    through here too (store_folder), with the same rules."""
+    prefix = f"{R2_BASE_PREFIX}/{year_folder_name}/{project['project_folder']}/{TRUEVISION_CONTENT_FOLDER}/{store_folder}/"
     remote = {}
     try:
         for page in s3_client.get_paginator('list_objects_v2').paginate(Bucket=bucket_name, Prefix=prefix):
             for obj in page.get('Contents', []):
                 remote[obj['Key']] = (obj['Size'], obj['LastModified'])
     except Exception as error:
-        print(f"  {C_YELLOW}[!] Could not list the point cloud store on R2 ({error}); every file is treated as new.{C_RESET}")
+        print(f"  {C_YELLOW}[!] Could not list the {store_folder} store on R2 ({error}); every file is treated as new.{C_RESET}")
         remote = {}
 
     operations = []
@@ -1515,6 +1542,12 @@ def run_r2_sync(
                 if pc_files:
                     project_operations[0:0] = collect_pointcloud_sync_operations(
                         s3_client, bucket_name, year_folder_name, project, pc_files
+                    )
+                # Scene Sync store: its one manifest, uploads only, ahead of the project data too.
+                ss_files = discover_scenesync_files(project['project_path'])
+                if ss_files:
+                    project_operations[0:0] = collect_pointcloud_sync_operations(
+                        s3_client, bucket_name, year_folder_name, project, ss_files, store_folder=SCENESYNC_FOLDER_NAME
                     )
 
             # PlanVision sync

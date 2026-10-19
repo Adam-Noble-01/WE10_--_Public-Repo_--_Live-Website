@@ -1,0 +1,826 @@
+{
+  "SceneSyncData__Schema": "TrueVision__SceneSyncData__Manifest",
+  "SceneSyncData__SchemaVersion": 1,
+  "SceneSyncData__ExportedIso": "2026-10-19T15:22:05+0100",
+  "SceneSyncData__ExporterVersion": "2.12.0",
+  "SceneSyncData__CoordinateSystem": {
+    "Units": "metres (camera, section), millimetres (drawing)",
+    "UpAxis": "Y",
+    "FromSketchUp": "SketchUp inches (x, y, z), Z up, become (x, z, -y) x 0.0254 metres, with no offset: the same as the GLB Builder models."
+  },
+  "SceneSyncData__Scenes": [
+    {
+      "Scene__Id": "sus_c0f2382a",
+      "Scene__PagePid": 108,
+      "Scene__Name": "Axo",
+      "Scene__Description": "",
+      "Scene__Type": "view3d",
+      "Scene__TypeLabel": "3D View",
+      "Scene__TypeSuggested": "view3d",
+      "Camera": {
+        "Projection": "orthographic",
+        "SketchUp": {
+          "Units": "inches",
+          "UpAxis": "Z",
+          "Eye": [
+            -1000.0,
+            -1000.0,
+            1000.0
+          ],
+          "Target": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "Up": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "Direction": [
+            0.577350269,
+            0.577350269,
+            -0.577350269
+          ],
+          "Perspective": false,
+          "FovDeg": null,
+          "FovIsHeight": true,
+          "AspectRatio": 1.5,
+          "OrthoHeight": 800.0
+        },
+        "ThreeJs": {
+          "Units": "metres",
+          "UpAxis": "Y",
+          "Position": [
+            -25.4,
+            25.4,
+            25.4
+          ],
+          "Target": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "Up": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "Direction": [
+            0.577350269,
+            -0.577350269,
+            -0.577350269
+          ],
+          "Right": [
+            0.707106781,
+            0.0,
+            0.707106781
+          ],
+          "FovVerticalDeg": null,
+          "Aspect": 1.5,
+          "OrthoHeightM": 20.32
+        }
+      },
+      "Section": null,
+      "Drawing": null,
+      "ModelLayers": {
+        "Hidden": [
+          "TrueVision__SiteBoundaries"
+        ]
+      },
+      "Scene__Revision": "0a8fc187b2",
+      "Scene__SourceStoreId": "suss_c8d72f1cbf92",
+      "Scene__SourceModel": "ZZ98_SceneSyncTest",
+      "Scene__PointCloudSceneId": null,
+      "Scene__State": "synced",
+      "Scene__SyncedIso": "2026-10-19T15:22:05+0100"
+    },
+    {
+      "Scene__Id": "sus_951fb33a",
+      "Scene__PagePid": 104,
+      "Scene__Name": "Garden View",
+      "Scene__Description": "",
+      "Scene__Type": "view3d",
+      "Scene__TypeLabel": "3D View",
+      "Scene__TypeSuggested": "view3d",
+      "Camera": {
+        "Projection": "perspective",
+        "SketchUp": {
+          "Units": "inches",
+          "UpAxis": "Z",
+          "Eye": [
+            -500.0,
+            -800.0,
+            66.0
+          ],
+          "Target": [
+            10.0,
+            0.0,
+            40.0
+          ],
+          "Up": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "Direction": [
+            0.537355592,
+            0.842910733,
+            -0.027394599
+          ],
+          "Perspective": true,
+          "FovDeg": 35.0,
+          "FovIsHeight": true,
+          "AspectRatio": 1.5,
+          "OrthoHeight": null
+        },
+        "ThreeJs": {
+          "Units": "metres",
+          "UpAxis": "Y",
+          "Position": [
+            -12.7,
+            1.6764,
+            20.32
+          ],
+          "Target": [
+            0.254,
+            1.016,
+            0.0
+          ],
+          "Up": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "Direction": [
+            0.537355592,
+            -0.027394599,
+            -0.842910733
+          ],
+          "Right": [
+            0.843227198,
+            0.0,
+            0.537557339
+          ],
+          "FovVerticalDeg": 35.0,
+          "Aspect": 1.5,
+          "OrthoHeightM": null
+        }
+      },
+      "Section": null,
+      "Drawing": null,
+      "ModelLayers": {
+        "Hidden": [
+          "TrueVision__LandscapeEnvironment"
+        ]
+      },
+      "Scene__Revision": "5e21614d1e",
+      "Scene__SourceStoreId": "suss_c8d72f1cbf92",
+      "Scene__SourceModel": "ZZ98_SceneSyncTest",
+      "Scene__PointCloudSceneId": null,
+      "Scene__State": "synced",
+      "Scene__SyncedIso": "2026-10-19T15:22:05+0100"
+    },
+    {
+      "Scene__Id": "sus_fc29e0a6",
+      "Scene__PagePid": 101,
+      "Scene__Name": "Ground Floor Plan",
+      "Scene__Description": "GF plan for the layout",
+      "Scene__Type": "plan",
+      "Scene__TypeLabel": "Plan",
+      "Scene__TypeSuggested": "plan",
+      "Camera": {
+        "Projection": "orthographic",
+        "SketchUp": {
+          "Units": "inches",
+          "UpAxis": "Z",
+          "Eye": [
+            100.0,
+            200.0,
+            2000.0
+          ],
+          "Target": [
+            100.0,
+            200.0,
+            0.0
+          ],
+          "Up": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "Direction": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "Perspective": false,
+          "FovDeg": null,
+          "FovIsHeight": true,
+          "AspectRatio": 1.5,
+          "OrthoHeight": 600.0
+        },
+        "ThreeJs": {
+          "Units": "metres",
+          "UpAxis": "Y",
+          "Position": [
+            2.54,
+            50.8,
+            -5.08
+          ],
+          "Target": [
+            2.54,
+            0.0,
+            -5.08
+          ],
+          "Up": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "Direction": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "Right": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "FovVerticalDeg": null,
+          "Aspect": 1.5,
+          "OrthoHeightM": 15.24
+        }
+      },
+      "Section": {
+        "Name": "Cut 1200",
+        "PointM": [
+          0.0,
+          1.2,
+          0.0
+        ],
+        "NormalM": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "OffSquareDeg": 0.0
+      },
+      "Drawing": {
+        "Kind": "plan",
+        "CutHeightMm": 1200.0,
+        "FrameCentreMm": {
+          "X": 2540.0,
+          "Y": -5080.0
+        },
+        "FrameSizeMm": {
+          "Height": 15240.0,
+          "Width": 22860.0
+        }
+      },
+      "ModelLayers": {
+        "Hidden": [
+          "TrueVision__SiteBoundaries"
+        ]
+      },
+      "Scene__Revision": "4d6a09a157",
+      "Scene__SourceStoreId": "suss_c8d72f1cbf92",
+      "Scene__SourceModel": "ZZ98_SceneSyncTest",
+      "Scene__PointCloudSceneId": "pcs_plan0001",
+      "Scene__State": "synced",
+      "Scene__SyncedIso": "2000-01-01T00:00:00+0000"
+    },
+    {
+      "Scene__Id": "sus_ffffffff",
+      "Scene__SourceStoreId": "suss_000000000000",
+      "Scene__State": "synced",
+      "Scene__Name": "Other Model Scene",
+      "Scene__Revision": "abcdef0123"
+    },
+    {
+      "Scene__Id": "sus_1ec6c389",
+      "Scene__PagePid": 103,
+      "Scene__Name": "Side Section",
+      "Scene__Description": "",
+      "Scene__Type": "section",
+      "Scene__TypeLabel": "Section",
+      "Scene__TypeSuggested": "section",
+      "Camera": {
+        "Projection": "orthographic",
+        "SketchUp": {
+          "Units": "inches",
+          "UpAxis": "Z",
+          "Eye": [
+            -2000.0,
+            150.0,
+            60.0
+          ],
+          "Target": [
+            500.0,
+            150.0,
+            60.0
+          ],
+          "Up": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "Direction": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "Perspective": false,
+          "FovDeg": null,
+          "FovIsHeight": true,
+          "AspectRatio": 1.6,
+          "OrthoHeight": 300.0
+        },
+        "ThreeJs": {
+          "Units": "metres",
+          "UpAxis": "Y",
+          "Position": [
+            -50.8,
+            1.524,
+            -3.81
+          ],
+          "Target": [
+            12.7,
+            1.524,
+            -3.81
+          ],
+          "Up": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "Direction": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "Right": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "FovVerticalDeg": null,
+          "Aspect": 1.6,
+          "OrthoHeightM": 7.62
+        }
+      },
+      "Section": {
+        "Name": "Section A",
+        "PointM": [
+          3.048,
+          0.0,
+          0.0
+        ],
+        "NormalM": [
+          -1.0,
+          0.0,
+          0.0
+        ],
+        "OffSquareDeg": 0.0
+      },
+      "Drawing": {
+        "Kind": "elevation",
+        "Mode": "section",
+        "AzimuthDeg": 270.0,
+        "PlaneOriginMm": {
+          "PosX": 3048.0,
+          "PosZ": -3810.0
+        },
+        "PlaneDistanceMm": -3048.0,
+        "FrameCentreMm": {
+          "X": -3810.0,
+          "Y": -1524.0
+        },
+        "FrameSizeMm": {
+          "Height": 7620.0,
+          "Width": 12192.0
+        }
+      },
+      "ModelLayers": {
+        "Hidden": [
+          "TrueVision__SiteBoundaries"
+        ]
+      },
+      "Scene__Revision": "5bd79f720c",
+      "Scene__SourceStoreId": "suss_c8d72f1cbf92",
+      "Scene__SourceModel": "ZZ98_SceneSyncTest",
+      "Scene__PointCloudSceneId": null,
+      "Scene__State": "synced",
+      "Scene__SyncedIso": "2026-10-19T15:22:05+0100"
+    },
+    {
+      "Scene__Id": "sus_e6113903",
+      "Scene__PagePid": 107,
+      "Scene__Name": "Tilted Plan",
+      "Scene__Description": "",
+      "Scene__Type": "plan",
+      "Scene__TypeLabel": "Plan",
+      "Scene__TypeSuggested": "view3d",
+      "Camera": {
+        "Projection": "orthographic",
+        "SketchUp": {
+          "Units": "inches",
+          "UpAxis": "Z",
+          "Eye": [
+            0.0,
+            -100.0,
+            2000.0
+          ],
+          "Target": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "Up": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "Direction": [
+            0.0,
+            0.049937617,
+            -0.998752339
+          ],
+          "Perspective": false,
+          "FovDeg": null,
+          "FovIsHeight": true,
+          "AspectRatio": 1.5,
+          "OrthoHeight": 500.0
+        },
+        "ThreeJs": {
+          "Units": "metres",
+          "UpAxis": "Y",
+          "Position": [
+            0.0,
+            50.8,
+            2.54
+          ],
+          "Target": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "Up": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "Direction": [
+            0.0,
+            -0.998752339,
+            -0.049937617
+          ],
+          "Right": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "FovVerticalDeg": null,
+          "Aspect": 1.5,
+          "OrthoHeightM": 12.7
+        }
+      },
+      "Section": null,
+      "Drawing": {
+        "Kind": "plan",
+        "CutHeightMm": null,
+        "FrameCentreMm": {
+          "X": 0.0,
+          "Y": 0.0
+        },
+        "FrameSizeMm": {
+          "Height": 12700.0,
+          "Width": 19050.0
+        }
+      },
+      "ModelLayers": {
+        "Hidden": [
+          "TrueVision__SiteBoundaries"
+        ]
+      },
+      "Scene__Revision": "61eeb488f6",
+      "Scene__Warnings": [
+        "A plan should look straight down. This scene's camera is tilted, so TrueVision draws it as seen from directly above."
+      ],
+      "Scene__SourceStoreId": "suss_c8d72f1cbf92",
+      "Scene__SourceModel": "ZZ98_SceneSyncTest",
+      "Scene__PointCloudSceneId": null,
+      "Scene__State": "synced",
+      "Scene__SyncedIso": "2026-10-19T15:22:05+0100"
+    },
+    {
+      "Scene__Id": "sus_560797c1",
+      "Scene__PagePid": 102,
+      "Scene__Name": "Front Elevation",
+      "Scene__Description": "",
+      "Scene__Type": "elevation",
+      "Scene__TypeLabel": "Elevation",
+      "Scene__TypeSuggested": "elevation",
+      "Camera": {
+        "Projection": "orthographic",
+        "SketchUp": {
+          "Units": "inches",
+          "UpAxis": "Z",
+          "Eye": [
+            0.0,
+            -3000.0,
+            50.0
+          ],
+          "Target": [
+            0.0,
+            0.0,
+            50.0
+          ],
+          "Up": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "Direction": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "Perspective": false,
+          "FovDeg": null,
+          "FovIsHeight": true,
+          "AspectRatio": 1.5,
+          "OrthoHeight": 400.0
+        },
+        "ThreeJs": {
+          "Units": "metres",
+          "UpAxis": "Y",
+          "Position": [
+            0.0,
+            1.27,
+            76.2
+          ],
+          "Target": [
+            0.0,
+            1.27,
+            0.0
+          ],
+          "Up": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "Direction": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "Right": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "FovVerticalDeg": null,
+          "Aspect": 1.5,
+          "OrthoHeightM": 10.16
+        }
+      },
+      "Section": null,
+      "Drawing": {
+        "Kind": "elevation",
+        "Mode": "elevation",
+        "AzimuthDeg": 180.0,
+        "PlaneOriginMm": {
+          "PosX": 0.0,
+          "PosZ": 0.0
+        },
+        "PlaneDistanceMm": 0.0,
+        "FrameCentreMm": {
+          "X": 0.0,
+          "Y": -1270.0
+        },
+        "FrameSizeMm": {
+          "Height": 10160.0,
+          "Width": 15240.0
+        }
+      },
+      "ModelLayers": {
+        "Hidden": [
+          "TrueVision__LandscapeEnvironment",
+          "TrueVision__MainBuildingModel__Existing",
+          "TrueVision__SiteBoundaries"
+        ]
+      },
+      "Scene__Revision": "e80f926bd4",
+      "Scene__SourceStoreId": "suss_c8d72f1cbf92",
+      "Scene__SourceModel": "ZZ98_SceneSyncTest",
+      "Scene__PointCloudSceneId": null,
+      "Scene__State": "missing",
+      "Scene__SyncedIso": "2000-01-01T00:00:00+0000"
+    },
+    {
+      "Scene__Id": "sus_f0b0237d",
+      "Scene__PagePid": 103,
+      "Scene__Name": "Side Section",
+      "Scene__Description": "",
+      "Scene__Type": "section",
+      "Scene__TypeLabel": "Section",
+      "Scene__TypeSuggested": "section",
+      "Camera": {
+        "Projection": "orthographic",
+        "SketchUp": {
+          "Units": "inches",
+          "UpAxis": "Z",
+          "Eye": [
+            -2000.0,
+            100.0,
+            60.0
+          ],
+          "Target": [
+            500.0,
+            100.0,
+            60.0
+          ],
+          "Up": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "Direction": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "Perspective": false,
+          "FovDeg": null,
+          "FovIsHeight": true,
+          "AspectRatio": 1.6,
+          "OrthoHeight": 300.0
+        },
+        "ThreeJs": {
+          "Units": "metres",
+          "UpAxis": "Y",
+          "Position": [
+            -50.8,
+            1.524,
+            -2.54
+          ],
+          "Target": [
+            12.7,
+            1.524,
+            -2.54
+          ],
+          "Up": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "Direction": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "Right": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "FovVerticalDeg": null,
+          "Aspect": 1.6,
+          "OrthoHeightM": 7.62
+        }
+      },
+      "Section": {
+        "Name": "Section A",
+        "PointM": [
+          3.048,
+          0.0,
+          0.0
+        ],
+        "NormalM": [
+          -1.0,
+          0.0,
+          0.0
+        ],
+        "OffSquareDeg": 0.0
+      },
+      "Drawing": {
+        "Kind": "elevation",
+        "Mode": "section",
+        "AzimuthDeg": 270.0,
+        "PlaneOriginMm": {
+          "PosX": 3048.0,
+          "PosZ": -2540.0
+        },
+        "PlaneDistanceMm": -3048.0,
+        "FrameCentreMm": {
+          "X": -2540.0,
+          "Y": -1524.0
+        },
+        "FrameSizeMm": {
+          "Height": 7620.0,
+          "Width": 12192.0
+        }
+      },
+      "ModelLayers": {
+        "Hidden": [
+          "TrueVision__SiteBoundaries"
+        ]
+      },
+      "Scene__Revision": "0eea65090e",
+      "Scene__SourceStoreId": "suss_c8d72f1cbf92",
+      "Scene__SourceModel": "ZZ98_SceneSyncTest",
+      "Scene__PointCloudSceneId": null,
+      "Scene__State": "detached",
+      "Scene__SyncedIso": "2000-01-01T00:00:00+0000",
+      "Scene__DetachedIso": "2026-10-19T15:22:05+0100"
+    },
+    {
+      "Scene__Id": "sus_b9167320",
+      "Scene__PagePid": 105,
+      "Scene__Name": "Wide View",
+      "Scene__Description": "",
+      "Scene__Type": "view3d",
+      "Scene__TypeLabel": "3D View",
+      "Scene__TypeSuggested": "view3d",
+      "Camera": {
+        "Projection": "perspective",
+        "SketchUp": {
+          "Units": "inches",
+          "UpAxis": "Z",
+          "Eye": [
+            0.0,
+            -900.0,
+            70.0
+          ],
+          "Target": [
+            0.0,
+            0.0,
+            40.0
+          ],
+          "Up": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "Direction": [
+            0.0,
+            0.999444907,
+            -0.03331483
+          ],
+          "Perspective": true,
+          "FovDeg": 50.0,
+          "FovIsHeight": true,
+          "AspectRatio": 1.5,
+          "OrthoHeight": null
+        },
+        "ThreeJs": {
+          "Units": "metres",
+          "UpAxis": "Y",
+          "Position": [
+            0.0,
+            1.778,
+            22.86
+          ],
+          "Target": [
+            0.0,
+            1.016,
+            0.0
+          ],
+          "Up": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "Direction": [
+            0.0,
+            -0.03331483,
+            -0.999444907
+          ],
+          "Right": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "FovVerticalDeg": 50.0,
+          "Aspect": 1.5,
+          "OrthoHeightM": null
+        }
+      },
+      "Section": null,
+      "Drawing": null,
+      "ModelLayers": {
+        "Hidden": [
+          "TrueVision__SiteBoundaries"
+        ]
+      },
+      "Scene__Revision": "d1b3785cd5",
+      "Scene__SourceStoreId": "suss_c8d72f1cbf92",
+      "Scene__SourceModel": "ZZ98_SceneSyncTest",
+      "Scene__PointCloudSceneId": null,
+      "Scene__State": "off",
+      "Scene__SyncedIso": "2026-10-19T15:22:05+0100"
+    }
+  ]
+}

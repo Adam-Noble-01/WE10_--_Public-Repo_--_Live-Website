@@ -34,6 +34,12 @@
 //   not linked draws nothing and says why in a badge on the frame.
 // - Draft mode hides the pictures (its stylesheet), as it hides every other
 //   raster; the datum, a vector, stays.
+// - TWO KINDS OF OFF. PointCloud__Hidden is the DRAWING's: saved on the
+//   viewport, it decides what prints and what is published (the Render
+//   Composites panel's Point Cloud row). The WORKING view is this session's
+//   alone (the Point Cloud Tools panel's checkboxes): a scene, or every scene,
+//   switched off on screen to work faster, its pictures not even fetched. It
+//   is never saved, and the PDF never reads it.
 //
 // INTEGRATION:
 // - Imports the Window and Frame units only, plus the point cloud data
@@ -49,6 +55,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.1.0
+// - The working view (Adam: "so you can globally turn off all of the point
+//   cloud layers or one by one ... for when you're working, so you can pop
+//   them all on and off very fast"). PointCloudWorkingVisible,
+//   SetWorkingVisible, SetAllWorkingVisible and WorkingSummary hold which
+//   scenes are off on screen for this session; Fill draws nothing for one and
+//   fetches nothing, and says nothing on the frame. The export path never
+//   asks, so the PDF prints the drawing's own state. Changes announce
+//   na-pointcloud-working-changed and repaint every point cloud frame.
+//
 // 19-Oct-2026 - Version 1.0.0
 // - Initial implementation (point cloud viewports).
 //
@@ -131,6 +147,13 @@
     let Na__LeVp2d__PcZoom      = 1;                                            // <-- Pushed in by the Point Cloud Tools panel module
     let Na__LeVp2d__PcListening = false;
     let Na__LeVp2d__PcBooked    = 0;
+    // ------------------------------------------------------------
+
+    // MODULE VARIABLES | The Working View (this session's on screen off switches, never saved)
+    // ------------------------------------------------------------
+    const Na__LeVp2d__PC_WORKING_EVENT = 'na-pointcloud-working-changed';
+    let   Na__LeVp2d__PcWorkingAllOff  = false;                                 // <-- Every point cloud off on screen, whatever the list says
+    const Na__LeVp2d__PcWorkingOff     = new Set();                             // <-- Scene ids switched off one by one
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -241,6 +264,71 @@
         out.matrix = Na__PcPlace__Matrix(revision.Frame, axes);
         out.status = Na__LeVp2d__PC_READY;
         return out;
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | The Working View
+// -----------------------------------------------------------------------------
+
+    // FUNCTION | Is a Scene Drawn on Screen While Working? (the drawing's own state aside)
+    // ------------------------------------------------------------
+    function Na__LeVp2d__PointCloudWorkingVisible(sceneId) {
+        return !Na__LeVp2d__PcWorkingAllOff && !Na__LeVp2d__PcWorkingOff.has(sceneId);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Say So, and Draw Every Point Cloud Frame Again
+    // ------------------------------------------------------------
+    function Na__LeVp2d__PcWorkingChanged() {
+        Na__LeVp2d__PointCloudRefreshAll();
+        queueMicrotask(() => window.dispatchEvent(new CustomEvent(Na__LeVp2d__PC_WORKING_EVENT, { detail : { allOff : Na__LeVp2d__PcWorkingAllOff } })));
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Switch One Scene On or Off on Screen
+    // ------------------------------------------------------------
+    // listedIds: the scenes the panel lists. Turning one back on while every
+    // scene is off keeps the others off, one by one, rather than lighting
+    // them all.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__PointCloudSetWorkingVisible(sceneId, visible, listedIds) {
+        if (typeof sceneId !== 'string' || !sceneId) return;
+        if (Na__LeVp2d__PcWorkingAllOff) {
+            Na__LeVp2d__PcWorkingAllOff = false;
+            (listedIds || []).forEach((id) => { if (typeof id === 'string') Na__LeVp2d__PcWorkingOff.add(id); });
+            Na__LeVp2d__PcWorkingOff.add(sceneId);
+        }
+        if (visible) Na__LeVp2d__PcWorkingOff.delete(sceneId);
+        else Na__LeVp2d__PcWorkingOff.add(sceneId);
+        Na__LeVp2d__PcWorkingChanged();
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Switch Every Point Cloud On or Off on Screen
+    // ------------------------------------------------------------
+    function Na__LeVp2d__PointCloudSetAllWorkingVisible(visible) {
+        Na__LeVp2d__PcWorkingAllOff = !visible;
+        Na__LeVp2d__PcWorkingOff.clear();
+        Na__LeVp2d__PcWorkingChanged();
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | How the Listed Scenes Stand: 'on' (all drawn), 'off' (none) or 'mixed'
+    // ------------------------------------------------------------
+    function Na__LeVp2d__PointCloudWorkingSummary(listedIds) {
+        if (Na__LeVp2d__PcWorkingAllOff) return 'off';
+        const ids = (listedIds || []).filter((id) => typeof id === 'string');
+        const off = ids.filter((id) => Na__LeVp2d__PcWorkingOff.has(id)).length;
+        if (off === 0) return 'on';
+        return off === ids.length ? 'off' : 'mixed';
     }
     // ------------------------------------------------------------
 
@@ -441,6 +529,10 @@
     function Na__LeVp2d__PointCloudFill(state, sheet, viewport, described, ppm) {
         if (!Na__LeModel__IsPointCloudViewport(viewport)) { Na__LeVp2d__PointCloudClear(state); return; }
         Na__LeVp2d__PcListen();
+        if (!Na__LeVp2d__PointCloudWorkingVisible(viewport.Viewport__PointCloud.PointCloud__SceneId)) {   // <-- Off while working: nothing drawn, nothing fetched, nothing said
+            Na__LeVp2d__PointCloudClear(state);
+            return;
+        }
         const resolved = Na__LeVp2d__PointCloudResolve(viewport, described, true);
         const pc       = Na__LeVp2d__PcEnsure(state);
         Na__LeVp2d__PcOrder(state, resolved.lineworkOnTop);
@@ -657,6 +749,11 @@
         Na__LeVp2d__PC_NO_DRAWING,
         Na__LeVp2d__PC_MISALIGNED,
         Na__LeVp2d__PC_READY,
+        Na__LeVp2d__PC_WORKING_EVENT,
+        Na__LeVp2d__PointCloudWorkingVisible,
+        Na__LeVp2d__PointCloudSetWorkingVisible,
+        Na__LeVp2d__PointCloudSetAllWorkingVisible,
+        Na__LeVp2d__PointCloudWorkingSummary,
         Na__LeVp2d__PointCloudResolve,
         Na__LeVp2d__PointCloudFill,
         Na__LeVp2d__PointCloudClear,

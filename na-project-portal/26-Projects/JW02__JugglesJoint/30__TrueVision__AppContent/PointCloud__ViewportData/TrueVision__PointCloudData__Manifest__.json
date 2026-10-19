@@ -1,0 +1,165 @@
+{
+  "PointCloudData__Schema": "TrueVision__PointCloudData__Manifest",
+  "PointCloudData__SchemaVersion": 1,
+  "PointCloudData__ExportedIso": "2026-10-19T16:12:28+0100",
+  "PointCloudData__ExporterVersion": "2.11.0",
+  "PointCloudData__CoordinateSystem": {
+    "Units": "metres",
+    "UpAxis": "Y",
+    "FromSketchUp": "SketchUp inches (x, y, z), Z up, become (x, z, -y) x 0.0254 metres, with no offset: the same as the GLB Builder models."
+  },
+  "PointCloudData__Scenes": [
+    {
+      "Scene__Id": "pcs_42e47ceb",
+      "Scene__Revisions": [
+        {
+          "Revision__Id": "Rev__2f3635649c",
+          "Revision__ExportedIso": "2026-10-19T16:09:13+0100",
+          "Revision__Manifest": "PointCloudScene__pcs_42e47ceb/Rev__2f3635649c/PointCloudScene__RevisionManifest__.json"
+        },
+        {
+          "Revision__Id": "Rev__3497c8b442",
+          "Revision__ExportedIso": "2026-10-19T16:10:47+0100",
+          "Revision__Manifest": "PointCloudScene__pcs_42e47ceb/Rev__3497c8b442/PointCloudScene__RevisionManifest__.json"
+        },
+        {
+          "Revision__Id": "Rev__a643f6d7c5",
+          "Revision__ExportedIso": "2026-10-19T16:12:28+0100",
+          "Revision__Manifest": "PointCloudScene__pcs_42e47ceb/Rev__a643f6d7c5/PointCloudScene__RevisionManifest__.json"
+        }
+      ],
+      "Scene__Name": "Elevation__East__Left",
+      "Scene__ViewType": "elevation",
+      "Scene__Projection": "orthographic",
+      "Scene__Scale": {
+        "Denominator": 100.0,
+        "Label": "1:100"
+      },
+      "Scene__DefaultOpacity": 0.6,
+      "Scene__Status": "active",
+      "Scene__SourceStoreId": "pcss_6ead0fe1c81a",
+      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.0__",
+      "Scene__Folder": "PointCloudScene__pcs_42e47ceb",
+      "Scene__CurrentRevision": "Rev__a643f6d7c5",
+      "Scene__CurrentManifest": "PointCloudScene__pcs_42e47ceb/Rev__a643f6d7c5/PointCloudScene__RevisionManifest__.json",
+      "Scene__Preview": "PointCloudScene__pcs_42e47ceb/Rev__a643f6d7c5/PointCloudScene__Preview__.webp",
+      "Scene__UpdatedIso": "2026-10-19T16:12:28+0100"
+    },
+    {
+      "Scene__Id": "pcs_d5daef4a",
+      "Scene__Revisions": [
+        {
+          "Revision__Id": "Rev__6fcc975b40",
+          "Revision__ExportedIso": "2026-10-19T14:10:30+0100",
+          "Revision__Manifest": "PointCloudScene__pcs_d5daef4a/Rev__6fcc975b40/PointCloudScene__RevisionManifest__.json"
+        },
+        {
+          "Revision__Id": "Rev__2808607d73",
+          "Revision__ExportedIso": "2026-10-19T15:03:49+0100",
+          "Revision__Manifest": "PointCloudScene__pcs_d5daef4a/Rev__2808607d73/PointCloudScene__RevisionManifest__.json"
+        },
+        {
+          "Revision__Id": "Rev__9c26f2ffb5",
+          "Revision__ExportedIso": "2026-10-19T15:52:22+0100",
+          "Revision__Manifest": "PointCloudScene__pcs_d5daef4a/Rev__9c26f2ffb5/PointCloudScene__RevisionManifest__.json"
+        },
+        {
+          "Revision__Id": "Rev__6bada7125b",
+          "Revision__ExportedIso": "2026-10-19T16:12:28+0100",
+          "Revision__Manifest": "PointCloudScene__pcs_d5daef4a/Rev__6bada7125b/PointCloudScene__RevisionManifest__.json"
+        }
+      ],
+      "Scene__Name": "Elevation__North__Front",
+      "Scene__ViewType": "elevation",
+      "Scene__Projection": "orthographic",
+      "Scene__Scale": {
+        "Denominator": 100.0,
+        "Label": "1:100"
+      },
+      "Scene__DefaultOpacity": 0.6,
+      "Scene__Status": "active",
+      "Scene__SourceStoreId": "pcss_6ead0fe1c81a",
+      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.0__",
+      "Scene__Folder": "PointCloudScene__pcs_d5daef4a",
+      "Scene__CurrentRevision": "Rev__6bada7125b",
+      "Scene__CurrentManifest": "PointCloudScene__pcs_d5daef4a/Rev__6bada7125b/PointCloudScene__RevisionManifest__.json",
+      "Scene__Preview": "PointCloudScene__pcs_d5daef4a/Rev__6bada7125b/PointCloudScene__Preview__.webp",
+      "Scene__UpdatedIso": "2026-10-19T16:12:28+0100"
+    },
+    {
+      "Scene__Id": "pcs_7d8afead",
+      "Scene__Revisions": [
+        {
+          "Revision__Id": "Rev__470d6bf3ff",
+          "Revision__ExportedIso": "2026-10-19T16:09:13+0100",
+          "Revision__Manifest": "PointCloudScene__pcs_7d8afead/Rev__470d6bf3ff/PointCloudScene__RevisionManifest__.json"
+        },
+        {
+          "Revision__Id": "Rev__906cb452b9",
+          "Revision__ExportedIso": "2026-10-19T16:10:47+0100",
+          "Revision__Manifest": "PointCloudScene__pcs_7d8afead/Rev__906cb452b9/PointCloudScene__RevisionManifest__.json"
+        },
+        {
+          "Revision__Id": "Rev__295fd60229",
+          "Revision__ExportedIso": "2026-10-19T16:12:28+0100",
+          "Revision__Manifest": "PointCloudScene__pcs_7d8afead/Rev__295fd60229/PointCloudScene__RevisionManifest__.json"
+        }
+      ],
+      "Scene__Name": "Elevation__South__Rear",
+      "Scene__ViewType": "elevation",
+      "Scene__Projection": "orthographic",
+      "Scene__Scale": {
+        "Denominator": 100.0,
+        "Label": "1:100"
+      },
+      "Scene__DefaultOpacity": 0.6,
+      "Scene__Status": "active",
+      "Scene__SourceStoreId": "pcss_6ead0fe1c81a",
+      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.0__",
+      "Scene__Folder": "PointCloudScene__pcs_7d8afead",
+      "Scene__CurrentRevision": "Rev__295fd60229",
+      "Scene__CurrentManifest": "PointCloudScene__pcs_7d8afead/Rev__295fd60229/PointCloudScene__RevisionManifest__.json",
+      "Scene__Preview": "PointCloudScene__pcs_7d8afead/Rev__295fd60229/PointCloudScene__Preview__.webp",
+      "Scene__UpdatedIso": "2026-10-19T16:12:28+0100"
+    },
+    {
+      "Scene__Id": "pcs_4208d708",
+      "Scene__Revisions": [
+        {
+          "Revision__Id": "Rev__8cef1a1788",
+          "Revision__ExportedIso": "2026-10-19T16:09:13+0100",
+          "Revision__Manifest": "PointCloudScene__pcs_4208d708/Rev__8cef1a1788/PointCloudScene__RevisionManifest__.json"
+        },
+        {
+          "Revision__Id": "Rev__59bd92e7f5",
+          "Revision__ExportedIso": "2026-10-19T16:10:47+0100",
+          "Revision__Manifest": "PointCloudScene__pcs_4208d708/Rev__59bd92e7f5/PointCloudScene__RevisionManifest__.json"
+        },
+        {
+          "Revision__Id": "Rev__af6890d201",
+          "Revision__ExportedIso": "2026-10-19T16:12:28+0100",
+          "Revision__Manifest": "PointCloudScene__pcs_4208d708/Rev__af6890d201/PointCloudScene__RevisionManifest__.json"
+        }
+      ],
+      "Scene__Name": "Elevation__West__Right",
+      "Scene__ViewType": "elevation",
+      "Scene__Projection": "orthographic",
+      "Scene__Scale": {
+        "Denominator": 100.0,
+        "Label": "1:100"
+      },
+      "Scene__DefaultOpacity": 0.6,
+      "Scene__Status": "active",
+      "Scene__SourceStoreId": "pcss_6ead0fe1c81a",
+      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.0__",
+      "Scene__Folder": "PointCloudScene__pcs_4208d708",
+      "Scene__CurrentRevision": "Rev__af6890d201",
+      "Scene__CurrentManifest": "PointCloudScene__pcs_4208d708/Rev__af6890d201/PointCloudScene__RevisionManifest__.json",
+      "Scene__Preview": "PointCloudScene__pcs_4208d708/Rev__af6890d201/PointCloudScene__Preview__.webp",
+      "Scene__UpdatedIso": "2026-10-19T16:12:28+0100"
+    }
+  ],
+  "PointCloudData__Datums": [
+
+  ]
+}

@@ -229,7 +229,10 @@ function drawingsData(options) {
         Na__CfApi__IsConfigured             : () => true,
         Na__CfApi__MergeAndSaveKeys         : async (keys) => { state.r2.push(JSON.parse(JSON.stringify(keys))); return { ok : true }; },
         Na__LocalMirror__MergeKeys          : async (keys, mergeOptions) => { state.merges.push({ keys : JSON.parse(JSON.stringify(keys)), options : mergeOptions }); return state.mergeAnswer || { ok : true, skipped : false, error : null, drawings : { savedIso : keys.LayoutEditor__DrawingsData.LayoutEditor__DrawingsData__SavedIso, digest : 'sha1:written' } }; },
-        Na__LocalMirror__DrawingsFingerprint : async () => state.fingerprints.length > 1 ? state.fingerprints.shift() : state.fingerprints[0]
+        Na__LocalMirror__DrawingsFingerprint : async () => state.fingerprints.length > 1 ? state.fingerprints.shift() : state.fingerprints[0],
+        // Scene Sync (19-Oct-2026): every save strips synced SketchUp records from what it writes. The real
+        // strip, from its leaf module, so these saves run exactly the code that ships.
+        Na__SceneSync__StripDoc : loadModule('23__System__SceneSync/Na__SceneSync__Records__.js', {}).ns.Na__SceneSync__StripDoc
     };
     const loaded = loadModule('40__System__DrawingViewCore/Na__DrawView__ProjectData__.js', stubs);
     return { data : loaded.ns, state, toast : (message, isError) => state.toasts.push({ message, isError }) };

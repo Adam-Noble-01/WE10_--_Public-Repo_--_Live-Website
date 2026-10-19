@@ -67,6 +67,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.7.0
+// - SCENE SYNC. Na__DrawData__RegisterLoadHook: a hook runs on the block a
+//   load adopts, before the load is announced, so a listener never sees the
+//   block without what the hook adds. Scene Sync puts the synced SketchUp
+//   plans and elevations in this way (23__System__SceneSync). And every save
+//   strips them from the copy it writes (Na__SceneSync__StripDoc, right after
+//   the payload steps, so R2 and the local copy get the same thing): a synced
+//   record is SketchUp's, rebuilt on every load, and never saved.
+//
 // 22-Sep-2026 - Version 1.6.0
 // - THE DRAWINGS SAVE GUARD. The base - what the drawings block was when this
 //   session loaded or last saved it - is learned after every load (on
@@ -165,6 +174,13 @@
     // @delegate: ../03__AppUtils/Na__AppUtils__LocalProjectMirror__.js
     // ------------------------------------------------------------
     import { Na__LocalMirror__MergeKeys, Na__LocalMirror__DrawingsFingerprint } from '../03__AppUtils/Na__AppUtils__LocalProjectMirror__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Scene Sync Records (a leaf: synced SketchUp records are never saved)
+    // ------------------------------------------------------------
+    // @delegate: ../23__System__SceneSync/Na__SceneSync__Records__.js
+    // ------------------------------------------------------------
+    import { Na__SceneSync__StripDoc } from '../23__System__SceneSync/Na__SceneSync__Records__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -285,6 +301,18 @@
     // @delegate: ./Na__DrawView__DraftGuard__.js
     // ------------------------------------------------------------
     let Na__DrawData__PayloadGuard = null;           // <-- (payloadCopy) => void
+    // ------------------------------------------------------------
+
+
+    // MODULE VARIABLES | Load Hooks (records another system adds to every block adopted)
+    // ------------------------------------------------------------
+    // Scene Sync's synced SketchUp plans and elevations go in here, as the
+    // block is adopted and BEFORE the load is announced, so nothing that
+    // listens for the load ever sees the block without them. A hook may run
+    // on the same block more than once and must leave it the same.
+    // @delegate: ../23__System__SceneSync/Na__SceneSync__Live__.js
+    // ------------------------------------------------------------
+    const Na__DrawData__LoadHooks = [];              // <-- (block) => void
     // ------------------------------------------------------------
 
 
@@ -468,6 +496,10 @@
             Na__DrawData__Block = Na__DrawData__BuildSkeleton();
         }
 
+        Na__DrawData__LoadHooks.forEach((hook) => {                              // <-- Scene Sync's records, before anyone hears of the load
+            try { hook(Na__DrawData__Block); }
+            catch (hookError) { console.warn('[TrueVision3D] A drawings load hook failed; the block loads without what it adds.', hookError); }
+        });
         Na__DrawData__ProjectCode = projectCode || Na__DrawData__ProjectCode || null;
         Na__DrawData__Loaded      = true;                                        // <-- Before the announcement: a listener may ask
         Na__DrawData__Base        = undefined;                                   // <-- Not known for this load until the server answers
@@ -778,6 +810,7 @@
             Na__DrawData__ApplyPayloadGuard(cloudKeys);                              // <-- A drawing still being edited goes out as it was last updated
             stepContext.block = cloudKeys[Na__DrawData__BLOCK_KEY] || null;
             await Na__DrawData__RunSaveSteps('payload', stepContext);                // <-- The copy about to be written points at the files the before phase put in place
+            Na__SceneSync__StripDoc(cloudKeys);                                      // <-- Synced SketchUp records are rebuilt on every load, never saved (the local copy is cut from this)
             const localKeys = JSON.parse(JSON.stringify(cloudKeys));                 // <-- The local copy gets exactly what R2 gets, whatever is edited during the write
             const mirrorOptions = Na__DrawData__BaseJudged ? { drawingsBase : Na__DrawData__Base } : undefined;   // <-- What this save was built on: the local server refuses it if the disk has moved on
             // DELETION | Explicit local-first mode; a local failure never reaches R2.
@@ -861,6 +894,14 @@
     // ------------------------------------------------------------
     function Na__DrawData__RegisterPayloadGuard(guard) {
         Na__DrawData__PayloadGuard = (typeof guard === 'function') ? guard : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Register a Load Hook (runs on every block adopted, before the load is announced)
+    // ------------------------------------------------------------
+    function Na__DrawData__RegisterLoadHook(hook) {
+        if (typeof hook === 'function' && !Na__DrawData__LoadHooks.includes(hook)) Na__DrawData__LoadHooks.push(hook);
     }
     // ------------------------------------------------------------
 
@@ -952,6 +993,7 @@
         Na__DrawView__ProjectData__Initialize,
         Na__DrawData__RegisterSectionBlockProvider,
         Na__DrawData__RegisterPayloadGuard,
+        Na__DrawData__RegisterLoadHook,
         Na__DrawData__RegisterSaveStep,
         Na__DrawData__GetBlock,
         Na__DrawData__Load,

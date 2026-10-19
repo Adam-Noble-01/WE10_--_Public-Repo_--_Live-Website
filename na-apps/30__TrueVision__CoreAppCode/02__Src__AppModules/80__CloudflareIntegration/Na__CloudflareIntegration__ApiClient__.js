@@ -31,6 +31,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.6.0
+// - Scene Sync: WriteProjectData, the one writer of the project document on
+//   R2, writes it without the synced SketchUp records
+//   (Na__SceneSync__StrippedCopy, which copies only what it changes and
+//   never edits what it is given). Those records are in the merge base the
+//   app loaded, because they are in the live drawings and scenes; any save
+//   of any key writes the base, so this is where they are kept out.
+//
 // 21-Sep-2026 - Version 1.5.0
 // - Sheet Images: SheetImageLocation, ListSheetImages, UploadSheetImage,
 //   CopySheetImage and DeleteSheetImage for the pictures placed on Layout
@@ -80,6 +88,11 @@
         Na__AppUtils__GetYearFromUrl,
         Na__AppUtils__GetProjectCodeFromUrl
     } from '../03__AppUtils/Na__AppUtils__ProjectLoader.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Scene Sync Records (a leaf: synced SketchUp records are never written)
+    // ------------------------------------------------------------
+    import { Na__SceneSync__StrippedCopy } from '../23__System__SceneSync/Na__SceneSync__Records__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -317,7 +330,7 @@
         const key = Na__CfApi__BuildProjectDataKey(ctx.projectFolder, ctx.yearCode);
         return await Na__CfApi__WriteKey({
             key         : key,
-            data        : projectDataObject,
+            data        : Na__SceneSync__StrippedCopy(projectDataObject),     // <-- Synced SketchUp records are rebuilt on every load, never written
             contentType : 'application/json'
         });
     }

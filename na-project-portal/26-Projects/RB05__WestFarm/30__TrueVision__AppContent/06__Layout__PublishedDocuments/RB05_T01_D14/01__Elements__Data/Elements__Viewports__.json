@@ -68,7 +68,7 @@
         {
             "Viewport__Id"      : "Viewport_002",
             "Viewport__Kind"    : "2d",
-            "Viewport__Name"    : "Existing Location Plan",
+            "Viewport__Name"    : "Proposed Location Plan",
             "Viewport__LayerId" : "Layer_001",
             "Viewport__FrameMm" : {
                 "X"        : 431.2349448700868,
@@ -122,7 +122,7 @@
                 "Vector__SegmentCount" : 7950
             },
             "Viewport__SceneSvg" : "",
-            "Viewport__FrameSvg" : "<rect x=\"431.235\" y=\"115.588\" width=\"335.851\" height=\"334.392\" fill=\"none\" stroke=\"#8a949c\" stroke-width=\"0.25\"/><rect x=\"431.235\" y=\"444.98\" width=\"48.395\" height=\"5\" fill=\"#ffffff\" stroke=\"#8a949c\" stroke-width=\"0.25\"/><text x=\"433.135\" y=\"448.344\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"700\" fill=\"#172b3a\" text-anchor=\"start\" letter-spacing=\"0.16\" xml:space=\"preserve\">EXISTING LOCATION PLAN   1:2500</text>"
+            "Viewport__FrameSvg" : "<rect x=\"431.235\" y=\"115.588\" width=\"335.851\" height=\"334.392\" fill=\"none\" stroke=\"#8a949c\" stroke-width=\"0.25\"/><rect x=\"431.235\" y=\"444.98\" width=\"50.48\" height=\"5\" fill=\"#ffffff\" stroke=\"#8a949c\" stroke-width=\"0.25\"/><text x=\"433.135\" y=\"448.344\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"700\" fill=\"#172b3a\" text-anchor=\"start\" letter-spacing=\"0.16\" xml:space=\"preserve\">PROPOSED LOCATION PLAN   1:2500</text>"
         }
     ]
 }

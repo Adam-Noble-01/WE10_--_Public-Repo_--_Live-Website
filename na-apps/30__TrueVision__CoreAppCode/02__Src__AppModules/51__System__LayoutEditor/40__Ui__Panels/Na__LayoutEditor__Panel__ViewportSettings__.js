@@ -55,6 +55,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.11.0 (TrueVision, Scene Sync)
+// - The scene lists name the SketchUp scenes TrueVision Sync keeps in step
+//   on their own, after Adam's groups, as "SketchUp: <name>". A new 2D
+//   viewport of one is centred where the SketchUp camera looks
+//   (Na__LeVp2d__CentreOnDrawing).
+//
 // 22-Sep-2026 - Version 1.10.0 (TrueVision)
 // - A viewport added while a group is open for editing - a scene, or a site
 //   plan - joins that group (Na__LeScope__WithAdoption), in the same undo
@@ -159,6 +165,7 @@
         Na__LePanels__Refresh
     } from './Na__LayoutEditor__PanelHost__.js';
     import { Na__LeVp2d__Describe, Na__LeVp2d__CentreOnDrawing } from '../20__System__Viewports/Na__LayoutEditor__Viewport2d__.js';
+    import { Na__SceneSync__IsSynced } from '../../23__System__SceneSync/Na__SceneSync__Records__.js';   // <-- A leaf: is a scene one SketchUp keeps in step
     import { Na__LeRaster__LEVELS, Na__LeRaster__Get, Na__LeRaster__Set } from '../20__System__Viewports/Na__LayoutEditor__RasterQuality__.js';
     import { Na__LeMarkup__ImportFromScene } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
     import { Na__LeClip__IsCopyName } from '../20__System__Viewports/Na__LayoutEditor__ViewportClipboard__.js';
@@ -242,10 +249,13 @@
             const kind = Na__DrawData__IsFloorPlanScene(scene) ? ' (plan)' : (Na__DrawData__IsElevationScene(scene) ? ' (elevation)' : ' (3D)');
             options.push({ value : scene.PresentationMode__Scene__Id, label : (groupName ? groupName + ': ' : '') + (scene.PresentationMode__Scene__Name || scene.PresentationMode__Scene__Id) + kind, group : groupName });
         };
+        const authored = (scene) => !Na__SceneSync__IsSynced(scene);            // <-- Synced SketchUp scenes are listed on their own, last
         groups.forEach((group) => {
-            Na__PresentationMode__SceneGroups__GetScenesInGroup(scenes, config, group.PresentationMode__Group__Id).forEach((scene) => push(scene, group.PresentationMode__Group__Name));
+            Na__PresentationMode__SceneGroups__GetScenesInGroup(scenes, config, group.PresentationMode__Group__Id).filter(authored).forEach((scene) => push(scene, group.PresentationMode__Group__Name));
         });
-        scenes.forEach((scene) => push(scene, null));
+        scenes.filter(authored).forEach((scene) => push(scene, null));
+        const sketchUp = Na__LeCfg__GetLabel('SceneSyncGroup', 'SketchUp');
+        scenes.filter(Na__SceneSync__IsSynced).forEach((scene) => push(scene, sketchUp));
         return options;
     }
     // ------------------------------------------------------------

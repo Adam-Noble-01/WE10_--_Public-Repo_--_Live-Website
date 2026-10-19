@@ -39,6 +39,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.8.0
+// - The Point Cloud row (Adam: "the point cloud render composite layer should
+//   appear there ... the one that is bound to the actual layer state of the
+//   drawing and shows its published and printed state"). Shown only on a
+//   viewport carrying a point cloud; ticked unless the viewport's point cloud
+//   is off (PointCloud__Hidden), and ticking writes that, one undo step. It
+//   replaces Point Cloud Tools' Show Point Cloud, whose own checkboxes are now
+//   the working view.
+//
 // 20-Sep-2026 - Version 1.7.0
 // - A weight whose kind is 'percent' reads as a percentage: Enhance Whitecard
 //   is the first, and its number is how much of the levels and sharpen pass to
@@ -88,7 +97,7 @@
     // MODULE IMPORTS | Config, Model, Composites and Panel Host
     // ------------------------------------------------------------
     import { Na__LeCfg__GetLabel } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
-    import { Na__LeModel__KIND_2D, Na__LeModel__GetActiveSheet, Na__LeModel__GetSelectedViewport, Na__LeModel__UpdateViewport } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
+    import { Na__LeModel__KIND_2D, Na__LeModel__GetActiveSheet, Na__LeModel__GetSelectedViewport, Na__LeModel__UpdateViewport, Na__LeModel__IsPointCloudViewport } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeForce__CHANGED_EVENT, Na__LeForce__IsRunning, Na__LeForce__GetProgress, Na__LeForce__Viewport, Na__LeForce__Sheet } from '../20__System__Viewports/Na__LayoutEditor__ForceRender__.js';
     import {
         Na__LeComposite__Ready,
@@ -326,11 +335,15 @@
         rows.forEach((row) => {
             const element = list.querySelector('[data-na-toggle="' + row.key + '"]');
             if (!element) return;
-            element.hidden = !viewport || (row.twoDOnly && viewport.Viewport__Kind !== Na__LeModel__KIND_2D);
+            const pointCloud = row.binding === 'pointCloud';
+            element.hidden = !viewport || (row.twoDOnly && viewport.Viewport__Kind !== Na__LeModel__KIND_2D)
+                || (pointCloud && !Na__LeModel__IsPointCloudViewport(viewport));    // <-- Only a viewport carrying a point cloud has the layer
             if (!viewport) return;
 
             const toggle = element.querySelector('[data-na-control="style-toggle"]');
-            if (toggle) toggle.checked = viewport.Viewport__Styles[row.key] === true;
+            if (toggle) toggle.checked = pointCloud
+                ? (Na__LeModel__IsPointCloudViewport(viewport) && viewport.Viewport__PointCloud.PointCloud__Hidden !== true)
+                : viewport.Viewport__Styles[row.key] === true;
 
             // A WEIGHT CAN BE 2D-ONLY WHEN ITS TOGGLE IS NOT. The profile effect
             // switches on in 3D as well, but its 3D width is the composer's own
@@ -367,6 +380,11 @@
             const sheet = Na__LeModel__GetActiveSheet();
             const viewport = Na__LeModel__GetSelectedViewport();
             if (!sheet || !viewport) return;
+            const row = Na__LePanelStyles__Rows().find((r) => r.key === key);
+            if (row && row.binding === 'pointCloud') {                          // <-- The drawing's own point cloud layer: kept on the viewport, shown and printed or not
+                if (Na__LeModel__IsPointCloudViewport(viewport)) Na__LeModel__UpdateViewport(sheet, viewport.Viewport__Id, { pointCloud : { PointCloud__Hidden : el.checked ? null : true } });
+                return;
+            }
             const styles = {};
             styles[key] = el.checked;
             Na__LeModel__UpdateViewport(sheet, viewport.Viewport__Id, { styles : styles });

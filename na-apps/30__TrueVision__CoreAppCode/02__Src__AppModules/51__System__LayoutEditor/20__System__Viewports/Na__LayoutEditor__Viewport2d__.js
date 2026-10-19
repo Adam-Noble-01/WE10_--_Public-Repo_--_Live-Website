@@ -70,6 +70,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.19.0 (TrueVision)
+// - Re-exports the PointCloud unit's working view (PC_WORKING_EVENT,
+//   PointCloudWorkingVisible, SetWorkingVisible, SetAllWorkingVisible,
+//   WorkingSummary) for the Point Cloud Tools panel's on screen checkboxes.
+//
+// 19-Oct-2026 - Version 1.18.0 (TrueVision, Scene Sync)
+// - CentreOnDrawing centres a viewport of a synced SketchUp drawing where the
+//   SketchUp camera looks (the drawing's Sync__FrameCentreMm, in this
+//   viewport's own drawing millimetres), so it opens on what the SketchUp
+//   scene shows rather than on the middle of the model.
+//
 // 19-Oct-2026 - Version 1.17.0 (TrueVision)
 // - Point cloud viewports (Viewport__PointCloud). Fill hands every 2D frame to
 //   the new PointCloud unit after its own layers - the site plan path, the
@@ -288,6 +299,11 @@
         Na__LeVp2d__PC_NO_DRAWING,
         Na__LeVp2d__PC_MISALIGNED,
         Na__LeVp2d__PC_READY,
+        Na__LeVp2d__PC_WORKING_EVENT,
+        Na__LeVp2d__PointCloudWorkingVisible,
+        Na__LeVp2d__PointCloudSetWorkingVisible,
+        Na__LeVp2d__PointCloudSetAllWorkingVisible,
+        Na__LeVp2d__PointCloudWorkingSummary,
         Na__LeVp2d__PointCloudResolve,
         Na__LeVp2d__PointCloudFill,
         Na__LeVp2d__PointCloudClear,
@@ -316,6 +332,11 @@
         }
         const described = Na__LeVp2d__Describe(viewport);
         if (!described.definition) return false;
+        const record = described.source ? (described.source.plan || described.source.elevation) : null;
+        const synced = record && record.Sync__FrameCentreMm;                     // <-- A SketchUp scene (Scene Sync): where its camera looks
+        if (synced && Number.isFinite(synced.X) && Number.isFinite(synced.Y)) {
+            return Na__LeModel__UpdateViewport(sheet, viewport.Viewport__Id, { pan : { X : synced.X, Y : synced.Y } }, true);
+        }
         const centre = Na__LeSnap__DrawingCentreMm(described.definition);
         return Na__LeModel__UpdateViewport(sheet, viewport.Viewport__Id, { pan : { X : centre.x, Y : centre.y } }, true);
     }
@@ -700,6 +721,11 @@
         Na__LeVp2d__PC_NO_DRAWING,
         Na__LeVp2d__PC_MISALIGNED,
         Na__LeVp2d__PC_READY,
+        Na__LeVp2d__PC_WORKING_EVENT,
+        Na__LeVp2d__PointCloudWorkingVisible,
+        Na__LeVp2d__PointCloudSetWorkingVisible,
+        Na__LeVp2d__PointCloudSetAllWorkingVisible,
+        Na__LeVp2d__PointCloudWorkingSummary,
         Na__LeVp2d__PointCloudResolve,
         Na__LeVp2d__PointCloudRefreshAll,
         Na__LeVp2d__PointCloudSetZoom,

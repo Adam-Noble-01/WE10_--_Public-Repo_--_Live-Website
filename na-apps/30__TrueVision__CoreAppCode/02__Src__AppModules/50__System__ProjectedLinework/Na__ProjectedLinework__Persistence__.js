@@ -47,6 +47,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.3.0 (Scene Sync, TrueVision v2.174.0)
+// - BakeAll skips the drawings TrueVision Sync keeps in step with SketchUp
+//   scenes: they are rebuilt from SketchUp on every load and never saved, so
+//   a baked asset would be written to R2 for a record that forgets it. Their
+//   viewports draw live, as any unbaked drawing does. counts.synced says how
+//   many were skipped.
+//
 // 14-Sep-2026 - Version 1.2.1
 // - Fix: FetchAsset read from a folder named after the project code
 //   (26-Projects/PS01), but the bake uploads to the URL's project folder
@@ -117,6 +124,11 @@
         Na__PlOwners__Attach,
         Na__PlOwners__Has
     } from './Na__ProjectedLinework__Owners__.js';
+
+    // MODULE IMPORTS | Scene Sync Records (a leaf: synced SketchUp drawings are never baked)
+    // ------------------------------------------------------------
+    import { Na__SceneSync__IsSyntheticId } from '../23__System__SceneSync/Na__SceneSync__Records__.js';
+    // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
 
@@ -593,6 +605,7 @@
         const wanted = new Set(Array.isArray(settings.includeDrawingIds) ? settings.includeDrawingIds : (settings.includeDrawingIds instanceof Set ? Array.from(settings.includeDrawingIds) : []));
         for (let i = 0; i < definitions.length; i++) {
             const definition = definitions[i];
+            if (Na__SceneSync__IsSyntheticId(definition.DrawingId)) { counts.synced = (counts.synced || 0) + 1; continue; }   // <-- A synced SketchUp drawing is rebuilt on every load: drawn live, never baked onto a record that is never saved
             if (settings.force !== true && !definition.Styles.projectedLinework && !wanted.has(definition.DrawingId)) { counts.off++; continue; }
             if (typeof settings.onProgress === 'function') settings.onProgress({ index : i + 1, total : definitions.length, name : definition.DrawingName });
             try {

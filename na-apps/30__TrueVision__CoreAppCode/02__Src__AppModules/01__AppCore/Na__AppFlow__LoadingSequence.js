@@ -31,6 +31,19 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.4.0 (Scene Sync, v2.174.0)
+// - The SketchUp scenes TrueVision Sync keeps in step are read as soon as the
+//   project data is in (Na__SsStore__Load, alongside the orbit helper) and
+//   waited for, at most Na__SceneSync__WaitMs, just before the scenes and the
+//   drawings go out: Na__SsLive__Use builds them into read-only plans,
+//   elevations and scenes, which the drawings load hook and the presentation
+//   config hook put in place as each is adopted.
+// - A project whose only scenes are for the Layout Editor (synced, or authored
+//   as layout editor only) has its scene config adopted quietly: the Layout
+//   Editor can bind its viewports to them, and the carousel, which has
+//   nothing to show, is never told. Before this such a project adopted no
+//   config at all, and its layout editor only scenes could not be placed.
+//
 // 28-Sep-2026 - Version 1.3.1 (per-scene lighting, v2.161.0)
 // - configs.perSceneLighting (the app config's Scene__PerSceneLighting block)
 //   is handed to the lighting setup, which hands both lights to
@@ -110,7 +123,7 @@
 
     // MODULE IMPORTS | Math Utils
     // ------------------------------------------------------------
-    import { Na__Math__ConvertMmToUnits } from '../04__MathUtils/Na__Math__Units.js';
+    import { Na__Math__ConvertMmToUnits, Na__Math__ConvertUnitsToMm } from '../04__MathUtils/Na__Math__Units.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Camera Controls
@@ -128,8 +141,20 @@
     // ------------------------------------------------------------
     import {
         Na__PresentationMode__ProjectJson__GetSavedCameraScenes,
-        Na__PresentationMode__ProjectJson__HasValidSavedScenes
+        Na__PresentationMode__ProjectJson__HasValidSavedScenes,
+        Na__PresentationMode__ProjectJson__FilterValidScenes,
+        Na__PresentationMode__ProjectJson__SetActiveConfig
     } from '../21__System__PresentationMode/Na__PresentationMode__ProjectJson__SceneData.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Scene Sync (SketchUp scenes kept in step by TrueVision Sync)
+    // ------------------------------------------------------------
+    // @delegate: ../23__System__SceneSync/Na__SceneSync__Store__.js
+    // @delegate: ../23__System__SceneSync/Na__SceneSync__Live__.js
+    // ------------------------------------------------------------
+    import { Na__SsStore__Load, Na__SsStore__Settle, Na__SsStore__GetUrl } from '../23__System__SceneSync/Na__SceneSync__Store__.js';
+    import { Na__SsLive__Use, Na__SsLive__HasScenes, Na__SsLive__NewContainerConfig } from '../23__System__SceneSync/Na__SceneSync__Live__.js';
+    import { Na__PlCfg__GetDefaultExclusionTokens } from '../50__System__ProjectedLinework/Na__ProjectedLinework__ConfigAccess__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Cloudflare R2 API Client (source-of-truth project data)
@@ -749,6 +774,7 @@
                 Na__ProjectData__Full          = projectData;                  // <-- Retain full data for nav modes + presentation scenes
                 Na__Saved__ProjectCameraConfig = projectData.Camera__DefaultPosition || null;
                 Na__Saved__ProjectOrbitTarget  = projectData.OrbitHelperCube__Position || null;
+                Na__SsStore__Load(projectData);                                // <-- The synced SketchUp scenes: read alongside the models, waited for below
 
                 Na__AppFlow__RefinePwaProjectName(projectData);                // <-- Name the installable app after the project
 
@@ -919,6 +945,23 @@
             }
         }
 
+        // SCENE SYNC | The SketchUp scenes TrueVision Sync keeps in step, built into
+        // read-only plans, elevations and scenes BEFORE the scenes and drawings go
+        // out below, so every listener finds them beside Adam's own from the
+        // start. The read began with the project data; this waits for it, never
+        // longer than Na__SceneSync__WaitMs. The orbit's limits are the ones just
+        // set, so a synced camera is placed where the orbit will leave it.
+        {
+            const Na__SceneSync__WaitMs   = 3000;
+            const Na__SceneSync__Manifest = await Na__SsStore__Settle(Na__SceneSync__WaitMs);
+            const Na__SceneSync__Count    = Na__SsLive__Use(Na__SceneSync__Manifest, {
+                orbitMinMm           : Na__Math__ConvertUnitsToMm(Na__Controls__Orbit.minDistance),
+                orbitMaxMm           : Na__Math__ConvertUnitsToMm(Na__Controls__Orbit.maxDistance),
+                defaultExcludeTokens : Na__PlCfg__GetDefaultExclusionTokens()
+            }, { url : Na__SsStore__GetUrl() });
+            if (Na__SceneSync__Count > 0) console.log(`[TrueVision3D] Scene Sync: ${Na__SceneSync__Count} SketchUp scene(s) in step with SketchUp.`);
+        }
+
         // REGISTER FULL PROJECT DATA AS THE DEV-MENU SAVE MERGE BASE
         // Dev-menu saves merge changed keys into this object and write the whole
         // document back to R2, so model groups / camera / etc. are never dropped.
@@ -944,6 +987,17 @@
                     year          : yearCode
                 }
             }));
+        } else {
+            // LAYOUT EDITOR SCENES ONLY | Nothing for the viewer to show, but scenes the
+            // Layout Editor binds viewports to: synced SketchUp scenes, or scenes authored
+            // as layout editor only. The config is adopted quietly (the Scene Sync hook
+            // adds the synced ones) and the carousel is never told, so the viewer opens
+            // exactly as it would with no scenes. A project with neither adopts nothing.
+            const Na__QuietConfig = Na__ProjectData__Full ? Na__PresentationMode__ProjectJson__GetSavedCameraScenes(Na__ProjectData__Full) : null;
+            const Na__HasAuthored = Boolean(Na__QuietConfig) && Na__PresentationMode__ProjectJson__FilterValidScenes(Na__QuietConfig.PresentationMode__SavedCameraScenes__Scenes).length > 0;
+            if (Na__HasAuthored || Na__SsLive__HasScenes()) {
+                Na__PresentationMode__ProjectJson__SetActiveConfig(Na__QuietConfig || Na__SsLive__NewContainerConfig(), projectFolder, yearCode);
+            }
         }
 
         // BROADCAST THE DRAWINGS BLOCK (floor plans, elevations, Layout Editor sheets)

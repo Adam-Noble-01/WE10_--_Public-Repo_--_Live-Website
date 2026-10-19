@@ -68,6 +68,8 @@ SITEPLAN_STORES = [                                               # A project ma
 SITEPLAN_MANIFEST_FILENAME = 'TrueVision__SitePlanData__Manifest__.json'
 POINTCLOUD_FOLDER_NAME = 'PointCloud__ViewportData'                # TrueVision point cloud store (GLB Builder 2.11+): never a design phase
 POINTCLOUD_MANIFEST_FILENAME = 'TrueVision__PointCloudData__Manifest__.json'
+SCENESYNC_FOLDER_NAME = 'SceneSync__SketchUpSceneData'             # SketchUp scenes synced into TrueVision (GLB Builder 2.12+): never a design phase
+SCENESYNC_MANIFEST_FILENAME = 'TrueVision__SceneSyncData__Manifest__.json'
 SITEPLAN_FILE_PATTERN = re.compile(r'^(?:.*?__)?(TrueVision__SitePlan__[A-Za-z0-9]+)__(LineworkModel|FillModel)__\.glb$', re.IGNORECASE)
 PLANVISION_CONTENT_FOLDER = '20__PlanVision__AppContent'
 PLANVISION_DATA_FILENAME  = 'PlanVision__ProjectData__.json'
@@ -428,6 +430,8 @@ def discover_truevision_model_groups(project_path, year_folder_name, project_fol
             continue                                                   # Site plan data is its own store (SitePlan__DataStores), not a design phase
         if entry.startswith(POINTCLOUD_FOLDER_NAME):
             continue                                                   # Point cloud images are their own store (PointCloud__DataStore), not a design phase
+        if entry.startswith(SCENESYNC_FOLDER_NAME):
+            continue                                                   # Synced SketchUp scenes are their own store (SceneSync__DataStore), not a design phase
 
         glb_files = sorted([
             f for f in os.listdir(entry_path)
@@ -624,6 +628,43 @@ def discover_truevision_pointcloud_store(project_path, year_folder_name, project
     }
 
 
+def discover_truevision_scenesync_store(project_path, year_folder_name, project_folder):
+    """Describe the project's Scene Sync store for TrueVision (the build-owned SceneSync__DataStore key).
+
+    The GLB Builder's Scene Sync (2.12+) writes SceneSync__SketchUpSceneData/ holding one file,
+    TrueVision__SceneSyncData__Manifest__.json: every SketchUp scene switched on for TrueVision, its
+    camera, section plane and the drawing it implies. TrueVision reads that manifest from this key's
+    URL when a project loads and builds read-only plans, elevations and scenes from it. Returns None
+    when the store has no readable manifest.
+    """
+    store_path = os.path.join(project_path, TRUEVISION_CONTENT_FOLDER, SCENESYNC_FOLDER_NAME)
+    manifest_path = os.path.join(store_path, SCENESYNC_MANIFEST_FILENAME)
+    if not os.path.isfile(manifest_path):
+        return None
+    try:
+        with open(manifest_path, 'r', encoding='utf-8') as f:
+            manifest = json.load(f)
+    except (json.JSONDecodeError, OSError) as error:
+        print(f'  [WARNING] {project_folder}: Scene Sync manifest unreadable, store not published ({error})')
+        return None
+    if not isinstance(manifest, dict) or manifest.get('SceneSyncData__Schema') != 'TrueVision__SceneSyncData__Manifest':
+        print(f'  [WARNING] {project_folder}: {SCENESYNC_MANIFEST_FILENAME} is not a Scene Sync manifest, store not published')
+        return None
+
+    scenes = [row for row in manifest.get('SceneSyncData__Scenes', []) if isinstance(row, dict)]
+    base_url = (
+        f"{CDN_BASE_URL}/{R2_BASE_PREFIX}/{year_folder_name}/{project_folder}"
+        f"/{TRUEVISION_CONTENT_FOLDER}/{SCENESYNC_FOLDER_NAME}"
+    )
+    return {
+        'SceneSync__FolderName'  : SCENESYNC_FOLDER_NAME,
+        'SceneSync__BaseUrl'     : base_url,
+        'SceneSync__ManifestUrl' : f'{base_url}/{SCENESYNC_MANIFEST_FILENAME}',
+        'SceneSync__ExportedIso' : manifest.get('SceneSyncData__ExportedIso'),
+        'SceneSync__SceneCount'  : len(scenes),
+    }
+
+
 def parse_group_label(group_id):
     """Convert a folder name like DesignPhase01__ConceptDesign__ExistingBuilding to a label."""
     parts = group_id.split('__')
@@ -637,7 +678,8 @@ def parse_group_label(group_id):
     return label
 
 
-def generate_truevision_project_data(project_code, project_name, model_groups, siteplan_stores=None, pointcloud_store=None):
+def generate_truevision_project_data(project_code, project_name, model_groups, siteplan_stores=None, pointcloud_store=None,
+                                     scenesync_store=None):
     """Build the TrueVision__ProjectData__.json structure for a project."""
     data = {
         'projectCode'      : project_code,
@@ -665,6 +707,9 @@ def generate_truevision_project_data(project_code, project_name, model_groups, s
     # Build-owned too: the point cloud store, when the project has one.
     if pointcloud_store:
         data['PointCloud__DataStore'] = pointcloud_store
+    # And the Scene Sync store: SketchUp scenes synced for TrueVision's layouts.
+    if scenesync_store:
+        data['SceneSync__DataStore'] = scenesync_store
     return data
 
 
@@ -1225,10 +1270,13 @@ def main():
         pointcloud_store = discover_truevision_pointcloud_store(
             proj['folderPath'], year_folder_name, proj['projectFolder']
         )
+        scenesync_store = discover_truevision_scenesync_store(
+            proj['folderPath'], year_folder_name, proj['projectFolder']
+        )
 
-        if model_groups or siteplan_stores or pointcloud_store:
+        if model_groups or siteplan_stores or pointcloud_store or scenesync_store:
             tv_data = generate_truevision_project_data(
-                proj['projectCode'], proj['projectName'], model_groups, siteplan_stores, pointcloud_store
+                proj['projectCode'], proj['projectName'], model_groups, siteplan_stores, pointcloud_store, scenesync_store
             )
             if args.dry_run_check:
                 output_path = os.path.join(proj['folderPath'], TRUEVISION_CONTENT_FOLDER, 'TrueVision__ProjectData__.json')

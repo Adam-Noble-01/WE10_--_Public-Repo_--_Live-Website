@@ -2,7 +2,7 @@
     "ProjectSpecification__Description": "Project specification notes for the TrueVision drawings. Groups hold notes in order; a note’s code is its group’s prefix and its place in the group (GN01, EE02), so the order is the truth and Note__Code is written for readers and recomputed on every load. Specification bubbles on the Layout Editor sheets link to notes by Note__Id. General groups are listed on every sheet’s notes margin, after the notes that sheet’s bubbles link to. LastIdNumber only ever goes up, so no id is used twice.",
     "ProjectSpecification__Version": 1,
     "ProjectSpecification__ProjectCode": "JW02",
-    "ProjectSpecification__UpdatedIso": "2026-10-03T12:28:33.795Z",
+    "ProjectSpecification__UpdatedIso": "2026-10-19T14:56:09.704Z",
     "ProjectSpecification__NumberDigits": 2,
     "ProjectSpecification__LastIdNumber": 16,
     "ProjectSpecification__Revision": "A",
@@ -18,7 +18,7 @@
                     "Note__Id": "SpecNote_003",
                     "Note__Code": "SP01",
                     "Note__Title": "Proposed Unit 1",
-                    "Note__Body": "Working name Juggles Joint: planned home of James and Laura. Central section of the two-storey Lincolnshire stone barn, including the hay-barn-style front extension at the centre of the long elevation. Five brick arches; retention intended.",
+                    "Note__Body": "Working name Jaws Joint: planned home of James and Laura. Central section of the two-storey Lincolnshire stone barn, including the hay-barn-style front extension at the centre of the long elevation. Five brick arches; retention intended.",
                     "Note__UpdatedIso": "2026-10-03T12:28:33.795Z"
                 },
                 {

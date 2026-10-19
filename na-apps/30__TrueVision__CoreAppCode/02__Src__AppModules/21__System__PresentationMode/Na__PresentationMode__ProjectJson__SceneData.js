@@ -32,6 +32,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.2.0 (Scene Sync, v2.174.0)
+// - RegisterConfigHook: a hook runs on every config SetActiveConfig adopts,
+//   the load's and each Presentation Scenes editor commit's. Scene Sync puts
+//   the synced SketchUp scenes in this way; they are marked layout editor
+//   only, so the viewer's own scene set is the same as without them.
+//
 // 28-Sep-2026 - Version 1.1.1 (per-scene lighting, v2.161.0)
 // - The schema note names PresentationMode__Scene__Lighting, so a project's own
 //   description of its saved scenes stays true once a scene has been relit.
@@ -141,6 +147,7 @@
     let Na__PresentationMode__ActiveProjectFolder = null;   // <-- Project folder used to resolve thumbnail URLs
     let Na__PresentationMode__ActiveYearCode      = null;   // <-- Year code used to resolve thumbnail URLs
     let Na__PresentationMode__ActiveSceneId       = null;   // <-- Currently displayed/selected scene id
+    const Na__PresentationMode__ConfigHooks       = [];     // <-- (config) => void, run on every config adopted (Scene Sync)
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -339,6 +346,26 @@
         Na__PresentationMode__ActiveProjectFolder = projectFolder || null; // <-- Persist folder for URL resolution
         Na__PresentationMode__ActiveYearCode      = yearCode || null;      // <-- Persist year for URL resolution
         Na__PresentationMode__ActiveSceneId       = null;                  // <-- Reset selection on new project load
+        if (Na__PresentationMode__ActiveConfig) {
+            Na__PresentationMode__ConfigHooks.forEach((hook) => {          // <-- Scene Sync's synced scenes, in every config adopted
+                try { hook(Na__PresentationMode__ActiveConfig); }
+                catch (hookError) { console.warn('[TrueVision3D] A presentation config hook failed.', hookError); }
+            });
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Register a Config Hook (runs on every config SetActiveConfig adopts)
+    // ------------------------------------------------------------
+    // The one place every scene config passes: the load, and every commit of
+    // the Presentation Scenes editor. Scene Sync adds the synced SketchUp
+    // scenes here, so an editor that rebuilt the scene array from its own
+    // copy never loses them. A hook must leave a config it has seen the same.
+    // @delegate: ../23__System__SceneSync/Na__SceneSync__Live__.js
+    // ------------------------------------------------------------
+    function Na__PresentationMode__ProjectJson__RegisterConfigHook(hook) {
+        if (typeof hook === 'function' && !Na__PresentationMode__ConfigHooks.includes(hook)) Na__PresentationMode__ConfigHooks.push(hook);
     }
     // ------------------------------------------------------------
 
@@ -453,11 +480,13 @@
     export {
         Na__PresentationMode__ProjectJson__GetSavedCameraScenes,
         Na__PresentationMode__ProjectJson__HasValidSavedScenes,
+        Na__PresentationMode__ProjectJson__FilterValidScenes,
         Na__PresentationMode__ProjectJson__SortScenesByOrder,
         Na__PresentationMode__ProjectJson__GetDefaultScene,
         Na__PresentationMode__ProjectJson__GetSceneById,
         Na__PresentationMode__ProjectJson__ResolveThumbnailUrl,
         Na__PresentationMode__ProjectJson__SetActiveConfig,
+        Na__PresentationMode__ProjectJson__RegisterConfigHook,
         Na__PresentationMode__ProjectJson__GetActiveConfig,
         Na__PresentationMode__ProjectJson__SetActiveSceneId,
         Na__PresentationMode__ProjectJson__GetActiveSceneId,

@@ -47,6 +47,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.34.0
+// - Registers SketchUp Scenes (Na__LayoutEditor__Panel__SceneSync__, Scene
+//   Sync) just above Point Cloud Tools, which stays last as Adam asked. It
+//   shows itself only on a project with SketchUp scenes synced by TrueVision
+//   Sync, or when the selected viewport shows one.
+//
 // 19-Oct-2026 - Version 1.33.0
 // - Registers Point Cloud Tools (Na__LayoutEditor__Panel__PointCloudTools__)
 //   LAST in the right column, under Floor Areas, as Adam asked. The panel
@@ -297,6 +303,7 @@
     import { Na__LePanelPatterns__Register } from '../36__System__HatchPatternTools/Na__LayoutEditor__Panel__Patterns__.js';
     import { Na__LePanelArea__Register } from '../59__Feature__FloorAreas/Na__LayoutEditor__Panel__FloorAreas__.js';
     import { Na__LePanelPc__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__PointCloudTools__.js';   // <-- Point Cloud Tools: SketchUp point cloud scenes laid over 2D viewports
+    import { Na__LePanelSs__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__SceneSync__.js';         // <-- SketchUp Scenes: the scenes TrueVision Sync keeps in step, a viewport of each, and Detach
     import { Na__LeArea__Ready, Na__LeArea__Is } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__.js';
     import { Na__LeAreaTable__Attach } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Table__.js';
     import { Na__LeImg__Ready, Na__LeImg__Initialize, Na__LeImg__Is, Na__LeImg__AttachInput, Na__LeImg__DetachInput } from '../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__.js';
@@ -558,6 +565,7 @@
         Na__LePanelScrapCustom__Register();                                    // <-- Custom: items saved from a selection, one JSON file each in the user content folder
         Na__LePanelPatterns__Register();                                       // <-- Patterns: the hatch library and each site plan layer's hatch
         Na__LePanelArea__Register();                                           // <-- Floor Areas: below Patterns as Adam asked - the rooms measured on this sheet and what they add up to
+        Na__LePanelSs__Register();                                             // <-- SketchUp Scenes: just above Point Cloud Tools; shown only on a project with synced SketchUp scenes
         Na__LePanelPc__Register();                                             // <-- Point Cloud Tools: LAST in the right column, as Adam asked; shown only on a project with point cloud exports
         Na__LeToolbar__Mount(host.querySelector('.na-le-centre__toolbar'), { editable : editable, showToast : toast });
         Na__LeMeasure__Mount(host.querySelector('.na-le-centre'), { editable : editable, stage : Na__LeMode__Stage });   // <-- The Measurements box, bottom right over the stage

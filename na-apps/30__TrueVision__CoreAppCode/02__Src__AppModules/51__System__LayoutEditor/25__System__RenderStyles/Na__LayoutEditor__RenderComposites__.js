@@ -68,6 +68,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.4.0
+// - A Point Cloud row, first: a SketchUp point cloud is laid over the
+//   linework and the fog (Viewport__PointCloud). Its toggle is the drawing's
+//   own state for that layer, saved and printed, so it is bound to
+//   PointCloud__Hidden rather than to Viewport__Styles: rows now carry
+//   binding ('style' unless the config says Composite__Binding). No weight,
+//   so it enters no weight record and no token.
+//
 // 20-Sep-2026 - Version 1.3.0
 // - A Depth Fog row, first in the built-in inventory as it is in the config:
 //   the one layer that sits over the projected linework. A toggle with no
@@ -116,6 +124,7 @@
     // weights fall back to these.
     // ------------------------------------------------------------
     const Na__LeComposite__FALLBACK = [
+        { key : 'pointCloud',        label : 'Point Cloud',             twoDOnly : true,  toggle : true,  binding : 'pointCloud', weight : { kind : 'none' } },
         { key : 'depthFog',          label : 'Depth Fog',               twoDOnly : true,  toggle : true,  weight : { kind : 'none' } },
         { key : 'projectedLinework', label : 'Projected Linework',      twoDOnly : true,  toggle : true,  weight : { kind : 'factor', value : 1.00, min : 0.10, max : 3.00, step : 0.05, label : 'Weight'  } },
         { key : 'profileLinework',   label : 'Profile Linework Effect', twoDOnly : false, toggle : true,  weight : { kind : 'pixels', value : 1.00, min : 0.10, max : 4.00, step : 0.05, label : 'Edge px', twoDOnly : true } },
@@ -176,6 +185,7 @@
                 label    : row['Composite__Label'] || row['Composite__Key'],
                 twoDOnly : row['Composite__TwoDOnly'] === true,
                 toggle   : row['Composite__Toggle'] !== false,
+                binding  : row['Composite__Binding'] === 'pointCloud' ? 'pointCloud' : 'style',   // <-- What the toggle writes: a Viewport__Styles key, or the point cloud block
                 note     : row['Composite__Note'] || '',
                 order    : Number.isFinite(row['Composite__Order']) ? row['Composite__Order'] : 999,
                 weight   : kind === 'none' ? { kind : 'none' } : {

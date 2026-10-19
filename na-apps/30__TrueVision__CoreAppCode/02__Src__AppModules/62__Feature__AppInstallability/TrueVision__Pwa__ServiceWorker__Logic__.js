@@ -34,6 +34,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.11.0
+// - Token BUMPED to 2026-10-19-02 for Scene Sync (v2.174.0). 2026-10-19-01 is
+//   live, and this release adds exports to modules a warm client holds - the
+//   drawings data (RegisterLoadHook), the presentation scene data
+//   (RegisterConfigHook, FilterValidScenes) - which new and changed modules
+//   import: the loading sequence, 23__System__SceneSync and the SketchUp
+//   Scenes panel. The synced scenes manifest is .json and stays 'data'
+//   (network first), and it is fetched no-store as well.
+//
 // 19-Oct-2026 - Version 1.10.0
 // - Token BUMPED to 2026-10-19-01 for point cloud viewports (v2.173.0).
 //   2026-09-29-03 is live (origin/main is 1f7a64a), and this release adds
@@ -694,7 +703,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-10-19-01';                                                            // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-10-19-02';                                                            // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

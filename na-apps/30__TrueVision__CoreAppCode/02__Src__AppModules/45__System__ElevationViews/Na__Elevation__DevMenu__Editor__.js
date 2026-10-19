@@ -59,6 +59,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 2.2.0 (Scene Sync, TrueVision v2.174.0)
+// - The elevations and sections TrueVision Sync keeps in step with SketchUp
+//   scenes are SketchUp's: they get no row here, no plane to drag, and are
+//   not counted by Seed. Detach one in the Layout Editor's SketchUp Scenes
+//   panel to make it a TrueVision elevation with a row like any other.
+//
 // 20-Sep-2026 - Version 2.1.0 (Elevation Depth Fog)
 // - onFogChange: an edit to the open row's Fog block. The fog layer reads the
 //   record on every frame it draws, so nothing is rebuilt - a frame is asked
@@ -290,6 +296,11 @@
         Na__PlaneMath__FormatMm,
         Na__PlaneMath__MoveOriginToDistance
     } from '../47__System__DrawingPlanes/Na__DrawingPlanes__Maths__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Scene Sync Records (a leaf: synced SketchUp records are SketchUp's, never edited here)
+    // ------------------------------------------------------------
+    import { Na__SceneSync__IsSynced } from '../23__System__SceneSync/Na__SceneSync__Records__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -763,7 +774,7 @@
         Na__PlaneOverlay__RegisterSource(Na__PlaneUi__TYPE_ELEVATION, {
             kind          : Na__PlaneOverlay__KIND_VERTICAL,
             paletteOffset : 0,
-            list          : () => Na__ElevData__GetElevations(null),
+            list          : () => Na__ElevData__GetElevations(null).filter((elevation) => !Na__SceneSync__IsSynced(elevation)),   // <-- A synced SketchUp elevation is moved in SketchUp
             getId         : (elevation) => elevation.Elevation__Id,
             getName       : (elevation) => elevation.Elevation__Name,
             isSection     : (elevation) => Na__ElevData__IsSection(elevation),
@@ -1154,7 +1165,7 @@
     async function Na__ElevDev__SeedFourSides() {
         if (Na__ElevDev__Busy) return 0;
 
-        const existing = Na__ElevData__GetElevations(null).length;
+        const existing = Na__ElevData__GetElevations(null).filter((elevation) => !Na__SceneSync__IsSynced(elevation)).length;
         if (existing > 0) {
             const proceed = await Na__PresentationMode__DevMenu__Confirm({
                 title        : 'Add four more elevations?',
@@ -1266,7 +1277,7 @@
             onAdd    : () => { void Na__ElevDev__AddElevation({}); }
         }));
 
-        const elevations = Na__ElevData__GetElevations(null);
+        const elevations = Na__ElevData__GetElevations(null).filter((elevation) => !Na__SceneSync__IsSynced(elevation));   // <-- SketchUp's own (Scene Sync) are edited in SketchUp, so they have no row here
 
         // DRAWING PLANES | Show all, snap and its grid - the same bar the Floor
         // Plans panel carries, because the state behind it is shared.

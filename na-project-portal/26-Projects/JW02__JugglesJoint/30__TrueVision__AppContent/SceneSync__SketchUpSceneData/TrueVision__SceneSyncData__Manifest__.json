@@ -1,0 +1,425 @@
+{
+  "SceneSyncData__Schema": "TrueVision__SceneSyncData__Manifest",
+  "SceneSyncData__SchemaVersion": 1,
+  "SceneSyncData__ExportedIso": "2026-10-19T16:12:28+0100",
+  "SceneSyncData__ExporterVersion": "2.12.0",
+  "SceneSyncData__CoordinateSystem": {
+    "Units": "metres (camera, section), millimetres (drawing)",
+    "UpAxis": "Y",
+    "FromSketchUp": "SketchUp inches (x, y, z), Z up, become (x, z, -y) x 0.0254 metres, with no offset: the same as the GLB Builder models."
+  },
+  "SceneSyncData__Scenes": [
+    {
+      "Scene__Id": "sus_8f65c52a",
+      "Scene__PagePid": 28780382,
+      "Scene__Name": "Elevation__East__Left",
+      "Scene__Description": "",
+      "Scene__Type": "elevation",
+      "Scene__TypeLabel": "Elevation",
+      "Scene__TypeSuggested": "elevation",
+      "Camera": {
+        "Projection": "orthographic",
+        "SketchUp": {
+          "Units": "inches",
+          "UpAxis": "Z",
+          "Eye": [
+            -394.300787,
+            1232.012597,
+            155.439752
+          ],
+          "Target": [
+            776.12893,
+            1232.012597,
+            155.439752
+          ],
+          "Up": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "Direction": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "Perspective": false,
+          "FovDeg": null,
+          "FovIsHeight": true,
+          "AspectRatio": 0.0,
+          "OrthoHeight": 1087.244702
+        },
+        "ThreeJs": {
+          "Units": "metres",
+          "UpAxis": "Y",
+          "Position": [
+            -10.01524,
+            3.94817,
+            -31.29312
+          ],
+          "Target": [
+            19.713675,
+            3.94817,
+            -31.29312
+          ],
+          "Up": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "Direction": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "Right": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "FovVerticalDeg": null,
+          "Aspect": null,
+          "OrthoHeightM": 27.616015
+        }
+      },
+      "Section": null,
+      "Drawing": {
+        "Kind": "elevation",
+        "Mode": "elevation",
+        "AzimuthDeg": 270.0,
+        "PlaneOriginMm": {
+          "PosX": 19713.675,
+          "PosZ": -31293.12
+        },
+        "PlaneDistanceMm": -19713.675,
+        "FrameCentreMm": {
+          "X": -31293.12,
+          "Y": -3948.17
+        },
+        "FrameSizeMm": {
+          "Height": 27616.015,
+          "Width": null
+        }
+      },
+      "ModelLayers": {
+        "Hidden": [
+          "01__OrbitHelperCube"
+        ]
+      },
+      "Scene__Revision": "dbe2450dd5",
+      "Scene__SourceStoreId": "suss_60a7278058dc",
+      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.0__",
+      "Scene__PointCloudSceneId": "pcs_42e47ceb",
+      "Scene__State": "synced",
+      "Scene__SyncedIso": "2026-10-19T16:04:36+0100"
+    },
+    {
+      "Scene__Id": "sus_7e30d233",
+      "Scene__PagePid": 28780383,
+      "Scene__Name": "Elevation__North__Front",
+      "Scene__Description": "",
+      "Scene__Type": "elevation",
+      "Scene__TypeLabel": "Elevation",
+      "Scene__TypeSuggested": "elevation",
+      "Camera": {
+        "Projection": "orthographic",
+        "SketchUp": {
+          "Units": "inches",
+          "UpAxis": "Z",
+          "Eye": [
+            1418.251639,
+            -403.913694,
+            89.663106
+          ],
+          "Target": [
+            1418.251639,
+            885.137795,
+            89.663106
+          ],
+          "Up": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "Direction": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "Perspective": false,
+          "FovDeg": null,
+          "FovIsHeight": true,
+          "AspectRatio": 0.0,
+          "OrthoHeight": 988.675545
+        },
+        "ThreeJs": {
+          "Units": "metres",
+          "UpAxis": "Y",
+          "Position": [
+            36.023592,
+            2.277443,
+            10.259408
+          ],
+          "Target": [
+            36.023592,
+            2.277443,
+            -22.4825
+          ],
+          "Up": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "Direction": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "Right": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "FovVerticalDeg": null,
+          "Aspect": null,
+          "OrthoHeightM": 25.112359
+        }
+      },
+      "Section": null,
+      "Drawing": {
+        "Kind": "elevation",
+        "Mode": "elevation",
+        "AzimuthDeg": 180.0,
+        "PlaneOriginMm": {
+          "PosX": 36023.592,
+          "PosZ": -22482.5
+        },
+        "PlaneDistanceMm": -22482.5,
+        "FrameCentreMm": {
+          "X": 36023.592,
+          "Y": -2277.443
+        },
+        "FrameSizeMm": {
+          "Height": 25112.359,
+          "Width": null
+        }
+      },
+      "ModelLayers": {
+        "Hidden": [
+          "01__OrbitHelperCube"
+        ]
+      },
+      "Scene__Revision": "79a68fa28b",
+      "Scene__SourceStoreId": "suss_60a7278058dc",
+      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.0__",
+      "Scene__PointCloudSceneId": "pcs_d5daef4a",
+      "Scene__State": "synced",
+      "Scene__SyncedIso": "2026-10-19T15:49:28+0100"
+    },
+    {
+      "Scene__Id": "sus_cf090d06",
+      "Scene__PagePid": 28780381,
+      "Scene__Name": "Elevation__South__Rear",
+      "Scene__Description": "",
+      "Scene__Type": "elevation",
+      "Scene__TypeLabel": "Elevation",
+      "Scene__TypeSuggested": "elevation",
+      "Camera": {
+        "Projection": "orthographic",
+        "SketchUp": {
+          "Units": "inches",
+          "UpAxis": "Z",
+          "Eye": [
+            1386.059763,
+            2173.046653,
+            112.432006
+          ],
+          "Target": [
+            1386.059763,
+            666.345311,
+            112.432006
+          ],
+          "Up": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "Direction": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "Perspective": false,
+          "FovDeg": null,
+          "FovIsHeight": true,
+          "AspectRatio": 0.0,
+          "OrthoHeight": 1018.939054
+        },
+        "ThreeJs": {
+          "Units": "metres",
+          "UpAxis": "Y",
+          "Position": [
+            35.205918,
+            2.855773,
+            -55.195385
+          ],
+          "Target": [
+            35.205918,
+            2.855773,
+            -16.925171
+          ],
+          "Up": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "Direction": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "Right": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "FovVerticalDeg": null,
+          "Aspect": null,
+          "OrthoHeightM": 25.881052
+        }
+      },
+      "Section": null,
+      "Drawing": {
+        "Kind": "elevation",
+        "Mode": "elevation",
+        "AzimuthDeg": 0.0,
+        "PlaneOriginMm": {
+          "PosX": 35205.918,
+          "PosZ": -16925.171
+        },
+        "PlaneDistanceMm": 16925.171,
+        "FrameCentreMm": {
+          "X": -35205.918,
+          "Y": -2855.773
+        },
+        "FrameSizeMm": {
+          "Height": 25881.052,
+          "Width": null
+        }
+      },
+      "ModelLayers": {
+        "Hidden": [
+          "01__OrbitHelperCube"
+        ]
+      },
+      "Scene__Revision": "74f40c5493",
+      "Scene__SourceStoreId": "suss_60a7278058dc",
+      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.0__",
+      "Scene__PointCloudSceneId": "pcs_7d8afead",
+      "Scene__State": "synced",
+      "Scene__SyncedIso": "2026-10-19T16:04:36+0100"
+    },
+    {
+      "Scene__Id": "sus_33262186",
+      "Scene__PagePid": 28780384,
+      "Scene__Name": "Elevation__West__Right",
+      "Scene__Description": "",
+      "Scene__Type": "elevation",
+      "Scene__TypeLabel": "Elevation",
+      "Scene__TypeSuggested": "elevation",
+      "Camera": {
+        "Projection": "orthographic",
+        "SketchUp": {
+          "Units": "inches",
+          "UpAxis": "Z",
+          "Eye": [
+            3271.269291,
+            1284.905423,
+            122.432773
+          ],
+          "Target": [
+            1438.484252,
+            1284.905423,
+            122.432773
+          ],
+          "Up": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "Direction": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "Perspective": false,
+          "FovDeg": null,
+          "FovIsHeight": true,
+          "AspectRatio": 0.0,
+          "OrthoHeight": 1008.749663
+        },
+        "ThreeJs": {
+          "Units": "metres",
+          "UpAxis": "Y",
+          "Position": [
+            83.09024,
+            3.109792,
+            -32.636598
+          ],
+          "Target": [
+            36.5375,
+            3.109792,
+            -32.636598
+          ],
+          "Up": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "Direction": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "Right": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "FovVerticalDeg": null,
+          "Aspect": null,
+          "OrthoHeightM": 25.622241
+        }
+      },
+      "Section": null,
+      "Drawing": {
+        "Kind": "elevation",
+        "Mode": "elevation",
+        "AzimuthDeg": 90.0,
+        "PlaneOriginMm": {
+          "PosX": 36537.5,
+          "PosZ": -32636.598
+        },
+        "PlaneDistanceMm": 36537.5,
+        "FrameCentreMm": {
+          "X": 32636.598,
+          "Y": -3109.792
+        },
+        "FrameSizeMm": {
+          "Height": 25622.241,
+          "Width": null
+        }
+      },
+      "ModelLayers": {
+        "Hidden": [
+          "01__OrbitHelperCube"
+        ]
+      },
+      "Scene__Revision": "9fb315c84b",
+      "Scene__SourceStoreId": "suss_60a7278058dc",
+      "Scene__SourceModel": "JW02__JugglesJoint__PointCloudModel__0.4.0__",
+      "Scene__PointCloudSceneId": "pcs_4208d708",
+      "Scene__State": "synced",
+      "Scene__SyncedIso": "2026-10-19T16:04:36+0100"
+    }
+  ]
+}

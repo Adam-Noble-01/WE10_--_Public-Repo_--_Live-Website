@@ -1,9 +1,9 @@
 {
     "na-project-data-library": {
         "project-details": {
-            "project-name": "Juggles Joint",
-            "project-name-nickname": "Juggles Joint",
-            "project-address": "Juggles Joint, Highfield Farm, West Willoughby, Lincolnshire, NG32 3SJ",
+            "project-name": "Jaws Joint",
+            "project-name-nickname": "Jaws Joint",
+            "project-address": "Jaws Joint, Highfield Farm, West Willoughby, Lincolnshire, NG32 3SJ",
             "project-description": "Drone photogrammetry survey, existing elevations, outline plan and whitecard 3D blockout model of the stone barn at Highfield Farm, to test its division into three homes.",
             "client-name": ""
         },
@@ -23,7 +23,29 @@
             }
         },
         "design-access-statement": {
-            "das-enabled": false
+            "das-enabled": true,
+            "das-document-title": "AA00 - Example Design & Access Statement",
+            "das-phase-folder": "DesignPhase02__PlanningApproval__Content",
+            "das-statement-folder": "02__DesignStatment",
+            "das-markdown-file": "AA00__DesignAndAccessStatement__.md",
+            "das-html-file": "AA00__DesignAndAccessStatement__.html",
+            "das-pdf-file": null,
+            "das-last-built": "19-Oct-2026",
+            "das-document-links": {
+                "das-base-url--cdn": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/JW02__JugglesJoint/20__PlanVision__AppContent/DesignPhase02__PlanningApproval__Content/02__DesignStatment",
+                "das-base-url--live": "https://www.noble-architecture.com/na-project-portal/26-Projects/JW02__JugglesJoint/20__PlanVision__AppContent/DesignPhase02__PlanningApproval__Content/02__DesignStatment",
+                "das-html-url--cdn": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/JW02__JugglesJoint/20__PlanVision__AppContent/DesignPhase02__PlanningApproval__Content/02__DesignStatment/AA00__DesignAndAccessStatement__.html",
+                "das-html-url--live": "https://www.noble-architecture.com/na-project-portal/26-Projects/JW02__JugglesJoint/20__PlanVision__AppContent/DesignPhase02__PlanningApproval__Content/02__DesignStatment/AA00__DesignAndAccessStatement__.html",
+                "das-pdf-url--cdn": null,
+                "das-pdf-url--live": null
+            },
+            "das-image-files": {
+                "das-image-folder": "01__Statement__ImageFiles",
+                "das-images": [
+                    "Fig01__SiteLocationPlan__.png",
+                    "Fig02__ProposedFrontElevation__.png"
+                ]
+            }
         }
     }
 }

@@ -2,6 +2,89 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.174.0  -  19-Oct-2026
+### Scene Sync: SketchUp Scenes Kept in Step as TrueVision Plans, Elevations, Sections and 3D Views
+
+**Overview**
+- Adam: "We need a way like ValeVision that can take 3D and 2D scenes from SketchUp and sync them to TrueVision ...
+  by default they should just all be off. Certain ones, when switched on, stay in sync and thus have generatable 3D
+  and 2D viewports, so you don't have to set everything up twice." And on ownership: "SketchUp has ownership, but
+  they should be detachable ... kept in lockstep with the TrueVision versions unless detached at either end or
+  toggled off." It also answers the viewport that had no bindable scene.
+- The SketchUp side is TrueVision Sync 2.12 (GLB Builder): a Scene Sync tab lists every SketchUp scene, all off; a
+  scene switched on is written, on every Export To Project and every push, to ONE file per project,
+  `30__TrueVision__AppContent/SceneSync__SketchUpSceneData/TrueVision__SceneSyncData__Manifest__.json`: its camera
+  (SketchUp inches and three.js metres), its active section plane, the drawing it implies in TrueVision's own terms
+  (a plan's cut height; an elevation's exact bearing, plane and mode) and the model layers it hides. The
+  ProjectVision build registers it (`SceneSync__DataStore`) and the R2 sync uploads it.
+
+**The change**
+- THE RECORDS (`23__System__SceneSync/Na__SceneSync__Records__.js` 1.0.0, a leaf). Each row becomes a FloorPlan or
+  Elevation record for a plan, elevation or section, and a presentation scene for every row, linked as TrueVision's
+  own drawing scenes are. ONE id everywhere: the row's `sus_<hex>` is the drawing's id and the scene's id, so a
+  viewport keeps its binding through every sync, a rename in SketchUp, a switch off and a Detach.
+  - A plan cuts at the SketchUp section plane's height (datum + the usual 1200 offset); with no horizontal plane, above
+    everything. An elevation takes the bearing and plane origin as given; a section is Mode section. A hidden SketchUp
+    tag hides its category: an exact `=` exclusion token in a drawing (the default list kept), a
+    `Visibility__Categories` entry in a scene.
+  - The camera in TrueVision's capture format (integer mm, Euler XYZ to 4 dp, vertical fov): SketchUp's eye and view
+    line, the orbit target on that line within the orbit's reach, so the orbit re-aims nothing. A parallel view is
+    drawn in perspective, pulled back so the height seen at SketchUp's target is SketchUp's height, and says so.
+  - Every record is marked `Sync__Source: 'sketchup'`; every scene is `LayoutEditorOnly` in no real group, so the
+    viewer's carousel, its opening scene and its counts never change. The same manifest always builds the same bytes
+    (the 3D viewport fingerprint relies on it).
+- NEVER SAVED. `Na__SceneSync__StripDoc` / `StrippedCopy` take synced records out of any document on its way out:
+  the drawings save (`Na__DrawView__ProjectData__` 1.7.0, right after the payload steps, so R2 and the local copy get
+  the same), the one R2 writer (`Na__CfApi__WriteProjectData`, ApiClient 1.6.0, which every save of any key passes
+  because the merge base holds the live arrays) and the local copy's merge (`LocalProjectMirror` 1.3.0). Only the
+  containers that change are copied; what the app holds is never edited. A default scene id naming a synced scene is
+  dropped, and a presentation block made only to hold synced scenes is never written.
+- IN PLACE BEFORE ANYONE LOOKS. `Na__SceneSync__Store__.js` 1.0.0 reads the manifest once per load, started with the
+  project data alongside the orbit helper: on localhost the repository copy first (a sync writes it there before any
+  build), then the CDN; elsewhere only the URL the build registered, so a project that never synced asks nothing.
+  `Na__SceneSync__Live__.js` 1.0.0 builds the records before the loading sequence (1.4.0) hands out the scenes and the
+  drawings, waiting at most 3 s, and two new hooks keep them in place: `Na__DrawData__RegisterLoadHook` (on the block
+  a load adopts, before the load is announced) and `RegisterConfigHook` (`SceneData` 1.2.0, on every config
+  `SetActiveConfig` adopts: the load and every Presentation Scenes editor commit). Both remove synced records first
+  and skip any id a saved record has: real wins.
+- A project whose only scenes are for the Layout Editor (synced, or authored layout editor only) now adopts its scene
+  config quietly, without the carousel; before, such a project adopted none and those scenes could not be placed.
+- THE LAYOUT EDITOR. The SketchUp Scenes panel (`Na__LayoutEditor__Panel__SceneSync__.js` 1.0.0, just above Point
+  Cloud Tools, shown only when there is something to show): each synced scene with its type and where it stands (in
+  step, switched off, deleted or detached in SketchUp, each kept as last synced; or detached here), Add Viewport,
+  and Detach (two clicks, then the sheets are saved). The Viewport panel (1.11.0) lists them on their own as
+  "SketchUp: <name>"; a new 2D viewport of one opens where the SketchUp camera looks (`Viewport2d` 1.18.0).
+- DETACH, IN TRUEVISION. The plan or elevation and the scene become ordinary saved records with the same ids and
+  `Sync__DetachedFrom: 'sketchup'`, so every viewport keeps working and SketchUp no longer changes them. TrueVision
+  Sync reads the project data on that computer and shows the scene as Detached in TrueVision.
+- SKETCHUP'S, NOT EDITED HERE: the Floor Plans and Elevations Dev menus (2.1.0, 2.2.0) give a synced drawing no row
+  and no plane to drag; the Presentation Scenes editor (1.5.0) leaves synced scenes out of its working copy (the
+  config hook puts them back into what it commits); the linework bake (Persistence 1.3.0) skips them, as they draw
+  live and their records are never saved.
+- Point Cloud Tools (1.1.0): a point cloud scene lays first on the drawing synced from the SAME SketchUp scene, an
+  exact pairing by the scene rather than a guess by name or bearing.
+- The stylesheet `Na__SceneSync__Styles__.css`; the service worker 1.11.0, token 2026-10-19-02 (modules a warm client
+  holds gained exports that new modules import).
+
+**How it was proved**
+- `Na__Test__SceneSync__.test.mjs`, 69 checks, against the manifest a real sync wrote (TrueVision Sync 2.12.0 run in
+  SketchUp's own Ruby against API doubles, 102 checks of its own): the geometry against TrueVision's OWN functions
+  (`Na__FpData__GetCutHeightMm`, `Na__ElevData__GetPlaneDistanceMm`, `WorldToRunMm`); the camera (along SketchUp's
+  view line to 0.02 degrees, upright, the orbit target on the line and in reach, a parallel view's framing kept); the
+  real drawings, scene data, R2 client and local mirror modules (records in before the load is announced, the viewer's
+  scenes unchanged, nothing synced in any write, the merge base untouched, Detach, real wins); where the file is read.
+- The real app on localhost, PS01, served read-only (Worker URL blanked, every write refused; none was attempted), with
+  a manifest mirroring PS01's own drawings: the synced East Elevation, the synced plan at 1600 mm and the synced
+  Exterior 01 each rendered BYTE-IDENTICAL pictures to PS01's own East Elevation, Floor Plan 1 and Exterior 01
+  viewports at the same window, and the synced camera's rotation matched Exterior 01's captured rotation to 4 dp.
+  The synced section cut through the house looking east. The panel listed the five scenes and their states; Detach
+  took two clicks, kept every viewport resolving and said the sheets could not be saved (saving was off). The browser
+  draft the test made was removed.
+- `Na__Verify__Exports__.mjs` passes (551 files). Every suite passes as before; the Draft Guard harness was given the
+  real strip (the drawings module imports it now). LeaderlessNotes, StatementFinishes, StatementStandard and
+  StoreyBand fail on live project content, the same as before this change.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.173.0  -  19-Oct-2026
 ### Point Cloud Viewports: SketchUp Survey Scenes Laid Over Plans, Elevations, Sections and Site Plans
 

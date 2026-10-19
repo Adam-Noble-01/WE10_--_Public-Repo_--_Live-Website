@@ -1,0 +1,315 @@
+{
+  "Revision__Schema": "TrueVision__PointCloudScene__Revision",
+  "Revision__SchemaVersion": 1,
+  "Revision__Id": "Rev__2f3635649c",
+  "Revision__Key": "2f3635649c",
+  "Revision__ExportedIso": "2026-10-19T16:09:13+0100",
+  "Revision__Exporter": {
+    "GlbBuilder": "2.11.0",
+    "PointCloudViewer": "0.9.0"
+  },
+  "Project__Code": "JW02",
+  "Scene__Id": "pcs_42e47ceb",
+  "Scene__Name": "Elevation__East__Left",
+  "Scene__ViewType": "elevation",
+  "Scene__Projection": "orthographic",
+  "Scene__Scale": {
+    "Denominator": 50.0,
+    "Label": "1:50"
+  },
+  "Scene__DefaultOpacity": 0.6,
+  "Camera": {
+    "Projection": "orthographic",
+    "SketchUp": {
+      "Units": "inches",
+      "UpAxis": "Z",
+      "Eye": [
+        -394.3007874015741,
+        1232.0125966753785,
+        155.439751656076
+      ],
+      "Target": [
+        776.1289301549854,
+        1232.0125966753785,
+        155.439751656076
+      ],
+      "Up": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "XAxis": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "YAxis": [
+        -0.0,
+        0.0,
+        1.0
+      ],
+      "ZAxis": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "Perspective": false,
+      "AspectRatio": 0.0,
+      "OrthoHeight": 1087.2447023412806
+    },
+    "ThreeJs": {
+      "Units": "metres",
+      "UpAxis": "Y",
+      "Position": [
+        -10.01523999999998,
+        3.9481696920643303,
+        -31.293119955554612
+      ],
+      "Target": [
+        19.71367482593663,
+        3.9481696920643303,
+        -31.293119955554612
+      ],
+      "Up": [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      "Right": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "Direction": [
+        1.0,
+        0.0,
+        -0.0
+      ],
+      "SceneViewHeightM": 27.616015439468526,
+      "SceneViewWidthM": 46.7613185584184,
+      "SceneViewAspect": 1.693268120483001
+    }
+  },
+  "Frame": {
+    "Kind": "orthographic",
+    "WidthPx": 10369,
+    "HeightPx": 3329,
+    "ScaleDenominator": 50.0,
+    "PxPerPaperMm": 12.0,
+    "ReducedFromPxPerPaperMm": null,
+    "PixelSizeMm": 4.166666666666667,
+    "PixelSizeM": 0.0041666666666666675,
+    "WidthM": 43.20416666666667,
+    "HeightM": 13.870833333333335,
+    "OriginM": [
+      19.713674825936625,
+      10.327336358730998,
+      -53.33061995555462
+    ],
+    "RightM": [
+      0.0,
+      0.0,
+      1.0
+    ],
+    "DownM": [
+      0.0,
+      -1.0,
+      0.0
+    ],
+    "NormalM": [
+      1.0,
+      0.0,
+      -0.0
+    ],
+    "SketchUp": {
+      "OriginIn": [
+        776.1289301549853,
+        2099.630706911599,
+        406.5880456193306
+      ],
+      "Right": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "Down": [
+        0.0,
+        -0.0,
+        -1.0
+      ],
+      "Normal": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "PixelSizeIn": 0.1640419947506562,
+      "Cx0In": -867.6181102362207,
+      "Cy1In": 251.14829396325464,
+      "EyeIn": [
+        -394.3007874015741,
+        1232.0125966753785,
+        155.439751656076
+      ]
+    }
+  },
+  "Image": {
+    "Format": "webp",
+    "Quality": 90,
+    "WidthPx": 10369,
+    "HeightPx": 3329,
+    "TileSizePx": 2048,
+    "PointSizePx": 10,
+    "Tiles": [
+      {
+        "Row": 0,
+        "Col": 0,
+        "X": 0,
+        "Y": 0,
+        "W": 2048,
+        "H": 2048,
+        "File": "PointCloud__Tile__R00__C00__.webp",
+        "Bytes": 1175490
+      },
+      {
+        "Row": 0,
+        "Col": 1,
+        "X": 2048,
+        "Y": 0,
+        "W": 2048,
+        "H": 2048,
+        "File": "PointCloud__Tile__R00__C01__.webp",
+        "Bytes": 705060
+      },
+      {
+        "Row": 0,
+        "Col": 2,
+        "X": 4096,
+        "Y": 0,
+        "W": 2048,
+        "H": 2048,
+        "File": "PointCloud__Tile__R00__C02__.webp",
+        "Bytes": 465996
+      },
+      {
+        "Row": 0,
+        "Col": 3,
+        "X": 6144,
+        "Y": 0,
+        "W": 2048,
+        "H": 2048,
+        "File": "PointCloud__Tile__R00__C03__.webp",
+        "Bytes": 680862
+      },
+      {
+        "Row": 0,
+        "Col": 4,
+        "X": 8192,
+        "Y": 0,
+        "W": 2048,
+        "H": 2048,
+        "File": "PointCloud__Tile__R00__C04__.webp",
+        "Bytes": 273798
+      },
+      {
+        "Row": 0,
+        "Col": 5,
+        "X": 10240,
+        "Y": 0,
+        "W": 129,
+        "H": 2048,
+        "File": null,
+        "Bytes": 0
+      },
+      {
+        "Row": 1,
+        "Col": 0,
+        "X": 0,
+        "Y": 2048,
+        "W": 2048,
+        "H": 1281,
+        "File": "PointCloud__Tile__R01__C00__.webp",
+        "Bytes": 367800
+      },
+      {
+        "Row": 1,
+        "Col": 1,
+        "X": 2048,
+        "Y": 2048,
+        "W": 2048,
+        "H": 1281,
+        "File": "PointCloud__Tile__R01__C01__.webp",
+        "Bytes": 360504
+      },
+      {
+        "Row": 1,
+        "Col": 2,
+        "X": 4096,
+        "Y": 2048,
+        "W": 2048,
+        "H": 1281,
+        "File": "PointCloud__Tile__R01__C02__.webp",
+        "Bytes": 439650
+      },
+      {
+        "Row": 1,
+        "Col": 3,
+        "X": 6144,
+        "Y": 2048,
+        "W": 2048,
+        "H": 1281,
+        "File": "PointCloud__Tile__R01__C03__.webp",
+        "Bytes": 543712
+      },
+      {
+        "Row": 1,
+        "Col": 4,
+        "X": 8192,
+        "Y": 2048,
+        "W": 2048,
+        "H": 1281,
+        "File": "PointCloud__Tile__R01__C04__.webp",
+        "Bytes": 319290
+      },
+      {
+        "Row": 1,
+        "Col": 5,
+        "X": 10240,
+        "Y": 2048,
+        "W": 129,
+        "H": 1281,
+        "File": "PointCloud__Tile__R01__C05__.webp",
+        "Bytes": 10102
+      }
+    ],
+    "Preview": {
+      "File": "PointCloudScene__Preview__.webp",
+      "WidthPx": 1297,
+      "HeightPx": 417,
+      "Factor": 8,
+      "Bytes": 150224
+    },
+    "RenderMs": 2430
+  },
+  "PointCloud": {
+    "FileName": "JW02__RealityCapture__LasExportTest__0.1.0__.las",
+    "ContentKey": "503c0aa1e2011e16",
+    "TotalPoints": 10758745,
+    "PointBudget": 10758745,
+    "ColourMode": "rgb",
+    "Clip": {
+      "MinSketchUpIn": [
+        194.2110966423887,
+        400.2975168390949,
+        -137.99212598425197
+      ],
+      "MaxSketchUpIn": [
+        2166.4504314871156,
+        2097.994533102244,
+        405.0966964552218
+      ]
+    }
+  },
+  "Datums": [
+
+  ]
+}

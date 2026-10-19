@@ -166,6 +166,7 @@
 @import url('../02__Src__AppModules/51__System__LayoutEditor/28__System__ObjectSnap/Na__LayoutEditor__Styles__ObjectSnap__.css');   /* <-- Object snap (F3): the snap marker (coloured by what it snapped to), the Snap button's arrow and the snap options menu */
 @import url('../02__Src__AppModules/51__System__LayoutEditor/33__System__DrawingAxes/Na__LayoutEditor__Styles__DrawingAxes__.css');   /* <-- Drawing axes overlay (F9): SketchUp's red and green axes on the cursor, out to the edges of the sheet */
 @import url('../02__Src__AppModules/51__System__LayoutEditor/22__System__PointCloudData/Na__LayoutEditor__Styles__PointCloud__.css');   /* <-- Point cloud viewports: a SketchUp scene's tiles in a 2D frame, the datum, and the Point Cloud Tools panel */
+@import url('../02__Src__AppModules/23__System__SceneSync/Na__SceneSync__Styles__.css');   /* <-- Scene Sync: the Layout Editor's SketchUp Scenes panel */
 @import url('../02__Src__AppModules/51__System__LayoutEditor/40__Ui__Panels/Na__LayoutEditor__Styles__Panels__.css');
 @import url('../02__Src__AppModules/51__System__LayoutEditor/50__Feature__Specification/Na__LayoutEditor__Styles__Specification__.css');
 @import url('../02__Src__AppModules/51__System__LayoutEditor/50__Feature__Specification/Na__LayoutEditor__Styles__Specification__Notes__.css');

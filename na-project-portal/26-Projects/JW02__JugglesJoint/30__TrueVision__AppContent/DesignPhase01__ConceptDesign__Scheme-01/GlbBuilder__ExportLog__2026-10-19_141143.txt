@@ -1,0 +1,133 @@
+===============================================================================
+ TrueVision3D GLB Builder - Export Log
+===============================================================================
+ Model      : JW02__JugglesJoint__PointCloudModel__0.4.0__.skp
+ Export dir : D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/JW02__JugglesJoint/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01
+ Timestamp  : 2026-10-19_141143
+ Console    : suppressed (OFF)
+-------------------------------------------------------------------------------
+  Project prefix detected: 'JW02__'
+
+=== Analyzing model layers ===
+  Skipping layer '00__Standards' (tag 0 is in ignored range)
+  Found entity on layer '01__OrbitHelperCube' -> 01__OrbitHelperCube.glb
+  Found entity on layer '07__Landscape' -> TrueVision__LandscapeEnvironment.glb
+  Found entity on layer '10__ExistingBuilding' -> TrueVision__MainBuildingModel__Existing.glb
+
+=== All layers in model ===
+  '00__Standards' (1 entities)
+  '01__OrbitHelperCube' (1 entities)
+  '07__Landscape' (1 entities)
+  '10__ExistingBuilding' (1 entities)
+=========================
+
+=== Scanning for Storey Containers ===
+  No storey containers found - using flat export mode
+=== End Storey Scan ===
+
+=== Export Plan ===
+  JW02__01__OrbitHelperCube__MeshModel__.glb - 1 top-level entities
+  JW02__TrueVision__LandscapeEnvironment__MeshModel__.glb - 1 top-level entities
+  JW02__TrueVision__LandscapeEnvironment__LineworkModel__.glb - 1 top-level entities
+  JW02__TrueVision__MainBuildingModel__Existing__MeshModel__.glb - 1 top-level entities
+  JW02__TrueVision__MainBuildingModel__Existing__LineworkModel__.glb - 1 top-level entities
+=== End Export Plan ===
+
+Exporting series: JW02__01__OrbitHelperCube...
+  Using virtual flattening for non-destructive world-space export...
+    Traversing: Group_917_ID16615488...
+    Traversal complete: 1 entities -> 1 buckets, 24 vertices, 12 triangles
+    [TextureEngine] State reset
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
+    Building mesh: 01__OrbitHelperCube::Default (24 verts, 12 tris)
+    Total meshes built: 1
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/JW02__JugglesJoint/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/JW02__01__OrbitHelperCube__MeshModel__.glb (2248 bytes, BIN: 840 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 2248 bytes
+    Chunk 1: "JSON", Length: 1380 bytes
+    Chunk 2: "BIN\x00", Length: 840 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Skipping linework export for OrbitHelperCube (mesh only)
+
+Exporting series: JW02__TrueVision__LandscapeEnvironment...
+  Using virtual flattening for non-destructive world-space export...
+    Traversing: Group_17_ID28800761...
+    Traversal complete: 1 entities -> 1 buckets, 3466 vertices, 2184 triangles
+    [TextureEngine] State reset
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
+    Building mesh: 07__Landscape::Default (3466 verts, 2184 tris)
+    Total meshes built: 1
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/JW02__JugglesJoint/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/JW02__TrueVision__LandscapeEnvironment__MeshModel__.glb (125480 bytes, BIN: 124016 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 125480 bytes
+    Chunk 1: "JSON", Length: 1436 bytes
+    Chunk 2: "BIN\x00", Length: 124016 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    Traversing linework: Group_17_ID28800761...
+    Linework traversal complete: 1 entities -> 138 edges
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/JW02__JugglesJoint/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/JW02__TrueVision__LandscapeEnvironment__LineworkModel__.glb (8500 bytes, BIN: 7728 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 8500 bytes
+    Chunk 1: "JSON", Length: 744 bytes
+    Chunk 2: "BIN\x00", Length: 7728 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+Exporting series: JW02__TrueVision__MainBuildingModel__Existing...
+  Using virtual flattening for non-destructive world-space export...
+    Traversing: Group_43_ID29097753...
+    Traversal complete: 1 entities -> 1 buckets, 7919 vertices, 5236 triangles
+    [TextureEngine] State reset
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
+    Building mesh: 10__ExistingBuilding::Default (7919 verts, 5236 tris)
+    Total meshes built: 1
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/JW02__JugglesJoint/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/JW02__TrueVision__MainBuildingModel__Existing__MeshModel__.glb (286292 bytes, BIN: 284824 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 286292 bytes
+    Chunk 1: "JSON", Length: 1440 bytes
+    Chunk 2: "BIN\x00", Length: 284824 bytes
+  ✓ GLB validation passed
+  ✓ Export complete (non-destructive, model unchanged)
+  Using virtual flattening for linework export (same transforms as mesh)...
+    Traversing linework: Group_43_ID29097753...
+    Linework traversal complete: 1 entities -> 3935 edges
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/JW02__JugglesJoint/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/JW02__TrueVision__MainBuildingModel__Existing__LineworkModel__.glb (221140 bytes, BIN: 220360 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 221140 bytes
+    Chunk 1: "JSON", Length: 752 bytes
+    Chunk 2: "BIN\x00", Length: 220360 bytes
+  ✓ GLB validation passed
+  ✓ Linework export complete
+
+=== Exporting Linetype Linework ===
+    01__ModelFlag__BuildingJoins__IndicatorLines: no linework
+    01__ModelFlag__ElementsForRemoval: no linework
+    01__ModelFlag__OverheadObjects__IndicatorLines: no linework
+    02__Linetype__DoorSwings: no linework
+    02__Linetype__DashedLines: no linework
+    02__Linetype__CentreLines: no linework
+    02__Linetype__DottedLines: no linework
+    02__ClearanceLines__IndicatorLines: no linework
+=== No linetype linework found in this model ===
+      Cleaned up texture cache folder
+-------------------------------------------------------------------------------
+ Export complete. Elapsed: 0.61s
+===============================================================================

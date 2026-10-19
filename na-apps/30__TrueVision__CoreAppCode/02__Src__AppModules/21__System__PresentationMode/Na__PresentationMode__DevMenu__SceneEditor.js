@@ -56,6 +56,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.5.0 (Scene Sync, TrueVision v2.174.0)
+// - The working copy leaves out the scenes TrueVision Sync keeps in step with
+//   SketchUp: they get no row, cannot be edited, deleted or regrouped here,
+//   and a commit cannot drop them (the presentation config hook puts them
+//   back into every config adopted). A save never writes them either.
+//
 // 28-Sep-2026 - Version 1.4.0 (per-scene lighting, v2.161.0)
 // - Advanced ends with a Lighting subsection: Rotation, Height, Sun, Ambient
 //   and Shadows, previewed live, with its own Use Default and Save Lighting.
@@ -281,6 +287,11 @@
 
     import { Na__DevGate__IsAuthoringEnabled } from '../03__AppUtils/Na__AppUtils__DevGate__.js';
 
+    // MODULE IMPORTS | Scene Sync Records (a leaf: synced SketchUp records are SketchUp's, never edited here)
+    // ------------------------------------------------------------
+    import { Na__SceneSync__IsSynced } from '../23__System__SceneSync/Na__SceneSync__Records__.js';
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -382,7 +393,9 @@
         const config = Na__PresentationMode__ProjectJson__GetActiveConfig();
         if (!config) return [];
         const scenes = config.PresentationMode__SavedCameraScenes__Scenes;
-        return Array.isArray(scenes) ? JSON.parse(JSON.stringify(scenes)) : []; // <-- Deep clone so edits don't corrupt live state
+        // Synced SketchUp scenes (Scene Sync) are left out: SketchUp owns them, and
+        // the config hook puts them back into every config this editor commits.
+        return Array.isArray(scenes) ? JSON.parse(JSON.stringify(scenes.filter((scene) => !Na__SceneSync__IsSynced(scene)))) : []; // <-- Deep clone so edits don't corrupt live state
     }
     // ------------------------------------------------------------
 

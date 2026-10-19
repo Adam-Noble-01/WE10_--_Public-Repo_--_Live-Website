@@ -86,9 +86,9 @@
             "SitePlan__FolderName": "SitePlan__DrawingData__Existing",
             "SitePlan__ManifestUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Existing/TrueVision__SitePlanData__Manifest__.json",
             "SitePlan__ExportedIso": "2026-09-22T09:55:57Z",
-            "SitePlan__NorthAngleDeg": 0,
+            "SitePlan__NorthAngleDeg": 0.0,
             "SitePlan__BoundsMm": {
-                "MinX": 250,
+                "MinX": 250.0,
                 "MinZ": -872374.2,
                 "MaxX": 874133.6,
                 "MaxZ": 209575.4
@@ -232,10 +232,10 @@
                     ],
                     "Layer__SegmentCount": 1743,
                     "Layer__BoundsMm": {
-                        "MinX": 500,
+                        "MinX": 500.0,
                         "MinZ": -872374.2,
                         "MaxX": 874133.6,
-                        "MaxZ": -35250
+                        "MaxZ": -35250.0
                     }
                 },
                 {
@@ -254,7 +254,7 @@
                         "LineType": "solid",
                         "LineDashScale": null,
                         "LineWeightMm": 0.353,
-                        "LineWeightPt": 1,
+                        "LineWeightPt": 1.0,
                         "FillColourId": null,
                         "FillMaterialId": null,
                         "FillHex": null,
@@ -273,7 +273,7 @@
                         "MinX": 4123.7,
                         "MinZ": -872124.2,
                         "MaxX": 874133.6,
-                        "MaxZ": -35250
+                        "MaxZ": -35250.0
                     }
                 },
                 {
@@ -296,7 +296,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT806__SitePlan__HardStandingGrey",
                         "FillHex": "#E4E4E4",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": null
                     },
                     "Layer__VisibleAtScales": [
@@ -368,7 +368,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT806__SitePlan__HardStandingGrey",
                         "FillHex": "#E4E4E4",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": null
                     },
                     "Layer__VisibleAtScales": [
@@ -400,11 +400,11 @@
                         "LineType": "solid",
                         "LineDashScale": null,
                         "LineWeightMm": 0.353,
-                        "LineWeightPt": 1,
+                        "LineWeightPt": 1.0,
                         "FillColourId": null,
                         "FillMaterialId": "MAT802__SitePlan__WaterBlue",
                         "FillHex": "#BAE4FD",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": "SitePlanHatch__PondsAndLakes"
                     },
                     "Layer__VisibleAtScales": [
@@ -414,10 +414,10 @@
                     ],
                     "Layer__SegmentCount": 1584,
                     "Layer__BoundsMm": {
-                        "MinX": 250,
+                        "MinX": 250.0,
                         "MinZ": -872374.2,
                         "MaxX": 722477.5,
-                        "MaxZ": -35000
+                        "MaxZ": -35000.0
                     }
                 },
                 {
@@ -436,7 +436,7 @@
                         "LineType": "solid",
                         "LineDashScale": null,
                         "LineWeightMm": 0.353,
-                        "LineWeightPt": 1,
+                        "LineWeightPt": 1.0,
                         "FillColourId": null,
                         "FillMaterialId": null,
                         "FillHex": null,
@@ -552,7 +552,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT807__SitePlan__PavingGrey",
                         "FillHex": "#F0EEE9",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": null
                     },
                     "Layer__VisibleAtScales": [
@@ -588,7 +588,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT804__SitePlan__GrasslandGreen",
                         "FillHex": "#E5F2D6",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": "SitePlanHatch__Grassland"
                     },
                     "Layer__VisibleAtScales": [
@@ -624,7 +624,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT805__SitePlan__RoughGrasslandOlive",
                         "FillHex": "#E7EBD9",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": "SitePlanHatch__RoughGrassland"
                     },
                     "Layer__VisibleAtScales": [
@@ -660,7 +660,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT801__SitePlan__WoodlandGreen",
                         "FillHex": "#DCEDCF",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": "SitePlanHatch__MixedWoodland"
                     },
                     "Layer__VisibleAtScales": [
@@ -692,7 +692,7 @@
                         "LineType": "dashed",
                         "LineDashScale": 0.5,
                         "LineWeightMm": 0.706,
-                        "LineWeightPt": 2,
+                        "LineWeightPt": 2.0,
                         "FillColourId": null,
                         "FillMaterialId": "MAT803__SitePlan__ProposalRed",
                         "FillHex": "#FF0000",
@@ -730,7 +730,7 @@
                         "LineType": "solid",
                         "LineDashScale": null,
                         "LineWeightMm": 0.706,
-                        "LineWeightPt": 2,
+                        "LineWeightPt": 2.0,
                         "FillColourId": null,
                         "FillMaterialId": "MAT803__SitePlan__ProposalRed",
                         "FillHex": "#FF0000",
@@ -749,7 +749,7 @@
                         "MinX": 133228.2,
                         "MinZ": -379702.3,
                         "MaxX": 499014.8,
-                        "MaxZ": 209561
+                        "MaxZ": 209561.0
                     }
                 },
                 {
@@ -797,9 +797,9 @@
             "SitePlan__FolderName": "SitePlan__DrawingData__Proposed",
             "SitePlan__ManifestUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/TrueVision__SitePlanData__Manifest__.json",
             "SitePlan__ExportedIso": "2026-09-29T19:10:38Z",
-            "SitePlan__NorthAngleDeg": 0,
+            "SitePlan__NorthAngleDeg": 0.0,
             "SitePlan__BoundsMm": {
-                "MinX": -1000750,
+                "MinX": -1000750.0,
                 "MinZ": -872374.2,
                 "MaxX": 1540069.8,
                 "MaxZ": 209575.4
@@ -943,10 +943,10 @@
                     ],
                     "Layer__SegmentCount": 3476,
                     "Layer__BoundsMm": {
-                        "MinX": -1000500,
+                        "MinX": -1000500.0,
                         "MinZ": -872374.2,
                         "MaxX": 874133.6,
-                        "MaxZ": -35250
+                        "MaxZ": -35250.0
                     }
                 },
                 {
@@ -965,7 +965,7 @@
                         "LineType": "solid",
                         "LineDashScale": null,
                         "LineWeightMm": 0.353,
-                        "LineWeightPt": 1,
+                        "LineWeightPt": 1.0,
                         "FillColourId": null,
                         "FillMaterialId": null,
                         "FillHex": null,
@@ -984,7 +984,7 @@
                         "MinX": -996876.3,
                         "MinZ": -872124.2,
                         "MaxX": 874133.6,
-                        "MaxZ": -35250
+                        "MaxZ": -35250.0
                     }
                 },
                 {
@@ -1007,7 +1007,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT806__SitePlan__HardStandingGrey",
                         "FillHex": "#E4E4E4",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": null
                     },
                     "Layer__VisibleAtScales": [
@@ -1043,7 +1043,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT809__SitePlan__DeckingBrown",
                         "FillHex": "#DDD6D2",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": null
                     },
                     "Layer__VisibleAtScales": [
@@ -1090,8 +1090,8 @@
                     "Layer__SegmentCount": 34,
                     "Layer__BoundsMm": {
                         "MinX": -498897.6,
-                        "MinZ": -440858,
-                        "MaxX": 486164,
+                        "MinZ": -440858.0,
+                        "MaxX": 486164.0,
                         "MaxZ": -266567.9
                     }
                 },
@@ -1115,7 +1115,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT806__SitePlan__HardStandingGrey",
                         "FillHex": "#E4E4E4",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": null
                     },
                     "Layer__VisibleAtScales": [
@@ -1151,7 +1151,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT810__SitePlan__GravelStone",
                         "FillHex": "#E6E0D4",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": "SitePlanHatch__Gravel"
                     },
                     "Layer__VisibleAtScales": [
@@ -1183,11 +1183,11 @@
                         "LineType": "solid",
                         "LineDashScale": null,
                         "LineWeightMm": 0.353,
-                        "LineWeightPt": 1,
+                        "LineWeightPt": 1.0,
                         "FillColourId": null,
                         "FillMaterialId": "MAT802__SitePlan__WaterBlue",
                         "FillHex": "#BAE4FD",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": "SitePlanHatch__PondsAndLakes"
                     },
                     "Layer__VisibleAtScales": [
@@ -1197,10 +1197,10 @@
                     ],
                     "Layer__SegmentCount": 3295,
                     "Layer__BoundsMm": {
-                        "MinX": -1000750,
+                        "MinX": -1000750.0,
                         "MinZ": -872374.2,
                         "MaxX": 722477.5,
-                        "MaxZ": -35000
+                        "MaxZ": -35000.0
                     }
                 },
                 {
@@ -1219,11 +1219,11 @@
                         "LineType": "solid",
                         "LineDashScale": null,
                         "LineWeightMm": 0.353,
-                        "LineWeightPt": 1,
+                        "LineWeightPt": 1.0,
                         "FillColourId": null,
                         "FillMaterialId": "MAT802__SitePlan__WaterBlue",
                         "FillHex": "#BAE4FD",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": null
                     },
                     "Layer__VisibleAtScales": [
@@ -1255,7 +1255,7 @@
                         "LineType": "dotted",
                         "LineDashScale": 0.5,
                         "LineWeightMm": 0.353,
-                        "LineWeightPt": 1,
+                        "LineWeightPt": 1.0,
                         "FillColourId": null,
                         "FillMaterialId": null,
                         "FillHex": null,
@@ -1291,7 +1291,7 @@
                         "LineType": "solid",
                         "LineDashScale": null,
                         "LineWeightMm": 0.353,
-                        "LineWeightPt": 1,
+                        "LineWeightPt": 1.0,
                         "FillColourId": null,
                         "FillMaterialId": null,
                         "FillHex": null,
@@ -1310,7 +1310,7 @@
                         "MinX": -855906.3,
                         "MinZ": -872124.2,
                         "MaxX": 874133.6,
-                        "MaxZ": 0
+                        "MaxZ": 0.0
                     }
                 },
                 {
@@ -1479,7 +1479,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT807__SitePlan__PavingGrey",
                         "FillHex": "#F0EEE9",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": null
                     },
                     "Layer__VisibleAtScales": [
@@ -1515,7 +1515,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT804__SitePlan__GrasslandGreen",
                         "FillHex": "#E5F2D6",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": "SitePlanHatch__Grassland"
                     },
                     "Layer__VisibleAtScales": [
@@ -1551,7 +1551,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT805__SitePlan__RoughGrasslandOlive",
                         "FillHex": "#E7EBD9",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": "SitePlanHatch__RoughGrassland"
                     },
                     "Layer__VisibleAtScales": [
@@ -1587,7 +1587,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT801__SitePlan__WoodlandGreen",
                         "FillHex": "#DCEDCF",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": null
                     },
                     "Layer__VisibleAtScales": [
@@ -1599,7 +1599,7 @@
                     "Layer__BoundsMm": {
                         "MinX": 430921.8,
                         "MinZ": -441156.6,
-                        "MaxX": 489068,
+                        "MaxX": 489068.0,
                         "MaxZ": -289446.8
                     }
                 },
@@ -1623,7 +1623,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT801__SitePlan__WoodlandGreen",
                         "FillHex": "#DCEDCF",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": "SitePlanHatch__MixedWoodland"
                     },
                     "Layer__VisibleAtScales": [
@@ -1659,7 +1659,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT808__SitePlan__NewPlantingWoodlandGreen",
                         "FillHex": "#E3F1D9",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": "SitePlanHatch__MixedWoodland"
                     },
                     "Layer__VisibleAtScales": [
@@ -1706,7 +1706,7 @@
                     "Layer__SegmentCount": 69,
                     "Layer__BoundsMm": {
                         "MinX": 423678.8,
-                        "MinZ": -467127,
+                        "MinZ": -467127.0,
                         "MaxX": 520158.9,
                         "MaxZ": -281563.2
                     }
@@ -1727,7 +1727,7 @@
                         "LineType": "dashed",
                         "LineDashScale": 0.5,
                         "LineWeightMm": 0.706,
-                        "LineWeightPt": 2,
+                        "LineWeightPt": 2.0,
                         "FillColourId": null,
                         "FillMaterialId": "MAT803__SitePlan__ProposalRed",
                         "FillHex": "#FF0000",
@@ -1765,7 +1765,7 @@
                         "LineType": "solid",
                         "LineDashScale": null,
                         "LineWeightMm": 0.706,
-                        "LineWeightPt": 2,
+                        "LineWeightPt": 2.0,
                         "FillColourId": null,
                         "FillMaterialId": "MAT803__SitePlan__ProposalRed",
                         "FillHex": "#FF0000",
@@ -1784,7 +1784,7 @@
                         "MinX": -867771.8,
                         "MinZ": -461727.8,
                         "MaxX": 511366.2,
-                        "MaxZ": 209561
+                        "MaxZ": 209561.0
                     }
                 },
                 {
@@ -1833,9 +1833,9 @@
         "SitePlan__FolderName": "SitePlan__DrawingData__Proposed",
         "SitePlan__ManifestUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/TrueVision__SitePlanData__Manifest__.json",
         "SitePlan__ExportedIso": "2026-09-29T19:10:38Z",
-        "SitePlan__NorthAngleDeg": 0,
+        "SitePlan__NorthAngleDeg": 0.0,
         "SitePlan__BoundsMm": {
-            "MinX": -1000750,
+            "MinX": -1000750.0,
             "MinZ": -872374.2,
             "MaxX": 1540069.8,
             "MaxZ": 209575.4
@@ -1979,10 +1979,10 @@
                 ],
                 "Layer__SegmentCount": 3476,
                 "Layer__BoundsMm": {
-                    "MinX": -1000500,
+                    "MinX": -1000500.0,
                     "MinZ": -872374.2,
                     "MaxX": 874133.6,
-                    "MaxZ": -35250
+                    "MaxZ": -35250.0
                 }
             },
             {
@@ -2001,7 +2001,7 @@
                     "LineType": "solid",
                     "LineDashScale": null,
                     "LineWeightMm": 0.353,
-                    "LineWeightPt": 1,
+                    "LineWeightPt": 1.0,
                     "FillColourId": null,
                     "FillMaterialId": null,
                     "FillHex": null,
@@ -2020,7 +2020,7 @@
                     "MinX": -996876.3,
                     "MinZ": -872124.2,
                     "MaxX": 874133.6,
-                    "MaxZ": -35250
+                    "MaxZ": -35250.0
                 }
             },
             {
@@ -2043,7 +2043,7 @@
                     "FillColourId": null,
                     "FillMaterialId": "MAT806__SitePlan__HardStandingGrey",
                     "FillHex": "#E4E4E4",
-                    "FillOpacity": 1,
+                    "FillOpacity": 1.0,
                     "HatchPatternId": null
                 },
                 "Layer__VisibleAtScales": [
@@ -2079,7 +2079,7 @@
                     "FillColourId": null,
                     "FillMaterialId": "MAT809__SitePlan__DeckingBrown",
                     "FillHex": "#DDD6D2",
-                    "FillOpacity": 1,
+                    "FillOpacity": 1.0,
                     "HatchPatternId": null
                 },
                 "Layer__VisibleAtScales": [
@@ -2126,8 +2126,8 @@
                 "Layer__SegmentCount": 34,
                 "Layer__BoundsMm": {
                     "MinX": -498897.6,
-                    "MinZ": -440858,
-                    "MaxX": 486164,
+                    "MinZ": -440858.0,
+                    "MaxX": 486164.0,
                     "MaxZ": -266567.9
                 }
             },
@@ -2151,7 +2151,7 @@
                     "FillColourId": null,
                     "FillMaterialId": "MAT806__SitePlan__HardStandingGrey",
                     "FillHex": "#E4E4E4",
-                    "FillOpacity": 1,
+                    "FillOpacity": 1.0,
                     "HatchPatternId": null
                 },
                 "Layer__VisibleAtScales": [
@@ -2187,7 +2187,7 @@
                     "FillColourId": null,
                     "FillMaterialId": "MAT810__SitePlan__GravelStone",
                     "FillHex": "#E6E0D4",
-                    "FillOpacity": 1,
+                    "FillOpacity": 1.0,
                     "HatchPatternId": "SitePlanHatch__Gravel"
                 },
                 "Layer__VisibleAtScales": [
@@ -2219,11 +2219,11 @@
                     "LineType": "solid",
                     "LineDashScale": null,
                     "LineWeightMm": 0.353,
-                    "LineWeightPt": 1,
+                    "LineWeightPt": 1.0,
                     "FillColourId": null,
                     "FillMaterialId": "MAT802__SitePlan__WaterBlue",
                     "FillHex": "#BAE4FD",
-                    "FillOpacity": 1,
+                    "FillOpacity": 1.0,
                     "HatchPatternId": "SitePlanHatch__PondsAndLakes"
                 },
                 "Layer__VisibleAtScales": [
@@ -2233,10 +2233,10 @@
                 ],
                 "Layer__SegmentCount": 3295,
                 "Layer__BoundsMm": {
-                    "MinX": -1000750,
+                    "MinX": -1000750.0,
                     "MinZ": -872374.2,
                     "MaxX": 722477.5,
-                    "MaxZ": -35000
+                    "MaxZ": -35000.0
                 }
             },
             {
@@ -2255,11 +2255,11 @@
                     "LineType": "solid",
                     "LineDashScale": null,
                     "LineWeightMm": 0.353,
-                    "LineWeightPt": 1,
+                    "LineWeightPt": 1.0,
                     "FillColourId": null,
                     "FillMaterialId": "MAT802__SitePlan__WaterBlue",
                     "FillHex": "#BAE4FD",
-                    "FillOpacity": 1,
+                    "FillOpacity": 1.0,
                     "HatchPatternId": null
                 },
                 "Layer__VisibleAtScales": [
@@ -2291,7 +2291,7 @@
                     "LineType": "dotted",
                     "LineDashScale": 0.5,
                     "LineWeightMm": 0.353,
-                    "LineWeightPt": 1,
+                    "LineWeightPt": 1.0,
                     "FillColourId": null,
                     "FillMaterialId": null,
                     "FillHex": null,
@@ -2327,7 +2327,7 @@
                     "LineType": "solid",
                     "LineDashScale": null,
                     "LineWeightMm": 0.353,
-                    "LineWeightPt": 1,
+                    "LineWeightPt": 1.0,
                     "FillColourId": null,
                     "FillMaterialId": null,
                     "FillHex": null,
@@ -2346,7 +2346,7 @@
                     "MinX": -855906.3,
                     "MinZ": -872124.2,
                     "MaxX": 874133.6,
-                    "MaxZ": 0
+                    "MaxZ": 0.0
                 }
             },
             {
@@ -2515,7 +2515,7 @@
                     "FillColourId": null,
                     "FillMaterialId": "MAT807__SitePlan__PavingGrey",
                     "FillHex": "#F0EEE9",
-                    "FillOpacity": 1,
+                    "FillOpacity": 1.0,
                     "HatchPatternId": null
                 },
                 "Layer__VisibleAtScales": [
@@ -2551,7 +2551,7 @@
                     "FillColourId": null,
                     "FillMaterialId": "MAT804__SitePlan__GrasslandGreen",
                     "FillHex": "#E5F2D6",
-                    "FillOpacity": 1,
+                    "FillOpacity": 1.0,
                     "HatchPatternId": "SitePlanHatch__Grassland"
                 },
                 "Layer__VisibleAtScales": [
@@ -2587,7 +2587,7 @@
                     "FillColourId": null,
                     "FillMaterialId": "MAT805__SitePlan__RoughGrasslandOlive",
                     "FillHex": "#E7EBD9",
-                    "FillOpacity": 1,
+                    "FillOpacity": 1.0,
                     "HatchPatternId": "SitePlanHatch__RoughGrassland"
                 },
                 "Layer__VisibleAtScales": [
@@ -2623,7 +2623,7 @@
                     "FillColourId": null,
                     "FillMaterialId": "MAT801__SitePlan__WoodlandGreen",
                     "FillHex": "#DCEDCF",
-                    "FillOpacity": 1,
+                    "FillOpacity": 1.0,
                     "HatchPatternId": null
                 },
                 "Layer__VisibleAtScales": [
@@ -2635,7 +2635,7 @@
                 "Layer__BoundsMm": {
                     "MinX": 430921.8,
                     "MinZ": -441156.6,
-                    "MaxX": 489068,
+                    "MaxX": 489068.0,
                     "MaxZ": -289446.8
                 }
             },
@@ -2659,7 +2659,7 @@
                     "FillColourId": null,
                     "FillMaterialId": "MAT801__SitePlan__WoodlandGreen",
                     "FillHex": "#DCEDCF",
-                    "FillOpacity": 1,
+                    "FillOpacity": 1.0,
                     "HatchPatternId": "SitePlanHatch__MixedWoodland"
                 },
                 "Layer__VisibleAtScales": [
@@ -2695,7 +2695,7 @@
                     "FillColourId": null,
                     "FillMaterialId": "MAT808__SitePlan__NewPlantingWoodlandGreen",
                     "FillHex": "#E3F1D9",
-                    "FillOpacity": 1,
+                    "FillOpacity": 1.0,
                     "HatchPatternId": "SitePlanHatch__MixedWoodland"
                 },
                 "Layer__VisibleAtScales": [
@@ -2742,7 +2742,7 @@
                 "Layer__SegmentCount": 69,
                 "Layer__BoundsMm": {
                     "MinX": 423678.8,
-                    "MinZ": -467127,
+                    "MinZ": -467127.0,
                     "MaxX": 520158.9,
                     "MaxZ": -281563.2
                 }
@@ -2763,7 +2763,7 @@
                     "LineType": "dashed",
                     "LineDashScale": 0.5,
                     "LineWeightMm": 0.706,
-                    "LineWeightPt": 2,
+                    "LineWeightPt": 2.0,
                     "FillColourId": null,
                     "FillMaterialId": "MAT803__SitePlan__ProposalRed",
                     "FillHex": "#FF0000",
@@ -2801,7 +2801,7 @@
                     "LineType": "solid",
                     "LineDashScale": null,
                     "LineWeightMm": 0.706,
-                    "LineWeightPt": 2,
+                    "LineWeightPt": 2.0,
                     "FillColourId": null,
                     "FillMaterialId": "MAT803__SitePlan__ProposalRed",
                     "FillHex": "#FF0000",
@@ -2820,7 +2820,7 @@
                     "MinX": -867771.8,
                     "MinZ": -461727.8,
                     "MaxX": 511366.2,
-                    "MaxZ": 209561
+                    "MaxZ": 209561.0
                 }
             },
             {
@@ -57008,7 +57008,8 @@
                 "Sheet__TitleBlockStyle": "modern",
                 "Sheet__Fields": {
                     "Sheet__Fields__DrawingNumber": "D12",
-                    "Sheet__Fields__Status": "PRELIMINARY"
+                    "Sheet__Fields__Status": "PRELIMINARY",
+                    "Sheet__Fields__Revision": "B"
                 },
                 "Sheet__Layers": [
                     {
@@ -57150,9 +57151,9 @@
                         "Viewport__Name": "Existing Location Plan",
                         "Viewport__FrameMm": {
                             "X": 11.910057229247599,
-                            "Y": 9.78717655050952,
+                            "Y": 10.07683188316778,
                             "WidthMm": 156.1453867088544,
-                            "HeightMm": 177.04176644854783
+                            "HeightMm": 167.06615460347595
                         },
                         "Viewport__ScaleDenominator": 5000,
                         "Viewport__SitePlan": {
@@ -57165,7 +57166,7 @@
                         "Viewport__LayerId": "Layer_001",
                         "Viewport__PanMm": {
                             "X": 406537.109092758,
-                            "Y": -481678.5035518313
+                            "Y": -456739.4739391515
                         },
                         "Viewport__ImageMm": {
                             "WidthMm": 180,
@@ -57299,316 +57300,6 @@
                                     "Category__EdgeLineType": "solid"
                                 },
                                 "TrueVision__SitePlan__Contours@existing": {
-                                    "Category__Label": "Contours",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "light-grey",
-                                    "Category__EdgeLineType": "solid"
-                                }
-                            }
-                        },
-                        "Viewport__CompositeWeights": null,
-                        "Viewport__MarkupMode": "scene",
-                        "Viewport__ShowScaleLabel": true,
-                        "Viewport__SnapshotAsset": null,
-                        "Viewport__Locked": false
-                    },
-                    {
-                        "Viewport__Id": "Viewport_003",
-                        "Viewport__Kind": "2d",
-                        "Viewport__SceneId": null,
-                        "Viewport__DrawingId": null,
-                        "Viewport__ModelSourceId": null,
-                        "Viewport__Name": "Existing Location Plan",
-                        "Viewport__FrameMm": {
-                            "X": 11.910057229247599,
-                            "Y": 199.7871765505095,
-                            "WidthMm": 156.1453867088544,
-                            "HeightMm": 177.04176644854783
-                        },
-                        "Viewport__ScaleDenominator": 5000,
-                        "Viewport__SitePlan": {
-                            "SitePlan__StoreId": "proposed",
-                            "SitePlan__PlanType": "location"
-                        },
-                        "Viewport__ModelLayers": {
-                            "TrueVision__SitePlan__Contours@existing": false,
-                            "TrueVision__SitePlan__OsMappingMinorStreets": false
-                        },
-                        "Viewport__LayerId": "Layer_001",
-                        "Viewport__PanMm": {
-                            "X": 406537.109092758,
-                            "Y": -481678.5035518313
-                        },
-                        "Viewport__ImageMm": {
-                            "WidthMm": 180,
-                            "HeightMm": 120
-                        },
-                        "Viewport__ImageOffsetMm": {
-                            "X": 0,
-                            "Y": 0
-                        },
-                        "Viewport__Styles": {
-                            "baseImage": true,
-                            "projectedLinework": false,
-                            "profileLinework": false,
-                            "glassOpaque": true,
-                            "whitecard": true,
-                            "hiddenLines": false,
-                            "enhanceWhitecard": true,
-                            "contextLayer": true,
-                            "depthFog": true
-                        },
-                        "Viewport__ProjectedEdges": {
-                            "Edges__Description": "Projected linework style for this viewport only, per SketchUp model category. Weight is a multiplier on the sheet master viewport lineweight; the colour and line type are aliases from Na__LayoutEditor__EdgeStyles__Config__.json. A category absent from this list draws at the default in Na__LayoutEditor__ModelLayers__Config__.json. Visibility is NOT here - that is Viewport__ModelLayers.",
-                            "Edges__UpdatedIso": "2026-09-22T16:27:17.985Z",
-                            "Edges__Categories": {
-                                "TrueVision__SitePlan__ProposedBuildings@existing": {
-                                    "Category__Label": "Proposed - New Construction",
-                                    "Category__EdgeWeightFactor": 3,
-                                    "Category__EdgeColour": "red",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__ProposedBuildingsSecondary@existing": {
-                                    "Category__Label": "Proposed - Alterations",
-                                    "Category__EdgeWeightFactor": 3,
-                                    "Category__EdgeColour": "red",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__TreesMixedWoodland@existing": {
-                                    "Category__Label": "Mixed Woodland",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "green",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__RoughGrassland@existing": {
-                                    "Category__Label": "Rough Grassland",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "dark-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__Grassland@existing": {
-                                    "Category__Label": "Grassland",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "dark-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__SiteFeaturePaths@existing": {
-                                    "Category__Label": "Site Paths",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "mid-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__RedLineBoundary@existing": {
-                                    "Category__Label": "Red Line Boundary",
-                                    "Category__EdgeWeightFactor": 4,
-                                    "Category__EdgeColour": "red",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__WallsAndFences@existing": {
-                                    "Category__Label": "Walls and Fences",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "soft-black",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__ExistingBuildings@existing": {
-                                    "Category__Label": "Existing Buildings",
-                                    "Category__EdgeWeightFactor": 3,
-                                    "Category__EdgeColour": "red",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__HardStandingAndDriveways@existing": {
-                                    "Category__Label": "Hard Standing and Driveways",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "mid-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__ParkingAndAccess@existing": {
-                                    "Category__Label": "Parking and Access",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "dark-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__HardSurfaces@existing": {
-                                    "Category__Label": "Hard Surfaces",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "dark-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__NeighbouringBuildings@existing": {
-                                    "Category__Label": "Neighbouring Buildings",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "dark-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__Waterbodies@existing": {
-                                    "Category__Label": "Waterbodies",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "blue",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__OsMappingMainRoads@existing": {
-                                    "Category__Label": "OS Mapping - Main Roads",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "dark-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__OsMapping@existing": {
-                                    "Category__Label": "OS Mapping",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "dark-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__OsMappingMinorStreets@existing": {
-                                    "Category__Label": "OS Mapping - Minor Streets",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "mid-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__OsMappingMajorFeature@existing": {
-                                    "Category__Label": "OS Mapping - Major Feature",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "dark-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__Contours@existing": {
-                                    "Category__Label": "Contours",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "light-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__ProposedBuildings": {
-                                    "Category__Label": "Proposed - New Construction",
-                                    "Category__EdgeWeightFactor": 3,
-                                    "Category__EdgeColour": "red",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__ProposedBuildingsSecondary": {
-                                    "Category__Label": "Proposed - Alterations",
-                                    "Category__EdgeWeightFactor": 3,
-                                    "Category__EdgeColour": "red",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__TreesToRemove": {
-                                    "Category__Label": "Trees To Be Removed",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "red",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__TreesMixedWoodland": {
-                                    "Category__Label": "Mixed Woodland",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "green",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__RoughGrassland": {
-                                    "Category__Label": "Rough Grassland",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "dark-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__Grassland": {
-                                    "Category__Label": "Grassland",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "dark-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__SiteFeaturePaths": {
-                                    "Category__Label": "Site Paths",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "mid-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__RedLineBoundary": {
-                                    "Category__Label": "Red Line Boundary",
-                                    "Category__EdgeWeightFactor": 4,
-                                    "Category__EdgeColour": "red",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__WallsAndFencesRemoved": {
-                                    "Category__Label": "Walls and Fences To Be Removed",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "mid-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__WallsAndFences": {
-                                    "Category__Label": "Walls and Fences",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "soft-black",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__ExistingBuildingsRemoved": {
-                                    "Category__Label": "Existing Buildings To Be Removed",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "blue",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__StillWater": {
-                                    "Category__Label": "Still Water",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "blue",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__HardStandingAndDriveways": {
-                                    "Category__Label": "Hard Standing and Driveways",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "mid-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__ParkingAndAccess": {
-                                    "Category__Label": "Parking and Access",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "dark-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__HardSurfaces": {
-                                    "Category__Label": "Hard Surfaces",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "dark-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__NeighbouringBuildings": {
-                                    "Category__Label": "Neighbouring Buildings",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "dark-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__Waterbodies": {
-                                    "Category__Label": "Waterbodies",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "blue",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__OsMappingMainRoads": {
-                                    "Category__Label": "OS Mapping - Main Roads",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "dark-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__OsMapping": {
-                                    "Category__Label": "OS Mapping",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "dark-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__OsMappingMinorStreets": {
-                                    "Category__Label": "OS Mapping - Minor Streets",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "mid-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__OsMappingMajorFeature": {
-                                    "Category__Label": "OS Mapping - Major Feature",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "dark-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__OsMappingMinorFeature": {
-                                    "Category__Label": "OS Mapping - Minor Feature",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "mid-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__Contours": {
                                     "Category__Label": "Contours",
                                     "Category__EdgeWeightFactor": 1,
                                     "Category__EdgeColour": "light-grey",
@@ -60461,7 +60152,8 @@
                 "Sheet__TitleBlockStyle": "modern",
                 "Sheet__Fields": {
                     "Sheet__Fields__DrawingNumber": "D13",
-                    "Sheet__Fields__Status": "PRELIMINARY"
+                    "Sheet__Fields__Status": "PRELIMINARY",
+                    "Sheet__Fields__Revision": "B"
                 },
                 "Sheet__Layers": [
                     {
@@ -60517,7 +60209,7 @@
                         "Layer__Name": "Viewports",
                         "Layer__Type": "viewport",
                         "Layer__Visible": true,
-                        "Layer__Locked": true,
+                        "Layer__Locked": false,
                         "Layer__Order": 7
                     }
                 ],
@@ -60528,7 +60220,7 @@
                         "Viewport__SceneId": null,
                         "Viewport__DrawingId": null,
                         "Viewport__ModelSourceId": null,
-                        "Viewport__Name": "Existing Site  -  Block Plan",
+                        "Viewport__Name": "Proposed Site  -  Block Plan",
                         "Viewport__FrameMm": {
                             "X": 176.2273445701346,
                             "Y": 10.213857071714017,
@@ -60664,188 +60356,17 @@
                         }
                     },
                     {
-                        "Viewport__Id": "Viewport_002",
-                        "Viewport__Kind": "2d",
-                        "Viewport__SceneId": null,
-                        "Viewport__DrawingId": null,
-                        "Viewport__ModelSourceId": null,
-                        "Viewport__Name": "Existing Location Plan",
-                        "Viewport__FrameMm": {
-                            "X": 11.910057229247599,
-                            "Y": 9.78717655050952,
-                            "WidthMm": 156.1453867088544,
-                            "HeightMm": 177.04176644854783
-                        },
-                        "Viewport__ScaleDenominator": 5000,
-                        "Viewport__SitePlan": {
-                            "SitePlan__StoreId": "existing",
-                            "SitePlan__PlanType": "location"
-                        },
-                        "Viewport__ModelLayers": {
-                            "TrueVision__SitePlan__Contours@existing": false
-                        },
-                        "Viewport__LayerId": "Layer_001",
-                        "Viewport__PanMm": {
-                            "X": 406537.109092758,
-                            "Y": -481678.5035518313
-                        },
-                        "Viewport__ImageMm": {
-                            "WidthMm": 180,
-                            "HeightMm": 120
-                        },
-                        "Viewport__ImageOffsetMm": {
-                            "X": 0,
-                            "Y": 0
-                        },
-                        "Viewport__Styles": {
-                            "baseImage": true,
-                            "projectedLinework": false,
-                            "profileLinework": false,
-                            "glassOpaque": true,
-                            "whitecard": true,
-                            "hiddenLines": false,
-                            "enhanceWhitecard": true,
-                            "contextLayer": true,
-                            "depthFog": true
-                        },
-                        "Viewport__ProjectedEdges": {
-                            "Edges__Description": "Projected linework style for this viewport only, per SketchUp model category. Weight is a multiplier on the sheet master viewport lineweight; the colour and line type are aliases from Na__LayoutEditor__EdgeStyles__Config__.json. A category absent from this list draws at the default in Na__LayoutEditor__ModelLayers__Config__.json. Visibility is NOT here - that is Viewport__ModelLayers.",
-                            "Edges__UpdatedIso": "2026-09-22T16:26:13.808Z",
-                            "Edges__Categories": {
-                                "TrueVision__SitePlan__ProposedBuildings@existing": {
-                                    "Category__Label": "Proposed - New Construction",
-                                    "Category__EdgeWeightFactor": 3,
-                                    "Category__EdgeColour": "red",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__ProposedBuildingsSecondary@existing": {
-                                    "Category__Label": "Proposed - Alterations",
-                                    "Category__EdgeWeightFactor": 3,
-                                    "Category__EdgeColour": "red",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__TreesMixedWoodland@existing": {
-                                    "Category__Label": "Mixed Woodland",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "green",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__RoughGrassland@existing": {
-                                    "Category__Label": "Rough Grassland",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "dark-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__Grassland@existing": {
-                                    "Category__Label": "Grassland",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "dark-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__SiteFeaturePaths@existing": {
-                                    "Category__Label": "Site Paths",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "mid-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__RedLineBoundary@existing": {
-                                    "Category__Label": "Red Line Boundary",
-                                    "Category__EdgeWeightFactor": 4,
-                                    "Category__EdgeColour": "red",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__WallsAndFences@existing": {
-                                    "Category__Label": "Walls and Fences",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "soft-black",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__ExistingBuildings@existing": {
-                                    "Category__Label": "Existing Buildings",
-                                    "Category__EdgeWeightFactor": 3,
-                                    "Category__EdgeColour": "red",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__HardStandingAndDriveways@existing": {
-                                    "Category__Label": "Hard Standing and Driveways",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "mid-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__ParkingAndAccess@existing": {
-                                    "Category__Label": "Parking and Access",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "dark-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__HardSurfaces@existing": {
-                                    "Category__Label": "Hard Surfaces",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "dark-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__NeighbouringBuildings@existing": {
-                                    "Category__Label": "Neighbouring Buildings",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "dark-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__Waterbodies@existing": {
-                                    "Category__Label": "Waterbodies",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "blue",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__OsMappingMainRoads@existing": {
-                                    "Category__Label": "OS Mapping - Main Roads",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "dark-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__OsMapping@existing": {
-                                    "Category__Label": "OS Mapping",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "dark-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__OsMappingMinorStreets@existing": {
-                                    "Category__Label": "OS Mapping - Minor Streets",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "mid-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__OsMappingMajorFeature@existing": {
-                                    "Category__Label": "OS Mapping - Major Feature",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "dark-grey",
-                                    "Category__EdgeLineType": "solid"
-                                },
-                                "TrueVision__SitePlan__Contours@existing": {
-                                    "Category__Label": "Contours",
-                                    "Category__EdgeWeightFactor": 1,
-                                    "Category__EdgeColour": "light-grey",
-                                    "Category__EdgeLineType": "solid"
-                                }
-                            }
-                        },
-                        "Viewport__CompositeWeights": null,
-                        "Viewport__MarkupMode": "scene",
-                        "Viewport__ShowScaleLabel": true,
-                        "Viewport__SnapshotAsset": null,
-                        "Viewport__Locked": false
-                    },
-                    {
                         "Viewport__Id": "Viewport_003",
                         "Viewport__Kind": "2d",
                         "Viewport__SceneId": null,
                         "Viewport__DrawingId": null,
                         "Viewport__ModelSourceId": null,
-                        "Viewport__Name": "Existing Location Plan",
+                        "Viewport__Name": "Proposed Location Plan",
                         "Viewport__FrameMm": {
                             "X": 11.910057229247599,
-                            "Y": 199.7871765505095,
+                            "Y": 10.052258044674488,
                             "WidthMm": 156.1453867088544,
-                            "HeightMm": 177.04176644854783
+                            "HeightMm": 166.0100388766041
                         },
                         "Viewport__ScaleDenominator": 5000,
                         "Viewport__SitePlan": {
@@ -60859,7 +60380,7 @@
                         "Viewport__LayerId": "Layer_001",
                         "Viewport__PanMm": {
                             "X": 406537.109092758,
-                            "Y": -481678.5035518313
+                            "Y": -454099.1846219719
                         },
                         "Viewport__ImageMm": {
                             "WidthMm": 180,
@@ -64524,7 +64045,8 @@
                 "Sheet__TitleBlockStyle": "modern",
                 "Sheet__Fields": {
                     "Sheet__Fields__DrawingNumber": "D14",
-                    "Sheet__Fields__Status": "PRELIMINARY"
+                    "Sheet__Fields__Status": "PRELIMINARY",
+                    "Sheet__Fields__Revision": "B"
                 },
                 "Sheet__Layers": [
                     {
@@ -64638,7 +64160,7 @@
                         "Viewport__SceneId": null,
                         "Viewport__DrawingId": null,
                         "Viewport__ModelSourceId": null,
-                        "Viewport__Name": "Existing Location Plan",
+                        "Viewport__Name": "Proposed Location Plan",
                         "Viewport__FrameMm": {
                             "X": 431.2349448700868,
                             "Y": 115.58797093469761,
@@ -64951,6 +64473,6 @@
             },
             "North__SetIso": "2026-09-20T17:23:58.084Z"
         },
-        "LayoutEditor__DrawingsData__SavedIso": "2026-09-30T06:24:25.543Z"
+        "LayoutEditor__DrawingsData__SavedIso": "2026-10-19T13:53:03.117Z"
     }
 }

@@ -51,6 +51,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 2.1.0 (Scene Sync, TrueVision v2.174.0)
+// - The floor plans TrueVision Sync keeps in step with SketchUp scenes are
+//   SketchUp's: they get no row here, no plane to drag, and are not counted
+//   by Seed. Detach one in the Layout Editor's SketchUp Scenes panel to make
+//   it a TrueVision plan with a row like any other.
+//
 // 20-Sep-2026 - Version 2.0.0 (Floor Plans and Elevations menu rebuild)
 // - Rows fold; one is open at a time, across this panel and Elevations.
 // - The open row is a draft. Update (green, confirmed) keeps it and writes R2
@@ -262,6 +268,11 @@
         Na__PlaneCfg__GetGripSetup,
         Na__PlaneCfg__GetAppearanceSetup
     } from '../47__System__DrawingPlanes/Na__DrawingPlanes__ConfigState__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Scene Sync Records (a leaf: synced SketchUp records are SketchUp's, never edited here)
+    // ------------------------------------------------------------
+    import { Na__SceneSync__IsSynced } from '../23__System__SceneSync/Na__SceneSync__Records__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -663,7 +674,7 @@
         Na__PlaneOverlay__RegisterSource(Na__PlaneUi__TYPE_PLAN, {
             kind          : Na__PlaneOverlay__KIND_HORIZONTAL,
             get paletteOffset() { return Na__PlaneCfg__GetAppearanceSetup().planPaletteOffset; },   // <-- Read when asked: the config may not have loaded when this registers
-            list          : () => Na__FpData__GetFloorPlans(null),
+            list          : () => Na__FpData__GetFloorPlans(null).filter((plan) => !Na__SceneSync__IsSynced(plan)),   // <-- A synced SketchUp plan is moved in SketchUp
             getId         : (plan) => plan.FloorPlan__Id,
             getName       : (plan) => plan.FloorPlan__Name,
             isSection     : () => true,                                          // <-- A plan always cuts
@@ -1003,7 +1014,7 @@
             return 0;
         }
 
-        const existing = Na__FpData__GetFloorPlans(null).length;
+        const existing = Na__FpData__GetFloorPlans(null).filter((plan) => !Na__SceneSync__IsSynced(plan)).length;
         if (existing > 0) {
             const proceed = await Na__PresentationMode__DevMenu__Confirm({
                 title        : 'Add ' + storeys.length + ' more floor plan' + (storeys.length === 1 ? '' : 's') + '?',
@@ -1170,7 +1181,7 @@
             onAdd    : () => { void Na__FpDev__AddPlan({}); }
         }));
 
-        const plans = Na__FpData__GetFloorPlans(null);
+        const plans = Na__FpData__GetFloorPlans(null).filter((plan) => !Na__SceneSync__IsSynced(plan));   // <-- SketchUp's own (Scene Sync) are edited in SketchUp, so they have no row here
 
         // DRAWING PLANES | Show all, snap and its grid - the same bar the
         // Elevations panel carries, because the state behind it is shared.

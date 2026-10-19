@@ -6,6 +6,38 @@
 
 # -----------------------------------------------------------------------------
 
+## Project Vision - Version 0.5.3 - 19-Oct-2026
+
+### Added - Synced SketchUp scenes reach TrueVision: the build registers the Scene Sync store, the sync uploads it
+
+#### Why
+- TrueVision Sync (GLB Builder 2.12) keeps the SketchUp scenes Adam switches on in its Scene Sync tab in step with
+  TrueVision, as plans, elevations, sections and 3D views for layout viewports. It writes ONE file per project,
+  `30__TrueVision__AppContent/SceneSync__SketchUpSceneData/TrueVision__SceneSyncData__Manifest__.json`, on every
+  Export To Project and every push. TrueVision (v2.174.0) reads it from the CDN wherever it is not the authoring
+  machine, so the build has to say where it is and the sync has to put it there.
+
+#### Build (`ProjectVision__BuildScript__.py`)
+- `discover_truevision_scenesync_store` reads the manifest (a file that does not say it is one is not published) and
+  returns `SceneSync__DataStore`: folder name, CDN base and manifest URL, export time and the number of synced scenes.
+  `generate_truevision_project_data` writes it as a build-owned key; a project without a store gets no key, so every
+  older project's data is unchanged.
+- The store folder is never mistaken for a design phase's model group, even if a GLB lands in it.
+
+#### R2 sync (`CloudflareR2__ModelSync__Main__.py`)
+- `discover_scenesync_files` finds the one manifest (nothing else in the folder is uploaded), and the point cloud
+  collector, now told which store it lists (`store_folder`), decides new, update or skip from one listing of the
+  Scene Sync prefix and never deletes. These operations go ahead of the project data that points at them.
+- The store folder is never treated as a GLB model group, so the GLB mirror rules (which delete) do not reach it.
+
+#### Tested
+- Offline against a real sync (scratch project ZZ98, no network, a fake S3 client): 16 checks, covering the CDN URL,
+  the scene count, a foreign or missing manifest, the model group skips (build and sync), the single listing, new,
+  update and skip, and the point cloud collector still listing its own prefix. The point cloud pipeline check still
+  passes (15 checks).
+
+# -----------------------------------------------------------------------------
+
 ## Project Vision - Version 0.5.2 - 19-Oct-2026
 
 ### Added - Point cloud scenes from SketchUp reach TrueVision: the build registers the store, the sync uploads it

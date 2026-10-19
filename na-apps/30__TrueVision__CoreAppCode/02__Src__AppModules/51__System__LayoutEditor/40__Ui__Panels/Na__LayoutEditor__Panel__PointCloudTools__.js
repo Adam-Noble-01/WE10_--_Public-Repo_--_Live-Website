@@ -51,6 +51,26 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.2.0
+// - THE WORKING VIEW. Adam: "visibility controls ... so you can globally turn
+//   off all of the point cloud layers or one by one. This is a working layer
+//   on/off rather than the actual render composite layer ... for when you're
+//   working, so you can pop them all on and off very fast." A checkbox on each
+//   exported scene and one on the list's title (all of them; a dash when some
+//   are off) switch point clouds off ON SCREEN for this session: never saved,
+//   never printed, and an off scene's pictures are not even fetched
+//   (Na__LeVp2d__PointCloudSetWorkingVisible and friends).
+// - Show Point Cloud has moved to the Render Composites panel as its Point
+//   Cloud row, because it is the DRAWING's state: saved, and what prints and is
+//   published. The selected viewport's sentence says which of the two has a
+//   point cloud off.
+//
+// 19-Oct-2026 - Version 1.1.0 (Scene Sync)
+// - A point cloud scene lays first on the drawing synced from the SAME
+//   SketchUp scene (Scene Sync: the drawing's Sync__PointCloudSceneId), an
+//   exact match by scene rather than a guess by name or bearing. Anything
+//   else is matched as before.
+//
 // 19-Oct-2026 - Version 1.0.0
 // - Initial implementation (point cloud viewports).
 //
@@ -88,6 +108,11 @@
         Na__LeVp2d__PC_HIDDEN,
         Na__LeVp2d__PC_MISALIGNED,
         Na__LeVp2d__PC_READY,
+        Na__LeVp2d__PC_WORKING_EVENT,
+        Na__LeVp2d__PointCloudWorkingVisible,
+        Na__LeVp2d__PointCloudSetWorkingVisible,
+        Na__LeVp2d__PointCloudSetAllWorkingVisible,
+        Na__LeVp2d__PointCloudWorkingSummary,
         Na__LeVp2d__PointCloudResolve,
         Na__LeVp2d__PointCloudRefreshAll,
         Na__LeVp2d__PointCloudSetZoom,
@@ -161,14 +186,15 @@
     // ------------------------------------------------------------
     const Na__LePanelPc__ID         = 'point-cloud-tools';
     const Na__LePanelPc__SCENES_KEY = 'PresentationMode__SavedCameraScenes__Scenes';
+    // Show Point Cloud is not here: whether a viewport shows (and prints) its
+    // point cloud is the drawing's, so it is the Render Composites panel's Point
+    // Cloud row. The checkboxes in the exported scene list are the working view.
     const Na__LePanelPc__TOGGLES    = [
-        { role : 'visible',       label : 'Show Point Cloud', labelKey : 'PointCloudShow' },
         { role : 'lineworkOnTop', label : 'Linework On Top',  labelKey : 'PointCloudLineworkOnTop' },
         { role : 'sync',          label : 'SketchUp Sync',    labelKey : 'PointCloudSync' },
         { role : 'datum',         label : 'Show Datum',       labelKey : 'PointCloudShowDatum' }
     ];
     const Na__LePanelPc__TOGGLE_HINTS = {
-        visible       : 'Untick to keep the scene attached without drawing it.',
         lineworkOnTop : 'Ticked, the linework is drawn over the point cloud. Unticked, the point cloud is drawn over the linework.',
         sync          : 'Ticked, the viewport follows every new export of this scene. Unticked, it keeps the export it shows now.',
         datum         : 'The survey datum benchmark from SketchUp, in red, over the drawing.'
@@ -301,7 +327,8 @@
             if (angle > tolerance) return { why : Na__LePanelPc__Label('PointCloudPlanTilted', 'This plan scene does not look straight down.') };
             const plans = Na__FpData__GetFloorPlans(null);
             if (!plans.length) return { why : Na__LePanelPc__Label('PointCloudNoPlans', 'No TrueVision floor plan to lay it on.') };
-            const best = plans.reduce((pick, plan) => (Na__LePanelPc__Likeness(plan.FloorPlan__Name, scene.Scene__Name) > Na__LePanelPc__Likeness(pick.FloorPlan__Name, scene.Scene__Name) ? plan : pick), plans[0]);
+            const paired = plans.find((plan) => plan.Sync__PointCloudSceneId === scene.Scene__Id);   // <-- Synced from the same SketchUp scene: exact
+            const best = paired || plans.reduce((pick, plan) => (Na__LePanelPc__Likeness(plan.FloorPlan__Name, scene.Scene__Name) > Na__LePanelPc__Likeness(pick.FloorPlan__Name, scene.Scene__Name) ? plan : pick), plans[0]);
             return { kind : 'plan', label : best.FloorPlan__Name || best.FloorPlan__Id, drawingId : best.FloorPlan__Id,
                      sceneId : Na__LePanelPc__SceneFor(best.FloorPlan__Id, null), axes : { Kind : 'plan', AlongX : [ 1, 0, 0 ], AlongY : [ 0, 0, 1 ], TowardViewer : [ 0, 1, 0 ] }, angleDeg : angle };
         }
@@ -312,7 +339,8 @@
                 const axes = { Kind : 'elevation', AlongX : [ a.rightX, 0, a.rightZ ], AlongY : [ 0, -1, 0 ], TowardViewer : [ a.normalX, 0, a.normalZ ] };
                 return { elevation : elevation, axes : axes, angle : Na__PcPlace__AlignmentDeg(revision.Frame, axes), section : Na__ElevData__IsSection(elevation) };
             }).filter((fit) => fit.angle <= tolerance)
-              .sort((x, y) => ((x.section === wantSection ? 0 : 1) - (y.section === wantSection ? 0 : 1)) || (x.angle - y.angle));
+              .sort((x, y) => ((x.elevation.Sync__PointCloudSceneId === scene.Scene__Id ? 0 : 1) - (y.elevation.Sync__PointCloudSceneId === scene.Scene__Id ? 0 : 1))   // <-- Synced from the same SketchUp scene first
+                  || ((x.section === wantSection ? 0 : 1) - (y.section === wantSection ? 0 : 1)) || (x.angle - y.angle));
             if (!fits.length) {
                 const x = -revision.Frame.NormalM[0], z = -revision.Frame.NormalM[2];
                 const bearing = ((Math.atan2(x, -z) * (180 / Math.PI)) % 360 + 360) % 360;
@@ -441,7 +469,18 @@
         centre.setAttribute('data-na-block', 'vp-centre');
         viewportRows.appendChild(centre);
 
-        block('scenes-title', Na__LePanels__Note(Na__LePanelPc__Label('PointCloudScenesTitle', 'Exported scenes')));
+        // THE WORKING VIEW'S SWITCHES. The title's checkbox is every scene at
+        // once; each scene row has its own. On screen only, for this session.
+        const head  = block('scenes-title', document.createElement('label'));
+        head.className = 'na-le-pc__scenes-head';
+        head.title     = Na__LePanelPc__Label('PointCloudWorkingAllHint', 'Show or hide every point cloud on screen while you work. The drawings, their PDFs and what is published do not change.');
+        const all = Na__LePanels__Input('checkbox', 'pc-working-all');
+        all.id = 'na-le-pc-' + (++Na__LePanelPc__IdSeed);
+        head.htmlFor = all.id;
+        head.appendChild(all);
+        const caption = document.createElement('span');
+        caption.textContent = Na__LePanelPc__Label('PointCloudScenesTitle', 'Exported scenes');
+        head.appendChild(caption);
         block('scenes', document.createElement('div'));
         block('reload', Na__LePanels__Button(Na__LePanelPc__Label('PointCloudReload', 'Reload Exports'), 'pc-reload'));
 
@@ -455,7 +494,10 @@
     // ------------------------------------------------------------
     function Na__LePanelPc__ViewportSentence(viewport, resolved) {
         const parts = [];
-        if (resolved.status === Na__LeVp2d__PC_HIDDEN) return Na__LePanelPc__Label('PointCloudHiddenNote', 'Hidden. Tick Show Point Cloud to draw it.');
+        if (resolved.status === Na__LeVp2d__PC_HIDDEN) return Na__LePanelPc__Label('PointCloudHiddenNote', 'Off in this drawing, so it neither shows nor prints. Tick Point Cloud in Render Composites to put it back.');
+        if (resolved.block && !Na__LeVp2d__PointCloudWorkingVisible(resolved.block.PointCloud__SceneId)) {
+            return Na__LePanelPc__Label('PointCloudWorkingOffNote', 'Off on screen while you work: tick it under Exported scenes to see it. The drawing still shows and prints it.');
+        }
         if (resolved.status !== Na__LeVp2d__PC_READY) {
             parts.push(resolved.message);
             if (resolved.status === Na__LeVp2d__PC_MISALIGNED && resolved.neededAzimuthDeg !== null) {
@@ -518,7 +560,6 @@
         rows.querySelectorAll('[data-na-control="pc-opacity"]').forEach((el) => { el.disabled = !attached || !Na__LePanels__IsEditable(); });
 
         const values = {
-            visible       : attached && block.PointCloud__Hidden !== true,
             lineworkOnTop : attached && block.PointCloud__LineworkOnTop === true,
             sync          : attached && typeof block.PointCloud__PinnedRevision !== 'string',
             datum         : attached && block.PointCloud__ShowDatum === true
@@ -536,7 +577,8 @@
         const status = rows.querySelector('[data-na-block="vp-status"]');
         status.hidden = !attached;
         status.textContent = attached ? Na__LePanelPc__ViewportSentence(viewport, resolved) : '';
-        status.classList.toggle('na-le-pc__note--warn', attached && resolved.status !== Na__LeVp2d__PC_READY && resolved.status !== Na__LeVp2d__PC_HIDDEN);
+        status.classList.toggle('na-le-pc__note--warn', attached && resolved.status !== Na__LeVp2d__PC_READY && resolved.status !== Na__LeVp2d__PC_HIDDEN
+            && Na__LeVp2d__PointCloudWorkingVisible(block.PointCloud__SceneId));
         const centre = rows.querySelector('[data-na-block="vp-centre"]');
         centre.hidden   = !attached;
         centre.disabled = resolved.status !== Na__LeVp2d__PC_READY || !Na__LePanels__IsEditable();
@@ -551,10 +593,19 @@
         const scenes = Na__PcStore__GetScenes(false);
         body.querySelector('[data-na-block="scenes-title"]').hidden = !scenes.length;
         list.innerHTML = '';
+        const listed = scenes.map((scene) => scene.Scene__Id);
+        const summary = Na__LeVp2d__PointCloudWorkingSummary(listed);
+        const all = body.querySelector('[data-na-control="pc-working-all"]');
+        if (all) { all.checked = summary === 'on'; all.indeterminate = summary === 'mixed'; }
         scenes.forEach((scene) => {
             const match = Na__LePanelPc__MatchFor(scene);
             const row   = document.createElement('div');
-            row.className = 'na-le-pc__scene';
+            const shown = Na__LeVp2d__PointCloudWorkingVisible(scene.Scene__Id);
+            row.className = 'na-le-pc__scene' + (shown ? '' : ' na-le-pc__scene--working-off');
+            const check = Na__LePanels__Input('checkbox', 'pc-working');
+            check.setAttribute('data-na-role', scene.Scene__Id);
+            check.checked = shown;
+            check.title   = Na__LePanelPc__Label('PointCloudWorkingHint', 'Show or hide this point cloud on screen while you work. Its drawings, their PDFs and what is published do not change.');
             const name = document.createElement('div');
             name.className   = 'na-le-pc__scene-name';
             name.textContent = scene.Scene__Name;
@@ -567,6 +618,7 @@
             const lays = match.pending ? Na__LePanelPc__Label('PointCloudChecking', 'Checking which drawing it lays on.')
                 : (match.kind ? Na__LePanelPc__Label('PointCloudLaysOn', 'Lays on {name}.').replace('{name}', match.label || '') : (match.why || ''));
             meta.textContent = Na__LePanelPc__Kind(scene) + '. ' + (when ? Na__LePanelPc__Label('PointCloudExported', 'Exported {when}.').replace('{when}', when) + ' ' : '') + lays;
+            row.appendChild(check);
             row.appendChild(name);
             row.appendChild(add);
             row.appendChild(meta);
@@ -586,8 +638,9 @@
         if (status === Na__PcStore__STATUS_READY && descriptor) {
             const count = Na__PcStore__GetScenes(false).length;
             const when  = Na__LePanelPc__When(descriptor.Store__ExportedIso);
-            line.textContent = Na__LePanelPc__Label('PointCloudStoreReady', '{count} point cloud scenes exported from SketchUp{when}.')
-                .replace('{count}', String(count)).replace('{when}', when ? ', last on ' + when : '');
+            line.textContent = Na__LePanelPc__Label('PointCloudStoreReady', '{count} point cloud {scenes} exported from SketchUp{when}.')
+                .replace('{count}', String(count)).replace('{scenes}', count === 1 ? 'scene' : 'scenes')
+                .replace('{when}', when ? ', last on ' + when : '');
         } else if (status === Na__PcStore__STATUS_EMPTY) {
             line.textContent = Na__LePanelPc__Label('PointCloudStoreEmpty', 'No point cloud exports for this project. Export them from SketchUp with TrueVision Sync, then Reload Exports.');
             line.title       = Na__PcStore__GetNote() || '';
@@ -608,6 +661,7 @@
         if (Na__LePanelPc__Wired) return;
         Na__LePanelPc__Wired = true;
         window.addEventListener(Na__PcStore__CHANGED_EVENT, () => { Na__LePanelPc__UpdateVisibility(); Na__LePanels__Refresh(Na__LePanelPc__ID); });
+        window.addEventListener(Na__LeVp2d__PC_WORKING_EVENT, () => Na__LePanels__Refresh(Na__LePanelPc__ID));
         window.addEventListener(Na__LeModel__CHANGED_EVENT, () => Na__LePanelPc__UpdateVisibility());   // <-- Folded, the section is not refreshed, but whether it shows still follows the selection
         window.addEventListener(Na__LeSurface__ZOOM_SETTLED_EVENT, (event) => {
             const zoom = event && event.detail ? event.detail.zoom : Na__LeSurface__GetZoom();
@@ -635,10 +689,15 @@
             const value = parseFloat(el.value);
             if (Number.isFinite(value)) Na__LePanelPc__Patch({ PointCloud__Opacity : Math.max(0, Math.min(100, value)) / 100 });
         });
+        Na__LePanels__OnControl('change', 'pc-working', (e, el, sceneId) => {          // <-- On screen only, never saved
+            if (sceneId) Na__LeVp2d__PointCloudSetWorkingVisible(sceneId, el.checked, Na__PcStore__GetScenes(false).map((scene) => scene.Scene__Id));
+        });
+        Na__LePanels__OnControl('change', 'pc-working-all', (e, el) => {
+            Na__LeVp2d__PointCloudSetAllWorkingVisible(el.checked);
+        });
         Na__LePanels__OnControl('change', 'pc-toggle', (e, el, role) => {
             const viewport = Na__LePanelPc__Selected();
             if (!viewport || !Na__LeModel__IsPointCloudViewport(viewport)) return;
-            if (role === 'visible')       Na__LePanelPc__Patch({ PointCloud__Hidden : el.checked ? null : true });
             if (role === 'lineworkOnTop') Na__LePanelPc__Patch({ PointCloud__LineworkOnTop : el.checked ? true : null });
             if (role === 'datum')         Na__LePanelPc__Patch({ PointCloud__ShowDatum : el.checked ? true : null });
             if (role === 'sync') {

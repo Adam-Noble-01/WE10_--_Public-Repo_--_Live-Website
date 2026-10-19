@@ -50,6 +50,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.3.0
+// - Scene Sync: the merged document is written without the synced SketchUp
+//   records (Na__SceneSync__StrippedCopy), whoever handed the keys over: the
+//   drawings save, the register, a retry of either.
+//
 // 22-Sep-2026 - Version 1.2.0
 // - DrawingsFingerprint: what the drawings block on disk is, from the local
 //   server's drawings-fingerprint route; unsupported on a server running from
@@ -86,6 +91,11 @@
         Na__AppUtils__GetProjectFolderFromUrl,
         Na__AppUtils__GetYearFromUrl
     } from './Na__AppUtils__ProjectLoader.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Scene Sync Records (a leaf: synced SketchUp records are never written)
+    // ------------------------------------------------------------
+    import { Na__SceneSync__StrippedCopy } from '../23__System__SceneSync/Na__SceneSync__Records__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -255,7 +265,7 @@
         }
 
         // WRITE | The saved keys over the file's own, through the local server
-        const merged  = Object.assign({}, onDisk, partialObject);
+        const merged  = Na__SceneSync__StrippedCopy(Object.assign({}, onDisk, partialObject));   // <-- Synced SketchUp records never reach the file
         const headers = {};
         if (options && options.drawingsBase !== undefined) headers[Na__LocalMirror__DrawingsBaseHeader] = options.drawingsBase || 'none';   // <-- null: the project had no drawings block when it was loaded
         return Na__LocalMirror__PostJson(place.writeUrl, place.origin, merged, headers);

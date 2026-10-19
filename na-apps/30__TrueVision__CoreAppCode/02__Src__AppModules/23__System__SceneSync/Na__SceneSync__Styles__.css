@@ -1,0 +1,88 @@
+/* =============================================================================
+   TRUEVISION3D - SCENE SYNC - STYLES
+   =============================================================================
+
+   FILE       : Na__SceneSync__Styles__.css
+   PURPOSE    : The Layout Editor's SketchUp Scenes panel (Scene Sync)
+   CREATED    : 19-Oct-2026
+
+   DESCRIPTION:
+   - Scene rows on the same grid as the Point Cloud Tools panel's: the name
+     and its buttons on one line, what it is and where it stands under them.
+   - A scene SketchUp no longer refreshes (switched off, deleted or detached
+     there, or detached here) reads quieter than one in step.
+
+   -----------------------------------------------------------------------------
+
+   DEVELOPMENT LOG:
+   19-Oct-2026 - Version 1.0.0
+   - Initial styles (Scene Sync, TrueVision v2.174.0).
+
+   ============================================================================= */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | SketchUp Scenes Panel
+   ----------------------------------------------------------------------------- */
+
+    .na-le-ss__scene {
+        display                            : grid;
+        grid-template-columns              : minmax(0, 1fr) auto;
+        gap                                : 2px 8px;
+        align-items                        : center;
+        padding                            : 6px 0;
+        border-top                         : 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .na-le-ss__scene:first-child {
+        border-top                         : none;
+    }
+
+    .na-le-ss__scene-name {
+        font-size                          : 12px;
+        font-weight                        : 600;
+        overflow                           : hidden;
+        text-overflow                      : ellipsis;
+        white-space                        : nowrap;
+    }
+
+    .na-le-ss__scene-actions {
+        display                            : flex;
+        gap                                : 4px;
+    }
+
+    .na-le-ss__scene-meta {
+        grid-column                        : 1 / -1;
+        font-size                          : 11px;
+        color                              : #6c757d;
+        line-height                        : 1.35;
+    }
+
+    .na-le-ss__scene-warn {
+        grid-column                        : 1 / -1;
+        font-size                          : 11px;
+        color                              : #8a5a00;
+        line-height                        : 1.35;
+    }
+
+    .na-le-ss__scene--frozen .na-le-ss__scene-name {
+        color                              : #8a929a;
+        font-weight                        : 400;
+    }
+
+    .na-le-btn.na-le-ss__detach--armed {
+        color                              : #ffffff;
+        background                         : #b42318;
+        border-color                       : #b42318;
+    }
+
+    .na-le-ss__selected {
+        font-weight                        : 600;
+    }
+
+    .na-le-ss__help {
+        font-size                          : 11px;
+        color                              : #6c757d;
+    }
+
+/* endregion ------------------------------------------------------------------- */

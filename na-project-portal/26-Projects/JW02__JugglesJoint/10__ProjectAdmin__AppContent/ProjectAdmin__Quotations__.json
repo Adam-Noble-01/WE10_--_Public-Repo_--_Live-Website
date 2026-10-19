@@ -5,7 +5,7 @@
             "quotationName": "Main Quote",
             "signatureRequired": true,
             "quotationDate": "03-Oct-2026",
-            "projectAddress": "Juggles Joint, Highfield Farm, West Willoughby, Lincolnshire, NG32 3SJ",
+            "projectAddress": "Jaws Joint, Highfield Farm, West Willoughby, Lincolnshire, NG32 3SJ",
             "projectDescription": "Drone photogrammetry survey, existing elevations, outline plan and whitecard 3D blockout model of the stone barn at Highfield Farm, to test its division into three homes. This work is a favour, so the total is £0. It still runs through the normal quotation system for two reasons. The hours are allocated in-house, so this job has a fixed budget of 40 hours within my schedule alongside every other project. And the value of the work is on record: each hour is priced at the full rate, and the Friends & Family Discount at the foot removes the whole amount. Anything beyond this scope would be quoted separately.",
             "clientDataStorage": "cloudflare-r2-encrypted",
             "status": "draft",
@@ -92,7 +92,7 @@
             },
             "additionalTerms": "The Friends & Family Discount covers the 40 hours set out above. Work beyond them will be quoted separately before it starts.",
             "createdDate": "03-Oct-2026 at 13:28",
-            "lastModified": "03-Oct-2026 at 13:28"
+            "lastModified": "19-Oct-2026 at 15:01"
         }
     ]
 }
