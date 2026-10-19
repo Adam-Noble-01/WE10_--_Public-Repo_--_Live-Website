@@ -1,0 +1,147 @@
+{
+  "PointCloudData__Schema": "TrueVision__PointCloudData__Manifest",
+  "PointCloudData__SchemaVersion": 1,
+  "PointCloudData__ExportedIso": "2026-10-19T12:39:28+0100",
+  "PointCloudData__ExporterVersion": "2.11.0",
+  "PointCloudData__CoordinateSystem": {
+    "Units": "metres",
+    "UpAxis": "Y",
+    "FromSketchUp": "SketchUp inches (x, y, z), Z up, become (x, z, -y) x 0.0254 metres, with no offset: the same as the GLB Builder models."
+  },
+  "PointCloudData__Scenes": [
+    {
+      "Scene__Id": "pcs_0ther111",
+      "Scene__Name": "From the proposed model",
+      "Scene__Status": "active",
+      "Scene__SourceStoreId": "pcss_000000000000",
+      "Scene__CurrentRevision": "Rev__abcdef0123"
+    },
+    {
+      "Scene__Id": "pcs_73792e75",
+      "Scene__Revisions": [
+        {
+          "Revision__Id": "Rev__8b7c9ab631",
+          "Revision__ExportedIso": "2026-10-19T12:39:25+0100",
+          "Revision__Manifest": "PointCloudScene__pcs_73792e75/Rev__8b7c9ab631/PointCloudScene__RevisionManifest__.json"
+        }
+      ],
+      "Scene__Name": "Front Detail",
+      "Scene__ViewType": "elevation",
+      "Scene__Projection": "orthographic",
+      "Scene__Scale": {
+        "Denominator": 10.0,
+        "Label": "1:10"
+      },
+      "Scene__DefaultOpacity": 0.65,
+      "Scene__Status": "active",
+      "Scene__SourceStoreId": "pcss_8162f610598a",
+      "Scene__SourceModel": "ZZ99_Existing",
+      "Scene__Folder": "PointCloudScene__pcs_73792e75",
+      "Scene__CurrentRevision": "Rev__8b7c9ab631",
+      "Scene__CurrentManifest": "PointCloudScene__pcs_73792e75/Rev__8b7c9ab631/PointCloudScene__RevisionManifest__.json",
+      "Scene__Preview": "PointCloudScene__pcs_73792e75/Rev__8b7c9ab631/PointCloudScene__Preview__.webp",
+      "Scene__UpdatedIso": "2026-10-19T12:39:28+0100"
+    },
+    {
+      "Scene__Id": "pcs_7d342e28",
+      "Scene__Revisions": [
+        {
+          "Revision__Id": "Rev__3b12b99254",
+          "Revision__ExportedIso": "2026-10-19T12:39:25+0100",
+          "Revision__Manifest": "PointCloudScene__pcs_7d342e28/Rev__3b12b99254/PointCloudScene__RevisionManifest__.json"
+        },
+        {
+          "Revision__Id": "Rev__99efbd9a1e",
+          "Revision__ExportedIso": "2026-10-19T12:39:26+0100",
+          "Revision__Manifest": "PointCloudScene__pcs_7d342e28/Rev__99efbd9a1e/PointCloudScene__RevisionManifest__.json"
+        }
+      ],
+      "Scene__Name": "Front Elevation",
+      "Scene__ViewType": "elevation",
+      "Scene__Projection": "orthographic",
+      "Scene__Scale": {
+        "Denominator": 50.0,
+        "Label": "1:50"
+      },
+      "Scene__DefaultOpacity": 0.65,
+      "Scene__Status": "active",
+      "Scene__SourceStoreId": "pcss_8162f610598a",
+      "Scene__SourceModel": "ZZ99_Existing",
+      "Scene__Folder": "PointCloudScene__pcs_7d342e28",
+      "Scene__CurrentRevision": "Rev__99efbd9a1e",
+      "Scene__CurrentManifest": "PointCloudScene__pcs_7d342e28/Rev__99efbd9a1e/PointCloudScene__RevisionManifest__.json",
+      "Scene__Preview": "PointCloudScene__pcs_7d342e28/Rev__99efbd9a1e/PointCloud__Tile__R00__C00__.webp",
+      "Scene__UpdatedIso": "2026-10-19T12:39:28+0100"
+    },
+    {
+      "Scene__Id": "pcs_fb6ee416",
+      "Scene__Revisions": [
+        {
+          "Revision__Id": "Rev__6da070d040",
+          "Revision__ExportedIso": "2026-10-19T12:39:25+0100",
+          "Revision__Manifest": "PointCloudScene__pcs_fb6ee416/Rev__6da070d040/PointCloudScene__RevisionManifest__.json"
+        },
+        {
+          "Revision__Id": "Rev__146c88cd1d",
+          "Revision__ExportedIso": "2026-10-19T12:39:28+0100",
+          "Revision__Manifest": "PointCloudScene__pcs_fb6ee416/Rev__146c88cd1d/PointCloudScene__RevisionManifest__.json"
+        }
+      ],
+      "Scene__Name": "Street View",
+      "Scene__ViewType": "view3d",
+      "Scene__Projection": "perspective",
+      "Scene__Scale": null,
+      "Scene__DefaultOpacity": 0.65,
+      "Scene__Status": "active",
+      "Scene__SourceStoreId": "pcss_8162f610598a",
+      "Scene__SourceModel": "ZZ99_Existing",
+      "Scene__Folder": "PointCloudScene__pcs_fb6ee416",
+      "Scene__CurrentRevision": "Rev__146c88cd1d",
+      "Scene__CurrentManifest": "PointCloudScene__pcs_fb6ee416/Rev__146c88cd1d/PointCloudScene__RevisionManifest__.json",
+      "Scene__Preview": "PointCloudScene__pcs_fb6ee416/Rev__146c88cd1d/PointCloud__Tile__R00__C00__.webp",
+      "Scene__UpdatedIso": "2026-10-19T12:39:28+0100"
+    },
+    {
+      "Scene__Id": "pcs_9f322302",
+      "Scene__Revisions": [
+        {
+          "Revision__Id": "Rev__abf7eb2d45",
+          "Revision__ExportedIso": "2026-10-19T12:39:25+0100",
+          "Revision__Manifest": "PointCloudScene__pcs_9f322302/Rev__abf7eb2d45/PointCloudScene__RevisionManifest__.json"
+        }
+      ],
+      "Scene__Name": "Ground Floor Plan",
+      "Scene__ViewType": "plan",
+      "Scene__Projection": "orthographic",
+      "Scene__Scale": {
+        "Denominator": 50.0,
+        "Label": "1:50"
+      },
+      "Scene__DefaultOpacity": 0.65,
+      "Scene__Status": "retired",
+      "Scene__SourceStoreId": "pcss_8162f610598a",
+      "Scene__SourceModel": "ZZ99_Existing",
+      "Scene__Folder": "PointCloudScene__pcs_9f322302",
+      "Scene__CurrentRevision": "Rev__abf7eb2d45",
+      "Scene__CurrentManifest": "PointCloudScene__pcs_9f322302/Rev__abf7eb2d45/PointCloudScene__RevisionManifest__.json",
+      "Scene__Preview": "PointCloudScene__pcs_9f322302/Rev__abf7eb2d45/PointCloud__Tile__R00__C00__.webp",
+      "Scene__UpdatedIso": "2026-10-19T12:39:26+0100"
+    }
+  ],
+  "PointCloudData__Datums": [
+    {
+      "Datum__Name": "Na__SurveyDatum__Benchmark__300mm",
+      "Datum__Tag": "01__Survey__DatumBenchmark",
+      "Datum__PositionSketchUpIn": [
+        12.000000001145821,
+        -104.77755904361958,
+        40.0
+      ],
+      "Datum__PositionM": [
+        0.30480000002910385,
+        1.016,
+        2.6613499997079373
+      ]
+    }
+  ]
+}

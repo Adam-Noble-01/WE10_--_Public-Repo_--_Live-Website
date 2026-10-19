@@ -41,6 +41,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.13.0 (TrueVision)
+// - Point cloud viewports (Viewport__PointCloud). A plan, elevation, section
+//   or site plan viewport that lays a SketchUp point cloud scene over its
+//   drawing prints it as one PNG of the frame at the export raster level,
+//   with the viewport's opacity in its alpha (Na__LeVp2d__PointCloudForExport),
+//   in the screen's order: over the linework and the fog by default, under
+//   the linework (and a site plan's fills and patterns) with Linework On Top.
+//   The datum symbol prints as vectors over both, under the scene markup. A
+//   point cloud that cannot be drawn is left out and never fails a strict
+//   export: it is cosmetic.
+//
 // 23-Sep-2026 - Version 1.12.0 (TrueVision)
 // - A site plan face prints as ONE holed polygon - its outer ring and its
 //   inner rings together, through Na__LeRings__FacesFromRings - so the wash
@@ -163,7 +174,7 @@
     import { Na__LeRings__FacesFromRings } from '../15__Core__Markup/Na__LayoutEditor__ShapeRings__.js';
     import { Na__LeMarkup__BuildScenePrimitives, Na__LeMarkup__BuildLayerPrimitives } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
     import { Na__LePaint__STEP_VIEWPORT, Na__LePaint__STEP_SHEET, Na__LePaint__Plan } from '../15__Core__Markup/Na__LayoutEditor__PaintOrder__.js';   // <-- The page is laid down in the Layers list's order, as the screen stacks it
-    import { Na__LeVp2d__Describe, Na__LeVp2d__EnsureLinework, Na__LeVp2d__RenderForExport, Na__LeVp2d__RenderFogForExport, Na__LeVp2d__StyleBands, Na__LeVp2d__SitePlanDrawing } from '../20__System__Viewports/Na__LayoutEditor__Viewport2d__.js';
+    import { Na__LeVp2d__Describe, Na__LeVp2d__EnsureLinework, Na__LeVp2d__RenderForExport, Na__LeVp2d__RenderFogForExport, Na__LeVp2d__StyleBands, Na__LeVp2d__SitePlanDrawing, Na__LeVp2d__PointCloudForExport } from '../20__System__Viewports/Na__LayoutEditor__Viewport2d__.js';
     import { Na__LeHatch__DrawPdf } from '../36__System__HatchPatternTools/Na__LayoutEditor__HatchPatterns__.js';
     import { Na__LeVp3d__RenderForExport, Na__LeVp3d__ExportRectMm } from '../20__System__Viewports/Na__LayoutEditor__Viewport3d__.js';
     import { Na__DrawData__GetProjectCode } from '../../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
@@ -390,6 +401,36 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | A Viewport's Point Cloud for the Page, or null (never throws)
+    // ------------------------------------------------------------
+    // Null for a viewport without one, which is nearly all of them, at the cost
+    // of one check. A point cloud that cannot be fetched is reported and left
+    // out: it is cosmetic, so it never fails an export, strict or not.
+    // ------------------------------------------------------------
+    async function Na__LePdf__PointCloud(viewport) {
+        if (!viewport || !viewport.Viewport__PointCloud) return null;
+        try {
+            return await Na__LeVp2d__PointCloudForExport(viewport);
+        } catch (error) {
+            console.warn('[TrueVision3D LayoutEditor] A point cloud was left out of the PDF.', error);
+            return null;
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Put a Point Cloud Picture, and Then Its Datum, on the Page
+    // ------------------------------------------------------------
+    function Na__LePdf__DrawPointCloud(doc, cloud, frame, options, withPicture) {
+        if (!cloud) return;
+        if (withPicture) Na__LePdf__AddPicture(doc, cloud.dataUrl, frame.X, frame.Y, frame.WidthMm, frame.HeightMm, options);
+    }
+    function Na__LePdf__DrawPointCloudDatum(doc, cloud, frame) {
+        if (cloud && cloud.datum && cloud.datum.length) Na__LeChrome__DrawToPdf(doc, Na__LePdf__Offset(cloud.datum, frame.X, frame.Y));
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Draw One Viewport
     // ------------------------------------------------------------
     // A TURNED VIEWPORT (Viewport__RotationDeg) is drawn exactly as a level one,
@@ -409,6 +450,8 @@
                 if (Na__LeModel__IsSitePlanViewport(viewport)) {                 // <-- Site plan data: its fills, then the same bands the sheet paints
                     const drawing = await Na__LeVp2d__SitePlanDrawing(viewport);
                     if (!drawing && options && options.strict) throw new Error('Site plan drawing could not be rendered.');
+                    const siteCloud = await Na__LePdf__PointCloud(viewport);      // <-- A Site Plan scene, laid as on a plan
+                    Na__LePdf__DrawPointCloud(doc, siteCloud, frame, options, !!(siteCloud && siteCloud.lineworkOnTop));   // <-- Linework On Top: under every deck
                     if (drawing) {
                         // THE SAME THREE DECKS THE SCREEN PAINTS, in the same
                         // order: wash, pattern, linework. The build has already
@@ -419,11 +462,17 @@
                         Na__LePdf__DrawSitePlanPatterns(doc, viewport, described, drawing.patterns);
                         if (drawing.paintLines !== false) Na__LePdf__DrawLinework(doc, sheet, viewport, described, drawing.classes, drawing.siteRules);
                     }
+                    Na__LePdf__DrawPointCloud(doc, siteCloud, frame, options, !!(siteCloud && !siteCloud.lineworkOnTop));  // <-- By default: over every deck
+                    Na__LePdf__DrawPointCloudDatum(doc, siteCloud, frame);
                     return;
                 }
                 if (!described.definition) { if (options && options.strict) throw new Error('A viewport drawing source is missing.'); return; }
                 const underlay = await Na__LeVp2d__RenderForExport(viewport);
                 if (underlay && underlay.dataUrl) Na__LePdf__AddPicture(doc, underlay.dataUrl, frame.X, frame.Y, frame.WidthMm, frame.HeightMm, options);
+                // POINT CLOUD | Where the screen stacks it: under the linework with
+                // Linework On Top, otherwise over the linework and the fog.
+                const cloud = await Na__LePdf__PointCloud(viewport);
+                Na__LePdf__DrawPointCloud(doc, cloud, frame, options, !!(cloud && cloud.lineworkOnTop));
                 if (viewport.Viewport__Styles.projectedLinework !== false) {
                     const classes = await Na__LeVp2d__EnsureLinework(described.definition, null, false, described.modelSource);   // <-- The viewport's own design phase
                     if (classes) Na__LePdf__DrawLinework(doc, sheet, viewport, described, classes);
@@ -440,6 +489,8 @@
                 // over the whole drawing.
                 const fog = await Na__LeVp2d__RenderFogForExport(viewport);
                 if (fog && fog.dataUrl) Na__LePdf__AddPicture(doc, fog.dataUrl, frame.X, frame.Y, frame.WidthMm, frame.HeightMm, options);
+                Na__LePdf__DrawPointCloud(doc, cloud, frame, options, !!(cloud && !cloud.lineworkOnTop));
+                Na__LePdf__DrawPointCloudDatum(doc, cloud, frame);
                 if (viewport.Viewport__MarkupMode === 'scene') {
                     Na__LeChrome__DrawToPdf(doc, Na__LePdf__Offset(Na__LeMarkup__BuildScenePrimitives(described), frame.X, frame.Y));
                 }

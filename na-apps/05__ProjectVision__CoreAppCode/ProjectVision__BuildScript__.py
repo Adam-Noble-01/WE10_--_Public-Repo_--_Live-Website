@@ -66,6 +66,8 @@ SITEPLAN_STORES = [                                               # A project ma
     {'id': 'proposed', 'label': 'Proposed Site Plan', 'folder': SITEPLAN_FOLDER_NAME, 'legacy': True},
 ]
 SITEPLAN_MANIFEST_FILENAME = 'TrueVision__SitePlanData__Manifest__.json'
+POINTCLOUD_FOLDER_NAME = 'PointCloud__ViewportData'                # TrueVision point cloud store (GLB Builder 2.11+): never a design phase
+POINTCLOUD_MANIFEST_FILENAME = 'TrueVision__PointCloudData__Manifest__.json'
 SITEPLAN_FILE_PATTERN = re.compile(r'^(?:.*?__)?(TrueVision__SitePlan__[A-Za-z0-9]+)__(LineworkModel|FillModel)__\.glb$', re.IGNORECASE)
 PLANVISION_CONTENT_FOLDER = '20__PlanVision__AppContent'
 PLANVISION_DATA_FILENAME  = 'PlanVision__ProjectData__.json'
@@ -424,6 +426,8 @@ def discover_truevision_model_groups(project_path, year_folder_name, project_fol
             continue
         if entry.startswith(SITEPLAN_FOLDER_PREFIX):
             continue                                                   # Site plan data is its own store (SitePlan__DataStores), not a design phase
+        if entry.startswith(POINTCLOUD_FOLDER_NAME):
+            continue                                                   # Point cloud images are their own store (PointCloud__DataStore), not a design phase
 
         glb_files = sorted([
             f for f in os.listdir(entry_path)
@@ -583,6 +587,43 @@ def discover_truevision_siteplan_stores(project_path, year_folder_name, project_
     return stores
 
 
+def discover_truevision_pointcloud_store(project_path, year_folder_name, project_folder):
+    """Describe the project's point cloud store for TrueVision (the build-owned PointCloud__DataStore key).
+
+    The GLB Builder's point cloud export writes PointCloud__ViewportData/: one folder per point cloud
+    scene, one sub-folder per revision (WebP tiles, a preview and a revision manifest), and the store
+    manifest, TrueVision__PointCloudData__Manifest__.json, which lists every scene and its current
+    revision. TrueVision reads that manifest from this key's URL and loads nothing else until a point
+    cloud viewport needs it. Returns None when the store has no readable manifest.
+    """
+    store_path = os.path.join(project_path, TRUEVISION_CONTENT_FOLDER, POINTCLOUD_FOLDER_NAME)
+    manifest_path = os.path.join(store_path, POINTCLOUD_MANIFEST_FILENAME)
+    if not os.path.isfile(manifest_path):
+        return None
+    try:
+        with open(manifest_path, 'r', encoding='utf-8') as f:
+            manifest = json.load(f)
+    except (json.JSONDecodeError, OSError) as error:
+        print(f'  [WARNING] {project_folder}: point cloud manifest unreadable, store not published ({error})')
+        return None
+    if not isinstance(manifest, dict) or manifest.get('PointCloudData__Schema') != 'TrueVision__PointCloudData__Manifest':
+        print(f'  [WARNING] {project_folder}: {POINTCLOUD_MANIFEST_FILENAME} is not a point cloud manifest, store not published')
+        return None
+
+    scenes = [row for row in manifest.get('PointCloudData__Scenes', []) if isinstance(row, dict)]
+    base_url = (
+        f"{CDN_BASE_URL}/{R2_BASE_PREFIX}/{year_folder_name}/{project_folder}"
+        f"/{TRUEVISION_CONTENT_FOLDER}/{POINTCLOUD_FOLDER_NAME}"
+    )
+    return {
+        'PointCloud__FolderName'  : POINTCLOUD_FOLDER_NAME,
+        'PointCloud__BaseUrl'     : base_url,
+        'PointCloud__ManifestUrl' : f'{base_url}/{POINTCLOUD_MANIFEST_FILENAME}',
+        'PointCloud__ExportedIso' : manifest.get('PointCloudData__ExportedIso'),
+        'PointCloud__SceneCount'  : sum(1 for row in scenes if row.get('Scene__Status') == 'active'),
+    }
+
+
 def parse_group_label(group_id):
     """Convert a folder name like DesignPhase01__ConceptDesign__ExistingBuilding to a label."""
     parts = group_id.split('__')
@@ -596,7 +637,7 @@ def parse_group_label(group_id):
     return label
 
 
-def generate_truevision_project_data(project_code, project_name, model_groups, siteplan_stores=None):
+def generate_truevision_project_data(project_code, project_name, model_groups, siteplan_stores=None, pointcloud_store=None):
     """Build the TrueVision__ProjectData__.json structure for a project."""
     data = {
         'projectCode'      : project_code,
@@ -621,6 +662,9 @@ def generate_truevision_project_data(project_code, project_name, model_groups, s
         legacy = next((s for s in stores if s.get('SitePlan__StoreId') == 'proposed'), None)
         if legacy:
             data['SitePlan__DataStore'] = legacy
+    # Build-owned too: the point cloud store, when the project has one.
+    if pointcloud_store:
+        data['PointCloud__DataStore'] = pointcloud_store
     return data
 
 
@@ -1178,10 +1222,13 @@ def main():
         siteplan_stores = discover_truevision_siteplan_stores(
             proj['folderPath'], year_folder_name, proj['projectFolder']
         )
+        pointcloud_store = discover_truevision_pointcloud_store(
+            proj['folderPath'], year_folder_name, proj['projectFolder']
+        )
 
-        if model_groups or siteplan_stores:
+        if model_groups or siteplan_stores or pointcloud_store:
             tv_data = generate_truevision_project_data(
-                proj['projectCode'], proj['projectName'], model_groups, siteplan_stores
+                proj['projectCode'], proj['projectName'], model_groups, siteplan_stores, pointcloud_store
             )
             if args.dry_run_check:
                 output_path = os.path.join(proj['folderPath'], TRUEVISION_CONTENT_FOLDER, 'TrueVision__ProjectData__.json')

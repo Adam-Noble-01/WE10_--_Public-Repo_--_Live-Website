@@ -6,6 +6,42 @@
 
 # -----------------------------------------------------------------------------
 
+## Project Vision - Version 0.5.2 - 19-Oct-2026
+
+### Added - Point cloud scenes from SketchUp reach TrueVision: the build registers the store, the sync uploads it
+
+#### Why
+- TrueVision Sync (GLB Builder 2.11) exports point cloud scenes from the Point Cloud Viewer into
+  `30__TrueVision__AppContent/PointCloud__ViewportData/`: one folder per scene, one `Rev__<10 hex>`
+  folder per export (WebP tiles, a preview, a revision manifest), and the store manifest
+  `TrueVision__PointCloudData__Manifest__.json`. TrueVision's point cloud viewports (v2.173.0) read
+  it from the CDN, so the build has to say where it is and the sync has to put it there.
+
+#### Build (`ProjectVision__BuildScript__.py`)
+- `discover_truevision_pointcloud_store` reads the store manifest (a file that does not say it is
+  one is not published) and returns `PointCloud__DataStore`: folder name, CDN base and manifest URL,
+  export time and the number of active scenes. `generate_truevision_project_data` writes it as a
+  build-owned key; a project without a store gets no key, so every older project's data is
+  unchanged.
+- The store folder is never mistaken for a design phase's model group.
+
+#### R2 sync (`CloudflareR2__ModelSync__Main__.py`)
+- `discover_pointcloud_files` collects the store's WebP and JSON files, never a `00__` folder (the
+  export's staging), in a safe order: every picture, then every revision manifest, then the store
+  manifest LAST, so a reader never sees a manifest naming files not yet uploaded.
+- `collect_pointcloud_sync_operations` decides new, update or skip from ONE listing of the store's
+  prefix (no request per tile) and never deletes: a revision is kept so a TrueVision viewport pinned
+  to it keeps working. These operations go first in the project's queue.
+- The store folder is never treated as a GLB model group, so the GLB mirror rules (which delete) do
+  not reach it.
+
+#### Tested
+- Offline against a real export (scratch project ZZ99, no network, a fake S3 client): 15 checks,
+  covering the CDN URL, the scene count, the upload order, the staging folder skipped, the single
+  listing, and no deletes.
+
+# -----------------------------------------------------------------------------
+
 ## Project Vision - Version 0.5.1 - 10-Oct-2026
 
 ### Fixed - The installed Studio hid its sub-app buttons under Edge's title bar buttons

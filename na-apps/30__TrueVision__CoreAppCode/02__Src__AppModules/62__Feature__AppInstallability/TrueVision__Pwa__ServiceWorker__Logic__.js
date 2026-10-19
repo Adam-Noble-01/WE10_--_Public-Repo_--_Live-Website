@@ -34,6 +34,21 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.10.0
+// - Token BUMPED to 2026-10-19-01 for point cloud viewports (v2.173.0).
+//   2026-09-29-03 is live (origin/main is 1f7a64a), and this release adds
+//   exports to modules a warm client holds - Viewport2d (the PointCloud unit's
+//   API), the sheet model (IsPointCloudViewport) - which new modules import:
+//   the PDF exporter, the Point Cloud Tools panel and the mode controller.
+// - A bucket of their own for point cloud TILES, tv-pointcloud-vN, cache first
+//   and capped at 96: .../PointCloud__ViewportData/PointCloudScene__<id>/
+//   Rev__<10 hex>/<file>.webp. A revision folder is content addressed - a new
+//   export from SketchUp is a new folder - so a cached tile is never stale,
+//   and the tiles are megabytes each, which the uncapped shell bucket (where
+//   the generic .webp shell pattern sent them) must never hold. Tested BEFORE
+//   the shell pattern, as the sheet images are. The manifests stay 'data',
+//   network first: the store manifest is the one file a new export rewrites.
+//
 // 29-Sep-2026 - Version 1.9.54
 // - Token BUMPED to 2026-09-29-03: the stale-while-revalidate refresh now
 //   revalidates with the server - fetch(request, { cache: 'no-cache' }) -
@@ -679,17 +694,19 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-29-03';                                                            // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-10-19-01';                                                            // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id
     const PWA_SW_CACHE_NAME_VENDOR          = `tv-vendor-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Third-party ES module cache id
     const PWA_SW_CACHE_NAME_IMAGES          = `tv-images-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Layout Editor sheet pictures cache id
     const PWA_SW_CACHE_NAME_PUBLISHED       = `tv-published-${PWA_SW_VERSION_TOKEN}`;                                                // <-- Published drawings: baked pictures, linework and fog masks
-    const PWA_SW_CACHE_PREFIXES_OWNED       = ['tv-shell-', 'tv-data-', 'tv-models-', 'tv-vendor-', 'tv-images-', 'tv-published-'];  // <-- Owned prefixes, used for cleanup
+    const PWA_SW_CACHE_NAME_POINTCLOUD      = `tv-pointcloud-${PWA_SW_VERSION_TOKEN}`;                                               // <-- Point cloud viewport tiles from SketchUp (content addressed)
+    const PWA_SW_CACHE_PREFIXES_OWNED       = ['tv-shell-', 'tv-data-', 'tv-models-', 'tv-vendor-', 'tv-images-', 'tv-published-', 'tv-pointcloud-'];  // <-- Owned prefixes, used for cleanup
     const PWA_SW_MODELS_MAX_ENTRIES         = 80;                                                                                    // <-- LRU cap on the model bucket
     const PWA_SW_IMAGES_MAX_ENTRIES         = 160;                                                                                   // <-- LRU cap on the sheet pictures bucket
     const PWA_SW_PUBLISHED_MAX_ENTRIES      = 240;                                                                                   // <-- LRU cap on the published drawings bucket
+    const PWA_SW_POINTCLOUD_MAX_ENTRIES     = 96;                                                                                    // <-- LRU cap on the point cloud tiles bucket (2048 px WebP tiles, about 1 MB each)
     const PWA_SW_MODELS_NETWORK_TIMEOUT_MS  = 4000;                                                                                  // <-- Slow-network grace before serving cache
     // ------------------------------------------------------------
 
@@ -705,6 +722,7 @@
     const PWA_SW_PATTERN_SHEET_IMAGE        = /\/05__Layout__DrawingDocs__Images\/[^/]+\/[^/]+\.(webp|jpe?g|png)(\?.*)?$/i;          // <-- Pictures placed on sheets (immutable: the name carries the content hash)
     const PWA_SW_PATTERN_PUBLISHED_ASSET    = /\/06__Layout__PublishedDocuments\/.+__[0-9a-f]{10}\.(svg|webp|png)(\?.*)?$/i;       // <-- Baked viewport files and shared images (immutable: the name carries the content hash)
     const PWA_SW_PATTERN_PUBLISHED_DATA     = /\/06__Layout__PublishedDocuments\/.+\.json(\?.*)?$/i;                               // <-- The index, manifests, sheets and element files (fixed names, changed by a re-publish)
+    const PWA_SW_PATTERN_POINTCLOUD_TILE    = /\/PointCloud__ViewportData\/PointCloudScene__[^/]+\/Rev__[0-9a-f]{10}\/[^/]+\.webp(\?.*)?$/i;   // <-- Point cloud tiles and previews (immutable: the revision folder is content addressed)
     // ------------------------------------------------------------
 
 
@@ -857,6 +875,12 @@
         // is left to the browser, because a phone's cache quota is not the place
         // for a document it downloads once.
         if (PWA_SW_PATTERN_PUBLISHED_ASSET.test(requestUrl)) return 'published-asset';                                              // <-- Content-hashed: download once
+
+        // Point cloud tiles, BEFORE the shell pattern too: a revision folder is
+        // content addressed, so a tile is downloaded once, into a capped bucket of
+        // its own. Its manifests are .json and stay 'data' - the store manifest
+        // is rewritten by every export and must be asked of the network.
+        if (PWA_SW_PATTERN_POINTCLOUD_TILE.test(requestUrl)) return 'pointcloud-tile';                                               // <-- Content addressed: download once
         if (PWA_SW_PATTERN_PUBLISHED_DATA.test(requestUrl))  return 'published-data';                                               // <-- Fixed names: network first
 
         if (PWA_SW_PATTERN_DATA_JSON.test(requestUrl)) return 'data';                                                               // <-- Project data or app config
@@ -1128,6 +1152,13 @@
         if (classification === 'published-asset') {
             fetchEvent.respondWith(TrueVision__Pwa__ServiceWorker__Logic__CacheFirstCapped(                                         // <-- Content-hashed: download once, keep the bucket capped
                 request, PWA_SW_CACHE_NAME_PUBLISHED, PWA_SW_PUBLISHED_MAX_ENTRIES
+            ));
+            return;
+        }
+
+        if (classification === 'pointcloud-tile') {
+            fetchEvent.respondWith(TrueVision__Pwa__ServiceWorker__Logic__CacheFirstCapped(                                         // <-- Content addressed: download once, keep the bucket capped
+                request, PWA_SW_CACHE_NAME_POINTCLOUD, PWA_SW_POINTCLOUD_MAX_ENTRIES
             ));
             return;
         }

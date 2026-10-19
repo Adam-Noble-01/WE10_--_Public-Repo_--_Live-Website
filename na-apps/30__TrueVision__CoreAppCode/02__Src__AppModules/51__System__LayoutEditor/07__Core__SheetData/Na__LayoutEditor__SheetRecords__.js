@@ -33,6 +33,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.40.0 (TrueVision)
+// - Viewport__PointCloud on the viewport record: a point cloud scene exported
+//   from SketchUp, laid over or under a 2D viewport's linework
+//   (22__System__PointCloudData): a plan, elevation, section or site plan.
+//   Kept only on a 2D viewport, and only while it names a scene. Opacity, Linework On Top, a
+//   pinned revision (SketchUp Sync off), Show Datum and Hidden are each stored
+//   only when they differ from the default, so a viewport without a point
+//   cloud carries no key and every record from before is unchanged.
+//   IsPointCloudViewport reads it.
+//
 // 23-Sep-2026 - Version 1.39.0
 // - Dimension__LinePt and Dimension__LineStyle: a dimension's own line weight
 //   in points and its dashed, dotted or dash-dot lines (the Dimensions
@@ -432,6 +442,8 @@
     const Na__LeRec__DRAWING_ARCHITECTURAL = 'architectural';                   // <-- A sheet with no Sheet__DrawingType
     const Na__LeRec__DRAWING_SITEPLAN      = 'siteplan';                        // <-- The only drawing type ever stored
     const Na__LeRec__SITEPLAN_CATEGORY_PREFIX = 'TrueVision__SitePlan__';       // <-- Category keys of site plan layers (the export's stems)
+    const Na__LeRec__POINTCLOUD_SCENE_ID  = /^[A-Za-z0-9_-]{1,64}$/;            // <-- The SketchUp side's own scene id (pcs_ and eight hex digits), never a name
+    const Na__LeRec__POINTCLOUD_REVISION  = /^Rev__[0-9a-f]{10}$/;              // <-- One export of a scene: its folder name, content addressed
     // ------------------------------------------------------------
 
     // MODULE CONSTANTS | The Layer Stack
@@ -916,6 +928,57 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Does This Viewport Lay a Point Cloud Scene Over Its Drawing (Viewport__PointCloud)
+    // ------------------------------------------------------------
+    function Na__LeRec__IsPointCloudViewport(viewport) {
+        const block = viewport ? viewport.Viewport__PointCloud : null;
+        return !!block && typeof block === 'object' && !Array.isArray(block)
+            && typeof block.PointCloud__SceneId === 'string' && block.PointCloud__SceneId !== '';
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Keep a Point Cloud Block Only Where It Means Something
+    // ------------------------------------------------------------
+    // { PointCloud__SceneId, PointCloud__Opacity, PointCloud__LineworkOnTop,
+    //   PointCloud__PinnedRevision, PointCloud__ShowDatum, PointCloud__Hidden }
+    // A 2D viewport only - a plan, an elevation, a section or a site plan - as
+    // a 3D viewport has no drawing plane to lay a picture on. A site plan is
+    // drawn in world X and Z millimetres exactly as a plan is, so a Plan or
+    // Site Plan scene lays on either. The block is REBUILT from the keys named
+    // here, so a key set back to its default leaves no trace:
+    //   Opacity        kept once somebody has set it; absent, the viewport
+    //                  follows the opacity the scene was exported with
+    //   LineworkOnTop  kept only as true; absent, the point cloud is on top
+    //   PinnedRevision SketchUp Sync switched OFF: the viewport keeps drawing
+    //                  that one export, whatever is exported after it
+    //   ShowDatum      kept only as true
+    //   Hidden         kept only as true: the scene stays attached, undrawn
+    // ------------------------------------------------------------
+    function Na__LeRec__NormalisePointCloud(viewport) {
+        const block = viewport.Viewport__PointCloud;
+        const id    = (block && typeof block === 'object' && !Array.isArray(block) && typeof block.PointCloud__SceneId === 'string')
+            ? block.PointCloud__SceneId.trim()
+            : '';
+        if (!Na__LeRec__POINTCLOUD_SCENE_ID.test(id) || viewport.Viewport__Kind !== Na__LeRec__KIND_2D) {
+            delete viewport.Viewport__PointCloud;
+            return;
+        }
+        const kept = { PointCloud__SceneId : id };
+        if (typeof block.PointCloud__Opacity === 'number' && Number.isFinite(block.PointCloud__Opacity)) {
+            kept.PointCloud__Opacity = Math.round(Na__LeRec__Unit(block.PointCloud__Opacity, 1) * 100) / 100;
+        }
+        if (block.PointCloud__LineworkOnTop === true) kept.PointCloud__LineworkOnTop = true;
+        if (typeof block.PointCloud__PinnedRevision === 'string' && Na__LeRec__POINTCLOUD_REVISION.test(block.PointCloud__PinnedRevision)) {
+            kept.PointCloud__PinnedRevision = block.PointCloud__PinnedRevision;
+        }
+        if (block.PointCloud__ShowDatum === true) kept.PointCloud__ShowDatum = true;
+        if (block.PointCloud__Hidden === true) kept.PointCloud__Hidden = true;
+        viewport.Viewport__PointCloud = kept;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Fill a Viewport Record's Defaults
     // ------------------------------------------------------------
     function Na__LeRec__NormaliseViewport(viewport, defaultLayerId) {
@@ -947,6 +1010,10 @@
             delete viewport.Viewport__SitePlan;
             delete viewport[Na__LeHatch__FIELD];                                 // <-- A hatch has no meaning off a site plan viewport
         }
+        // POINT CLOUD | A SketchUp point cloud scene laid over this viewport's
+        // drawing (22__System__PointCloudData). After the kind is settled, so a
+        // 3D viewport loses the block.
+        Na__LeRec__NormalisePointCloud(viewport);
         // MODEL SOURCE | The design phase drawn: a model group's groupId, or null
         // for the Project Default (Na__LayoutEditor__ModelSource__). An id the
         // project does not have is kept as written, so a phase folder put back
@@ -1732,6 +1799,7 @@
         Na__LeRec__DRAWING_SITEPLAN,
         Na__LeRec__IsSitePlanSheet,
         Na__LeRec__IsSitePlanViewport,
+        Na__LeRec__IsPointCloudViewport,
         Na__LeRec__NormaliseShape,
         Na__LeRec__NormaliseShapeArea,
         Na__LeRec__NormaliseShapeImage,

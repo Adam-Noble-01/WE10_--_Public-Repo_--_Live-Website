@@ -1,0 +1,153 @@
+{
+  "Revision__Schema": "TrueVision__PointCloudScene__Revision",
+  "Revision__SchemaVersion": 1,
+  "Revision__Id": "Rev__6da070d040",
+  "Revision__Key": "6da070d040",
+  "Revision__ExportedIso": "2026-10-19T12:39:25+0100",
+  "Revision__Exporter": {
+    "GlbBuilder": "2.11.0",
+    "PointCloudViewer": "0.9.0"
+  },
+  "Project__Code": "ZZ99",
+  "Scene__Id": "pcs_fb6ee416",
+  "Scene__Name": "Street View",
+  "Scene__ViewType": "view3d",
+  "Scene__Projection": "perspective",
+  "Scene__Scale": null,
+  "Scene__DefaultOpacity": 0.65,
+  "Camera": {
+    "Projection": "perspective",
+    "SketchUp": {
+      "Units": "inches",
+      "UpAxis": "Z",
+      "Eye": [
+        -628.5196850387981,
+        -1001.7775590436196,
+        138.99015748031502
+      ],
+      "Target": [
+        1.1458212156867376e-09,
+        1.8333125240133086e-08,
+        78.990157480315
+      ],
+      "Up": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "XAxis": [
+        0.8470816440700445,
+        -0.531462781650409,
+        0.0
+      ],
+      "YAxis": [
+        0.026928977124962828,
+        0.042921241155026,
+        0.9987154736203475
+      ],
+      "ZAxis": [
+        0.5307801036875757,
+        0.8459935453525173,
+        -0.050669544612959264
+      ],
+      "Perspective": true,
+      "AspectRatio": 0.0,
+      "FovDeg": 35.0,
+      "FovIsHeight": true
+    },
+    "ThreeJs": {
+      "Units": "metres",
+      "UpAxis": "Y",
+      "Position": [
+        -15.96439999998547,
+        3.530350000000001,
+        25.445149999707937
+      ],
+      "Target": [
+        2.9103858878443133e-11,
+        2.006350000000001,
+        -4.656613810993804e-10
+      ],
+      "Up": [
+        0.026928977124962828,
+        0.9987154736203475,
+        -0.042921241155026
+      ],
+      "Right": [
+        0.8470816440700445,
+        0.0,
+        0.531462781650409
+      ],
+      "Direction": [
+        0.5307801036875757,
+        -0.050669544612959264,
+        -0.8459935453525173
+      ],
+      "FovVerticalDeg": 35.0,
+      "Aspect": 1.7777777777777777
+    }
+  },
+  "Frame": {
+    "Kind": "perspective",
+    "WidthPx": 1200,
+    "HeightPx": 675,
+    "Aspect": 1.7777777777777777,
+    "FovVerticalDeg": 35.0
+  },
+  "Image": {
+    "Format": "webp",
+    "Quality": 90,
+    "WidthPx": 1200,
+    "HeightPx": 675,
+    "TileSizePx": 2048,
+    "PointSizePx": 2,
+    "Tiles": [
+      {
+        "Row": 0,
+        "Col": 0,
+        "X": 0,
+        "Y": 0,
+        "W": 1200,
+        "H": 675,
+        "File": "PointCloud__Tile__R00__C00__.webp",
+        "Bytes": 18374
+      }
+    ],
+    "Preview": {
+      "File": "PointCloud__Tile__R00__C00__.webp",
+      "WidthPx": 1200,
+      "HeightPx": 675,
+      "Factor": 1,
+      "Bytes": 0
+    },
+    "RenderMs": 31
+  },
+  "PointCloud": {
+    "FileName": "room_source.las",
+    "ContentKey": "b8dedf156bd3445a",
+    "TotalPoints": 380131,
+    "PointBudget": 380131,
+    "ColourMode": "rgb",
+    "Clip": null
+  },
+  "Datums": [
+    {
+      "Datum__Name": "Na__SurveyDatum__Benchmark__300mm",
+      "Datum__Tag": "01__Survey__DatumBenchmark",
+      "Datum__PositionSketchUpIn": [
+        12.000000001145821,
+        -104.77755904361958,
+        40.0
+      ],
+      "Datum__PositionM": [
+        0.30480000002910385,
+        1.016,
+        2.6613499997079373
+      ],
+      "Datum__ImagePixel": [
+        663.856,
+        379.308
+      ]
+    }
+  ]
+}

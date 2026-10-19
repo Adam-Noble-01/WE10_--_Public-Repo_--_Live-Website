@@ -133,6 +133,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.36.0 (TrueVision)
+// - Re-exports IsPointCloudViewport from the Viewports unit: a 2D viewport
+//   that lays a SketchUp point cloud scene over its drawing
+//   (Viewport__PointCloud, 22__System__PointCloudData).
+//
 // 22-Sep-2026 - Version 1.35.1
 // - Comments only: the MarginNotes record lists LeaderlessOn and
 //   LeaderlessGroups (Leaderless Notes, v2.147.0). The Sheets unit's
@@ -498,6 +503,7 @@
         Na__LeModel__GetViewports,
         Na__LeModel__GetViewportById,
         Na__LeModel__IsSitePlanViewport,
+        Na__LeModel__IsPointCloudViewport,
         Na__LeModel__CreateViewport,
         Na__LeModel__InsertViewport,
         Na__LeModel__DeleteViewport,
@@ -804,6 +810,7 @@
         Na__LeModel__ReorderSheet,
         Na__LeModel__IsSitePlanSheet,
         Na__LeModel__IsSitePlanViewport,
+        Na__LeModel__IsPointCloudViewport,
         Na__LeModel__GetFields,
         Na__LeModel__GetDrawingNumber,
         Na__LeModel__GetPhase,

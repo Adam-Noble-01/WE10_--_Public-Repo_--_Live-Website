@@ -1,0 +1,127 @@
+/* =============================================================================
+   TRUEVISION3D - LAYOUT EDITOR - POINT CLOUD VIEWPORTS - STYLES
+   =============================================================================
+
+   FILE    : Na__LayoutEditor__Styles__PointCloud__.css
+   PURPOSE : A point cloud scene's layer in a 2D frame (its tiles, the datum
+             symbol and the badge that says why nothing is drawn), and the
+             Point Cloud Tools panel's rows.
+   CREATED : 19-Oct-2026
+   AUTHOR  : Adam Noble - Noble Architecture
+
+   NOTES:
+   - No z-index anywhere in the frame: it stacks in DOM order, and
+     Na__LayoutEditor__Viewport2d__PointCloud__ puts the layer over the
+     linework (or under it, with Linework On Top) and the datum just under
+     the markup. A z-index here would undo that order.
+   - Each tile is an <img> placed by a CSS matrix() from its own pixels, so
+     its box is its pixel size and transform-origin must be its top left.
+   - Draft mode (K) hides the pictures with every other raster; the datum is
+     a vector and stays.
+
+   ============================================================================= */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | The Frame Layer
+   ----------------------------------------------------------------------------- */
+
+    .na-le-frame__pointcloud {
+        position                           : absolute;
+        inset                              : 0;
+        overflow                           : hidden;
+        pointer-events                     : none;
+    }
+
+    .na-le-frame__pointcloud-tile {
+        position                           : absolute;
+        top                                : 0;
+        left                               : 0;
+        display                            : block;
+        max-width                          : none;
+        max-height                         : none;
+        transform-origin                   : 0 0;
+        pointer-events                     : none;
+        user-select                        : none;
+        image-rendering                    : auto;
+    }
+
+    .na-le-frame__pointcloud-tile[hidden] {
+        display                            : none;
+    }
+
+    .na-le-frame__pointcloud-datum {
+        position                           : absolute;
+        inset                              : 0;
+        pointer-events                     : none;
+    }
+
+    .na-le-frame__pointcloud-note {
+        position                           : absolute;
+        left                               : 6px;
+        bottom                             : 6px;
+        max-width                          : calc(100% - 12px);
+        padding                            : 3px 8px;
+        border-radius                      : 4px;
+        background                         : rgba(120, 24, 24, 0.86);
+        color                              : #ffffff;
+        font-size                          : 10px;
+        line-height                        : 1.3;
+        white-space                        : normal;
+        pointer-events                     : none;
+        z-index                            : 4;
+    }
+
+    .na-le-frame__pointcloud-note[hidden] {
+        display                            : none;
+    }
+
+    body.na-le-draft .na-le-frame__pointcloud {
+        display                            : none !important;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | Point Cloud Tools Panel
+   ----------------------------------------------------------------------------- */
+
+    .na-le-pc__scene {
+        display                            : grid;
+        grid-template-columns              : 1fr auto;
+        gap                                : 2px 8px;
+        align-items                        : center;
+        padding                            : 6px 0;
+        border-top                         : 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .na-le-pc__scene:first-child {
+        border-top                         : none;
+    }
+
+    .na-le-pc__scene-name {
+        font-size                          : 12px;
+        font-weight                        : 600;
+        overflow                           : hidden;
+        text-overflow                      : ellipsis;
+        white-space                        : nowrap;
+    }
+
+    .na-le-pc__scene-meta {
+        grid-column                        : 1 / -1;
+        font-size                          : 11px;
+        color                              : #6c757d;
+        line-height                        : 1.35;
+    }
+
+    .na-le-pc__scene--retired .na-le-pc__scene-name {
+        color                              : #8a929a;
+        font-weight                        : 400;
+    }
+
+    .na-le-pc__note--warn {
+        color                              : #8a1c1c;
+    }
+
+/* endregion ------------------------------------------------------------------- */

@@ -47,6 +47,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.33.0
+// - Registers Point Cloud Tools (Na__LayoutEditor__Panel__PointCloudTools__)
+//   LAST in the right column, under Floor Areas, as Adam asked. The panel
+//   shows itself only on a project with point cloud exports, or when the
+//   selected viewport carries a scene.
+//
 // 29-Sep-2026 - Version 1.32.0
 // - OpenRegister and OpenStatements take an optional options object and hand
 //   it to the page they show: a shared link (66__Feature__DocumentSharing,
@@ -290,6 +296,7 @@
     import { Na__LeEdge__Ready } from '../25__System__RenderStyles/Na__LayoutEditor__EdgeStyles__.js';
     import { Na__LePanelPatterns__Register } from '../36__System__HatchPatternTools/Na__LayoutEditor__Panel__Patterns__.js';
     import { Na__LePanelArea__Register } from '../59__Feature__FloorAreas/Na__LayoutEditor__Panel__FloorAreas__.js';
+    import { Na__LePanelPc__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__PointCloudTools__.js';   // <-- Point Cloud Tools: SketchUp point cloud scenes laid over 2D viewports
     import { Na__LeArea__Ready, Na__LeArea__Is } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__.js';
     import { Na__LeAreaTable__Attach } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Table__.js';
     import { Na__LeImg__Ready, Na__LeImg__Initialize, Na__LeImg__Is, Na__LeImg__AttachInput, Na__LeImg__DetachInput } from '../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__.js';
@@ -550,7 +557,8 @@
         Na__LePanelParam__RegisterLibrary();                                   // <-- Parametric: dynamic elements - the scale bar - that keep answering to their parameters
         Na__LePanelScrapCustom__Register();                                    // <-- Custom: items saved from a selection, one JSON file each in the user content folder
         Na__LePanelPatterns__Register();                                       // <-- Patterns: the hatch library and each site plan layer's hatch
-        Na__LePanelArea__Register();                                           // <-- Floor Areas: LAST in the right column, below Patterns as Adam asked - the rooms measured on this sheet and what they add up to
+        Na__LePanelArea__Register();                                           // <-- Floor Areas: below Patterns as Adam asked - the rooms measured on this sheet and what they add up to
+        Na__LePanelPc__Register();                                             // <-- Point Cloud Tools: LAST in the right column, as Adam asked; shown only on a project with point cloud exports
         Na__LeToolbar__Mount(host.querySelector('.na-le-centre__toolbar'), { editable : editable, showToast : toast });
         Na__LeMeasure__Mount(host.querySelector('.na-le-centre'), { editable : editable, stage : Na__LeMode__Stage });   // <-- The Measurements box, bottom right over the stage
         Na__LeSpecEd__Mount(host, { editable : editable, showToast : toast });    // <-- The Project Specification page, over the shell

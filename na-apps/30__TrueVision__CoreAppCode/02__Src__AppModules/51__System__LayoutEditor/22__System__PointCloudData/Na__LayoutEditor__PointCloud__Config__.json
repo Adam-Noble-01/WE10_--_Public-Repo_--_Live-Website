@@ -1,0 +1,24 @@
+{
+    "LayoutEditor__PointCloud__Description": "Point cloud viewports (Na__PointCloud__Store__, Na__LayoutEditor__Viewport2d__PointCloud__, the Point Cloud Tools panel). A point cloud scene exported from SketchUp (Point Cloud Viewer Scenes tab, TrueVision Sync Point Cloud tab) is a picture with a frame record; TrueVision lays it over a plan, elevation, section or site plan viewport with one affine map built from the drawing's own projection basis. Read once, with a built-in fallback that matches these values, so a viewport can paint before this file has landed.",
+
+    "LayoutEditor__PointCloud__Alignment": {
+        "Description": "How far apart, in degrees, the SketchUp scene and the TrueVision drawing may look before the picture is refused. A picture is exact on the scene's target plane whatever the angle; a point d metres in front of or behind that plane is drawn d x tan(angle) away from the linework (0.05 degrees is under a millimetre per metre). Up to QuietDeg nothing is said. Up to ToleranceDeg the picture is drawn and the panel says how far it drifts per metre of depth. Beyond it the picture is not drawn and the frame says why, because a survey overlay that is quietly wrong is worse than none.",
+        "QuietDeg": 0.05,
+        "ToleranceDeg": 1.0
+    },
+
+    "LayoutEditor__PointCloud__Display": {
+        "Description": "DefaultOpacity is used only for a scene exported without one. PreviewSlack: the reduced preview is shown while it carries at least this share of the device pixels a drawing millimetre covers on screen (or in a PDF); below that the full tiles are fetched, only those the viewport's window shows. TileMarginPx grows the window a little so a nudge does not leave a gap while a tile loads.",
+        "DefaultOpacity": 0.65,
+        "PreviewSlack": 0.85,
+        "TileMarginPx": 64
+    },
+
+    "LayoutEditor__PointCloud__Datum": {
+        "Description": "The survey datum benchmark (SketchUp tag 01__Survey__DatumBenchmark): drawn on a point cloud viewport when Show Datum is ticked, over everything bar the scene markup. A circle with two filled quarters and a cross, SymbolMm across on paper whatever the scale, in the tag's red.",
+        "SymbolMm": 5,
+        "CrossOverhang": 0.6,
+        "StrokeMm": 0.25,
+        "ColourHex": "#C81E1E"
+    }
+}

@@ -95,6 +95,9 @@ TRUEVISION_CONTENT_FOLDER          = '30__TrueVision__AppContent'
 SITEPLAN_FOLDER_NAME               = 'SitePlan__DrawingData'                      # Site plan store: GLBs + manifest, never a design phase
 SITEPLAN_FOLDER_PREFIX             = 'SitePlan__DrawingData'                      # Every site plan folder starts with this - __Existing, __Proposed, or the original name
 SITEPLAN_MANIFEST_FILENAME         = 'TrueVision__SitePlanData__Manifest__.json'
+POINTCLOUD_FOLDER_NAME             = 'PointCloud__ViewportData'                   # Point cloud store (GLB Builder 2.11+): WebP tiles + manifests, never a design phase
+POINTCLOUD_MANIFEST_FILENAME       = 'TrueVision__PointCloudData__Manifest__.json'
+POINTCLOUD_FILE_PATTERN            = re.compile(r'^.+\.(webp|json)$', re.IGNORECASE)
 PLANVISION_CONTENT_FOLDER          = '20__PlanVision__AppContent'
 GLB_FILE_PATTERN                   = re.compile(r'^.+\.glb$', re.IGNORECASE)
 PLANVISION_FILE_PATTERN            = re.compile(r'^.+\.(png|pdf|json)$', re.IGNORECASE)
@@ -361,6 +364,8 @@ def discover_model_groups(project_path: Path) -> List[Dict]:
             continue
         if item.name.startswith('.') or item.name.startswith('00__'):
             continue
+        if item.name.startswith(POINTCLOUD_FOLDER_NAME):
+            continue                                                     # <-- The point cloud store syncs on its own (discover_pointcloud_files)
 
         glb_files = sorted([
             f.name for f in item.iterdir()
@@ -983,6 +988,97 @@ def collect_planvision_sync_operations(
     return operations
     # ------------------------------------------------------------
 
+
+    # FUNCTION | Discover the Point Cloud Store's Files
+    # ------------------------------------------------------------
+def discover_pointcloud_files(project_path: Path) -> List[Dict]:
+    """Every WebP and JSON file in the project's point cloud store, at any depth.
+
+    The GLB Builder's point cloud export (2.11+) writes PointCloud__ViewportData/
+    with one folder per scene and one sub-folder per revision (named by a hash of
+    what changes its pixels), plus the store manifest at the top. Folders that
+    start with 00__ (the export's staging) are skipped.
+
+    Returned in upload order: images first, then each revision's manifest, then
+    the store manifest LAST, so a reader on the CDN never finds a manifest that
+    names a file which has not arrived yet.
+    """
+    content_path = project_path / TRUEVISION_CONTENT_FOLDER
+    store_path   = content_path / POINTCLOUD_FOLDER_NAME
+    files = []
+
+    if not store_path.is_dir():
+        return files
+
+    for root_path, dirs, filenames in os.walk(store_path):
+        dirs[:] = sorted(d for d in dirs if not any(d.startswith(p) for p in SKIP_FOLDER_PREFIXES))
+        root = Path(root_path)
+        for fname in sorted(filenames):
+            if not POINTCLOUD_FILE_PATTERN.match(fname):
+                continue
+            local_path = root / fname
+            files.append({
+                'local_path'    : local_path,
+                'relative_path' : local_path.relative_to(content_path),
+                'filename'      : fname,
+            })
+
+    def upload_rank(entry):
+        if entry['filename'] == POINTCLOUD_MANIFEST_FILENAME and entry['local_path'].parent == store_path:
+            return 2                                                      # <-- the store manifest, very last
+        return 1 if entry['filename'].lower().endswith('.json') else 0
+    return sorted(files, key=lambda entry: (upload_rank(entry), entry['relative_path'].as_posix()))
+    # ------------------------------------------------------------
+
+
+    # FUNCTION | Collect Point Cloud Sync Operations for a Project
+    # ------------------------------------------------------------
+def collect_pointcloud_sync_operations(
+    s3_client, bucket_name: str,
+    year_folder_name: str, project: Dict, pc_files: List[Dict]
+) -> List[Dict]:
+    """Upload what R2 lacks or holds older. One LIST call for the whole store
+    instead of a HEAD per tile; the same new / update / skip rule as everything
+    else. Point cloud files are NEVER deleted from R2: a TrueVision viewport may
+    be pinned to an older revision, and the other computer may hold revisions
+    this one does not (the tiles are not in git)."""
+    prefix = f"{R2_BASE_PREFIX}/{year_folder_name}/{project['project_folder']}/{TRUEVISION_CONTENT_FOLDER}/{POINTCLOUD_FOLDER_NAME}/"
+    remote = {}
+    try:
+        for page in s3_client.get_paginator('list_objects_v2').paginate(Bucket=bucket_name, Prefix=prefix):
+            for obj in page.get('Contents', []):
+                remote[obj['Key']] = (obj['Size'], obj['LastModified'])
+    except Exception as error:
+        print(f"  {C_YELLOW}[!] Could not list the point cloud store on R2 ({error}); every file is treated as new.{C_RESET}")
+        remote = {}
+
+    operations = []
+    for pc_file in pc_files:
+        local_path = pc_file['local_path']
+        r2_key = (f"{R2_BASE_PREFIX}/{year_folder_name}/{project['project_folder']}/"
+                  f"{TRUEVISION_CONTENT_FOLDER}/{pc_file['relative_path'].as_posix()}")
+        stat = local_path.stat()
+        local_mtime = datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc)
+        if r2_key not in remote:
+            action, detail = 'new', f"NEW ({format_size(stat.st_size)})"
+        elif local_mtime > remote[r2_key][1]:
+            action, detail = 'update', f"UPDATE (local {local_mtime:%Y-%m-%d %H:%M} vs remote {remote[r2_key][1]:%Y-%m-%d %H:%M})"
+        else:
+            action, detail = 'skip', f"SKIP ({format_size(stat.st_size)})"
+        operations.append({
+            'local_path'   : local_path,
+            'r2_key'       : r2_key,
+            'content_type' : resolve_content_type(pc_file['filename']),
+            'action'       : action,
+            'detail'       : detail,
+            'size'         : stat.st_size,
+            'group_id'     : pc_file['relative_path'].parent.as_posix(),
+            'filename'     : pc_file['filename'],
+        })
+
+    return operations
+    # ------------------------------------------------------------
+
 # endregion -------------------------------------------------------------------
 
 
@@ -1412,6 +1508,14 @@ def run_r2_sync(
                     if drawing_notes_op:
                         project_operations.append(drawing_notes_op)
                     report_unmirrored_glbs(s3_client, bucket_name, year_folder_name, project)
+
+                # Point cloud store: uploads only, never mirrored (see collect_pointcloud_sync_operations).
+                # Queued FIRST, so the files are on R2 before the project data that points at them.
+                pc_files = discover_pointcloud_files(project['project_path'])
+                if pc_files:
+                    project_operations[0:0] = collect_pointcloud_sync_operations(
+                        s3_client, bucket_name, year_folder_name, project, pc_files
+                    )
 
             # PlanVision sync
             if sync_planvision:

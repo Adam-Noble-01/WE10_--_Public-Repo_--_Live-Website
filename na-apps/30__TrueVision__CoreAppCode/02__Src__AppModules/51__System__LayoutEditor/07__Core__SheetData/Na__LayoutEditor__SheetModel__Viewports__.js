@@ -45,6 +45,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.5.0 (TrueVision)
+// - Point cloud viewports (Viewport__PointCloud, 22__System__PointCloudData).
+//   CreateViewport takes a pointCloud option and UpdateViewport a pointCloud
+//   patch, MERGED onto the block the viewport holds so the panel can send one
+//   setting at a time; a key sent as null goes back to its default, and
+//   pointCloud : null takes the scene off the viewport. The normaliser rebuilds
+//   the block. IsPointCloudViewport reads it.
+//
 // 22-Sep-2026 - Version 1.4.0 (TrueVision)
 // - DeleteViewport prunes the groups (Na__LeModel__PruneGroups), as
 //   DeleteShape does: a viewport can be a group's member now
@@ -89,6 +97,7 @@
     // ------------------------------------------------------------
     import {
         Na__LeRec__IsSitePlanViewport,
+        Na__LeRec__IsPointCloudViewport,
         Na__LeRec__NextId,
         Na__LeRec__Find,
         Na__LeRec__NormaliseViewport
@@ -197,11 +206,20 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Does This Viewport Lay a Point Cloud Scene Over Its Drawing
+    // ------------------------------------------------------------
+    function Na__LeModel__IsPointCloudViewport(viewport) {
+        return Na__LeRec__IsPointCloudViewport(viewport);
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Add a Viewport
     // ------------------------------------------------------------
     // options: { kind, sceneId, drawingId, name, rect, scaleDenominator, modelSourceId,
     //           sitePlan (an object: a site plan viewport), modelLayers (categories switched off),
-    //           rotationDeg (degrees clockwise about the middle of the frame) }
+    //           rotationDeg (degrees clockwise about the middle of the frame),
+    //           pointCloud (an object: { PointCloud__SceneId, ... } laid over the drawing) }
     // ------------------------------------------------------------
     function Na__LeModel__CreateViewport(sheet, options) {
         if (!sheet) return null;
@@ -217,6 +235,7 @@
             Viewport__ScaleDenominator : opts.scaleDenominator,
             Viewport__SitePlan         : (opts.sitePlan && typeof opts.sitePlan === 'object') ? Object.assign({}, opts.sitePlan) : undefined,
             Viewport__ModelLayers      : (opts.modelLayers && typeof opts.modelLayers === 'object') ? Object.assign({}, opts.modelLayers) : null,
+            Viewport__PointCloud       : (opts.pointCloud && typeof opts.pointCloud === 'object') ? Object.assign({}, opts.pointCloud) : undefined,   // <-- The normaliser keeps it only on a 2D drawing viewport
             [Na__LeVpRot__FIELD]       : opts.rotationDeg                        // <-- The normaliser wraps it, and drops it when level
         }, Na__LeModel__DefaultLayerId(sheet, 'viewport'));
         sheet.Sheet__Viewports.push(viewport);
@@ -271,7 +290,8 @@
     // patch: { rect, scaleDenominator, pan, imageMm, imageOffset, imageZoom, styles, modelLayers,
     //          projectedEdges, compositeWeights, markupMode, name, layerId,
     //          sceneId, drawingId, kind, showScaleLabel, showFrame, locked, snapshotAsset, modelSourceId,
-    //          closedDoors, hideSwings (true / false, or null for the plan's storey to decide), rotationDeg }
+    //          closedDoors, hideSwings (true / false, or null for the plan's storey to decide), rotationDeg,
+    //          pointCloud (merged onto Viewport__PointCloud; a null key resets it, null the whole removes it) }
     // silent: true skips the change event (live drags announce on release).
     // ------------------------------------------------------------
     function Na__LeModel__UpdateViewport(sheet, viewportId, patch, silent) {
@@ -385,6 +405,22 @@
             viewport[Na__LeHatch__FIELD] = block;
         }
 
+        // POINT CLOUD | The SketchUp point cloud scene laid over the drawing.
+        // Merged, one setting at a time, so a change of opacity keeps the pin
+        // and the datum; a key sent as null is deleted, which the normaliser
+        // reads as its default. null for the whole patch takes the scene off.
+        if (patch.pointCloud === null) {
+            delete viewport.Viewport__PointCloud;
+        } else if (patch.pointCloud && typeof patch.pointCloud === 'object') {
+            const block = Object.assign({}, viewport.Viewport__PointCloud);
+            Object.keys(patch.pointCloud).forEach((key) => {
+                const value = patch.pointCloud[key];
+                if (value === null || value === undefined) delete block[key];
+                else block[key] = value;
+            });
+            viewport.Viewport__PointCloud = block;
+        }
+
         Na__LeRec__NormaliseViewport(viewport, viewport.Viewport__LayerId);
         if (silent) { Na__LeModel__AssignDirty(true); return true; }
         Na__LeModel__Touch('viewport', sheet.Sheet__Id, viewportId);
@@ -443,6 +479,7 @@
         Na__LeModel__GetViewports,
         Na__LeModel__GetViewportById,
         Na__LeModel__IsSitePlanViewport,
+        Na__LeModel__IsPointCloudViewport,
         Na__LeModel__CreateViewport,
         Na__LeModel__InsertViewport,
         Na__LeModel__DeleteViewport,

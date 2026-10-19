@@ -152,3 +152,20 @@ na-project-portal/**/05__Layout__DrawingDocs__Images/00__Archive/
 !na-project-portal/**/05__Layout__DrawingDocs__Images/*/*__[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].webp
 !na-project-portal/**/05__Layout__DrawingDocs__Images/*/*__[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].jpg
 !na-project-portal/**/05__Layout__DrawingDocs__Images/*/*__[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].png
+
+# POINT CLOUD VIEWPORTS (TrueVision GLB Builder 2.11+, point cloud export). The
+# store 30__TrueVision__AppContent/PointCloud__ViewportData/ holds WebP tiles
+# (megabytes per scene, and a new revision folder every time a scene changes,
+# kept so pinned TrueVision viewports keep working) plus small JSON manifests.
+# The tiles are served from the CDN only, like the GLBs, but unlike them they
+# are not committed at all: the Pages deploy limit is 1 GB. The manifests ARE
+# tracked, so a build on either computer still registers the store in
+# TrueVision__ProjectData__.json; TrueVision then loads the tiles from R2.
+# The export's 00__Staging folder never belongs anywhere. An ALLOWLIST again:
+# everything excluded, folders re-included so git can look inside, then only
+# the JSON manifests and the folder's .note placeholder come back.
+na-project-portal/**/PointCloud__ViewportData/**
+!na-project-portal/**/PointCloud__ViewportData/**/
+na-project-portal/**/PointCloud__ViewportData/00__Staging/
+!na-project-portal/**/PointCloud__ViewportData/**/*.json
+!na-project-portal/**/PointCloud__ViewportData/*.note

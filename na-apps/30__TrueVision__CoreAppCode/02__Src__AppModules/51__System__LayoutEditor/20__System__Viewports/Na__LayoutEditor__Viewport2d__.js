@@ -45,6 +45,9 @@
 //     plan viewport, from its data to its painted SVG (SitePlanToken,
 //     SitePlanPaintKey, SitePlanBuild, SitePlanDrawing, RingPathData,
 //     PaintSitePlan, FillSitePlan, RefillSitePlan).
+//   - Na__LayoutEditor__Viewport2d__PointCloud__ (TrueVision only): a
+//     SketchUp point cloud scene laid over or under the linework of a plan,
+//     elevation, section or site plan viewport, and its PDF picture.
 //
 // INTEGRATION:
 // - The sheet surface calls Fill for every visible 2D frame; the tools
@@ -67,6 +70,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Oct-2026 - Version 1.17.0 (TrueVision)
+// - Point cloud viewports (Viewport__PointCloud). Fill hands every 2D frame to
+//   the new PointCloud unit after its own layers - the site plan path, the
+//   drawing path, and a design phase still loading, since a point cloud does
+//   not wait on the model - and takes it down where no drawing is linked.
+//   Force Render reads the point cloud exports again first, so a new export
+//   from SketchUp draws without a reload. Re-exports the unit's API for the
+//   PDF exporter and the Point Cloud Tools panel.
+//
 // 29-Sep-2026 - Version 1.16.0 (TrueVision)
 // - Re-exports the SitePlan unit's new SitePlanLegend, and SitePlanStoreId,
 //   for the Parametric Scrapbook's site plan legend: what a site plan viewport
@@ -206,7 +218,7 @@
     // MODULE IMPORTS | Config, Model, Chrome, Markup, Snapshots
     // ------------------------------------------------------------
     import { Na__LeCfg__GetLabel } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
-    import { Na__LeModel__UpdateViewport, Na__LeModel__IsSitePlanViewport } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
+    import { Na__LeModel__UpdateViewport, Na__LeModel__IsSitePlanViewport, Na__LeModel__IsPointCloudViewport } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeChrome__ToSvgMarkup } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetChrome__.js';
     import { Na__LeMarkup__BuildScenePrimitives } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
     import { Na__LeSnap__Render2d, Na__LeSnap__DrawingCentreMm, Na__LeSnap__GetPipelineFingerprint } from '../25__System__RenderStyles/Na__LayoutEditor__SnapshotRenderer__.js';
@@ -265,6 +277,26 @@
         Na__LeVp2d__PaintLinework
     } from './Na__LayoutEditor__Viewport2d__Linework__.js';
     import { Na__LeVp2d__SitePlanDrawing, Na__LeVp2d__SitePlanLegend, Na__LeVp2d__FillSitePlan, Na__LeVp2d__SitePlanStoreId } from './Na__LayoutEditor__Viewport2d__SitePlan__.js';
+    import {
+        Na__LeVp2d__PC_NONE,
+        Na__LeVp2d__PC_HIDDEN,
+        Na__LeVp2d__PC_LOADING,
+        Na__LeVp2d__PC_EMPTY,
+        Na__LeVp2d__PC_MISSING,
+        Na__LeVp2d__PC_FAILED,
+        Na__LeVp2d__PC_PERSPECTIVE,
+        Na__LeVp2d__PC_NO_DRAWING,
+        Na__LeVp2d__PC_MISALIGNED,
+        Na__LeVp2d__PC_READY,
+        Na__LeVp2d__PointCloudResolve,
+        Na__LeVp2d__PointCloudFill,
+        Na__LeVp2d__PointCloudClear,
+        Na__LeVp2d__PointCloudRefreshAll,
+        Na__LeVp2d__PointCloudSetZoom,
+        Na__LeVp2d__PointCloudReload,
+        Na__LeVp2d__PointCloudBoundsMm,
+        Na__LeVp2d__PointCloudForExport
+    } from './Na__LayoutEditor__Viewport2d__PointCloud__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -319,6 +351,7 @@
             Na__LeVp2d__MarkRasterOnly(state, false);                            // <-- All vectors: Draft draws its lines
             Na__LeVp2d__ClearFog(state);                                         // <-- A site plan has no plane to be behind
             Na__LeVp2d__FillSitePlan(state, sheet, viewport, ppm);
+            Na__LeVp2d__PointCloudFill(state, sheet, viewport, null, ppm);       // <-- A Plan or Site Plan scene lays on it as on a plan
             return;
         }
         const described = Na__LeVp2d__Describe(viewport);
@@ -331,6 +364,7 @@
             state.empty.hidden = false;
             state.underlay.hidden = true;
             Na__LeVp2d__ClearFog(state);
+            Na__LeVp2d__PointCloudClear(state);                                  // <-- Nothing to place it against; the panel says so
             state.linework.innerHTML = ''; state.markup.innerHTML = '';
             state.lineworkKey = null; state.markupKey = null;
             return;
@@ -353,6 +387,7 @@
             state.empty.textContent = failed ? Na__LeSource__StatusText(modelSource) : ''; state.empty.hidden = !failed;
             state.progress.textContent = failed ? '' : Na__LeSource__StatusText(modelSource); state.progress.hidden = failed;
             state.phaseWaiting = true;
+            Na__LeVp2d__PointCloudFill(state, sheet, viewport, described, ppm);  // <-- The survey does not wait on the model
             return;
         }
         if (state.phaseWaiting) { state.phaseWaiting = false; Na__LeVp2d__HideProgress(state); }
@@ -463,6 +498,9 @@
         } else {
             state.markup.innerHTML = '';
         }
+
+        // POINT CLOUD | A SketchUp scene over (or under) the linework, and the datum
+        Na__LeVp2d__PointCloudFill(state, sheet, viewport, described, ppm);
     }
     // ------------------------------------------------------------
 
@@ -516,6 +554,7 @@
     async function Na__LeVp2d__ForceRender(sheet, viewport, onPhase) {
         const state = Na__LeVp2d__States.get(viewport.Viewport__Id);
         if (!state || !state.lastArgs) return false;                             // <-- Never painted: the next refresh draws it anyway
+        if (Na__LeModel__IsPointCloudViewport(viewport)) await Na__LeVp2d__PointCloudReload();   // <-- A new export from SketchUp draws without a reload
         if (Na__LeModel__IsSitePlanViewport(viewport)) {                         // <-- Re-read the site plan data: a new export draws without a reload
             await Na__SpStore__Reload();                                        // <-- Every store: a re-export may have rewritten either
             await Na__SpStore__LoadAll(Na__LeVp2d__SitePlanStoreId(viewport));
@@ -650,7 +689,23 @@
         Na__LeVp2d__GetSnapSource,
         Na__LeVp2d__SitePlanDrawing,
         Na__LeVp2d__SitePlanLegend,                                           // <-- What a site plan shows, layer by layer: the Parametric Scrapbook's legend reads it
-        Na__LeVp2d__SitePlanStoreId
+        Na__LeVp2d__SitePlanStoreId,
+        Na__LeVp2d__PC_NONE,                                                  // <-- Point cloud viewports: the status words, where one stands, and its PDF picture
+        Na__LeVp2d__PC_HIDDEN,
+        Na__LeVp2d__PC_LOADING,
+        Na__LeVp2d__PC_EMPTY,
+        Na__LeVp2d__PC_MISSING,
+        Na__LeVp2d__PC_FAILED,
+        Na__LeVp2d__PC_PERSPECTIVE,
+        Na__LeVp2d__PC_NO_DRAWING,
+        Na__LeVp2d__PC_MISALIGNED,
+        Na__LeVp2d__PC_READY,
+        Na__LeVp2d__PointCloudResolve,
+        Na__LeVp2d__PointCloudRefreshAll,
+        Na__LeVp2d__PointCloudSetZoom,
+        Na__LeVp2d__PointCloudReload,
+        Na__LeVp2d__PointCloudBoundsMm,
+        Na__LeVp2d__PointCloudForExport
     };
     // ------------------------------------------------------------
 

@@ -2,6 +2,93 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.173.0  -  19-Oct-2026
+### Point Cloud Viewports: SketchUp Survey Scenes Laid Over Plans, Elevations, Sections and Site Plans
+
+**Overview**
+- From Adam's point cloud spec: point cloud images rendered from SketchUp scenes and "placed perfectly" against the
+  linework for survey work; a "Point Cloud Tools" dropdown at the bottom of the layout editor's right-hand menu; an
+  opacity control; the exported scenes listed, and a special point cloud viewport made from them; a per-scene
+  "SketchUp sync", on by default, that decouples the viewport from later exports when it is off; the point cloud a
+  render composite on top by default, with a toggle to put the linework above it; assets loaded only when a drawing
+  needs them; purely cosmetic, no snapping. First use: the four elevations of a bank conversion.
+- And on 19-Oct: site plan point clouds too. The SketchUp side gained a Site Plan scene type and the 1:2500 scale
+  (with 1:1250); here a site plan viewport takes a Plan or Site Plan scene, because a site plan is drawn in world X
+  and Z millimetres exactly as a plan is (`Na__SitePlan__GlbParse__`: x = X x 1000, y = +Z x 1000).
+- The pictures come from the Point Cloud Viewer 0.9 (its Scenes tab binds viewer settings to SketchUp scenes) through
+  TrueVision Sync 2.11 (GLB Builder, its Point Cloud tab): per export, WebP tiles of 2048 px, a preview and a revision
+  manifest in a content-addressed `Rev__<10 hex>` folder, plus the store manifest that lists every scene; pushed to R2
+  by the existing sync, and registered by the ProjectVision build as `PointCloud__DataStore`.
+
+**The change**
+- THE RECORD (`Na__LayoutEditor__SheetRecords__` 1.40.0): `Viewport__PointCloud` on a 2D viewport -
+  `PointCloud__SceneId` (the viewer's own id, never a scene name, so renaming the SketchUp scene changes nothing),
+  `PointCloud__Opacity`, `PointCloud__LineworkOnTop`, `PointCloud__PinnedRevision` (SketchUp Sync off),
+  `PointCloud__ShowDatum`, `PointCloud__Hidden`. Each kept only when it differs from its default, so a viewport
+  without a point cloud carries no key and every saved record is unchanged. A 3D viewport loses the block. The
+  Viewports unit (1.5.0) takes `pointCloud` in CreateViewport and as a merge patch in UpdateViewport (a key sent as
+  null goes back to its default; `pointCloud : null` takes the scene off). `IsPointCloudViewport` reads it.
+- THE STORE (`22__System__PointCloudData/Na__PointCloud__Store__.js` 1.0.0): the site plan store's pattern. On
+  localhost the repository copy first, then the CDN; elsewhere the CDN folder the build registered. The store manifest
+  is always asked of the network; a revision is read once. Every picture carries its URLs in order, because tiles are
+  not in git: one exported on the other computer comes from the CDN. Nothing is fetched until the panel or a point
+  cloud viewport asks, and a revision only when a viewport draws it. A pinned export the manifest no longer lists is
+  still found by its conventional folder.
+- THE PLACEMENT (`Na__PointCloud__Placement__.js` 1.0.0, pure): one affine map from the picture's pixels to drawing
+  millimetres, built from the export's frame record and the DRAWING'S OWN projection basis
+  (`Na__ProjectedLinework__ViewDefinition__`), so the picture is placed by the numbers the linework is drawn with.
+  `AlignmentDeg` says how far apart the scene and the drawing look (atan2, so hundredths of a degree are seen);
+  `Na__LayoutEditor__PointCloud__Config__.json` draws silently under 0.05 degrees, draws and says the drift up to
+  1 degree, and refuses beyond it.
+- THE FRAME LAYER (`Na__LayoutEditor__Viewport2d__PointCloud__.js` 1.0.0): each tile is an `<img>` (CORS) with its
+  map as a CSS `matrix()`, so the browser draws it from the full picture at any paper zoom. Over the linework and the
+  fog by default; under the linework with Linework On Top; the datum benchmark (red, fixed paper size) just under
+  the markup. The preview while it is sharp enough at the paper's zoom, else only the tiles the window shows; a
+  picture being replaced stays until its successor has loaded. A 3D View, a scene looking the wrong way, a plan
+  scene on an elevation (or the reverse), a missing scene or a missing drawing draws nothing and says why in a badge.
+  Draft mode hides the pictures with every other raster. `Na__LayoutEditor__Viewport2d__` 1.17.0 calls it from Fill
+  (the site plan path, the drawing path, and while a design phase loads) and Force Render re-reads the exports.
+- THE PDF (`Na__LayoutEditor__PdfExporter__` 1.13.0): the point cloud prints as one PNG of the frame at the export
+  raster level with the opacity in its alpha, in the screen's order; the datum prints as vectors. A point cloud that
+  cannot be drawn is left out and never fails a strict export.
+- THE PANEL (`Na__LayoutEditor__Panel__PointCloudTools__.js` 1.0.0), last in the right column, shown only on a
+  project with exports or when the selected viewport carries a scene: Scene, Opacity, Show Point Cloud, Linework On
+  Top, SketchUp Sync, Show Datum, a sentence on alignment, export and dot size, Centre on Point Cloud; the exported
+  scenes with what each lays on and Add Viewport (the matching drawing at the nearest listed scale, centred on the
+  picture); Reload Exports. It also pushes the paper's zoom to the layer on ZOOM_SETTLED_EVENT.
+- The stylesheet `Na__LayoutEditor__Styles__PointCloud__.css`; the service worker 1.10.0 (token 2026-10-19-01, and
+  a capped cache-first bucket for the content-addressed tiles).
+
+**How it was proved**
+- `Na__Test__PointCloudViewports__.test.mjs`, 64 checks against the JSON a real export wrote (fixture in the test
+  folder): the record and the merge patch; THE ALIGNMENT END TO END - in each of three real exports (1:50 elevation,
+  1:10 tiled elevation, 1:50 plan) the datum's own pixel, worked out in Ruby from the SketchUp camera, mapped through
+  the drawing's basis lands on the datum as the linework computes it: 0.0000 mm off; the store; the layer's verdicts.
+- The real app on localhost, PS01 with the scratch export behind a temporary junction, served read-only (the Worker
+  URL blanked so R2 saves are off, every write refused; an in-page guard recorded no write attempt). The panel listed
+  four scenes and matched the elevations to PS01's East Elevation (azimuth 180). Add Viewport made a 1:50 viewport
+  of it centred on the picture, at the computed matrix. Linework On Top restacked only that frame; Show Datum drew at
+  the computed position; the opacity slider drew live and stored on release; SketchUp Sync off pinned the export;
+  a viewport pinned to the older export drew it and said a newer one exists; on the North Elevation the scene was
+  refused with the bearing it needs; on the 1:500 site plan the plan scene drew. The 1:10 scene drew its preview at
+  fit, seven tiles at 8x, and the preview again at fit. The export picture was 3600 x 2400 px with every lit pixel
+  inside the picture's bounds and alpha 166 (0.65); the whole-sheet PDF built in 14.6 s.
+- One bug found by that test and fixed before release (a picture's URLs read under the wrong name).
+- `Na__Verify__Exports__.mjs` passes (547 files). The suites that load the records pass (Hide Swings, Site Plan
+  Store, Site Plan Composites, Layer Stack, Sheet Images). LeaderlessNotes, StatementFinishes, StatementStandard and
+  StoreyBand fail on live project content or another module's token, the same with HEAD's records.
+
+**Not done / for Adam**
+- Push. The point cloud tiles are not committed (.gitignore); the R2 sync uploads them, the manifests are tracked.
+- A 3D View scene is listed, not placeable: it needs a camera override in the 3D viewport.
+- Published documents' web view does not draw point clouds yet (the publish tool's own handling, deferred); their
+  PDF does, as Download PDF does.
+- The datum as its own GLB and its toggle in TrueVision 3D: not yet. Its position rides in the manifests.
+- An elevation must look the scene's way within 1 degree. A SketchUp camera aimed at a skewed facade gives a bearing
+  like 23.4 degrees; an elevation made by Aim at Face is rounded to a whole degree. The panel says the bearing needed.
+- NOT in ValeVision.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.172.0  -  29-Sep-2026
 ### R2 Holds Every Statement Picture Where the Statement Says It Is: a Publish Alone Makes the Web Viewer Right, Whatever GitHub Is Serving
 
