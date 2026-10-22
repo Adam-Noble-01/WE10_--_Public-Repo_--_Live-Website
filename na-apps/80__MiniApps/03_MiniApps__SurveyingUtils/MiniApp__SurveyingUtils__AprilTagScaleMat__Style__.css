@@ -1,0 +1,394 @@
+/* =============================================================================
+   NOBLE ARCHITECTURE - MINI APP - APRILTAG SCALE MAT - STYLESHEET
+   =============================================================================
+
+   FILE    : MiniApp__SurveyingUtils__AprilTagScaleMat__Style__.css
+   AUTHOR  : Adam Noble - Noble Architecture
+   PURPOSE : Sidebar + live sheet preview layout, and native 100% print rules
+   CREATED : 20-Oct-2026
+
+   ========================================================================== */
+
+/* -----------------------------------------------------------------------------
+   REGION | CSS Variables
+   -------------------------------------------------------------------------- */
+:root {
+    --ATM_Col_PageBackground       : #141619;
+    --ATM_Col_PanelBackground      : #1e2126;
+    --ATM_Col_PanelDark            : #181a1f;
+    --ATM_Col_InputBackground      : #121417;
+    --ATM_Col_Border               : #2e333d;
+    --ATM_Col_TextMain             : #e4e7ec;
+    --ATM_Col_TextMuted            : #949ca8;
+    --ATM_Col_Accent               : #0ea5e9;
+    --ATM_Col_AccentHover          : #0284c7;
+    --ATM_Col_AccentSecondary       : #10b981;
+    --ATM_Col_Danger               : #ef4444;
+    --ATM_Col_ScheduleTitle        : #d1d5db;
+    --ATM_Col_SchedulePair         : #93c5fd;
+    --ATM_Col_ScheduleValue        : #34d399;
+    --ATM_Size_Sidebar             : 390px;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Base Layout
+   -------------------------------------------------------------------------- */
+* {
+    box-sizing                     : border-box;
+    margin                         : 0;
+    padding                        : 0;
+}
+
+body {
+    font-family                    : "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color               : var(--ATM_Col_PageBackground);
+    color                          : var(--ATM_Col_TextMain);
+    display                        : flex;
+    height                         : 100vh;
+    overflow                       : hidden;
+}
+
+.ATM__error-message {
+    padding                        : 20px;
+    color                          : var(--ATM_Col_Danger);
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Sidebar
+   -------------------------------------------------------------------------- */
+.ATM__sidebar {
+    width                          : var(--ATM_Size_Sidebar);
+    background-color               : var(--ATM_Col_PanelBackground);
+    border-right                   : 1px solid var(--ATM_Col_Border);
+    display                        : flex;
+    flex-direction                 : column;
+    height                         : 100vh;
+    z-index                        : 10;
+}
+
+.ATM__sidebar-header {
+    padding                        : 18px 20px;
+    border-bottom                  : 1px solid var(--ATM_Col_Border);
+    background                     : var(--ATM_Col_PanelDark);
+}
+
+.ATM__sidebar-header h1 {
+    font-size                      : 16px;
+    font-weight                    : 700;
+    letter-spacing                 : 0.4px;
+    color                          : #fff;
+    display                        : flex;
+    align-items                    : center;
+    gap                            : 8px;
+}
+
+.ATM__badge {
+    background                     : var(--ATM_Col_Accent);
+    color                          : #fff;
+    font-size                      : 10px;
+    padding                        : 2px 6px;
+    border-radius                  : 4px;
+    font-weight                    : 700;
+    text-transform                 : uppercase;
+}
+
+.ATM__sidebar-header p {
+    font-size                      : 12px;
+    color                          : var(--ATM_Col_TextMuted);
+    margin-top                     : 4px;
+}
+
+.ATM__version-note {
+    font-size                      : 10px;
+    font-weight                    : 400;
+    color                          : var(--ATM_Col_TextMuted);
+}
+
+.ATM__controls-scroll {
+    flex                           : 1;
+    overflow-y                     : auto;
+    padding                        : 16px 20px;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Control Groups And Fields
+   -------------------------------------------------------------------------- */
+.ATM__control-group {
+    margin-bottom                  : 20px;
+    background                     : var(--ATM_Col_PanelDark);
+    border                         : 1px solid var(--ATM_Col_Border);
+    border-radius                  : 6px;
+    padding                        : 14px;
+}
+
+.ATM__control-group h2 {
+    font-size                      : 12px;
+    text-transform                 : uppercase;
+    letter-spacing                 : 0.6px;
+    color                          : var(--ATM_Col_Accent);
+    margin-bottom                  : 12px;
+    font-weight                    : 700;
+}
+
+.ATM__field-row {
+    display                        : flex;
+    gap                            : 10px;
+    margin-bottom                  : 10px;
+}
+
+.ATM__field-row:last-child {
+    margin-bottom                  : 0;
+}
+
+.ATM__field {
+    flex                           : 1;
+    display                        : flex;
+    flex-direction                 : column;
+}
+
+.ATM__field label {
+    font-size                      : 11px;
+    color                          : var(--ATM_Col_TextMuted);
+    margin-bottom                  : 5px;
+    font-weight                    : 600;
+}
+
+.ATM__field input,
+.ATM__field select {
+    background                     : var(--ATM_Col_InputBackground);
+    border                         : 1px solid var(--ATM_Col_Border);
+    color                          : var(--ATM_Col_TextMain);
+    padding                        : 8px 10px;
+    border-radius                  : 4px;
+    font-size                      : 13px;
+    outline                        : none;
+    transition                     : border-color 0.15s;
+}
+
+.ATM__field input:focus,
+.ATM__field select:focus {
+    border-color                   : var(--ATM_Col_Accent);
+}
+
+.ATM__checkbox-row {
+    display                        : flex;
+    align-items                    : center;
+    gap                            : 8px;
+    margin-top                     : 8px;
+    cursor                         : pointer;
+    font-size                      : 12px;
+    color                          : var(--ATM_Col_TextMain);
+}
+
+.ATM__checkbox-row input {
+    accent-color                   : var(--ATM_Col_Accent);
+    width                          : 15px;
+    height                         : 15px;
+    cursor                         : pointer;
+}
+
+.ATM__warning-banner {
+    background                     : rgba(239, 68, 68, 0.15);
+    border                         : 1px solid var(--ATM_Col_Danger);
+    color                          : #fca5a5;
+    padding                        : 8px 10px;
+    border-radius                  : 4px;
+    font-size                      : 11px;
+    margin-top                     : 8px;
+    display                        : none;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | CL/CL Schedule
+   -------------------------------------------------------------------------- */
+.ATM__schedule-box {
+    background                     : var(--ATM_Col_InputBackground);
+    border                         : 1px solid var(--ATM_Col_Border);
+    border-radius                  : 4px;
+    padding                        : 10px;
+    font-family                    : "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size                      : 11.5px;
+    max-height                     : 220px;
+    overflow-y                     : auto;
+}
+
+.ATM__schedule-item {
+    display                        : flex;
+    justify-content                : space-between;
+    padding                        : 5px 0;
+    border-bottom                  : 1px solid #1f232b;
+}
+
+.ATM__schedule-item:last-child {
+    border-bottom                  : none;
+}
+
+.ATM__schedule-title {
+    color                          : var(--ATM_Col_ScheduleTitle);
+    font-size                      : 10.5px;
+}
+
+.ATM__schedule-pair {
+    color                          : var(--ATM_Col_SchedulePair);
+    font-weight                    : 600;
+}
+
+.ATM__schedule-val {
+    color                          : var(--ATM_Col_ScheduleValue);
+    font-weight                    : 700;
+    text-align                     : right;
+    align-self                     : center;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Sidebar Footer Buttons
+   -------------------------------------------------------------------------- */
+.ATM__sidebar-footer {
+    padding                        : 16px 20px;
+    border-top                     : 1px solid var(--ATM_Col_Border);
+    background                     : var(--ATM_Col_PanelDark);
+    display                        : flex;
+    flex-direction                 : column;
+    gap                            : 8px;
+}
+
+.ATM__btn {
+    border                         : none;
+    border-radius                  : 5px;
+    padding                        : 11px 16px;
+    font-size                      : 13px;
+    font-weight                    : 700;
+    cursor                         : pointer;
+    display                        : flex;
+    align-items                    : center;
+    justify-content                : center;
+    gap                            : 8px;
+    transition                     : background 0.15s, transform 0.05s;
+}
+
+.ATM__btn:active {
+    transform                      : translateY(1px);
+}
+
+.ATM__btn--primary {
+    background                     : var(--ATM_Col_Accent);
+    color                          : #fff;
+}
+
+.ATM__btn--primary:hover {
+    background                     : var(--ATM_Col_AccentHover);
+}
+
+.ATM__btn--secondary {
+    background                     : #2b303b;
+    color                          : var(--ATM_Col_TextMain);
+    border                         : 1px solid #3d4452;
+}
+
+.ATM__btn--secondary:hover {
+    background                     : #353b49;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Workspace And Sheet Preview
+   -------------------------------------------------------------------------- */
+.ATM__workspace {
+    flex                           : 1;
+    display                        : flex;
+    flex-direction                 : column;
+    background                     : radial-gradient(circle at center, #22262e 0%, #141619 100%);
+    position                       : relative;
+    overflow                       : hidden;
+}
+
+.ATM__workspace-toolbar {
+    height                         : 44px;
+    background                     : rgba(24, 26, 31, 0.85);
+    backdrop-filter                : blur(6px);
+    border-bottom                  : 1px solid var(--ATM_Col_Border);
+    display                        : flex;
+    align-items                    : center;
+    justify-content                : space-between;
+    padding                        : 0 20px;
+    font-size                      : 12px;
+    color                          : var(--ATM_Col_TextMuted);
+}
+
+.ATM__status-pill {
+    display                        : inline-flex;
+    align-items                    : center;
+    gap                            : 6px;
+    color                          : var(--ATM_Col_TextMain);
+    font-weight                    : 600;
+}
+
+.ATM__status-dot {
+    width                          : 8px;
+    height                         : 8px;
+    border-radius                  : 50%;
+    background                     : var(--ATM_Col_AccentSecondary);
+}
+
+.ATM__canvas-container {
+    flex                           : 1;
+    display                        : flex;
+    align-items                    : center;
+    justify-content                : center;
+    padding                        : 28px;
+    overflow                       : auto;
+}
+
+#js__sheetSvg {
+    background                     : #ffffff;
+    box-shadow                     : 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    max-width                      : 100%;
+    max-height                     : 100%;
+    width                          : auto;
+    height                         : auto;
+    display                        : block;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Native Print Rules
+   Print at 100% so the sheet comes out true to scale.
+   -------------------------------------------------------------------------- */
+@page {
+    margin                         : 0;
+}
+
+@media print {
+    body {
+        background                 : #ffffff;
+        height                     : auto;
+        overflow                   : visible;
+        display                    : block;
+    }
+
+    .ATM__sidebar,
+    .ATM__workspace-toolbar {
+        display                    : none !important;
+    }
+
+    .ATM__workspace,
+    .ATM__canvas-container {
+        padding                    : 0 !important;
+        margin                     : 0 !important;
+        background                 : #ffffff !important;
+        display                    : block !important;
+        overflow                   : visible !important;
+    }
+
+    #js__sheetSvg {
+        box-shadow                 : none !important;
+        max-width                  : none !important;
+        max-height                 : none !important;
+    }
+}
+/* endregion ---------------------------------------------------------------- */

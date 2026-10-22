@@ -182,6 +182,26 @@
             "MiniApp__LoadOrder"         : 8,
             "MiniApp__LaunchInNewTab"    : true,
             "MiniApp__LaunchInNewWindow" : false
+        },
+
+        "MiniApp__AprilTagScaleMat_09" : {
+            "MiniApp__LaunchFile"        : "MiniApp__SurveyingUtils__AprilTagScaleMat__Main__.html",
+            "MiniApp__RelativePath"      : "03_MiniApps__SurveyingUtils",
+            "MiniApp__Title"             : "AprilTag Scale Mat Generator",
+            "MiniApp__Description"       : "Generate a true-scale AprilTag 36h11 calibration mat for RealityScan photogrammetry. Tags are laid round the perimeter of an ISO or custom sheet, with every centre-line to centre-line distance worked out ready to enter as scale constraints. Exports a 1:1 vector PDF or prints at 100%.",
+            "MiniApp__Notes"             : "Category: SurveyingUtils. Ported from a single-file Gemini prototype into modular HTML/CSS/JS with AppConfig JSON. jsPDF 2.5.1 loads from cdnjs. Tag codeword table covers IDs 0 to 127.",
+            "MiniApp__KeyWords"          : [
+                                                "AprilTag",
+                                                "RealityScan",
+                                                "Photogrammetry",
+                                                "Scale Bar",
+                                                "PDF",
+                                                "Calibration"
+                                           ],
+            "MiniApp__Added"             : "20-Oct-2026",
+            "MiniApp__LoadOrder"         : 9,
+            "MiniApp__LaunchInNewTab"    : true,
+            "MiniApp__LaunchInNewWindow" : false
         }
     }
 }

@@ -1,0 +1,251 @@
+<!-- =============================================================================
+  NOBLE ARCHITECTURE - MINI APP - APRILTAG 36h11 SCALE MAT GENERATOR
+  =============================================================================
+
+  FILE    : MiniApp__SurveyingUtils__AprilTagScaleMat__Main__.html
+  AUTHOR  : Adam Noble - Noble Architecture
+  PURPOSE : Generate a true-scale AprilTag 36h11 calibration mat for RealityScan
+  CREATED : 20-Oct-2026
+
+  DESCRIPTION:
+  - Lays AprilTag 36h11 fiducials round the perimeter of an ISO or custom sheet.
+  - Works out every centre-line to centre-line (CL/CL) distance to enter in
+    RealityScan as scale constraints, shown in a live schedule and on the sheet.
+  - Optional turntable grid, centre crosshairs and a 100 mm print-check rule.
+  - Exports a 1:1 vector PDF in millimetres, or prints direct at 100%.
+  - All processing is local — no data is sent to any server.
+
+  MODULES:
+  - 01__AppModules/MiniApp__SurveyingUtils__AprilTagScaleMat__Main__.js        (controller)
+  - 01__AppModules/MiniApp__SurveyingUtils__AprilTagScaleMat__Settings__.js    (form to settings)
+  - 01__AppModules/MiniApp__SurveyingUtils__AprilTagScaleMat__Layout__.js      (set-out and CL/CL schedule)
+  - 01__AppModules/MiniApp__SurveyingUtils__AprilTagScaleMat__TagCodes__.js    (36h11 codeword table)
+  - 01__AppModules/MiniApp__SurveyingUtils__AprilTagScaleMat__SvgOverlays__.js (grid, dimensions, plaque, rule)
+  - 01__AppModules/MiniApp__SurveyingUtils__AprilTagScaleMat__SvgTags__.js     (tag markup)
+  - 01__AppModules/MiniApp__SurveyingUtils__AprilTagScaleMat__Preview__.js     (live preview painter)
+  - 01__AppModules/MiniApp__SurveyingUtils__AprilTagScaleMat__PdfExport__.js   (jsPDF vector export)
+  - MiniApp__SurveyingUtils__AprilTagScaleMat__Style__.css                     (styles)
+  - MiniApp__SurveyingUtils__AprilTagScaleMat__AppConfig__.json                (config source)
+
+  =========================================================================== -->
+
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION | Document Head                                            -->
+<!-- ----------------------------------------------------------------- -->
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Noble Architecture AprilTag 36h11 scale mat generator for RealityScan photogrammetry." />
+        <meta name="author" content="Adam Noble - Noble Architecture" />
+        <title>AprilTag 36h11 Scale Mat Generator</title>
+
+        <link rel="icon" type="image/svg+xml"
+              href="../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__SVG-h50mm.svg" />
+
+        <!-- ?v= : see REGION | Versioned App Files at the foot of the body -->
+        <link rel="stylesheet" href="MiniApp__SurveyingUtils__AprilTagScaleMat__Style__.css?v=1.0.0" />
+
+        <!-- jsPDF 2.5.1 : classic UMD build, exposes window.jspdf (version also set in AppConfig) -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    </head>
+<!-- endregion -------------------------------------------------------- -->
+
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION | Document Body                                            -->
+<!-- ----------------------------------------------------------------- -->
+    <body>
+
+        <!-- --------------------------------------------------------- -->
+        <!-- REGION | Sidebar Controls                                 -->
+        <!-- --------------------------------------------------------- -->
+            <aside class="ATM__sidebar">
+                <div class="ATM__sidebar-header">
+                    <h1>
+                        <span id="js__appTitle">AprilTag 36h11 Studio</span>
+                        <span class="ATM__badge">Scale Mat</span>
+                        <span id="js__appVersion" class="ATM__version-note"></span>
+                    </h1>
+                    <p id="js__appSubTitle">RealityScan Photogrammetry Calibration</p>
+                </div>
+
+                <div class="ATM__controls-scroll">
+
+                    <!-- ------------------------------------------------- -->
+                    <!-- REGION | 1. Sheet Geometry                        -->
+                    <!-- ------------------------------------------------- -->
+                        <div class="ATM__control-group">
+                            <h2>1. Sheet Geometry</h2>
+                            <div class="ATM__field-row">
+                                <div class="ATM__field">
+                                    <label for="js__paperPreset">ISO Paper Preset</label>
+                                    <select id="js__paperPreset">
+                                        <option value="A4" selected>A4 (210 × 297 mm)</option>
+                                        <option value="A3">A3 (297 × 420 mm)</option>
+                                        <option value="A2">A2 (420 × 594 mm)</option>
+                                        <option value="A1">A1 (594 × 841 mm)</option>
+                                        <option value="CUSTOM">Custom Dimensions</option>
+                                    </select>
+                                </div>
+                                <div class="ATM__field">
+                                    <label for="js__orientation">Orientation</label>
+                                    <select id="js__orientation">
+                                        <option value="landscape" selected>Landscape</option>
+                                        <option value="portrait">Portrait</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="ATM__field-row" id="js__customDimRow" style="display:none;">
+                                <div class="ATM__field">
+                                    <label for="js__customW">Width (mm)</label>
+                                    <input type="number" id="js__customW" value="297" min="100" max="2000" step="1" />
+                                </div>
+                                <div class="ATM__field">
+                                    <label for="js__customH">Height (mm)</label>
+                                    <input type="number" id="js__customH" value="210" min="100" max="2000" step="1" />
+                                </div>
+                            </div>
+                        </div>
+                    <!-- endregion ------------------------------------- -->
+
+                    <!-- ------------------------------------------------- -->
+                    <!-- REGION | 2. Perimeter Tag Configuration           -->
+                    <!-- ------------------------------------------------- -->
+                        <div class="ATM__control-group">
+                            <h2>2. Perimeter Tag Configuration</h2>
+                            <div class="ATM__field-row">
+                                <div class="ATM__field">
+                                    <label for="js__blackSize">Black Square Size (mm)</label>
+                                    <input type="number" id="js__blackSize" value="24" min="10" max="120" step="1" />
+                                </div>
+                                <div class="ATM__field">
+                                    <label for="js__edgeMargin">Edge to CL Margin (mm)</label>
+                                    <input type="number" id="js__edgeMargin" value="22" min="12" max="100" step="0.5" />
+                                </div>
+                            </div>
+
+                            <div class="ATM__field-row">
+                                <div class="ATM__field">
+                                    <label for="js__colsCount">Horizontal Tags (Cols)</label>
+                                    <input type="number" id="js__colsCount" value="5" min="2" max="14" step="1" />
+                                </div>
+                                <div class="ATM__field">
+                                    <label for="js__rowsCount">Vertical Tags (Rows)</label>
+                                    <input type="number" id="js__rowsCount" value="4" min="2" max="14" step="1" />
+                                </div>
+                            </div>
+
+                            <div class="ATM__field-row">
+                                <div class="ATM__field">
+                                    <label for="js__startId">Starting Tag ID (0 to 80)</label>
+                                    <input type="number" id="js__startId" value="0" min="0" max="80" step="1" />
+                                </div>
+                                <div class="ATM__field">
+                                    <label for="js__unitMode">RealityScan Unit Display</label>
+                                    <select id="js__unitMode">
+                                        <option value="both" selected>Millimetres &amp; Metres</option>
+                                        <option value="mm">Millimetres (mm) only</option>
+                                        <option value="m">Metres (m) only</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div id="js__overlapWarning" class="ATM__warning-banner"></div>
+                            <div id="js__idRangeWarning" class="ATM__warning-banner"></div>
+                        </div>
+                    <!-- endregion ------------------------------------- -->
+
+                    <!-- ------------------------------------------------- -->
+                    <!-- REGION | 3. Calibration And Target Overlays       -->
+                    <!-- ------------------------------------------------- -->
+                        <div class="ATM__control-group">
+                            <h2>3. Calibration &amp; Target Overlays</h2>
+                            <label class="ATM__checkbox-row">
+                                <input type="checkbox" id="js__showDimLines" checked />
+                                Show Perimeter &amp; Diagonal CL/CL Dimensions
+                            </label>
+                            <label class="ATM__checkbox-row">
+                                <input type="checkbox" id="js__showCrosshairs" checked />
+                                Show Sub-Millimetre Centre Crosshairs on Tags
+                            </label>
+                            <label class="ATM__checkbox-row">
+                                <input type="checkbox" id="js__showTurntable" checked />
+                                Show Central Subject / Turntable Target Grid
+                            </label>
+                            <label class="ATM__checkbox-row">
+                                <input type="checkbox" id="js__showScaleBar" checked />
+                                Include 100 mm Physical Vernier Verification Rule
+                            </label>
+                        </div>
+                    <!-- endregion ------------------------------------- -->
+
+                    <!-- ------------------------------------------------- -->
+                    <!-- REGION | 4. RealityScan CL/CL Distance Schedule   -->
+                    <!-- ------------------------------------------------- -->
+                        <div class="ATM__control-group">
+                            <h2>4. RealityScan CL/CL Distance Schedule</h2>
+                            <div class="ATM__schedule-box" id="js__scheduleList"></div>
+                        </div>
+                    <!-- endregion ------------------------------------- -->
+
+                </div>
+
+                <div class="ATM__sidebar-footer">
+                    <button class="ATM__btn ATM__btn--primary"   id="js__downloadPdfBtn" type="button">Download 1:1 True-Scale Vector PDF</button>
+                    <button class="ATM__btn ATM__btn--secondary" id="js__printSheetBtn"  type="button">Print Directly (100% Scale)</button>
+                </div>
+            </aside>
+        <!-- endregion ------------------------------------------------ -->
+
+        <!-- --------------------------------------------------------- -->
+        <!-- REGION | Sheet Preview                                    -->
+        <!-- --------------------------------------------------------- -->
+            <main class="ATM__workspace">
+                <div class="ATM__workspace-toolbar">
+                    <div class="ATM__status-pill">
+                        <span class="ATM__status-dot"></span>
+                        <span id="js__statusPillText"></span>
+                    </div>
+                    <div id="js__sheetSummaryText">A4 Landscape — 297 × 210 mm</div>
+                </div>
+
+                <div class="ATM__canvas-container">
+                    <svg id="js__sheetSvg" xmlns="http://www.w3.org/2000/svg"></svg>
+                </div>
+            </main>
+        <!-- endregion ------------------------------------------------ -->
+
+        <!-- ------------------------------------------------------------- -->
+        <!-- REGION | Versioned App Files                                  -->
+        <!-- Cloudflare tells browsers to keep JS and CSS for 4 hours      -->
+        <!-- (HTML and JSON: 10 minutes), and straight after a deploy its  -->
+        <!-- edge can still hand out the previous copy. So every app file  -->
+        <!-- loads by a versioned URL: a new ?v= is a URL nothing has      -->
+        <!-- cached. With EACH release, set every ?v= in this file to the  -->
+        <!-- new version: the stylesheet link in the head, this map and    -->
+        <!-- the script below. The map gives each module's plain URL its   -->
+        <!-- versioned one, so the import lines never change.              -->
+        <!-- ------------------------------------------------------------- -->
+            <script type="importmap">
+            {
+                "imports": {
+                    "./01__AppModules/MiniApp__SurveyingUtils__AprilTagScaleMat__Settings__.js"    : "./01__AppModules/MiniApp__SurveyingUtils__AprilTagScaleMat__Settings__.js?v=1.0.0",
+                    "./01__AppModules/MiniApp__SurveyingUtils__AprilTagScaleMat__Layout__.js"      : "./01__AppModules/MiniApp__SurveyingUtils__AprilTagScaleMat__Layout__.js?v=1.0.0",
+                    "./01__AppModules/MiniApp__SurveyingUtils__AprilTagScaleMat__TagCodes__.js"    : "./01__AppModules/MiniApp__SurveyingUtils__AprilTagScaleMat__TagCodes__.js?v=1.0.0",
+                    "./01__AppModules/MiniApp__SurveyingUtils__AprilTagScaleMat__SvgOverlays__.js" : "./01__AppModules/MiniApp__SurveyingUtils__AprilTagScaleMat__SvgOverlays__.js?v=1.0.0",
+                    "./01__AppModules/MiniApp__SurveyingUtils__AprilTagScaleMat__SvgTags__.js"     : "./01__AppModules/MiniApp__SurveyingUtils__AprilTagScaleMat__SvgTags__.js?v=1.0.0",
+                    "./01__AppModules/MiniApp__SurveyingUtils__AprilTagScaleMat__Preview__.js"     : "./01__AppModules/MiniApp__SurveyingUtils__AprilTagScaleMat__Preview__.js?v=1.0.0",
+                    "./01__AppModules/MiniApp__SurveyingUtils__AprilTagScaleMat__PdfExport__.js"   : "./01__AppModules/MiniApp__SurveyingUtils__AprilTagScaleMat__PdfExport__.js?v=1.0.0"
+                }
+            }
+            </script>
+
+            <script type="module" src="01__AppModules/MiniApp__SurveyingUtils__AprilTagScaleMat__Main__.js?v=1.0.0"></script>
+        <!-- endregion ---------------------------------------------------- -->
+    </body>
+<!-- endregion -------------------------------------------------------- -->
+
+</html>

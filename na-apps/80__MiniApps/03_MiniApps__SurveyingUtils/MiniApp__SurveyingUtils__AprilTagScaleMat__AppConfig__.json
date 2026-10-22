@@ -1,0 +1,46 @@
+{
+    "NaMiniApp__Meta" : {
+        "NaMiniApp__AppTitle"    : "AprilTag 36h11 Studio",
+        "NaMiniApp__AppSubTitle" : "RealityScan Photogrammetry Calibration",
+        "NaMiniApp__Created"     : "20-Oct-2026",
+        "NaMiniApp__Version"     : "1.0.0"
+    },
+
+    "NaMiniApp__Assets" : {
+        "NaMiniApp__JsPdfUrl" : "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+    },
+
+    "NaMiniApp__PaperSizes" : {
+        "A4" : { "NaMiniApp__WidthMm" : 210, "NaMiniApp__HeightMm" : 297 },
+        "A3" : { "NaMiniApp__WidthMm" : 297, "NaMiniApp__HeightMm" : 420 },
+        "A2" : { "NaMiniApp__WidthMm" : 420, "NaMiniApp__HeightMm" : 594 },
+        "A1" : { "NaMiniApp__WidthMm" : 594, "NaMiniApp__HeightMm" : 841 }
+    },
+
+    "NaMiniApp__Defaults" : {
+        "NaMiniApp__FallbackCustomWidthMm"  : 297,
+        "NaMiniApp__FallbackCustomHeightMm" : 210,
+        "NaMiniApp__FallbackBlackSizeMm"    : 24,
+        "NaMiniApp__FallbackEdgeMarginMm"   : 22,
+        "NaMiniApp__FallbackCols"           : 5,
+        "NaMiniApp__FallbackRows"           : 4,
+        "NaMiniApp__MinBlackSizeMm"         : 8,
+        "NaMiniApp__MinEdgeMarginMm"        : 8,
+        "NaMiniApp__MinTagsPerSide"         : 2,
+        "NaMiniApp__MaxTagsPerSide"         : 16,
+        "NaMiniApp__MaxStartId"             : 80,
+        "NaMiniApp__MaxAvailableTagId"      : 127,
+        "NaMiniApp__QuietZoneFactor"        : 1.28,
+        "NaMiniApp__EdgeMarginFactor"       : 0.65
+    },
+
+    "NaMiniApp__UiText" : {
+        "NaMiniApp__PageTitle"         : "AprilTag 36h11 Scale Mat Generator",
+        "NaMiniApp__StatusPillText"    : "Marker Family: Square, AprilTag, 36h11 (Official 6×6 Data + 1-Bit Border)",
+        "NaMiniApp__OverlapWarning"    : "Warning: Tags are overlapping or exceeding the safe quiet zone. Reduce tag size or tag count.",
+        "NaMiniApp__IdRangeWarning"    : "Warning: Tag IDs run past the built-in code table (0 to 127). Reduce the tag count or the starting ID, or the last tags will repeat.",
+        "NaMiniApp__PdfLibMissing"     : "The PDF library did not load. Check your connection and reload the page.",
+        "NaMiniApp__ErrorMissingDom"   : "Error: Essential HTML elements are missing.",
+        "NaMiniApp__ErrorConfigLoad"   : "Unable to load app configuration."
+    }
+}
