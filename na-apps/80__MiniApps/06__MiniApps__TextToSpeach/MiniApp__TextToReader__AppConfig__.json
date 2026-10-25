@@ -1,49 +1,58 @@
 {
-    "NaMiniApp__Meta" : {
-        "NaMiniApp__AppTitle"    : "Text To Reader",
-        "NaMiniApp__AppSubTitle" : "Reader Utils",
-        "NaMiniApp__Created"     : "19-Sep-2026",
-        "NaMiniApp__Version"     : "1.6.1"
+    "NaMiniApp__Meta": {
+        "NaMiniApp__AppTitle": "Text To Reader",
+        "NaMiniApp__AppSubTitle": "Reader Utils",
+        "NaMiniApp__Created": "19-Sep-2026",
+        "NaMiniApp__Version": "1.7.0"
     },
-
-    "NaMiniApp__Assets" : {
-        "NaMiniApp__MarkedEsmUrl" : "https://cdn.jsdelivr.net/npm/marked@15.0.12/lib/marked.esm.js"
+    "NaMiniApp__Assets": {
+        "NaMiniApp__MarkedEsmUrl": "./02__PhononRuntime/marked.esm.js"
     },
-
-    "NaMiniApp__Defaults" : {
-        "NaMiniApp__AcceptedFileExtensions" : [".md", ".markdown", ".txt"],
-        "NaMiniApp__MobileScrollBreakpoint" : 768,
-        "NaMiniApp__DefaultView"            : "simple"
+    "NaMiniApp__Defaults": {
+        "NaMiniApp__AcceptedFileExtensions": [
+            ".md",
+            ".markdown",
+            ".txt"
+        ],
+        "NaMiniApp__MobileScrollBreakpoint": 768,
+        "NaMiniApp__DefaultView": "simple"
     },
-
-    "NaMiniApp__WhatsApp" : {
-        "NaMiniApp__TestPattern"    : "\\[\\d{1,2}\\/\\d{1,2},\\s*\\d{1,2}:\\d{2}\\]\\s*[^:]+:\\s*",
-        "NaMiniApp__ReplacePattern" : "\\[\\d{1,2}\\/\\d{1,2},\\s*\\d{1,2}:\\d{2}\\]\\s*[^:]+:\\s*"
+    "NaMiniApp__WhatsApp": {
+        "NaMiniApp__TestPattern": "\\[\\d{1,2}\\/\\d{1,2},\\s*\\d{1,2}:\\d{2}\\]\\s*[^:]+:\\s*",
+        "NaMiniApp__ReplacePattern": "\\[\\d{1,2}\\/\\d{1,2},\\s*\\d{1,2}:\\d{2}\\]\\s*[^:]+:\\s*"
     },
-
-    "NaMiniApp__UiText" : {
-        "NaMiniApp__AppHeading"              : "Text To Reader Utility",
-        "NaMiniApp__PageTitle"               : "Text To Reader Utility",
-        "NaMiniApp__TabSimple"               : "Simple",
-        "NaMiniApp__TabEdit"                 : "Edit",
-        "NaMiniApp__TabRead"                 : "Read",
-        "NaMiniApp__InputLabel"              : "Input Text (Markdown, WhatsApp Messages or CSV Blocks):",
-        "NaMiniApp__InputPlaceholder"        : "Paste your text (WhatsApp or Markdown) here...",
-        "NaMiniApp__UploadButton"            : "Upload Markdown / Text File",
-        "NaMiniApp__ActionsHeading"          : "Actions",
-        "NaMiniApp__RenderButton"            : "Render Text",
-        "NaMiniApp__ClearButton"             : "Clear Text",
-        "NaMiniApp__OutputHeading"           : "Output",
-        "NaMiniApp__FooterText"              : "© 2026 Noble Architecture | All Rights Reserved",
-        "NaMiniApp__StatusLoadedPrefix"      : "Loaded",
-        "NaMiniApp__StatusUnsupportedPrefix" : "Unsupported file type",
-        "NaMiniApp__StatusUnsupportedSuffix" : "Please choose a .md or .txt file.",
-        "NaMiniApp__StatusReadErrorPrefix"   : "Error reading file",
-        "NaMiniApp__ErrorMarkedMissing"      : "Error: Marked.js library failed to load.",
-        "NaMiniApp__ErrorRenderPrefix"       : "Error rendering content",
-        "NaMiniApp__ErrorEmptyCsv"           : "Error: Empty CSV data.",
-        "NaMiniApp__ErrorMissingDom"         : "Error: Essential HTML elements are missing.",
-        "NaMiniApp__ErrorConfigLoad"         : "Unable to load app configuration.",
-        "NaMiniApp__CsvTableAriaLabel"       : "CSV Data Table"
+    "NaMiniApp__UiText": {
+        "NaMiniApp__AppHeading": "Text To Reader Utility",
+        "NaMiniApp__PageTitle": "Text To Reader Utility",
+        "NaMiniApp__TabSimple": "Simple",
+        "NaMiniApp__TabEdit": "Edit",
+        "NaMiniApp__TabRead": "Read",
+        "NaMiniApp__InputLabel": "Input Text (Markdown, WhatsApp Messages or CSV Blocks):",
+        "NaMiniApp__InputPlaceholder": "Paste your text (WhatsApp or Markdown) here...",
+        "NaMiniApp__UploadButton": "Upload Markdown / Text File",
+        "NaMiniApp__ActionsHeading": "Actions",
+        "NaMiniApp__RenderButton": "Render Text",
+        "NaMiniApp__ClearButton": "Clear Text",
+        "NaMiniApp__OutputHeading": "Output",
+        "NaMiniApp__FooterText": "© 2026 Noble Architecture | All Rights Reserved",
+        "NaMiniApp__StatusLoadedPrefix": "Loaded",
+        "NaMiniApp__StatusUnsupportedPrefix": "Unsupported file type",
+        "NaMiniApp__StatusUnsupportedSuffix": "Please choose a .md or .txt file.",
+        "NaMiniApp__StatusReadErrorPrefix": "Error reading file",
+        "NaMiniApp__ErrorMarkedMissing": "Error: Marked.js library failed to load.",
+        "NaMiniApp__ErrorRenderPrefix": "Error rendering content",
+        "NaMiniApp__ErrorEmptyCsv": "Error: Empty CSV data.",
+        "NaMiniApp__ErrorMissingDom": "Error: Essential HTML elements are missing.",
+        "NaMiniApp__ErrorConfigLoad": "Unable to load app configuration.",
+        "NaMiniApp__CsvTableAriaLabel": "CSV Data Table"
+    },
+    "NaMiniApp__ReadAloud": {
+        "NaMiniApp__Model": "hf://gradium/phonon-31m-en@8c64b55ec301728e2d1695bfea87a08a267d0c2d",
+        "NaMiniApp__VoiceName": "Easton",
+        "NaMiniApp__VoiceUrl": "https://huggingface.co/gradium/phonon-voices/resolve/679578acb0000681b05c8b0215a4765c4fa78cc2/voices/LMDIYE0Oa377Qh6Z.safetensors",
+        "NaMiniApp__RuntimeUrl": "./02__PhononRuntime/index.js",
+        "NaMiniApp__DefaultSpeed": 2,
+        "NaMiniApp__MaxCharacters": 12000,
+        "NaMiniApp__OfflineCacheName": "phonon-tts-v1"
     }
 }

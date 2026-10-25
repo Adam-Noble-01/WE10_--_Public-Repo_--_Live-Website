@@ -1,0 +1,23 @@
+{
+    "name": "Text To Reader - Offline Speech",
+    "short_name": "Text To Reader",
+    "description": "Render Markdown and listen offline using Phonon with Easton.",
+    "start_url": "./MiniApp__TextToReader__Main__.html",
+    "scope": "./",
+    "display": "standalone",
+    "background_color": "#fafafa",
+    "theme_color": "#263b49",
+    "lang": "en-GB",
+    "icons": [
+        {
+            "src": "../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__PNG-h192px.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__PNG-h512px.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}

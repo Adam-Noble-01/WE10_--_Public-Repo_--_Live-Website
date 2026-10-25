@@ -34,7 +34,7 @@ import {
 // FUNCTION | Load the Marked.js ESM build from the configured CDN URL
 // ------------------------------------------------------------
 export async function Na__TextToReader__LoadMarkedLibrary(Na__MarkedEsmUrl) {
-    const Na__MarkedModule = await import(Na__MarkedEsmUrl);
+    const Na__MarkedModule = await import(new URL(Na__MarkedEsmUrl, document.baseURI).href);
     return Na__MarkedModule.marked;
 }
 // ------------------------------------------------------------

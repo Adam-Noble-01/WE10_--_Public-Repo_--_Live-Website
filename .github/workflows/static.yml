@@ -49,6 +49,28 @@ jobs:
           find . -path ./.git -prune -o -type f -name '*.zip' -print -delete | wc -l | xargs echo "  ZIP removed:"
           echo "Size after prune:  $(du -sh . | cut -f1)"
 
+      # Publish pinned third-party inference binaries without committing them
+      # to the source repository. The deployed site then serves them locally.
+      - name: Publish Text To Reader Phonon runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="na-apps/80__MiniApps/06__MiniApps__TextToSpeach"
+          RUNTIME="$APP/02__PhononRuntime"
+          mkdir -p "$RUNTIME"
+          npm pack phonon-tts@0.4.0 --pack-destination /tmp --silent
+          tar -xzf /tmp/phonon-tts-0.4.0.tgz -C "$RUNTIME" --strip-components=1
+          mkdir -p /tmp/na-reader-marked
+          npm pack marked@15.0.12 --pack-destination /tmp --silent
+          tar -xzf /tmp/marked-15.0.12.tgz -C /tmp/na-reader-marked --strip-components=1
+          cp /tmp/na-reader-marked/lib/marked.esm.js "$RUNTIME/marked.esm.js"
+          test -s "$RUNTIME/index.js"
+          test -s "$RUNTIME/worker.js"
+          test -s "$RUNTIME/wasm/phonon_tts_bg.wasm"
+          test -s "$RUNTIME/wasm-threads/phonon_tts_bg.wasm"
+          test -s "$RUNTIME/marked.esm.js"
+          echo "Published Phonon 0.4.0 and Marked 15.0.12."
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

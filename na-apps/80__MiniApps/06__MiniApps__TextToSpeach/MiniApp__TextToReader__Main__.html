@@ -40,6 +40,8 @@
         <meta name="description" content="Noble Architecture Text To Reader — render WhatsApp, Markdown and CSV as readable HTML." />
         <meta name="author" content="Adam Noble - Noble Architecture" />
         <title>Text To Reader Utility</title>
+        <meta name="theme-color" content="#263b49" />
+        <link rel="manifest" href="MiniApp__TextToReader__Manifest__.webmanifest" />
 
         <link rel="icon" type="image/svg+xml"
               href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__SVG-h50mm.svg" />
@@ -47,9 +49,10 @@
         <link rel="stylesheet"
               href="../../../assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_30_-_STYL_-_Core-Default-Web-Utility-App-Stylesheet.css" />
         <!-- ?v= : see REGION | Versioned App Files at the foot of the body -->
-        <link rel="stylesheet" href="MiniApp__TextToReader__Style__.css?v=1.6.1" />
+        <link rel="stylesheet" href="MiniApp__TextToReader__Style__.css?v=1.7.0" />
         <!-- @delegate: MiniApp__TextToReader__MarkdownStyle__.css -->
-        <link rel="stylesheet" href="MiniApp__TextToReader__MarkdownStyle__.css?v=1.6.1" />
+        <link rel="stylesheet" href="MiniApp__TextToReader__MarkdownStyle__.css?v=1.7.0" />
+        <link rel="stylesheet" href="MiniApp__TextToReader__ReadAloud__.css?v=1.7.0" />
     </head>
 <!-- endregion -------------------------------------------------------- -->
 
@@ -127,6 +130,38 @@
                         </div>
 
                         <!-- --------------------------------------------- -->
+                        <!-- REGION | Phonon Offline Read Aloud           -->
+                        <!-- @delegate: 01__AppModules/MiniApp__TextToReader__ReadAloud__.js -->
+                            <section id="js__readAloudPanel" class="TTR__audio-panel" hidden>
+                                <div class="TTR__audio-heading">
+                                    <strong>Read aloud · Phonon</strong>
+                                    <span id="js__readAloudEngine" class="TTR__audio-engine">Easton · on-device</span>
+                                </div>
+                                <div class="TTR__audio-actions">
+                                    <button id="js__audioPrepare" type="button">Prepare &amp; Play</button>
+                                    <button id="js__audioPause" type="button" disabled>Pause</button>
+                                    <button id="js__audioStop" type="button" disabled>Stop</button>
+                                    <label class="TTR__audio-speed" for="js__audioSpeed">Speed
+                                        <select id="js__audioSpeed">
+                                            <option value="1">1.0×</option>
+                                            <option value="1.25">1.25×</option>
+                                            <option value="1.5">1.5×</option>
+                                            <option value="1.75">1.75×</option>
+                                            <option value="2" selected>2.0×</option>
+                                            <option value="2.25">2.25×</option>
+                                            <option value="2.5">2.5×</option>
+                                            <option value="3">3.0×</option>
+                                        </select>
+                                    </label>
+                                    <button id="js__audioInstall" type="button" class="TTR__audio-install">Install offline voice</button>
+                                </div>
+                                <progress id="js__audioProgress" max="100" value="0" hidden></progress>
+                                <p id="js__audioStatus" class="TTR__audio-status" role="status" aria-live="polite">Download Easton once to listen offline.</p>
+                                <audio id="js__audioElement" preload="auto"></audio>
+                            </section>
+                        <!-- endregion ------------------------------------ -->
+
+                        <!-- --------------------------------------------- -->
                         <!-- REGION | Input Area                           -->
                         <!-- --------------------------------------------- -->
                             <section class="FORM__block TTR__panel TTR__panel--input">
@@ -191,16 +226,17 @@
             <script type="importmap">
             {
                 "imports": {
-                    "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js"       : "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js?v=1.6.1",
-                    "./01__AppModules/MiniApp__TextToReader__FileUpload__.js"     : "./01__AppModules/MiniApp__TextToReader__FileUpload__.js?v=1.6.1",
-                    "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js" : "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js?v=1.6.1",
-                    "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js" : "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js?v=1.6.1",
-                    "./01__AppModules/MiniApp__TextToReader__CsvTable__.js"       : "./01__AppModules/MiniApp__TextToReader__CsvTable__.js?v=1.6.1"
+                    "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js"       : "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js?v=1.7.0",
+                    "./01__AppModules/MiniApp__TextToReader__FileUpload__.js"     : "./01__AppModules/MiniApp__TextToReader__FileUpload__.js?v=1.7.0",
+                    "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js" : "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js?v=1.7.0",
+                    "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js" : "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js?v=1.7.0",
+                    "./01__AppModules/MiniApp__TextToReader__CsvTable__.js"       : "./01__AppModules/MiniApp__TextToReader__CsvTable__.js?v=1.7.0",
+                    "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js"      : "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js?v=1.7.0"
                 }
             }
             </script>
 
-            <script type="module" src="01__AppModules/MiniApp__TextToReader__Main__.js?v=1.6.1"></script>
+            <script type="module" src="01__AppModules/MiniApp__TextToReader__Main__.js?v=1.7.0"></script>
         <!-- endregion ---------------------------------------------------- -->
     </body>
 <!-- endregion -------------------------------------------------------- -->

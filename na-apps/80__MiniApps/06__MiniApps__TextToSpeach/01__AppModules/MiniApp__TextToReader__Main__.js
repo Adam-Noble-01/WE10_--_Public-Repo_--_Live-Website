@@ -30,6 +30,13 @@ import {
     Na__TextToReader__BuildErrorHtml
 } from "./MiniApp__TextToReader__MarkdownRender__.js";
 
+// @delegate: ./MiniApp__TextToReader__ReadAloud__.js
+import {
+    Na__TextToReader__InitialiseReadAloud,
+    Na__TextToReader__StopReadAloud,
+    Na__TextToReader__SetReadAloudVisible
+} from "./MiniApp__TextToReader__ReadAloud__.js";
+
 // endregion -------------------------------------------------------------------
 
 
@@ -182,6 +189,7 @@ function Na__TextToReader__RenderCurrentInput() {
             Na__TextToReader__AppConfig
         );
 
+        Na__TextToReader__StopReadAloud();
         Na__TextToReader__Dom.Na__Output.innerHTML = Na__FinalHtml;
         return true;
     } catch (Na__ErrorObject) {
@@ -213,6 +221,7 @@ function Na__TextToReader__HandleRenderClick(Na__Event) {
 // FUNCTION | Clear the input, output and upload status
 // ------------------------------------------------------------
 function Na__TextToReader__HandleClearClick() {
+    Na__TextToReader__StopReadAloud();
     const Na__UiText = Na__TextToReader__AppConfig.NaMiniApp__UiText;
 
     Na__TextToReader__Dom.Na__InputText.value                    = "";
@@ -251,6 +260,8 @@ function Na__TextToReader__HandleFileLoaded() {
 // ------------------------------------------------------------
 function Na__TextToReader__HandleModeChange(Na__Mode) {
     Na__TextToReader__ApplyPanelVisibility(Na__Mode);
+    Na__TextToReader__SetReadAloudVisible(Na__Mode === "read");
+    if (Na__Mode !== "read") Na__TextToReader__StopReadAloud();
 
     if (Na__Mode === "read") {
         Na__TextToReader__RenderCurrentInput();
@@ -324,8 +335,13 @@ async function Na__TextToReader__BootstrapApp() {
     Na__TextToReader__MarkedParse = await Na__TextToReader__LoadMarkedLibrary(Na__MarkedEsmUrl);
 
     Na__TextToReader__ApplyUiTextFromConfig();
+    Na__TextToReader__InitialiseReadAloud({
+        config  : Na__TextToReader__AppConfig.NaMiniApp__ReadAloud,
+        article : Na__TextToReader__Dom.Na__Output
+    });
     Na__TextToReader__RegisterEventListeners();
     Na__TextToReader__ApplyPanelVisibility(Na__TextToReader__GetActiveMode());
+    Na__TextToReader__SetReadAloudVisible(Na__TextToReader__GetActiveMode() === "read");
 }
 // ------------------------------------------------------------
 

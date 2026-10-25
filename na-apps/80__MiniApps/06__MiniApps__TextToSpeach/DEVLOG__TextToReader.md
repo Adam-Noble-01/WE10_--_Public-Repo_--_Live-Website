@@ -206,3 +206,25 @@ LEGACY SOURCE
     - Non-WhatsApp text is treated as Markdown.
     - Fenced ```csv``` blocks become HTML tables after Markdown render.
     - Upload replaces the textarea contents; unsupported types report inline.
+
+----------------------------------------------------------------
+1.7.0 - 25-Oct-2026 | Phonon Easton Offline PWA
+  - On-device Phonon 31m English q8 model, loaded only on demand using
+    the official phonon-tts 0.4.0 WebAssembly browser distribution.
+  - Easton is the default voice; runtime/model/voice are separate assets.
+  - Read tab now includes Prepare & Play, pause, stop, and 1x-3x speed.
+    Selected text is prioritised; otherwise the rendered article is read.
+  - Each recording is fully synthesised to WAV before playback. There is
+    a 12,000-character mobile safety cap and full generation cancellation.
+  - PWA manifest and shell service worker allow standalone installation.
+    Model and voice are cached independently and their presence is verified
+    by the explicit Install offline voice action.
+  - The Pages deploy workflow downloads pinned Phonon and Marked packages.
+    Compiled binaries are not committed to the website source repository.
+    Marked.js is served locally rather than from a CDN for offline startup.
+  - Preserved original text conversion, CSS design, Simple/Edit/Read tabs,
+    file-upload pipeline and readable article DOM.
+  - Performance on Pixel 6 is not yet benchmarked. GitHub Pages alone
+    cannot set COOP/COEP isolation headers, so Phonon uses a single CPU
+    thread until compatible Cloudflare response headers are deployed.
+  - Offline model files remain subject to Android browser storage eviction.
