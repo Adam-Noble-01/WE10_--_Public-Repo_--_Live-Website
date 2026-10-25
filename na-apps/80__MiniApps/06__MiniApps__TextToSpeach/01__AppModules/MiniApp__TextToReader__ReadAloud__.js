@@ -171,6 +171,19 @@ function Na__Reader__ExtractReadingText() {
 // --------------------------------------------------------
 
 
+// FUNCTION | RegisterOfflineWorker - Scope the worker to its containing app directory
+// --------------------------------------------------------
+function Na__Reader__RegisterOfflineWorker() {
+    const Na__ScriptUrl = new URL("../MiniApp__TextToReader__ServiceWorker__.js", import.meta.url);
+    const Na__ScopeUrl = new URL("./", Na__ScriptUrl);
+    return navigator.serviceWorker.register(Na__ScriptUrl.href, {
+        scope          : Na__ScopeUrl.href,
+        updateViaCache : "none"
+    });
+}
+// --------------------------------------------------------
+
+
 // FUNCTION | VerifyOfflineModel - Require all checkpoint pieces and Easton in Cache API
 // --------------------------------------------------------
 async function Na__Reader__VerifyOfflineModel() {
@@ -202,10 +215,7 @@ async function Na__Reader__InstallOffline() {
     try {
         if (!("serviceWorker" in navigator)) throw new Error("Service workers are unavailable.");
 
-        await navigator.serviceWorker.register(
-            new URL("../MiniApp__TextToReader__ServiceWorker__.js", import.meta.url),
-            { scope: "./" }
-        );
+        await Na__Reader__RegisterOfflineWorker();
         await navigator.serviceWorker.ready;
         await Na__Reader__LoadPhonon();
 
@@ -419,10 +429,7 @@ export function Na__TextToReader__InitialiseReadAloud({ config, article }) {
     }
 
     if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register(
-            new URL("../MiniApp__TextToReader__ServiceWorker__.js", import.meta.url),
-            { scope: "./" }
-        ).catch((Na__Error) => console.warn("Offline worker not yet installed:", Na__Error));
+        Na__Reader__RegisterOfflineWorker().catch((Na__Error) => console.warn("Offline worker not yet installed:", Na__Error));
     }
 }
 // --------------------------------------------------------

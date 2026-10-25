@@ -5,22 +5,22 @@
 
 // REGION | Configuration
 // --------------------------------------------------------
-const Na__Reader__ShellCacheName = "NaTextToReader__Shell__v1.7.0";
+const Na__Reader__ShellCacheName = "NaTextToReader__Shell__v1.7.1";
 const Na__Reader__RuntimeBase = "./02__PhononRuntime/";
 const Na__Reader__ShellFiles = [
     "./MiniApp__TextToReader__Main__.html",
     "./MiniApp__TextToReader__AppConfig__.json",
     "./MiniApp__TextToReader__Manifest__.webmanifest",
-    "./MiniApp__TextToReader__Style__.css?v=1.7.0",
-    "./MiniApp__TextToReader__MarkdownStyle__.css?v=1.7.0",
-    "./MiniApp__TextToReader__ReadAloud__.css?v=1.7.0",
-    "./01__AppModules/MiniApp__TextToReader__Main__.js?v=1.7.0",
-    "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js?v=1.7.0",
-    "./01__AppModules/MiniApp__TextToReader__FileUpload__.js?v=1.7.0",
-    "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js?v=1.7.0",
-    "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js?v=1.7.0",
-    "./01__AppModules/MiniApp__TextToReader__CsvTable__.js?v=1.7.0",
-    "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js?v=1.7.0",
+    "./MiniApp__TextToReader__Style__.css?v=1.7.1",
+    "./MiniApp__TextToReader__MarkdownStyle__.css?v=1.7.1",
+    "./MiniApp__TextToReader__ReadAloud__.css?v=1.7.1",
+    "./01__AppModules/MiniApp__TextToReader__Main__.js?v=1.7.1",
+    "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js?v=1.7.1",
+    "./01__AppModules/MiniApp__TextToReader__FileUpload__.js?v=1.7.1",
+    "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js?v=1.7.1",
+    "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js?v=1.7.1",
+    "./01__AppModules/MiniApp__TextToReader__CsvTable__.js?v=1.7.1",
+    "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js?v=1.7.1",
     "../../../assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_30_-_STYL_-_Core-Default-Web-Utility-App-Stylesheet.css",
     "../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__PNG-h192px.png",
     "../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__PNG-h512px.png",

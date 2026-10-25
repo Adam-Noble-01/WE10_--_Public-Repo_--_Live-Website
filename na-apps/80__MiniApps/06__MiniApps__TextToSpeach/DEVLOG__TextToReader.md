@@ -228,3 +228,12 @@ LEGACY SOURCE
     cannot set COOP/COEP isolation headers, so Phonon uses a single CPU
     thread until compatible Cloudflare response headers are deployed.
   - Offline model files remain subject to Android browser storage eviction.
+
+----------------------------------------------------------------
+1.7.1 - 25-Oct-2026 | Fix PWA Service Worker Scope And Cached Script
+  - Derive the registration scope explicitly from the worker script URL,
+    restricting it to 06__MiniApps__TextToSpeach rather than its parent.
+  - Share the same registration helper between automatic and explicit install.
+  - Bump every HTML import/CSS version token and the service worker cache
+    version so previous 1.7.0 browser and Cloudflare caches cannot be reused.
+  - Request updateViaCache:none for the worker script's own update checks.
