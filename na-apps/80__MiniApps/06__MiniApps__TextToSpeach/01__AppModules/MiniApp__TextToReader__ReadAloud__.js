@@ -204,7 +204,7 @@ async function Na__Reader__InstallOffline() {
 
         await navigator.serviceWorker.register(
             new URL("../MiniApp__TextToReader__ServiceWorker__.js", import.meta.url),
-            { scope: "../" }
+            { scope: "./" }
         );
         await navigator.serviceWorker.ready;
         await Na__Reader__LoadPhonon();
@@ -421,7 +421,7 @@ export function Na__TextToReader__InitialiseReadAloud({ config, article }) {
     if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register(
             new URL("../MiniApp__TextToReader__ServiceWorker__.js", import.meta.url),
-            { scope: "../" }
+            { scope: "./" }
         ).catch((Na__Error) => console.warn("Offline worker not yet installed:", Na__Error));
     }
 }
