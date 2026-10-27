@@ -234,6 +234,7 @@ function Na__WordJump__SentenceText(Na__Word) {
 // ------------------------------------------------------------
 function Na__WordJump__SetItem(Na__Action, Na__Enabled, Na__Label, Na__Icon) {
     const Na__Item = Na__WordJump__Nodes.menu.querySelector('[data-action="' + Na__Action + '"]');
+    if (!Na__Item) return;   // An older cached page lacks the newer items
     Na__Item.disabled = !Na__Enabled;
     if (Na__Label) Na__Item.querySelector(".TTR__menu-label").textContent = Na__Label;
     if (Na__Icon) Na__Item.dataset.icon = Na__Icon;
@@ -264,8 +265,8 @@ function Na__WordJump__OpenMenu(Na__X, Na__Y, Na__Word) {
     // Sectioned reading reads on from a section, never just the selection: This Section replaces Read Selection
     Na__WordJump__SetItem("selection", Na__CanPrep && Boolean(Na__Selected) || Na__Reading && Boolean(Na__Selected) && !prepare.disabled);
     Na__WordJump__SetItem("section", Na__Reading && Boolean(Na__Selected || Na__Word) && (Na__HasAudio || Na__CanPrep));
-    Na__WordJump__Nodes.menu.querySelector('[data-action="selection"]').hidden = Na__Sections;
-    Na__WordJump__Nodes.menu.querySelector('[data-action="section"]').hidden = !Na__Sections;
+    Na__WordJump__Nodes.menu.querySelector('[data-action="selection"]')?.toggleAttribute("hidden", Na__Sections);
+    Na__WordJump__Nodes.menu.querySelector('[data-action="section"]')?.toggleAttribute("hidden", !Na__Sections);
     Na__WordJump__SetItem("copy", Boolean(Na__Selected || Na__Word));
     Na__WordJump__SetItem("stop", !stop.disabled);
 

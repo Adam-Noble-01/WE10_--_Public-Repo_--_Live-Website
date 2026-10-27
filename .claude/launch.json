@@ -224,6 +224,17 @@
         "8563"
       ],
       "port": 8563
+    },
+    {
+      "name": "text-to-reader-dev",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "na-apps/80__MiniApps/06__MiniApps__TextToSpeach/MiniApp__TextToReader__DevServer__.py",
+        "--no-browser",
+        "--port",
+        "8765"
+      ],
+      "port": 8765
     }
   ]
 }

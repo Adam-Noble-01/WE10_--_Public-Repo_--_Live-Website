@@ -1384,8 +1384,8 @@ export function Na__TextToReader__PlayFromStart() {
 // FUNCTION | SetSectionMode - The voice modal's switch: read in sections, or the whole document at once
 // --------------------------------------------------------
 function Na__Reader__SetSectionMode(Na__On, Na__Persist) {
-    Na__Reader__SectionMode = Boolean(Na__On);
-    Na__Reader__Modal.sectionsToggle.checked = Na__Reader__SectionMode;
+    Na__Reader__SectionMode = Boolean(Na__On) && Boolean(Na__Reader__Modal.sectionsToggle);   // An older cached page has no switch
+    if (Na__Reader__Modal.sectionsToggle) Na__Reader__Modal.sectionsToggle.checked = Na__Reader__SectionMode;
     document.body.dataset.ttrSections = Na__Reader__SectionMode ? "on" : "off";   // The right-click menu reads this
 
     const Na__Label = Na__Reader__SectionMode ? "Choose a section and play" : "Prepare & Play";
@@ -1466,7 +1466,7 @@ export function Na__TextToReader__InitialiseReadAloud({ config, article }) {
     // Sections: the voice modal's switch, picking the start in the text, words played from other sections
     const Na__SectionSize = Number(config.NaMiniApp__SectionSentences) || 10;
     const Na__FirstSectionSize = Number(config.NaMiniApp__FirstSectionSentences) || Na__SectionSize;
-    Na__Reader__Modal.sectionsNote.textContent = "Renders " + Na__SectionSize + " sentences at a time (the first " +
+    if (Na__Reader__Modal.sectionsNote) Na__Reader__Modal.sectionsNote.textContent = "Renders " + Na__SectionSize + " sentences at a time (the first " +
         "section " + Na__FirstSectionSize + ", to start sooner), so a long " +
         "document starts reading after one section, not after all of it. Click a sentence, or select a passage, " +
         "to choose where to start; the sections after it and before it are prepared while you listen.";
@@ -1480,7 +1480,7 @@ export function Na__TextToReader__InitialiseReadAloud({ config, article }) {
         });
     }
     Na__Reader__SetSectionMode(Na__TextToReader__GetUserSetting(Na__Reader__UserSection, "NaUserConfig__SectionedReading"), false);
-    Na__Reader__Modal.sectionsToggle.addEventListener("change", () =>
+    Na__Reader__Modal.sectionsToggle?.addEventListener("change", () =>
         Na__Reader__SetSectionMode(Na__Reader__Modal.sectionsToggle.checked, true));
     article.addEventListener("pointerup", Na__Reader__HandlePick);
     document.addEventListener("keydown", (Na__Event) => {
