@@ -602,7 +602,7 @@
         "library-description"   :   "Noble Architecture Core Brand Image Assets Library",
         "library-usage"         :   "Single point of access for all Noble Architecture brand image assets including logos and signatures",
         "library-added-by"      :   "Adam Noble",
-        "library-last-updated"  :   "12-Apr-2025",
+        "library-last-updated"  :   "27-Oct-2026",
         "library-active-status" :   true,
         "assets": {
             "na-company-logo-main": {
@@ -618,6 +618,51 @@
                 "asset-usage"           :   "primary company logo for website and marketing materials",
                 "asset-added-by"        :   "Adam Noble",
                 "asset-last-updated"    :   "12-Apr-2025",
+                "asset-active-status"   :   true
+            },
+            "na-company-logo-main-svg": {
+                "asset-name"            :   "Noble Architecture Company Logo - Main SVG",
+                "asset-dir-path"        :   "./assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets",
+                "asset-web-url"         :   "https://www.noble-architecture.com/assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets/NA03_02_-_SVG_-_NA_Company_Logo.svg",
+                "asset-file-name"       :   "NA03_02_-_SVG_-_NA_Company_Logo.svg",
+                "asset-id-code"         :   "NA03_02",
+                "asset-type"            :   "image",
+                "asset-category"        :   "company logo",
+                "asset-format"          :   "svg",
+                "asset-description"     :   "Noble Architecture Company Logo - Main Brand Logo, vector (mark, dimension lines and wordmark), transparent background",
+                "asset-usage"           :   "primary company logo at any size: website, apps, documents and print",
+                "asset-added-by"        :   "Adam Noble",
+                "asset-last-updated"    :   "27-Oct-2026",
+                "asset-active-status"   :   true
+            },
+            "na-company-logo-animated-loop": {
+                "asset-name"            :   "Noble Architecture Company Logo - Animated SVG (Loop)",
+                "asset-dir-path"        :   "./assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets",
+                "asset-web-url"         :   "https://www.noble-architecture.com/assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets/NA03_03_-_SVG_-_NA_Company_Logo_-_Animated.svg",
+                "asset-file-name"       :   "NA03_03_-_SVG_-_NA_Company_Logo_-_Animated.svg",
+                "asset-id-code"         :   "NA03_03",
+                "asset-type"            :   "image",
+                "asset-category"        :   "company logo",
+                "asset-format"          :   "svg",
+                "asset-description"     :   "Noble Architecture Company Logo - animated: the mark is set out and built, then the name is lettered in; holds, fades and repeats (8 s cycle)",
+                "asset-usage"           :   "app loading screens of any length; plays as a plain img, no script",
+                "asset-added-by"        :   "Adam Noble",
+                "asset-last-updated"    :   "27-Oct-2026",
+                "asset-active-status"   :   true
+            },
+            "na-company-logo-animated-once": {
+                "asset-name"            :   "Noble Architecture Company Logo - Animated SVG (Plays Once)",
+                "asset-dir-path"        :   "./assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets",
+                "asset-web-url"         :   "https://www.noble-architecture.com/assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets/NA03_04_-_SVG_-_NA_Company_Logo_-_Animated-Once.svg",
+                "asset-file-name"       :   "NA03_04_-_SVG_-_NA_Company_Logo_-_Animated-Once.svg",
+                "asset-id-code"         :   "NA03_04",
+                "asset-type"            :   "image",
+                "asset-category"        :   "company logo",
+                "asset-format"          :   "svg",
+                "asset-description"     :   "Noble Architecture Company Logo - animated: the mark is set out and built, then the name is lettered in; plays once (3.5 s) and holds the finished logo",
+                "asset-usage"           :   "app splash and intro screens; plays as a plain img, no script",
+                "asset-added-by"        :   "Adam Noble",
+                "asset-last-updated"    :   "27-Oct-2026",
                 "asset-active-status"   :   true
             },
             "na-company-email-signature": {
@@ -693,6 +738,36 @@
                 "asset-usage"           :   "small resolution profile logo for social media and small display areas",
                 "asset-added-by"        :   "Adam Noble",
                 "asset-last-updated"    :   "12-Apr-2025",
+                "asset-active-status"   :   true
+            },
+            "profile-logo-svg-grey-bg": {
+                "asset-name"            :   "Noble Architecture Profile Logo - SVG Grey Background",
+                "asset-dir-path"        :   "./assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets",
+                "asset-web-url"         :   "https://www.noble-architecture.com/assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets/NA03_43_-_SVG_-_Profile-Logo_-_GreyBg.svg",
+                "asset-file-name"       :   "NA03_43_-_SVG_-_Profile-Logo_-_GreyBg.svg",
+                "asset-id-code"         :   "NA03_43",
+                "asset-type"            :   "image",
+                "asset-category"        :   "profile logo",
+                "asset-format"          :   "svg",
+                "asset-description"     :   "Noble Architecture Profile Logo - vector, on its #595959 grey square",
+                "asset-usage"           :   "profile pictures and avatars at any size",
+                "asset-added-by"        :   "Adam Noble",
+                "asset-last-updated"    :   "27-Oct-2026",
+                "asset-active-status"   :   true
+            },
+            "profile-logo-svg-transparent": {
+                "asset-name"            :   "Noble Architecture Profile Logo - SVG Transparent",
+                "asset-dir-path"        :   "./assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets",
+                "asset-web-url"         :   "https://www.noble-architecture.com/assets/NA03_-_LIBR_-_NA-Site_-_Core-Brand-Image-Assets/NA03_44_-_SVG_-_Profile-Logo_-_Transparent.svg",
+                "asset-file-name"       :   "NA03_44_-_SVG_-_Profile-Logo_-_Transparent.svg",
+                "asset-id-code"         :   "NA03_44",
+                "asset-type"            :   "image",
+                "asset-category"        :   "profile logo",
+                "asset-format"          :   "svg",
+                "asset-description"     :   "Noble Architecture Profile Logo - vector, transparent background",
+                "asset-usage"           :   "the mark on any background: headers, app icons, documents",
+                "asset-added-by"        :   "Adam Noble",
+                "asset-last-updated"    :   "27-Oct-2026",
                 "asset-active-status"   :   true
             }
         }
