@@ -71,6 +71,28 @@ jobs:
           test -s "$RUNTIME/marked.esm.js"
           echo "Published Phonon 0.4.0 and Marked 15.0.12."
 
+      # Kokoro 82M runs through kokoro-js, whose web bundle loads ONNX Runtime's
+      # threaded wasm from beside it (same-origin, so its thread workers start).
+      # The model and voices themselves are served from cdn.noble-architecture.com.
+      - name: Publish Text To Reader Kokoro runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="na-apps/80__MiniApps/06__MiniApps__TextToSpeach"
+          RUNTIME="$APP/03__KokoroRuntime"
+          mkdir -p "$RUNTIME" /tmp/na-reader-kokoro /tmp/na-reader-transformers
+          npm pack kokoro-js@1.2.1 --pack-destination /tmp --silent
+          tar -xzf /tmp/kokoro-js-1.2.1.tgz -C /tmp/na-reader-kokoro --strip-components=1
+          npm pack @huggingface/transformers@3.5.1 --pack-destination /tmp --silent
+          tar -xzf /tmp/huggingface-transformers-3.5.1.tgz -C /tmp/na-reader-transformers --strip-components=1
+          cp /tmp/na-reader-kokoro/dist/kokoro.web.js "$RUNTIME/kokoro.web.js"
+          cp /tmp/na-reader-transformers/dist/ort-wasm-simd-threaded.jsep.mjs "$RUNTIME/"
+          cp /tmp/na-reader-transformers/dist/ort-wasm-simd-threaded.jsep.wasm "$RUNTIME/"
+          test -s "$RUNTIME/kokoro.web.js"
+          test -s "$RUNTIME/ort-wasm-simd-threaded.jsep.mjs"
+          test -s "$RUNTIME/ort-wasm-simd-threaded.jsep.wasm"
+          echo "Published kokoro-js 1.2.1 with ONNX Runtime from transformers 3.5.1."
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

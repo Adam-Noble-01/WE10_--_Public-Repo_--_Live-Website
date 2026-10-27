@@ -4,7 +4,7 @@
 //
 // FILE    : MiniApp__TextToReader__ViewTabs__.js
 // AUTHOR  : Adam Noble - Noble Architecture
-// PURPOSE : Simple / Edit / Read view switching
+// PURPOSE : Read / Edit view switching
 // CREATED : 19-Sep-2026
 //
 // =============================================================================
@@ -14,7 +14,7 @@
 // REGION | Module-Level Variables
 // -----------------------------------------------------------------------------
 
- let Na__TextToReader__ActiveMode    = "simple";
+ let Na__TextToReader__ActiveMode    = "read";
  let Na__TextToReader__TabButtons    = [];
  let Na__TextToReader__OnModeChange  = null;
 
@@ -79,7 +79,7 @@ export function Na__TextToReader__InitialiseViewTabs(Na__Config) {
     Na__TextToReader__TabButtons   = Array.from(tabButtons || []);
     Na__TextToReader__OnModeChange = onModeChange;
 
-    const Na__InitialMode = defaultMode || "simple";
+    const Na__InitialMode = defaultMode || "read";
 
     Na__TextToReader__TabButtons.forEach((Na__Button) => {
         Na__Button.addEventListener("click", () => {

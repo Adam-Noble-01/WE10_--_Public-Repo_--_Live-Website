@@ -72,6 +72,18 @@ body {
     flex-wrap                            : wrap;
 }
 
+.TTR__header-logo {
+    width                                : var(--TTR_Size_UploadButton);
+    height                               : var(--TTR_Size_UploadButton);
+    flex-shrink                          : 0;
+    display                              : block;
+    border-radius                        : 0.20rem;
+    margin-right                         : -0.35rem;
+    cursor                               : pointer;              /* opens the activity log */
+    -webkit-user-drag                    : none;
+    -webkit-tap-highlight-color          : transparent;
+}
+
 .HEAD__title {
     margin                               : 0;
     font-size                            : var(--TTR_Size_HeaderTitle);
@@ -101,30 +113,30 @@ body {
 /* endregion ---------------------------------------------------------------- */
 
 /* -----------------------------------------------------------------------------
-   REGION | Content Tab Bar — Folder Tabs On The A4 Column
+   REGION | Tool Bar — Read | Edit Folder Tabs, Then The Read-Aloud Controls
+   One row on the A4 column: tabs hug the left, controls sit right.
    -------------------------------------------------------------------------- */
-.TTR__tab-bar {
+.TTR__toolbar {
     display                              : flex;
     align-items                          : flex-end;
+    gap                                  : 00.50rem;
     flex-shrink                          : 0;
     width                                : 100%;
-    margin-top                           : 00.00rem;
-    padding-top                          : 00.00rem;
-    padding-right                        : 00.00rem;
-    padding-bottom                       : 00.00rem;
-    padding-left                         : 00.00rem;
+    box-sizing                           : border-box;
+    margin-top                           : 00.25rem;
     border-bottom                        : 01px solid var(--TTR_Col_TabBorder);
 }
 
 .TTR__tablist {
     display                              : flex;
     align-items                          : stretch;
-    width                                : 100%;
+    align-self                           : stretch;
     gap                                  : 00.15rem;
 }
 
 .TTR__tab {
-    flex                                 : 1 1 0;
+    flex                                 : 0 0 auto;
+    min-width                            : 9.50rem;
     display                              : inline-flex;
     align-items                          : center;
     justify-content                      : center;
@@ -236,7 +248,7 @@ body {
 /* endregion ---------------------------------------------------------------- */
 
 /* -----------------------------------------------------------------------------
-   REGION | View Modes — Simple / Edit / Read
+   REGION | View Modes — Read / Edit
    -------------------------------------------------------------------------- */
 .PAGE__container {
     height                               : 100%;
@@ -262,32 +274,23 @@ body {
     margin-bottom                        : 00.00rem;
 }
 
-body[data-ttr-mode="simple"] .TTR__panel + .TTR__panel {
-    margin-top                           : 00.40rem;
-}
-
-.TTR__tab-bar + .TTR__panel {
+.TTR__panel {
     border-top                           : none;
     border-top-left-radius               : 00.00rem;
     border-top-right-radius              : 00.00rem;
     margin-top                           : 00.00rem;
 }
 
-body[data-ttr-mode="simple"] .CTRL__heading {
-    margin-bottom                        : 00.45rem;
-    padding-bottom                       : 00.30rem;
+.TTR__panel[hidden] {
+    display                              : none !important;
 }
 
-body[data-ttr-mode="edit"] .TTR__simple-only,
-body[data-ttr-mode="edit"] .TTR__panel--actions,
-body[data-ttr-mode="edit"] .TTR__panel--output {
+body[data-ttr-mode="edit"] .TTR__panel--output,
+body[data-ttr-mode="edit"] .TTR__audio-info {
     display                              : none;
 }
 
-body[data-ttr-mode="read"] .TTR__simple-only,
 body[data-ttr-mode="read"] .TTR__panel--input,
-body[data-ttr-mode="read"] .TTR__panel--actions,
-body[data-ttr-mode="read"] .TTR__upload-status,
 body[data-ttr-mode="read"] .FOOT__container {
     display                              : none;
 }
@@ -419,17 +422,28 @@ body[data-ttr-mode="edit"] .FORM__textarea {
         padding-bottom                   : 00.65rem;
     }
 
-    .TTR__tab-bar {
-        padding-top                      : 00.00rem;
-        padding-bottom                   : 00.00rem;
+    .TTR__toolbar {
+        gap                              : 00.30rem;
+        padding-right                    : 00.35rem;
+    }
+
+    /* Phone fit with the voice button: the pulsing speaker goes (Play/Pause already
+       shows playback) and the controls close up, so Play/Pause stays on screen at 375 px */
+    .TTR__toolbar .TTR__audio-actions {
+        gap                              : 00.20rem;
+    }
+
+    .TTR__toolbar .TTR__audio-playing {
+        display                          : none;
     }
 
     .TTR__tab {
+        min-width                        : 3.85rem;   /* widest that still fits the controls (with the voice button) at 375 px */
         font-size                        : 00.70rem;
         padding-top                      : 00.42rem;
-        padding-right                    : 00.30rem;
+        padding-right                    : 00.45rem;
         padding-bottom                   : 00.38rem;
-        padding-left                     : 00.30rem;
+        padding-left                     : 00.45rem;
     }
 
     .TTR__header-end {

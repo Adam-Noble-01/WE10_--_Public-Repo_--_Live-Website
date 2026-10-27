@@ -169,3 +169,7 @@ na-project-portal/**/PointCloud__ViewportData/**
 na-project-portal/**/PointCloud__ViewportData/00__Staging/
 !na-project-portal/**/PointCloud__ViewportData/**/*.json
 !na-project-portal/**/PointCloud__ViewportData/*.note
+# Text To Reader dev runtime (phonon-tts + marked), fetched by its dev server
+na-apps/80__MiniApps/06__MiniApps__TextToSpeach/02__PhononRuntime/
+# Text To Reader Kokoro runtime (kokoro-js + ONNX Runtime wasm), published by the Pages workflow
+na-apps/80__MiniApps/06__MiniApps__TextToSpeach/03__KokoroRuntime/

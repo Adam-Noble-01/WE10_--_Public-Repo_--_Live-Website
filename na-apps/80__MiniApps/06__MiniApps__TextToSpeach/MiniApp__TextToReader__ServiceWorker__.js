@@ -5,22 +5,45 @@
 
 // REGION | Configuration
 // --------------------------------------------------------
-const Na__Reader__ShellCacheName = "NaTextToReader__Shell__v1.7.1";
+const Na__Reader__ShellCacheName = "NaTextToReader__Shell__v1.9.0";
 const Na__Reader__RuntimeBase = "./02__PhononRuntime/";
 const Na__Reader__ShellFiles = [
     "./MiniApp__TextToReader__Main__.html",
     "./MiniApp__TextToReader__AppConfig__.json",
     "./MiniApp__TextToReader__Manifest__.webmanifest",
-    "./MiniApp__TextToReader__Style__.css?v=1.7.1",
-    "./MiniApp__TextToReader__MarkdownStyle__.css?v=1.7.1",
-    "./MiniApp__TextToReader__ReadAloud__.css?v=1.7.1",
-    "./01__AppModules/MiniApp__TextToReader__Main__.js?v=1.7.1",
-    "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js?v=1.7.1",
-    "./01__AppModules/MiniApp__TextToReader__FileUpload__.js?v=1.7.1",
-    "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js?v=1.7.1",
-    "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js?v=1.7.1",
-    "./01__AppModules/MiniApp__TextToReader__CsvTable__.js?v=1.7.1",
-    "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js?v=1.7.1",
+    "./MiniApp__TextToReader__Style__.css?v=1.9.0",
+    "./MiniApp__TextToReader__MarkdownStyle__.css?v=1.9.0",
+    "./MiniApp__TextToReader__ReadAloud__.css?v=1.9.0",
+    "./01__AppModules/MiniApp__TextToReader__Main__.js?v=1.9.0",
+    "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js?v=1.9.0",
+    "./01__AppModules/MiniApp__TextToReader__FileUpload__.js?v=1.9.0",
+    "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js?v=1.9.0",
+    "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js?v=1.9.0",
+    "./01__AppModules/MiniApp__TextToReader__CsvTable__.js?v=1.9.0",
+    "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js?v=1.9.0",
+    "./01__AppModules/MiniApp__TextToReader__SpeechEngines__.js?v=1.9.0",
+    "./01__AppModules/MiniApp__TextToReader__ActivityLog__.js?v=1.9.0",
+    "./01__AppModules/MiniApp__TextToReader__Highlight__.js?v=1.9.0",
+    "./01__AppModules/MiniApp__TextToReader__Sections__.js?v=1.9.0",
+    "./01__AppModules/MiniApp__TextToReader__SourceModal__.js?v=1.9.0",
+    "./01__AppModules/MiniApp__TextToReader__WordJump__.js?v=1.9.0",
+    "./01__AppModules/MiniApp__TextToReader__UserConfig__.js?v=1.9.0",
+    "./01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__Play__.svg",
+    "./01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__Pause__.svg",
+    "./01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__PlayFromStart__.svg",
+    "./01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__PasteClipboard__.svg",
+    "./01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__OpenFile__.svg",
+    "./01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__SpeedDial__.svg",
+    "./01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__PlayPause__.svg",
+    "./01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__Prepare__.svg",
+    "./01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__Stop__.svg",
+    "./01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__DownloadVoiceModel__.svg",
+    "./01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__AudioPlaying__.svg",
+    "./01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__VoiceModel__.svg",
+    "./01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__Info__.svg",
+    "./01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__Sections__.svg",
+    "./01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__Pitch__.svg",
+    "./01__AppAssets__TextToReader/Logos__NobleArchitecture/Logo__NobleArchitecture__ProfileMark__GreyBg__.svg",
     "../../../assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_30_-_STYL_-_Core-Default-Web-Utility-App-Stylesheet.css",
     "../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__PNG-h192px.png",
     "../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__PNG-h512px.png",
@@ -38,8 +61,21 @@ const Na__Reader__ShellFiles = [
     Na__Reader__RuntimeBase + "wasm/phonon_tts_simd_bg.wasm",
     Na__Reader__RuntimeBase + "wasm-threads/phonon_tts.js",
     Na__Reader__RuntimeBase + "wasm-threads/phonon_tts_bg.wasm",
-    Na__Reader__RuntimeBase + "wasm-threads/phonon_tts_simd_bg.wasm"
+    Na__Reader__RuntimeBase + "wasm-threads/phonon_tts_simd_bg.wasm",
+    // The thread workers' own script (wasm-bindgen-rayon); without it threads fail offline
+    Na__Reader__RuntimeBase + "wasm-threads/snippets/wasm-bindgen-rayon-38edf6e439f6d70d/src/workerHelpers.js"
 ];
+
+// Cross-origin isolation: the page may only share memory with its worker threads
+// (SharedArrayBuffer, which multi-threaded WebAssembly needs) when it is served with
+// these headers. GitHub Pages cannot set them, so every same-origin response this
+// worker hands out carries them. Model files come from cdn.noble-architecture.com,
+// which answers with CORS, as require-corp needs.
+const Na__Reader__IsolationHeaders = {
+    "Cross-Origin-Opener-Policy"   : "same-origin",
+    "Cross-Origin-Embedder-Policy" : "require-corp",
+    "Cross-Origin-Resource-Policy" : "same-origin"
+};
 // endregion -------------------------------------------------------------------
 
 
@@ -57,7 +93,8 @@ async function Na__Reader__CacheShell() {
 // --------------------------------------------------------
 
 
-// FUNCTION | PurgeOldShells - Preserve Phonon's independent model cache
+// FUNCTION | PurgeOldShells - Preserve the voice caches (Phonon, Kokoro and its runtime)
+// and NaTextToReader__UserConfig, which holds this user's settings file
 // --------------------------------------------------------
 async function Na__Reader__PurgeOldShells() {
     const Na__Names = await caches.keys();
@@ -82,11 +119,36 @@ self.addEventListener("activate", (Na__Event) => {
 // REGION | Fetch
 // --------------------------------------------------------
 
+// FUNCTION | WithIsolationHeaders - Copy a response, adding the cross-origin isolation headers
+// --------------------------------------------------------
+// A redirected or opaque response is passed on untouched: re-wrapping a redirect would
+// show the page at the wrong address, and an opaque body cannot be read.
+function Na__Reader__WithIsolationHeaders(Na__Response) {
+    if (!Na__Response || Na__Response.type === "opaque" || Na__Response.type === "opaqueredirect" ||
+        Na__Response.redirected || Na__Response.status === 0) {
+        return Na__Response;
+    }
+    const Na__Headers = new Headers(Na__Response.headers);
+    for (const [Na__Name, Na__Value] of Object.entries(Na__Reader__IsolationHeaders)) {
+        Na__Headers.set(Na__Name, Na__Value);
+    }
+    return new Response(Na__Response.body, {
+        status     : Na__Response.status,
+        statusText : Na__Response.statusText,
+        headers    : Na__Headers
+    });
+}
+// --------------------------------------------------------
+
+
 // FUNCTION | ServeLocalShell - Prefer offline cache, refresh navigations online
 // --------------------------------------------------------
+// Files missing from the versioned shell are looked up in every cache, which is where
+// the Kokoro runtime lives once its voice is downloaded (it outlasts app releases).
 async function Na__Reader__ServeLocalShell(Na__Request) {
     const Na__Cache = await caches.open(Na__Reader__ShellCacheName);
-    const Na__Cached = await Na__Cache.match(Na__Request);
+    const Na__Cached = await Na__Cache.match(Na__Request) ||
+        (Na__Request.mode === "navigate" ? undefined : await caches.match(Na__Request));
 
     if (Na__Request.mode === "navigate") {
         try {
@@ -117,6 +179,6 @@ async function Na__Reader__ServeLocalShell(Na__Request) {
 self.addEventListener("fetch", (Na__Event) => {
     if (Na__Event.request.method !== "GET") return;
     if (new URL(Na__Event.request.url).origin !== self.location.origin) return;
-    Na__Event.respondWith(Na__Reader__ServeLocalShell(Na__Event.request));
+    Na__Event.respondWith(Na__Reader__ServeLocalShell(Na__Event.request).then(Na__Reader__WithIsolationHeaders));
 });
 // endregion -------------------------------------------------------------------

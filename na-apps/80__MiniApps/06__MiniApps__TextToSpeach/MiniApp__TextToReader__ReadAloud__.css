@@ -2,46 +2,27 @@
    NOBLE ARCHITECTURE - TEXT TO READER - OFFLINE PHONON PLAYER
    ============================================================================= */
 
-.TTR__audio-panel {
-    box-sizing: border-box;
-    width: 100%;
-    max-width: 210mm;
-    margin: 0 auto 0.65rem;
-    padding: 0.7rem 0.85rem;
-    background: #f8fafb;
+/* Controls sit in the tool bar, right of the Read | Edit tabs:
+   Audio symbol | Speed | Stop | Play/Pause (Prepare until audio exists) */
+.TTR__audio-actions {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.35rem;
+    margin-left: auto;
+    padding: 0.2rem 0 0.25rem;
     color: #263b49;
-    border: 1px solid #d6dce0;
-    border-radius: 4px;
     font-family: "Open Sans", Arial, sans-serif;
 }
 
-.TTR__audio-panel[hidden],
-.TTR__audio-panel progress[hidden] {
+.TTR__audio-actions[hidden],
+.TTR__audio-info progress[hidden] {
     display: none !important;
 }
 
-.TTR__audio-heading,
-.TTR__audio-actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.55rem;
-}
-
-.TTR__audio-heading {
-    justify-content: space-between;
-    margin-bottom: 0.6rem;
-}
-
-.TTR__audio-engine {
-    font-size: 0.75rem;
-    color: #65747d;
-}
-
-.TTR__audio-actions button,
-.TTR__audio-speed select {
-    min-height: 39px;
-    padding: 0.4rem 0.65rem;
+.TTR__audio-actions button {
+    min-height: 34px;
+    padding: 0.25rem 0.55rem;
     border: 1px solid #9aa9b3;
     border-radius: 3px;
     background: white;
@@ -51,7 +32,8 @@
     cursor: pointer;
 }
 
-.TTR__audio-actions button:first-child {
+/* Prepare is the one filled button: the first thing to press on new text */
+.TTR__audio-actions .TTR__audio-primary {
     color: white;
     background: #263b49;
     border-color: #263b49;
@@ -62,45 +44,734 @@
     opacity: 0.48;
 }
 
-.TTR__audio-speed {
+/* Speedo button: one tap steps the speed and the needle swings to it */
+.TTR__audio-actions .TTR__audio-speed {
     display: inline-flex;
     gap: 0.4rem;
     align-items: center;
-    font-size: 0.8rem;
+    padding: 0.15rem 0.5rem 0.15rem 0.35rem;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: transform 0.12s ease;
+}
+
+.TTR__audio-actions .TTR__audio-speed:active {
+    transform: scale(0.95);
+}
+
+.TTR__audio-speed-dial,
+.TTR__audio-speed-dial svg {
+    display: block;
+    width: 24px;
+    height: 24px;
+}
+
+.TTR__audio-speed-value {
+    min-width: 2.6em;
+    text-align: left;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Read-aloud icons from 01__AppAssets__TextToReader. Static ones are masks, so they
+   take the button's text colour: white on the dark buttons, navy elsewhere. */
+.TTR__audio-actions button,
+.TTR__voice-modal-actions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.TTR__icon-prepare  { --ttr-icon: url("01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__Prepare__.svg"); }
+.TTR__icon-stop     { --ttr-icon: url("01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__Stop__.svg"); }
+.TTR__icon-download { --ttr-icon: url("01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__DownloadVoiceModel__.svg"); }
+.TTR__audio-playing { --ttr-icon: url("01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__AudioPlaying__.svg"); }
+.TTR__icon-voice    { --ttr-icon: url("01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__VoiceModel__.svg"); }
+
+.TTR__icon-prepare::before,
+.TTR__icon-stop::before,
+.TTR__icon-download::before,
+.TTR__icon-voice::before,
+.TTR__audio-playing {
+    content: "";
+    display: inline-block;
+    flex: none;
+    width: 20px;
+    height: 20px;
+    background-color: currentColor;
+    -webkit-mask: var(--ttr-icon) center / contain no-repeat;
+    mask: var(--ttr-icon) center / contain no-repeat;
+}
+
+/* Icon-only square buttons: Play/Pause (the inlined morph SVG) and Stop */
+.TTR__audio-actions .TTR__audio-icon-btn {
+    width: 34px;
+    padding: 0;
+}
+
+.TTR__audio-playpause,
+.TTR__audio-playpause svg {
+    display: block;
+    width: 22px;
+    height: 22px;
+}
+
+/* Shown while audio plays: the speaker, breathing gently */
+.TTR__audio-playing {
+    width: 22px;
+    height: 22px;
+    margin-right: 0.15rem;
+    color: #263b49;
+    animation: TTR__audio-playing-pulse 1.4s ease-in-out infinite;
+}
+
+.TTR__audio-playing[hidden] {
+    display: none;
+}
+
+@keyframes TTR__audio-playing-pulse {
+    0%, 100% { opacity: 0.35; }
+    50%      { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .TTR__audio-playing { animation-duration: 3s; }
 }
 
 .TTR__audio-install {
     margin-left: auto;
 }
 
-.TTR__audio-panel progress {
+/* Status and progress: a slim row under the bar, gone when empty */
+/* Status fills the gap in the tool bar between the tabs and the controls,
+   one line, then fades out (ReadAloud.js adds --faded a few seconds after
+   the last message, never while the progress bar shows work running) */
+.TTR__toolbar { position: relative; }
+
+.TTR__audio-info {
+    flex: 1 1 auto;
+    min-width: 0;
+    align-self: center;
+    font-family: "Open Sans", Arial, sans-serif;
+}
+
+.TTR__audio-info progress {
     display: block;
     width: 100%;
-    height: 0.4rem;
-    margin: 0.65rem 0 0.3rem;
+    height: 0.3rem;
+    margin: 0.2rem 0 0;
     accent-color: #263b49;
 }
 
 .TTR__audio-status {
-    margin: 0.5rem 0 0;
+    margin: 0;
     color: #54636d;
-    font-size: 0.77rem;
-    line-height: 1.5;
-    overflow-wrap: anywhere;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 1;
+    transition: opacity 0.9s ease;
+}
+
+.TTR__audio-status--faded {
+    opacity: 0;
+}
+
+/* Phones: no room in the bar, so the status floats just under it over the paper */
+@media (max-width: 768px) {
+    .TTR__audio-info {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .TTR__audio-status {
+        padding: 0.3rem 0.6rem;
+        background: rgba(248, 250, 251, 0.96);
+        border-bottom: 1px solid #d6dce0;
+        white-space: normal;
+    }
 }
 
 @media (max-width: 768px) {
-    .TTR__audio-panel {
-        margin-bottom: 0.4rem;
-        padding: 0.6rem;
+    .TTR__audio-actions {
+        gap: 0.25rem;
     }
 
-    .TTR__audio-actions button,
-    .TTR__audio-speed select {
-        min-height: 44px;
+    .TTR__audio-actions button {
+        min-height: 40px;
+    }
+
+    .TTR__audio-actions .TTR__audio-icon-btn {
+        width: 40px;
+    }
+
+    .TTR__audio-actions .TTR__audio-speed {
+        padding-right: 0.35rem;
     }
 
     .TTR__audio-install {
         margin-left: 0;
     }
 }
+
+/* Offline voice download modal */
+.TTR__audio-status:empty { display: none; }
+
+.TTR__voice-modal {
+    box-sizing: border-box;
+    width: min(92vw, 26rem);
+    padding: 1.4rem 1.5rem;
+    border: 1px solid #d6dce0;
+    border-radius: 6px;
+    background: white;
+    color: #263b49;
+    font-family: "Open Sans", Arial, sans-serif;
+    box-shadow: 0 12px 40px rgba(38, 59, 73, 0.28);
+}
+
+.TTR__voice-modal::backdrop {
+    background: rgba(38, 59, 73, 0.55);
+}
+
+.TTR__voice-modal h2 {
+    margin: 0 0 0.6rem;
+    font-size: 1.05rem;
+}
+
+.TTR__voice-modal p {
+    margin: 0 0 0.9rem;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.TTR__voice-modal progress {
+    display: block;
+    width: 100%;
+    height: 0.4rem;
+    margin: 0 0 0.6rem;
+    accent-color: #263b49;
+}
+
+.TTR__voice-modal progress[hidden] { display: none; }
+
+.TTR__voice-modal-status { color: #54636d; font-size: 0.77rem; }
+.TTR__voice-modal-status:empty { display: none; }
+
+.TTR__voice-modal-actions {
+    display: flex;
+    gap: 0.55rem;
+    justify-content: flex-end;
+}
+
+.TTR__voice-modal-actions button {
+    min-height: 39px;
+    padding: 0.4rem 0.9rem;
+    border: 1px solid #9aa9b3;
+    border-radius: 3px;
+    background: white;
+    color: #263b49;
+    font: inherit;
+    font-size: 0.83rem;
+    cursor: pointer;
+}
+
+.TTR__voice-modal-actions button:first-child {
+    color: white;
+    background: #263b49;
+    border-color: #263b49;
+}
+
+.TTR__voice-modal-actions button:disabled { opacity: 0.48; cursor: not-allowed; }
+
+.TTR__audio-actions button[hidden] { display: none; }
+
+/* Text source modal: two large picture buttons, clipboard and file */
+.TTR__source-modal { width: min(92vw, 30rem); }
+
+.TTR__source-choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin: 0.4rem 0 0.9rem;
+}
+
+.TTR__source-choice {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 1.1rem 0.6rem 0.9rem;
+    border: 1px solid #c3cdd3;
+    border-radius: 6px;
+    background: #f8fafb;
+    color: #263b49;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.3;
+    text-align: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: background-color 0.12s ease, border-color 0.12s ease, transform 0.12s ease;
+}
+
+.TTR__source-choice:hover,
+.TTR__source-choice:focus-visible {
+    background: white;
+    border-color: #263b49;
+}
+
+.TTR__source-choice:active { transform: scale(0.97); }
+
+.TTR__icon-clipboard { --ttr-icon: url("01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__PasteClipboard__.svg"); }
+.TTR__icon-file      { --ttr-icon: url("01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__OpenFile__.svg"); }
+
+.TTR__source-graphic {
+    display: block;
+    width: 56px;
+    height: 56px;
+    background-color: currentColor;
+    -webkit-mask: var(--ttr-icon) center / contain no-repeat;
+    mask: var(--ttr-icon) center / contain no-repeat;
+}
+
+/* "Not now" is a quiet secondary action here, not the filled primary */
+.TTR__source-modal .TTR__voice-modal-actions button:first-child {
+    color: #263b49;
+    background: white;
+    border-color: #9aa9b3;
+}
+
+@media (max-width: 420px) {
+    .TTR__source-choices { grid-template-columns: 1fr; }
+    .TTR__source-choice  { flex-direction: row; justify-content: flex-start; padding: 0.8rem 1rem; text-align: left; }
+    .TTR__source-graphic { width: 40px; height: 40px; }
+}
+
+/* Read-along highlight: grey band on the sentence being spoken, yellow on its word */
+.TTR__s--on {
+    background: #e3e6e8;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+.TTR__w--on {
+    background: #ffeb3b;
+    color: #111;
+    border-radius: 2px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+/* Word jump (WordJump__.js): once audio exists, words are targets. Double-click or
+   long-press plays from the start of the word's sentence. No touch callout, so a
+   long-press is ours rather than the phone's copy bubble. */
+.TTR__jump-ready .TTR__w {
+    cursor: pointer;
+    -webkit-touch-callout: none;
+}
+
+.TTR__jump-ready .TTR__w:not(.TTR__w--on):hover {
+    background: rgba(38, 59, 73, 0.08);
+    border-radius: 2px;
+}
+
+/* Custom right-click menu */
+.TTR__menu {
+    position: fixed;
+    z-index: 50;
+    box-sizing: border-box;
+    min-width: 13rem;
+    padding: 0.3rem 0;
+    background: white;
+    color: #263b49;
+    border: 1px solid #d6dce0;
+    border-radius: 6px;
+    box-shadow: 0 10px 28px rgba(38, 59, 73, 0.22);
+    font-family: "Open Sans", Arial, sans-serif;
+}
+
+.TTR__menu[hidden] { display: none; }
+
+.TTR__menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    width: 100%;
+    padding: 0.45rem 0.9rem;
+    border: none;
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-size: 0.85rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.TTR__menu-item:hover:not(:disabled),
+.TTR__menu-item:focus-visible {
+    background: #eef2f4;
+    outline: none;
+}
+
+.TTR__menu-item:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.TTR__menu-rule {
+    margin: 0.3rem 0;
+    border: none;
+    border-top: 1px solid #e1e6e9;
+}
+
+.TTR__menu-item[data-icon="play"]    { --ttr-icon: url("01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__Play__.svg"); }
+.TTR__menu-item[data-icon="pause"]   { --ttr-icon: url("01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__Pause__.svg"); }
+.TTR__menu-item[data-icon="restart"] { --ttr-icon: url("01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__PlayFromStart__.svg"); }
+.TTR__menu-item[data-icon="prepare"] { --ttr-icon: url("01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__Prepare__.svg"); }
+.TTR__menu-item[data-icon="copy"]    { --ttr-icon: url("01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__PasteClipboard__.svg"); }
+.TTR__menu-item[data-icon="stop"]    { --ttr-icon: url("01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__Stop__.svg"); }
+
+.TTR__menu-icon {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    background-color: currentColor;
+    -webkit-mask: var(--ttr-icon) center / contain no-repeat;
+    mask: var(--ttr-icon) center / contain no-repeat;
+}
+
+
+/* Voice modal: one row per voice (model + speaker). Name and size on the first line,
+   the engine note under the name. */
+.TTR__voice-choices {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin: 0 0 0.9rem;
+}
+
+.TTR__voice-choice {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+        "radio name state"
+        "radio note note";
+    column-gap: 0.6rem;
+    align-items: center;
+    padding: 0.5rem 0.65rem;
+    border: 1px solid #d6dce0;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.TTR__voice-choice:has(input:checked) {
+    border-color: #263b49;
+    background: #f3f6f8;
+}
+
+.TTR__voice-choice input {
+    grid-area: radio;
+    margin: 0;
+    accent-color: #263b49;
+}
+
+.TTR__voice-choice-name {
+    grid-area: name;
+    font-weight: 600;
+    font-size: 0.88rem;
+}
+
+.TTR__voice-choice-note {
+    grid-area: note;
+    color: #54636d;
+    font-size: 0.75rem;
+}
+
+/* Voice modal: pitch slider */
+.TTR__voice-pitch {
+    display: grid;
+    gap: 0.4rem;
+    margin: 0 0 0.9rem;
+}
+
+.TTR__voice-pitch-label {
+    font-weight: 600;
+    font-size: 0.88rem;
+}
+
+.TTR__voice-pitch-slider-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto 3.2rem;
+    align-items: center;
+    gap: 0.5rem;
+    color: #54636d;
+    font-size: 0.75rem;
+}
+
+.TTR__voice-pitch-slider {
+    width: 100%;
+    margin: 0;
+    accent-color: #263b49;
+}
+
+.TTR__voice-pitch-value {
+    text-align: right;
+    font-weight: 600;
+    color: #263b49;
+    font-size: 0.8rem;
+}
+
+.TTR__voice-choice-state {
+    grid-area: state;
+    color: #54636d;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+
+/* Voice modal: "Read in sections" switch (the note says what it does) */
+.TTR__voice-sections {
+    margin: 0 0 0.9rem;
+}
+
+.TTR__voice-sections-row {
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.TTR__voice-sections-row .TTR__voice-sections-toggle { grid-column: 4; }
+
+.TTR__voice-sections-label { cursor: pointer; }
+
+.TTR__voice-modal p.TTR__voice-sections-note { margin: 0.4rem 0 0; }
+.TTR__voice-sections-note[hidden] { display: none; }
+
+/* (i) button: Info icon from 01__AppAssets__TextToReader, shows the note beneath */
+.TTR__icon-info { --ttr-icon: url("01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__Info__.svg"); }
+
+.TTR__voice-info {
+    width: 1.35rem;
+    height: 1.35rem;
+    padding: 0;
+    border: none;
+    background-color: #54636d;
+    -webkit-mask: var(--ttr-icon) center / contain no-repeat;
+    mask: var(--ttr-icon) center / contain no-repeat;
+    cursor: pointer;
+}
+
+.TTR__voice-info:hover,
+.TTR__voice-info[aria-expanded="true"] { background-color: #263b49; }
+.TTR__voice-info:focus-visible { outline: 2px solid #263b49; outline-offset: 2px; }
+
+/* Nested voice list: a folded heading with a dropdown arrow, open only when wanted */
+.TTR__voice-list {
+    margin: 0 0 0.9rem;
+}
+
+.TTR__voice-list-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.65rem;
+    border: 1px solid #d6dce0;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: pointer;
+    list-style: none;
+}
+
+.TTR__voice-list-heading::-webkit-details-marker { display: none; }
+
+.TTR__voice-list-heading::after {
+    content: "";
+    width: 0.5rem;
+    height: 0.5rem;
+    border-right: 2px solid #263b49;
+    border-bottom: 2px solid #263b49;
+    transform: rotate(45deg) translate(-2px, -2px);
+    transition: transform 0.15s ease;
+}
+
+.TTR__voice-list[open] > .TTR__voice-list-heading::after { transform: rotate(225deg) translate(-2px, -2px); }
+.TTR__voice-list-heading:focus-visible { outline: 2px solid #263b49; outline-offset: 2px; }
+
+.TTR__voice-list .TTR__voice-choices { margin: 0.5rem 0 0; }
+
+.TTR__voice-modal { max-height: 94vh; overflow-y: auto; }
+
+.TTR__voice-sections-label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.88rem;
+}
+
+.TTR__voice-sections-note {
+    display: block;
+    margin-top: 0.2rem;
+    color: #54636d;
+    font-size: 0.75rem;
+    line-height: 1.4;
+}
+
+.TTR__voice-sections-toggle {
+    -webkit-appearance: none;
+    appearance: none;
+    position: relative;
+    flex: none;
+    width: 2.5rem;
+    height: 1.4rem;
+    margin: 0;
+    border-radius: 1rem;
+    background: #c3cdd3;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.TTR__voice-sections-toggle::before {
+    content: "";
+    position: absolute;
+    top: 0.15rem;
+    left: 0.15rem;
+    width: 1.1rem;
+    height: 1.1rem;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 1px 2px rgba(38, 59, 73, 0.3);
+    transition: transform 0.15s ease;
+}
+
+.TTR__voice-sections-toggle:checked { background: #263b49; }
+.TTR__voice-sections-toggle:checked::before { transform: translateX(1.1rem); }
+.TTR__voice-sections-toggle:focus-visible { outline: 2px solid #263b49; outline-offset: 2px; }
+
+/* Section chooser: the voice rows again, one per section, in a list that scrolls on a long document */
+.TTR__section-modal {
+    width: min(94vw, 30rem);
+}
+
+.TTR__section-modal .TTR__voice-choices {
+    max-height: min(46vh, 22rem);
+    overflow-y: auto;
+}
+
+.TTR__section-modal .TTR__voice-choice-note {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Right-click menu items that sectioned reading swaps in and out (an author display beats [hidden]) */
+.TTR__menu-item[hidden] { display: none; }
+
+
+/* Activity log: the Na logo opens it; one row per event, newest first */
+#js__appLogo {
+    cursor: pointer;
+}
+
+.TTR__log-modal {
+    width: min(94vw, 36rem);
+}
+
+.TTR__voice-modal p.TTR__log-device {
+    margin: -0.3rem 0 0.7rem;
+    color: #54636d;
+    font-size: 0.75rem;
+}
+
+.TTR__log-list {
+    max-height: min(60vh, 28rem);
+    overflow-y: auto;
+    margin: 0 0 0.9rem;
+    padding: 0;
+    list-style: none;
+    border: 1px solid #d6dce0;
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
+
+.TTR__log-row,
+.TTR__log-empty {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 0.6rem;
+    padding: 0.35rem 0.6rem;
+    border-bottom: 1px solid #edf0f2;
+    border-left: 3px solid transparent;
+    line-height: 1.4;
+}
+
+.TTR__log-empty { display: block; color: #54636d; }
+.TTR__log-row--ok    { border-left-color: #3f8a5a; }
+.TTR__log-row--warn  { border-left-color: #c08a1e; background: #fdf8ec; }
+.TTR__log-row--error { border-left-color: #b03a2e; background: #fbefee; }
+
+.TTR__log-time,
+.TTR__log-ms {
+    color: #54636d;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.TTR__log-text { overflow-wrap: anywhere; }
+
+/* Voice modal: icons on each heading, subtle rules between the three groups, more space */
+.TTR__voice-list-heading::before,
+.TTR__voice-sections-label::before,
+.TTR__voice-pitch-label::before {
+    content: "";
+    display: inline-block;
+    flex: none;
+    width: 1.15rem;
+    height: 1.15rem;
+    margin-right: 0.6rem;
+    vertical-align: -0.2rem;
+    background-color: #263b49;
+    -webkit-mask: var(--ttr-icon) center / contain no-repeat;
+    mask: var(--ttr-icon) center / contain no-repeat;
+}
+
+.TTR__voice-list-heading   { --ttr-icon: url("01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__VoiceModel__.svg"); justify-content: flex-start; }
+.TTR__voice-list-heading::after { margin-left: auto; margin-right: 0.2rem; }
+.TTR__voice-sections-label { --ttr-icon: url("01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__Sections__.svg"); }
+.TTR__voice-pitch-label    { --ttr-icon: url("01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__Pitch__.svg"); }
+
+.TTR__voice-list { margin-bottom: 1.1rem; }
+
+.TTR__voice-sections,
+.TTR__voice-pitch {
+    margin: 0 0 1.1rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid #e8ecee;
+}
+
+.TTR__voice-modal .TTR__voice-modal-actions { margin-top: 0.4rem; }
+
+.TTR__voice-modal .TTR__voice-modal-title { margin: 0 0 1rem; }
+
+/* Voice modal: heading with the (i) at top right; the intro text opens beneath it */
+.TTR__voice-modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 0 1rem;
+}
+
+.TTR__voice-modal-head h2 { margin: 0; }
+.TTR__voice-modal p.TTR__voice-intro { margin: -0.4rem 0 1rem; color: #54636d; font-size: 0.8rem; }
+.TTR__voice-intro[hidden] { display: none; }

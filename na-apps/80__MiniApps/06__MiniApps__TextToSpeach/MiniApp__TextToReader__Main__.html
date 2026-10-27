@@ -8,20 +8,26 @@
   CREATED : 19-Sep-2026
 
   DESCRIPTION:
-  - Paste or upload Markdown, WhatsApp chat text, or ```csv``` blocks.
-  - Three views: Simple (quick paste and render), Edit (full-page Markdown),
-    and Read (full-page article for browser read-aloud).
+  - Paste from the clipboard or open Markdown, WhatsApp chat text, or ```csv``` blocks.
+  - Two views: Read (the article, with read-aloud controls in the same bar)
+    and Edit (full-page Markdown). A launch modal offers clipboard or file.
   - WhatsApp timestamp/sender prefixes are stripped and converted to a list.
   - CSV fenced blocks become accessible HTML tables.
   - All processing is local — no data is sent to any server.
 
   MODULES:
   - 01__AppModules/MiniApp__TextToReader__Main__.js            (controller)
-  - 01__AppModules/MiniApp__TextToReader__ViewTabs__.js        (Simple / Edit / Read)
+  - 01__AppModules/MiniApp__TextToReader__ViewTabs__.js        (Read / Edit)
+  - 01__AppModules/MiniApp__TextToReader__SourceModal__.js     (clipboard or file on launch)
+  - 01__AppModules/MiniApp__TextToReader__WordJump__.js        (play from a word; custom right-click menu)
   - 01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js  (chat cleanup)
   - 01__AppModules/MiniApp__TextToReader__CsvTable__.js        (CSV to tables)
-  - 01__AppModules/MiniApp__TextToReader__FileUpload__.js      (local file load)
+  - 01__AppModules/MiniApp__TextToReader__FileUpload__.js      (local file load; picker opens in the last folder)
+  - 01__AppModules/MiniApp__TextToReader__UserConfig__.js      (voice, speed, pitch, last file: kept between sessions)
+  - 01__AppModules/MiniApp__TextToReader__ActivityLog__.js     (Na logo: processing times and failures)
   - 01__AppModules/MiniApp__TextToReader__MarkdownRender__.js  (render pipeline)
+  - 01__AppModules/MiniApp__TextToReader__SpeechEngines__.js   (Phonon / Kokoro voices, CDN install)
+  - 01__AppModules/MiniApp__TextToReader__Sections__.js        (read a long document a section at a time: chooser, order, cache)
   - MiniApp__TextToReader__MarkdownStyle__.css                 (A4 Markdown document styles)
   - MiniApp__TextToReader__AppConfig__.json                    (config source)
 
@@ -49,17 +55,17 @@
         <link rel="stylesheet"
               href="../../../assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_30_-_STYL_-_Core-Default-Web-Utility-App-Stylesheet.css" />
         <!-- ?v= : see REGION | Versioned App Files at the foot of the body -->
-        <link rel="stylesheet" href="MiniApp__TextToReader__Style__.css?v=1.7.1" />
+        <link rel="stylesheet" href="MiniApp__TextToReader__Style__.css?v=1.9.0" />
         <!-- @delegate: MiniApp__TextToReader__MarkdownStyle__.css -->
-        <link rel="stylesheet" href="MiniApp__TextToReader__MarkdownStyle__.css?v=1.7.1" />
-        <link rel="stylesheet" href="MiniApp__TextToReader__ReadAloud__.css?v=1.7.1" />
+        <link rel="stylesheet" href="MiniApp__TextToReader__MarkdownStyle__.css?v=1.9.0" />
+        <link rel="stylesheet" href="MiniApp__TextToReader__ReadAloud__.css?v=1.9.0" />
     </head>
 <!-- endregion -------------------------------------------------------- -->
 
 <!-- ----------------------------------------------------------------- -->
 <!-- REGION | Document Body                                            -->
 <!-- ----------------------------------------------------------------- -->
-    <body data-ttr-mode="simple">
+    <body data-ttr-mode="read">
         <div class="PAGE__container">
 
             <!-- --------------------------------------------------------- -->
@@ -70,12 +76,16 @@
             <!-- --------------------------------------------------------- -->
                 <header class="HEAD__container TTR__chrome" aria-hidden="true">
                     <div class="HEAD__nav TTR__header-nav">
+                        <!-- Tap: opens the activity log (#js__logModal) -->
+                        <img id="js__appLogo" class="TTR__header-logo" title="Activity log"
+                             src="01__AppAssets__TextToReader/Logos__NobleArchitecture/Logo__NobleArchitecture__ProfileMark__GreyBg__.svg"
+                             alt="" width="26" height="26" />
                         <div id="js__appTitle" class="HEAD__title">Text To Reader Utility</div>
 
                         <div class="TTR__header-end">
-                            <span id="js__uploadFileStatus" class="TTR__upload-status"></span>
                             <span id="js__appVersion" class="HEAD__version-note"></span>
 
+                            <!-- Opens the text source modal (clipboard or file) -->
                             <!-- @delegate: 01__AppModules/MiniApp__TextToReader__FileUpload__.js -->
                             <input id="js__fileUploadInput"
                                    class="TTR__upload-input"
@@ -110,80 +120,193 @@
                 <div class="FULL__page-app-container">
                     <main class="MAIN__container">
 
-                        <!-- @delegate: 01__AppModules/MiniApp__TextToReader__ViewTabs__.js -->
-                        <!-- Tabs sit above the content column, not in the header,
-                             so they stay next to the editor / paper. Divs, not
-                             buttons: focusable controls inside aria-hidden cause
-                             browsers to ignore aria-hidden and read the chrome. -->
-                        <div class="TTR__tab-bar TTR__chrome" aria-hidden="true">
-                            <div class="TTR__tablist">
-                                <div id="js__tabSimple"
-                                     class="TTR__tab TTR__tab--active"
-                                     data-ttr-tab="simple">Simple</div>
-                                <div id="js__tabEdit"
-                                     class="TTR__tab"
-                                     data-ttr-tab="edit">Edit</div>
-                                <div id="js__tabRead"
-                                     class="TTR__tab"
-                                     data-ttr-tab="read">Read</div>
+                        <!-- --------------------------------------------- -->
+                        <!-- REGION | Tool Bar                             -->
+                        <!-- One row: Read | Edit tabs on the left, the    -->
+                        <!-- read-aloud controls on the right, so the page -->
+                        <!-- keeps as much height as possible for reading. -->
+                        <!-- --------------------------------------------- -->
+                            <div class="TTR__toolbar">
+                                <!-- @delegate: 01__AppModules/MiniApp__TextToReader__ViewTabs__.js -->
+                                <!-- Divs, not buttons: focusable controls inside aria-hidden
+                                     cause browsers to ignore aria-hidden and read the chrome. -->
+                                <div class="TTR__tablist TTR__chrome" aria-hidden="true">
+                                    <div id="js__tabRead"
+                                         class="TTR__tab TTR__tab--active"
+                                         data-ttr-tab="read">Read</div>
+                                    <div id="js__tabEdit"
+                                         class="TTR__tab"
+                                         data-ttr-tab="edit">Edit</div>
+                                </div>
+
+                                <!-- Status and progress fill the gap between tabs and controls,
+                                     then fade out a few seconds after the last message.
+                                     On phones they float just under the bar instead. -->
+                                <div id="js__audioInfo" class="TTR__audio-info">
+                                    <p id="js__audioStatus" class="TTR__audio-status" role="status" aria-live="polite"></p>
+                                    <progress id="js__audioProgress" max="100" value="0" hidden></progress>
+                                </div>
+
+                                <!-- @delegate: 01__AppModules/MiniApp__TextToReader__ReadAloud__.js -->
+                                <!-- Icons: masks from 01__AppAssets__TextToReader (ReadAloud CSS); Play/Pause is the inlined morph SVG.
+                                     Prepare stands where Play/Pause goes until the audio is rendered. -->
+                                <section id="js__readAloudPanel" class="TTR__audio-actions" hidden>
+                                    <span id="js__audioPlaying" class="TTR__audio-playing" aria-hidden="true" hidden></span>
+                                    <!-- Voice: opens the voice modal to switch model and speaker -->
+                                    <button id="js__audioModel" class="TTR__audio-icon-btn TTR__icon-voice" type="button" aria-label="Voice. Tap to change." title="Voice"></button>
+                                    <!-- Speedo: one tap steps 1.0 / 1.25 / 1.5 / 2.0 / 2.5x; the dial SVG is injected from 01__AppAssets__TextToReader -->
+                                    <button id="js__audioSpeed" class="TTR__audio-speed" type="button" data-speed="2" aria-label="Playback speed 2.0×. Tap to change.">
+                                        <span class="TTR__audio-speed-dial" aria-hidden="true"></span>
+                                        <span class="TTR__audio-speed-value" aria-hidden="true">2.0×</span>
+                                    </button>
+                                    <button id="js__audioStop" class="TTR__audio-icon-btn TTR__icon-stop" type="button" aria-label="Stop" title="Stop" disabled></button>
+                                    <button id="js__audioPause" class="TTR__audio-icon-btn" type="button" aria-label="Play" title="Play" disabled hidden>
+                                        <span class="TTR__audio-playpause" aria-hidden="true"></span>
+                                    </button>
+                                    <button id="js__audioPrepare" class="TTR__audio-icon-btn TTR__audio-primary TTR__icon-prepare" type="button" aria-label="Prepare and play" title="Prepare &amp; Play"></button>
+                                </section>
                             </div>
-                        </div>
+                            <audio id="js__audioElement" preload="auto"></audio>
+                        <!-- endregion ------------------------------------ -->
 
                         <!-- --------------------------------------------- -->
-                        <!-- REGION | Phonon Offline Read Aloud           -->
-                        <!-- @delegate: 01__AppModules/MiniApp__TextToReader__ReadAloud__.js -->
-                            <section id="js__readAloudPanel" class="TTR__audio-panel" hidden>
-                                <div class="TTR__audio-heading">
-                                    <strong>Read aloud · Phonon</strong>
-                                    <span id="js__readAloudEngine" class="TTR__audio-engine">Easton · on-device</span>
+                        <!-- REGION | Text Source Modal                    -->
+                        <!-- Opens on launch while there is no text: paste -->
+                        <!-- from the clipboard or open a Markdown / text  -->
+                        <!-- file. The header's file icon reopens it.      -->
+                        <!-- @delegate: 01__AppModules/MiniApp__TextToReader__SourceModal__.js -->
+                        <!-- --------------------------------------------- -->
+                            <dialog id="js__sourceModal" class="TTR__voice-modal TTR__source-modal" aria-labelledby="js__sourceModalTitle">
+                                <h2 id="js__sourceModalTitle">What would you like to read?</h2>
+                                <div class="TTR__source-choices">
+                                    <button id="js__sourcePaste" class="TTR__source-choice" type="button">
+                                        <span class="TTR__source-graphic TTR__icon-clipboard" aria-hidden="true"></span>
+                                        <span id="js__sourcePasteLabel" class="TTR__source-label">Paste from clipboard</span>
+                                    </button>
+                                    <button id="js__sourceFile" class="TTR__source-choice" type="button">
+                                        <span class="TTR__source-graphic TTR__icon-file" aria-hidden="true"></span>
+                                        <span id="js__sourceFileLabel" class="TTR__source-label">Open Markdown / text file</span>
+                                    </button>
                                 </div>
-                                <div class="TTR__audio-actions">
-                                    <button id="js__audioPrepare" type="button">Prepare &amp; Play</button>
-                                    <button id="js__audioPause" type="button" disabled>Pause</button>
-                                    <button id="js__audioStop" type="button" disabled>Stop</button>
-                                    <label class="TTR__audio-speed" for="js__audioSpeed">Speed
-                                        <select id="js__audioSpeed">
-                                            <option value="1">1.0×</option>
-                                            <option value="1.25">1.25×</option>
-                                            <option value="1.5">1.5×</option>
-                                            <option value="1.75">1.75×</option>
-                                            <option value="2" selected>2.0×</option>
-                                            <option value="2.25">2.25×</option>
-                                            <option value="2.5">2.5×</option>
-                                            <option value="3">3.0×</option>
-                                        </select>
-                                    </label>
-                                    <button id="js__audioInstall" type="button" class="TTR__audio-install">Install offline voice</button>
+                                <p id="js__uploadFileStatus" class="TTR__voice-modal-status" role="status" aria-live="polite"></p>
+                                <div class="TTR__voice-modal-actions">
+                                    <button id="js__sourceLater" type="button">Not now</button>
                                 </div>
-                                <progress id="js__audioProgress" max="100" value="0" hidden></progress>
-                                <p id="js__audioStatus" class="TTR__audio-status" role="status" aria-live="polite">Download Easton once to listen offline.</p>
-                                <audio id="js__audioElement" preload="auto"></audio>
-                            </section>
+                            </dialog>
+                        <!-- endregion ------------------------------------ -->
+
+                        <!-- --------------------------------------------- -->
+                        <!-- REGION | Custom Context Menu                  -->
+                        <!-- Replaces the browser's right-click menu (the  -->
+                        <!-- editor keeps its own). Icons: data-icon masks. -->
+                        <!-- @delegate: 01__AppModules/MiniApp__TextToReader__WordJump__.js -->
+                        <!-- --------------------------------------------- -->
+                            <div id="js__wordMenu" class="TTR__menu" role="menu" aria-label="Reading options" hidden>
+                                <button class="TTR__menu-item" type="button" role="menuitem" data-action="here" data-icon="play"><span class="TTR__menu-icon" aria-hidden="true"></span><span class="TTR__menu-label">Play From Here</span></button>
+                                <button class="TTR__menu-item" type="button" role="menuitem" data-action="toggle" data-icon="play"><span class="TTR__menu-icon" aria-hidden="true"></span><span class="TTR__menu-label">Play</span></button>
+                                <button class="TTR__menu-item" type="button" role="menuitem" data-action="start" data-icon="restart"><span class="TTR__menu-icon" aria-hidden="true"></span><span class="TTR__menu-label">Play From Start</span></button>
+                                <button class="TTR__menu-item" type="button" role="menuitem" data-action="selection" data-icon="prepare"><span class="TTR__menu-icon" aria-hidden="true"></span><span class="TTR__menu-label">Read Selection</span></button>
+                                <!-- Sectioned reading only (the voice modal's switch): replaces Read Selection -->
+                                <button class="TTR__menu-item" type="button" role="menuitem" data-action="section" data-icon="prepare" hidden><span class="TTR__menu-icon" aria-hidden="true"></span><span class="TTR__menu-label">Prepare &amp; Play This Section</span></button>
+                                <hr class="TTR__menu-rule" />
+                                <button class="TTR__menu-item" type="button" role="menuitem" data-action="copy" data-icon="copy"><span class="TTR__menu-icon" aria-hidden="true"></span><span class="TTR__menu-label">Copy</span></button>
+                                <button class="TTR__menu-item" type="button" role="menuitem" data-action="stop" data-icon="stop"><span class="TTR__menu-icon" aria-hidden="true"></span><span class="TTR__menu-label">Stop</span></button>
+                            </div>
+                        <!-- endregion ------------------------------------ -->
+
+                        <!-- --------------------------------------------- -->
+                        <!-- REGION | Offline Voice Install Modal          -->
+                        <!-- Opens on the Read tab only while the model    -->
+                        <!-- files are missing from browser storage.       -->
+                        <!-- --------------------------------------------- -->
+                            <dialog id="js__voiceModal" class="TTR__voice-modal" aria-labelledby="js__voiceModalTitle">
+                                <div class="TTR__voice-modal-head">
+                                    <h2 id="js__voiceModalTitle">Reading voice</h2>
+                                    <!-- (i) top right: shows or hides the intro text below -->
+                                    <button id="js__voiceIntroInfo" class="TTR__voice-info TTR__icon-info" type="button" aria-label="About reading voices" aria-expanded="false" aria-controls="js__voiceIntro"></button>
+                                </div>
+                                <p id="js__voiceIntro" class="TTR__voice-intro" hidden>Reading aloud runs on this device. Each voice downloads once and is kept for offline use.</p>
+                                <!-- @delegate: 01__AppModules/MiniApp__TextToReader__ReadAloud__.js (one radio per AppConfig voice) -->
+                                <!-- Folded by default: more voices later cost no screen space until it is opened -->
+                                <details class="TTR__voice-list">
+                                    <summary class="TTR__voice-list-heading">Select Voice Model</summary>
+                                    <div id="js__voiceModalChoices" class="TTR__voice-choices" role="radiogroup" aria-labelledby="js__voiceModalTitle"></div>
+                                </details>
+                                <!-- Sections: a switch, wired in ReadAloud.js (remembered). On, Prepare asks where to start and
+                                     renders a section at a time; the note's wording and number come from the AppConfig. -->
+                                <div class="TTR__voice-sections">
+                                    <div class="TTR__voice-sections-row">
+                                        <label class="TTR__voice-sections-label" for="js__voiceSectionsToggle">Read in sections</label>
+                                        <!-- (i): shows or hides the explanation below -->
+                                        <button id="js__voiceSectionsInfo" class="TTR__voice-info TTR__icon-info" type="button" aria-label="What is Read in sections?" aria-expanded="false" aria-controls="js__voiceSectionsNote"></button>
+                                        <input id="js__voiceSectionsToggle" class="TTR__voice-sections-toggle" type="checkbox" role="switch" />
+                                    </div>
+                                    <p id="js__voiceSectionsNote" class="TTR__voice-sections-note" hidden>Renders a few sentences at a time, so a long document starts reading sooner.</p>
+                                </div>
+                                <!-- Pitch: a -25 to +25 % slider, wired in ReadAloud.js; applies to prepared audio at once -->
+                                <div class="TTR__voice-pitch">
+                                    <label for="js__voicePitchSlider" class="TTR__voice-pitch-label">Voice pitch</label>
+                                    <div class="TTR__voice-pitch-slider-row">
+                                        <span aria-hidden="true">−25%</span>
+                                        <input id="js__voicePitchSlider" class="TTR__voice-pitch-slider" type="range" min="-25" max="25" step="1" value="0" aria-label="Voice pitch, percent" />
+                                        <span aria-hidden="true">+25%</span>
+                                        <output id="js__voicePitchValue" class="TTR__voice-pitch-value" for="js__voicePitchSlider">0%</output>
+                                    </div>
+                                </div>
+                                <progress id="js__voiceModalProgress" max="100" value="0" hidden></progress>
+                                <p id="js__voiceModalStatus" class="TTR__voice-modal-status" role="status" aria-live="polite"></p>
+                                <div class="TTR__voice-modal-actions">
+                                    <button id="js__voiceModalDownload" class="TTR__icon-download" type="button">Download voice</button>
+                                    <button id="js__voiceModalLater" type="button">Not now</button>
+                                </div>
+                            </dialog>
+                        <!-- endregion ------------------------------------ -->
+
+                        <!-- --------------------------------------------- -->
+                        <!-- REGION | Section Chooser Modal                -->
+                        <!-- With "Read in sections" on, Prepare asks which -->
+                        <!-- section to read first. Rows are built in       -->
+                        <!-- Sections.js; the section on screen (or the     -->
+                        <!-- selection's) is preselected.                   -->
+                        <!-- @delegate: 01__AppModules/MiniApp__TextToReader__Sections__.js -->
+                        <!-- --------------------------------------------- -->
+                            <dialog id="js__sectionModal" class="TTR__voice-modal TTR__section-modal" aria-labelledby="js__sectionModalTitle">
+                                <h2 id="js__sectionModalTitle">Where should reading start?</h2>
+                                <p id="js__sectionModalSummary"></p>
+                                <div id="js__sectionChoices" class="TTR__voice-choices" role="radiogroup" aria-labelledby="js__sectionModalTitle"></div>
+                                <div class="TTR__voice-modal-actions">
+                                    <button id="js__sectionStart" type="button">Start reading</button>
+                                    <button id="js__sectionCancel" type="button">Cancel</button>
+                                </div>
+                            </dialog>
+                        <!-- endregion ------------------------------------ -->
+
+                        <!-- --------------------------------------------- -->
+                        <!-- REGION | Activity Log Modal                   -->
+                        <!-- Opened from the Na logo: what the reader did, -->
+                        <!-- how long it took and what failed.             -->
+                        <!-- @delegate: 01__AppModules/MiniApp__TextToReader__ActivityLog__.js -->
+                        <!-- --------------------------------------------- -->
+                            <dialog id="js__logModal" class="TTR__voice-modal TTR__log-modal" aria-labelledby="js__logModalTitle">
+                                <h2 id="js__logModalTitle">Activity log</h2>
+                                <p id="js__logDevice" class="TTR__log-device"></p>
+                                <ol id="js__logList" class="TTR__log-list"></ol>
+                                <div class="TTR__voice-modal-actions">
+                                    <button id="js__logCopy" type="button">Copy</button>
+                                    <button id="js__logClear" type="button">Clear</button>
+                                    <button id="js__logClose" type="button">Close</button>
+                                </div>
+                            </dialog>
                         <!-- endregion ------------------------------------ -->
 
                         <!-- --------------------------------------------- -->
                         <!-- REGION | Input Area                           -->
                         <!-- --------------------------------------------- -->
-                            <section class="FORM__block TTR__panel TTR__panel--input">
-                                <label id="js__inputLabel" for="js__inputText" class="FORM__label TTR__simple-only">
-                                    Input Text (Markdown, WhatsApp Messages or CSV Blocks):
-                                </label>
-
+                            <section class="FORM__block TTR__panel TTR__panel--input" hidden>
                                 <textarea id="js__inputText"
                                           class="FORM__textarea"
+                                          aria-label="Text to read: Markdown, WhatsApp messages or CSV blocks"
                                           placeholder="Paste your text (WhatsApp or Markdown) here..."></textarea>
-                            </section>
-                        <!-- endregion ------------------------------------ -->
-
-                        <!-- --------------------------------------------- -->
-                        <!-- REGION | Action Buttons                       -->
-                        <!-- --------------------------------------------- -->
-                            <section class="CTRL__block TTR__panel TTR__panel--actions TTR__simple-only">
-                                <h2 id="js__actionsHeading" class="CTRL__heading TTR__simple-only">Actions</h2>
-                                <div class="BTTN__container">
-                                    <button id="js__renderButton" class="BTTN__standard" type="button">Render Text</button>
-                                    <button id="js__clearButton"  class="BTTN__cancel"   type="button">Clear Text</button>
-                                </div>
                             </section>
                         <!-- endregion ------------------------------------ -->
 
@@ -191,7 +314,6 @@
                         <!-- REGION | Output Area                          -->
                         <!-- --------------------------------------------- -->
                             <section class="RSLT__block TTR__panel TTR__panel--output">
-                                <h2 id="js__outputHeading" class="CTRL__heading TTR__simple-only">Output</h2>
                                 <article id="js__output"
                                          class="MAIN__output"
                                          tabindex="-1"></article>
@@ -226,17 +348,24 @@
             <script type="importmap">
             {
                 "imports": {
-                    "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js"       : "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js?v=1.7.1",
-                    "./01__AppModules/MiniApp__TextToReader__FileUpload__.js"     : "./01__AppModules/MiniApp__TextToReader__FileUpload__.js?v=1.7.1",
-                    "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js" : "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js?v=1.7.1",
-                    "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js" : "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js?v=1.7.1",
-                    "./01__AppModules/MiniApp__TextToReader__CsvTable__.js"       : "./01__AppModules/MiniApp__TextToReader__CsvTable__.js?v=1.7.1",
-                    "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js"      : "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js?v=1.7.1"
+                    "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js"       : "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js?v=1.9.0",
+                    "./01__AppModules/MiniApp__TextToReader__FileUpload__.js"     : "./01__AppModules/MiniApp__TextToReader__FileUpload__.js?v=1.9.0",
+                    "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js" : "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js?v=1.9.0",
+                    "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js" : "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js?v=1.9.0",
+                    "./01__AppModules/MiniApp__TextToReader__CsvTable__.js"       : "./01__AppModules/MiniApp__TextToReader__CsvTable__.js?v=1.9.0",
+                    "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js"      : "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js?v=1.9.0",
+                    "./01__AppModules/MiniApp__TextToReader__SpeechEngines__.js"  : "./01__AppModules/MiniApp__TextToReader__SpeechEngines__.js?v=1.9.0",
+                    "./01__AppModules/MiniApp__TextToReader__Highlight__.js"      : "./01__AppModules/MiniApp__TextToReader__Highlight__.js?v=1.9.0",
+                    "./01__AppModules/MiniApp__TextToReader__Sections__.js"       : "./01__AppModules/MiniApp__TextToReader__Sections__.js?v=1.9.0",
+                    "./01__AppModules/MiniApp__TextToReader__SourceModal__.js"    : "./01__AppModules/MiniApp__TextToReader__SourceModal__.js?v=1.9.0",
+                    "./01__AppModules/MiniApp__TextToReader__WordJump__.js"       : "./01__AppModules/MiniApp__TextToReader__WordJump__.js?v=1.9.0",
+                    "./01__AppModules/MiniApp__TextToReader__UserConfig__.js"     : "./01__AppModules/MiniApp__TextToReader__UserConfig__.js?v=1.9.0",
+                    "./01__AppModules/MiniApp__TextToReader__ActivityLog__.js"    : "./01__AppModules/MiniApp__TextToReader__ActivityLog__.js?v=1.9.0"
                 }
             }
             </script>
 
-            <script type="module" src="01__AppModules/MiniApp__TextToReader__Main__.js?v=1.7.1"></script>
+            <script type="module" src="01__AppModules/MiniApp__TextToReader__Main__.js?v=1.9.0"></script>
         <!-- endregion ---------------------------------------------------- -->
     </body>
 <!-- endregion -------------------------------------------------------- -->

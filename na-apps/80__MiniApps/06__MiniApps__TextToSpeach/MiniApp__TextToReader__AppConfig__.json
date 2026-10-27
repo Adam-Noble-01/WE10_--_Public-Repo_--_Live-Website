@@ -3,7 +3,7 @@
         "NaMiniApp__AppTitle": "Text To Reader",
         "NaMiniApp__AppSubTitle": "Reader Utils",
         "NaMiniApp__Created": "19-Sep-2026",
-        "NaMiniApp__Version": "1.7.1"
+        "NaMiniApp__Version": "1.9.0"
     },
     "NaMiniApp__Assets": {
         "NaMiniApp__MarkedEsmUrl": "./02__PhononRuntime/marked.esm.js"
@@ -15,7 +15,7 @@
             ".txt"
         ],
         "NaMiniApp__MobileScrollBreakpoint": 768,
-        "NaMiniApp__DefaultView": "simple"
+        "NaMiniApp__DefaultView": "read"
     },
     "NaMiniApp__WhatsApp": {
         "NaMiniApp__TestPattern": "\\[\\d{1,2}\\/\\d{1,2},\\s*\\d{1,2}:\\d{2}\\]\\s*[^:]+:\\s*",
@@ -24,16 +24,16 @@
     "NaMiniApp__UiText": {
         "NaMiniApp__AppHeading": "Text To Reader Utility",
         "NaMiniApp__PageTitle": "Text To Reader Utility",
-        "NaMiniApp__TabSimple": "Simple",
         "NaMiniApp__TabEdit": "Edit",
         "NaMiniApp__TabRead": "Read",
-        "NaMiniApp__InputLabel": "Input Text (Markdown, WhatsApp Messages or CSV Blocks):",
         "NaMiniApp__InputPlaceholder": "Paste your text (WhatsApp or Markdown) here...",
-        "NaMiniApp__UploadButton": "Upload Markdown / Text File",
-        "NaMiniApp__ActionsHeading": "Actions",
-        "NaMiniApp__RenderButton": "Render Text",
-        "NaMiniApp__ClearButton": "Clear Text",
-        "NaMiniApp__OutputHeading": "Output",
+        "NaMiniApp__UploadButton": "Open text: paste from clipboard or open a file",
+        "NaMiniApp__SourceTitle": "What would you like to read?",
+        "NaMiniApp__SourcePaste": "Paste from clipboard",
+        "NaMiniApp__SourceFile": "Open Markdown / text file",
+        "NaMiniApp__SourceLater": "Not now",
+        "NaMiniApp__ClipboardEmpty": "The clipboard has no text. Copy some text first, or open a file.",
+        "NaMiniApp__ClipboardBlockedPlaceholder": "The browser did not allow clipboard access. Paste your text here (Ctrl+V or long-press), then tap Read.",
         "NaMiniApp__FooterText": "© 2026 Noble Architecture | All Rights Reserved",
         "NaMiniApp__StatusLoadedPrefix": "Loaded",
         "NaMiniApp__StatusUnsupportedPrefix": "Unsupported file type",
@@ -47,12 +47,79 @@
         "NaMiniApp__CsvTableAriaLabel": "CSV Data Table"
     },
     "NaMiniApp__ReadAloud": {
-        "NaMiniApp__Model": "hf://gradium/phonon-31m-en@8c64b55ec301728e2d1695bfea87a08a267d0c2d",
-        "NaMiniApp__VoiceName": "Easton",
-        "NaMiniApp__VoiceUrl": "https://huggingface.co/gradium/phonon-voices/resolve/679578acb0000681b05c8b0215a4765c4fa78cc2/voices/LMDIYE0Oa377Qh6Z.safetensors",
+        "NaMiniApp__AssetsBaseUrl": "https://cdn.noble-architecture.com/NaApps/Root__MiniApps/NaMiniApp__TextToReader__AppAssets/",
         "NaMiniApp__RuntimeUrl": "./02__PhononRuntime/index.js",
+        "NaMiniApp__KokoroRuntimeUrl": "./03__KokoroRuntime/",
+        "NaMiniApp__DefaultModelId": "Phonon31m__Easton",
+        "NaMiniApp__DesktopThreads": 6,
+        "NaMiniApp__DesktopMinCores": 12,
         "NaMiniApp__DefaultSpeed": 2,
+        "NaMiniApp__PitchRangePercent": 25,
         "NaMiniApp__MaxCharacters": 12000,
-        "NaMiniApp__OfflineCacheName": "phonon-tts-v1"
+        "NaMiniApp__SectionSentences": 10,
+        "NaMiniApp__FirstSectionSentences": 5,
+        "NaMiniApp__SectionCacheMegabytes": 400,
+        "NaMiniApp__Models": [
+            {
+                "NaMiniApp__ModelId": "Phonon31m__Easton",
+                "NaMiniApp__Label": "Easton",
+                "NaMiniApp__Note": "Phonon · American male · fastest",
+                "NaMiniApp__Engine": "phonon",
+                "NaMiniApp__Folder": "PhononTts__EnglishModel__31mQ8",
+                "NaMiniApp__Quant": "q8",
+                "NaMiniApp__Device": "cpu",
+                "NaMiniApp__VoiceName": "Easton",
+                "NaMiniApp__VoiceFile": "PhononTts__VoiceLibrary__EastonAndOthers/voices/LMDIYE0Oa377Qh6Z.safetensors",
+                "NaMiniApp__DownloadMb": 65
+            },
+            {
+                "NaMiniApp__ModelId": "Phonon31m__Edwin",
+                "NaMiniApp__Label": "Edwin",
+                "NaMiniApp__Note": "Phonon · British male · fastest",
+                "NaMiniApp__Engine": "phonon",
+                "NaMiniApp__Folder": "PhononTts__EnglishModel__31mQ8",
+                "NaMiniApp__Quant": "q8",
+                "NaMiniApp__Device": "cpu",
+                "NaMiniApp__VoiceName": "Edwin",
+                "NaMiniApp__VoiceFile": "PhononTts__VoiceLibrary__EastonAndOthers/voices/zUCxzrOrugTSis03.safetensors",
+                "NaMiniApp__DownloadMb": 65
+            },
+            {
+                "NaMiniApp__ModelId": "Phonon31m__Maeve",
+                "NaMiniApp__Label": "Maeve",
+                "NaMiniApp__Note": "Phonon · British female · fastest",
+                "NaMiniApp__Engine": "phonon",
+                "NaMiniApp__Folder": "PhononTts__EnglishModel__31mQ8",
+                "NaMiniApp__Quant": "q8",
+                "NaMiniApp__Device": "cpu",
+                "NaMiniApp__VoiceName": "Maeve",
+                "NaMiniApp__VoiceFile": "PhononTts__VoiceLibrary__EastonAndOthers/voices/6PWnV0Nq4wu7RVBT.safetensors",
+                "NaMiniApp__DownloadMb": 65
+            },
+            {
+                "NaMiniApp__ModelId": "Kokoro82m__Emma",
+                "NaMiniApp__Label": "Emma",
+                "NaMiniApp__Note": "Kokoro · British female · richer, slower",
+                "NaMiniApp__Engine": "kokoro",
+                "NaMiniApp__Folder": "KokoroTts__EnglishModel__82mOnnx",
+                "NaMiniApp__Dtype": "q8",
+                "NaMiniApp__Device": "wasm",
+                "NaMiniApp__VoiceName": "bf_emma",
+                "NaMiniApp__VoiceFile": "KokoroTts__EnglishModel__82mOnnx/voices/bf_emma.bin",
+                "NaMiniApp__DownloadMb": 115
+            },
+            {
+                "NaMiniApp__ModelId": "Kokoro82m__George",
+                "NaMiniApp__Label": "George",
+                "NaMiniApp__Note": "Kokoro · British male · richer, slower",
+                "NaMiniApp__Engine": "kokoro",
+                "NaMiniApp__Folder": "KokoroTts__EnglishModel__82mOnnx",
+                "NaMiniApp__Dtype": "q8",
+                "NaMiniApp__Device": "wasm",
+                "NaMiniApp__VoiceName": "bm_george",
+                "NaMiniApp__VoiceFile": "KokoroTts__EnglishModel__82mOnnx/voices/bm_george.bin",
+                "NaMiniApp__DownloadMb": 115
+            }
+        ]
     }
 }

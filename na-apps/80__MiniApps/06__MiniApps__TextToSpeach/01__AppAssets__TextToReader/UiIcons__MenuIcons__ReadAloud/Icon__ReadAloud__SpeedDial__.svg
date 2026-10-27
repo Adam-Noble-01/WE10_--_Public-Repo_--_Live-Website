@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="NaSpeedo" data-speed="2" width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" stroke="#172b3a" stroke-width="60" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    .NaSpeedo__needle {
+      transform-box: view-box;
+      transform-origin: 512px 676px;
+      transform: rotate(23.33deg);
+      transition: transform 0.65s cubic-bezier(0.34, 1.45, 0.52, 1);
+    }
+    .NaSpeedo[data-speed="1"]    .NaSpeedo__needle { transform: rotate(-70deg); }
+    .NaSpeedo[data-speed="1.25"] .NaSpeedo__needle { transform: rotate(-46.67deg); }
+    .NaSpeedo[data-speed="1.5"]  .NaSpeedo__needle { transform: rotate(-23.33deg); }
+    .NaSpeedo[data-speed="2"]    .NaSpeedo__needle { transform: rotate(23.33deg); }
+    .NaSpeedo[data-speed="2.5"]  .NaSpeedo__needle { transform: rotate(70deg); }
+    @media (prefers-reduced-motion: reduce) {
+      .NaSpeedo__needle { transition-duration: 0.25s; transition-timing-function: ease-out; }
+    }
+  </style>
+  <path d="M128 676A384 384 0 0 1 896 676" stroke-linecap="round" stroke-linejoin="round"/>
+  <g class="NaSpeedo__needle">
+    <line x1="512" y1="676" x2="512" y2="426" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <circle cx="512" cy="676" r="72" fill="#172b3a" stroke="none"/>
+</svg>

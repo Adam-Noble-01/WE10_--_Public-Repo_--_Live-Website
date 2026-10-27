@@ -237,3 +237,217 @@ LEGACY SOURCE
   - Bump every HTML import/CSS version token and the service worker cache
     version so previous 1.7.0 browser and Cloudflare caches cannot be reused.
   - Request updateViaCache:none for the worker script's own update checks.
+
+----------------------------------------------------------------
+1.7.2 - 27-Oct-2026 | Clean Read Panel And Download Modal
+  - Read panel stripped to the controls: no heading, voice/engine label or
+    hint text. The status line is empty (and hidden) until there is progress
+    or an error to report.
+  - "Install offline voice" button replaced by a modal on the Read tab. On
+    entering Read the Cache API is checked for the model, config, tokenizer
+    and Easton voice files; the modal appears only if any is missing, and is
+    not shown on later loads once they are installed. Esc does not close it;
+    Download voice installs and verifies, "Not now" returns to Simple
+    (later in 1.7.2: stays on Read, as Simple is retired).
+  - Prepare & Play is hidden once its audio is rendered, so it cannot be
+    pressed again by accident and waste a minute of synthesis. It returns
+    when the article text or the selection differs from what was rendered
+    (and again after Stop), with a "Text changed" status line.
+  - Read-along highlight (new MiniApp__TextToReader__Highlight__.js): the
+    sentence being spoken gets a grey band and its current word turns yellow,
+    scrolling into view as reading moves on. The article is wrapped into
+    sentence/word spans after each render. Speech is now synthesised one
+    sentence per request, so sentence timings are exact; Phonon gives no word
+    timestamps, so words are spread over each sentence's voiced audio by
+    spoken length (letters, longer digits, a pause after commas).
+  - Dev server (MiniApp__TextToReader__DevServer__.py) swaps the cache-first
+    service worker for one that removes itself, so edits are never hidden
+    behind a stale shell cache; --with-sw serves the real worker.
+  - Speed dropdown replaced by a speedo button: one tap steps 1.0 / 1.25 /
+    1.5 / 2.0 / 2.5x (wrapping back to 1.0x) and the needle swings to the
+    new speed with a small overshoot. The dial is one animated SVG,
+    01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/
+    Icon__ReadAloud__SpeedDial__.svg, inlined at start-up so its own CSS turns
+    the needle from a data-speed attribute; it is in the shell cache. A
+    stored 1.75x, 2.25x or 3x snaps to the nearest step. Reduced-motion users
+    get a short, plain swing instead of the overshoot.
+  - Read panel and voice modal now use the house ReadAloud icons
+    (01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud): Prepare &
+    Play and Download voice carry their icons beside the text; Play/Pause and
+    Stop are square icon buttons with aria-labels. Static icons are CSS masks,
+    so they take each button's text colour (white on the dark buttons).
+  - Play/Pause is one animated SVG (Icon__ReadAloud__PlayPause__.svg): the
+    triangle morphs into the two pause bars, the second bar growing out of the
+    play tip (CSS d transition, 0.32 s). Browsers without CSS d support swap
+    to the bars without the morph.
+  - A speaker icon pulses at the end of the row while audio is playing.
+  - All the icons are in the shell cache for offline use.
+  - Simple view retired. Read is the first page; Edit is the second tab.
+  - One tool bar replaces the tab row and the separate audio panel:
+    Read | Edit on the left, then Audio symbol | Speed | Stop | Play/Pause on
+    the right. Prepare & Play is an icon-only filled button standing in Play/
+    Pause's place until audio exists. Status and progress are a slim row under
+    the bar, shown only when they have something to say. The article now starts
+    about 100 px from the top of the window instead of about 290 px.
+  - Launch modal (new MiniApp__TextToReader__SourceModal__.js) when there is
+    no text: two picture buttons, Paste from clipboard and Open Markdown /
+    text file (new Icon__ReadAloud__PasteClipboard__.svg and
+    Icon__ReadAloud__OpenFile__.svg, house stroke style). The header's file
+    icon reopens it. If the browser refuses the clipboard, Edit opens with a
+    "paste here" placeholder; an empty clipboard says so in the modal. Text
+    restored into the editor by a reload is shown straight away instead.
+  - The voice download modal waits until the launch modal closes, and "Not
+    now" now leaves you on Read. Both modals size within a phone screen.
+  - Removed: Render / Clear buttons and the Simple-only headings, labels and
+    config text; DefaultView is now "read".
+  - Status moved into the tool bar's empty middle, between the tabs and the
+    controls (one line, ellipsis, full text on hover), with the progress bar
+    under it. It fades out (0.9 s) three seconds after the last message, and
+    never while the progress bar shows work running. On phones it floats
+    just under the bar over the paper instead.
+  - Read and Edit tabs twice as wide on desktop (169 px); 82 px on phones,
+    the widest that still fits the playing controls at 375 px.
+  - Word jump (new MiniApp__TextToReader__WordJump__.js): once audio is
+    prepared, double-click a word (mouse) or long-press it (touch, 450 ms,
+    cancelled if the finger drifts 10 px, i.e. a scroll) to play from the start
+    of its sentence. Words show a faint hover cue and no touch callout while
+    jumping is possible. Highlight__.js gained PlayFromWord and
+    HasHighlightTimeline.
+  - Custom right-click menu replaces the browser's (the editor and open modals
+    keep the native one): Play From Here, Play / Pause (Prepare & Play before
+    audio exists), Play From Start, Read Selection, Copy (selection, else the
+    sentence), Stop. Play From Here before audio exists prepares the whole
+    article and jumps when that run finishes; a failed or cancelled run drops
+    the jump. New Icon__ReadAloud__PlayFromStart__.svg for the menu.
+
+----------------------------------------------------------------
+1.8.0 - 27-Oct-2026 | Voice Choice, CDN Models And Multithreading
+  - Models now come from cdn.noble-architecture.com (R2), under
+    NaApps/Root__MiniApps/NaMiniApp__TextToReader__AppAssets/, not Hugging
+    Face: PhononTts__EnglishModel__31mQ8, PhononTts__VoiceLibrary__..., and
+    KokoroTts__EnglishModel__82mOnnx. The CDN answers with CORS (*).
+  - New MiniApp__TextToReader__SpeechEngines__.js: one interface over Phonon
+    (phonon-tts) and Kokoro 82M (kokoro-js). Installing a voice downloads its
+    missing files from the CDN into the store each runtime reads first, keyed
+    by the URL that runtime asks for, so loading never reaches the Hub.
+    Kokoro's runtime hard-codes Hub URLs, hence Hub keys holding CDN bytes.
+  - Voice modal is now a chooser (AppConfig NaMiniApp__Models): Easton
+    (Phonon, US), Edwin and Maeve (Phonon, UK), Emma and George (Kokoro, UK).
+    It still opens by itself on the Read tab while the chosen voice is not on
+    the device, and Prepare opens it too. A new voice button in the bar opens
+    it any time; its tooltip names the voice and the threads it runs on. Each
+    row shows "On this device" or the exact size still to download (a second
+    Phonon voice is ~250 KB: the model is shared).
+  - Multithreading: the service worker adds COOP same-origin, COEP
+    require-corp and CORP same-origin to every same-origin response, which
+    makes the page cross-origin isolated (SharedArrayBuffer) without any
+    Cloudflare rule. The first visit and a hard reload bypass the worker, so
+    the page reloads itself once (per tab) when not isolated.
+  - Phonon threads: "auto" (3) on phones; 6 on machines with 12+ cores
+    (NaMiniApp__DesktopThreads / NaMiniApp__DesktopMinCores). Measured in
+    Edge 155 on the studio PC: 1 thread 2.8x real time, 3: 5.6x, 4: 6.4x,
+    6: 8.1x. Kokoro q8 runs on ONNX Runtime's own 4 threads at ~0.7x real
+    time, so it is offered as the richer, slower option.
+  - The thread workers' script (wasm-bindgen-rayon workerHelpers.js) was
+    missing from the shell cache: threads would have failed offline.
+  - Kokoro runtime (kokoro.web.js + ONNX Runtime wasm, 22 MB) is published
+    to 03__KokoroRuntime by the Pages workflow, like 02__PhononRuntime, and
+    is cached with the Kokoro voices, not in the versioned shell.
+  - Not offered yet: WebGPU variants. Headless Edge found an adapter but the
+    benchmark did not finish, so they are untested.
+  - Known: the Claude desktop app's built-in browser cannot start a worker
+    from inside a worker (or register this service worker), so a threaded
+    Phonon load would hang there. Phonon now falls back to one thread when the
+    thread pool shows no progress within 20 s. Test threads in Edge.
+  - kokoro-js 1.2.1's stream() never closes the sentence splitter it makes for
+    a plain string, so its last sentence waited forever; the engine passes a
+    splitter it has already closed.
+  - Checked in headless Edge 155, served with no isolation headers (as Pages):
+    one automatic reload, then isolated; voice modal waits for the source
+    modal; Edwin installs in 2.5 s, 11 s of audio in 1.0 s on 6 threads; Emma
+    installs in 3 s, 12 s of audio in 11 s on 4 threads; with the server
+    stopped and the CDN and Hugging Face blocked, both read from storage.
+    Re-checked after 1.8.1 (pitch).
+  - Dev server also fetches 03__KokoroRuntime on first run.
+
+----------------------------------------------------------------
+1.8.1 - 27-Oct-2026 | Voice Pitch, Remembered Settings, Activity Log
+  - The voice modal gains a Voice pitch dropdown (Lowest / Lower / Normal /
+    Higher / Highest) and a -25 to +25 % slider; each follows the other and
+    the choice is remembered (NaTextToReader__VoicePitch).
+  - Pitch works on prepared audio at once, with no re-prepare: the rendered
+    PCM is kept and re-wrapped as a WAV whose header sample rate is scaled by
+    the pitch factor. That moves pitch and tempo together, so playbackRate is
+    divided by the same factor (pitch preserved) and the speedo still sets the
+    real speed. Position and play state carry over; the highlight timeline is
+    rescaled to match.
+  - Presets and range live in the AppConfig (NaMiniApp__PitchPresets,
+    NaMiniApp__PitchRangePercent). Version bumped to 1.8.1 in the HTML, the
+    AppConfig and the service worker.
+
+  Remembered settings and slider-only pitch (briefly numbered 1.9.0; Adam
+  keeps this release at 1.8.1):
+  - New MiniApp__TextToReader__UserConfig__.js keeps one JSON document of
+    this user's choices between sessions: voice (NaUserConfig__VoiceModelId),
+    speed, pitch, and the last file opened (name, time).
+  - Stored twice: localStorage NaTextToReader__UserConfig (read at launch) and
+    the Cache Storage cache NaTextToReader__UserConfig as the file
+    ./MiniApp__TextToReader__UserConfig__.json, which can be opened in the
+    browser. The service worker purges only NaTextToReader__Shell__* caches,
+    so the file survives every release. On launch the newer copy wins.
+    Tested: with localStorage wiped, a reload restored pitch and speed from
+    the cache file.
+  - The 1.8.x loose keys (NaTextToReader__ReadAloudModel, __PhononSpeed,
+    __VoicePitch) are folded in once and removed.
+  - Last folder: where the browser has showOpenFilePicker (Edge, Chrome
+    desktop) the file button uses it, starting in the folder of the last
+    file opened. That file's handle is kept in IndexedDB
+    (NaTextToReader__UserConfig / NaUserConfig__Handles), as a handle cannot
+    go in JSON. Phones, Firefox and Safari keep the plain file input, which
+    cannot remember a folder.
+  - The page asks for persistent storage (navigator.storage.persist) so the
+    settings and voices are not evicted. The browser may decline until the
+    app is installed or used often.
+  - Voice pitch is now the slider alone; the preset dropdown and
+    NaMiniApp__PitchPresets are gone.
+  Activity log:
+  - Tapping the Na logo opens an Activity log dialog (new
+    MiniApp__TextToReader__ActivityLog__.js): newest first, each line with
+    its time and, for timed jobs, how long it took. Timed: voice downloads,
+    engine loads (with the threads they got and why) and speech preparation
+    (audio length, voice, threads, sentence count). Also logged: cancelled
+    preparations, failures, uncaught errors, rejected promises and every
+    console warning or error (e.g. Phonon dropping to one thread).
+  - A line at the top says what explains speed: CPU cores, whether threads
+    are available (cross-origin isolation), whether the offline worker is
+    active, and storage used. Copy puts the whole log on the clipboard;
+    Clear empties it. The last 250 lines are kept in localStorage
+    (NaTextToReader__ActivityLog), so a failure can be read after a reload.
+  - The header logo had pointer-events: none (Style.css), so taps fell
+    through it; it now takes taps and shows a pointer. Checked with a real
+    touch tap in Edge at 360 px, not a scripted click.
+
+----------------------------------------------------------------
+1.9.0 - 27-Oct-2026 | Read In Sections
+  - New switch in the voice modal, Read in sections (remembered, NaUserConfig__SectionedReading).
+    On, Prepare opens a chooser (section list, the selection's or on-screen one preselected) and the
+    document is rendered ten sentences at a time (NaMiniApp__SectionSentences). The chosen section
+    plays as soon as it is rendered; the rest render outwards from the one being heard: after, before,
+    two after, two before... Measured on Easton: 40 s of audio rendered in 5.4 s; restarting on kept
+    sections starts in 23 ms with no engine load. The 12,000 character limit does not apply.
+  - Rendered sections are kept as 16-bit PCM in a Blob, keyed by voice + the section's text, so they
+    survive leaving Read and returning, and unchanged sections survive an edit. Pitch is applied via
+    the WAV header as before. A memory budget (NaMiniApp__SectionCacheMegabytes, 400) lets go of the
+    sections farthest from the playhead. Not kept across a page reload.
+  - Sections hand over on 'ended' (about 1 ms); double-click or Play From Here on a word in another
+    section loads it, or renders it first if needed. Play after the last section starts the document again.
+  - Right-click: Prepare & Play This Section (selection's section, else the word's) replaces Read
+    Selection while sections are on.
+  - Voice modal: voices sit in a nested scrolling list; the sections note hides behind an (i)
+    (new Icon__ReadAloud__Info__.svg, 60 weight like the ReadAloud gold standards).
+  - New Sections__.js; BuildReadingPlan groups sentence pieces in one pass (was quadratic);
+    per-sentence rendering shared as SynthesiseSentences. Version 1.9.0 everywhere.
+  - Sectioned reading: the opening section is now 5 sentences (AppConfig
+    NaMiniApp__FirstSectionSentences), later ones stay at 10, so reading
+    from the top starts after half as much rendering. SplitSections takes
+    the first size as an optional third argument.
