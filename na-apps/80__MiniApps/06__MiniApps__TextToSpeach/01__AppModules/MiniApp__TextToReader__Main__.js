@@ -232,6 +232,51 @@ function Na__TextToReader__HandleClipboardText(Na__Text) {
 // ------------------------------------------------------------
 
 
+// FUNCTION | Full screen button: toggles the page's full screen where the browser allows it
+// ------------------------------------------------------------
+function Na__TextToReader__InitialiseFullscreen(Na__Button) {
+    if (!Na__Button) return;
+    if (!document.documentElement.requestFullscreen) {
+        Na__Button.hidden = true;   // iPhone Safari has no Fullscreen API for pages
+        return;
+    }
+    Na__Button.addEventListener("click", () => {
+        const Na__Request = document.fullscreenElement
+            ? document.exitFullscreen()
+            : document.documentElement.requestFullscreen({ navigationUI: "hide" });
+        Na__Request.catch((Na__ErrorObject) => console.warn("Text To Reader full screen refused:", Na__ErrorObject));
+    });
+    document.addEventListener("fullscreenchange", () => {
+        const Na__On = Boolean(document.fullscreenElement);
+        Na__Button.setAttribute("aria-pressed", String(Na__On));
+        Na__Button.title = Na__On ? "Exit full screen" : "Full screen";
+    });
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | Paste action (right-click menu, long-press on a blank Read view): clipboard text replaces the text
+// ------------------------------------------------------------
+async function Na__TextToReader__PasteFromMenu() {
+    let Na__Text = "";
+    try {
+        Na__Text = await navigator.clipboard.readText();
+    } catch (Na__ErrorObject) {
+        console.warn("Text To Reader clipboard read refused:", Na__ErrorObject);
+        Na__TextToReader__HandleClipboardBlocked();
+        return;
+    }
+    if (!Na__Text.trim()) {
+        // Nothing to paste: the launch modal says so and offers a file instead
+        Na__TextToReader__OpenSourceModal();
+        Na__TextToReader__Dom.Na__UploadFileStatus.textContent = Na__TextToReader__AppConfig.NaMiniApp__UiText.NaMiniApp__ClipboardEmpty;
+        return;
+    }
+    Na__TextToReader__HandleClipboardText(Na__Text);
+}
+// ------------------------------------------------------------
+
+
 // FUNCTION | Clipboard refused: open Edit so the text can be pasted by hand
 // ------------------------------------------------------------
 function Na__TextToReader__HandleClipboardBlocked() {
@@ -381,9 +426,11 @@ async function Na__TextToReader__BootstrapApp() {
         menu    : document.getElementById("js__wordMenu"),
         prepare : document.getElementById("js__audioPrepare"),
         pause   : document.getElementById("js__audioPause"),
-        stop    : document.getElementById("js__audioStop")
+        stop    : document.getElementById("js__audioStop"),
+        onPaste : Na__TextToReader__PasteFromMenu
     });
     Na__TextToReader__RegisterEventListeners();
+    Na__TextToReader__InitialiseFullscreen(document.getElementById("js__fullscreenButton"));
     Na__TextToReader__ApplyPanelVisibility(Na__TextToReader__GetActiveMode());
 
     // Launch: ask for text first; the voice download prompt waits until this modal closes.

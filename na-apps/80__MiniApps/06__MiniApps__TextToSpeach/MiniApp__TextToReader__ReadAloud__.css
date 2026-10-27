@@ -438,6 +438,7 @@
 .TTR__menu-item[data-icon="pause"]   { --ttr-icon: url("01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__Pause__.svg"); }
 .TTR__menu-item[data-icon="restart"] { --ttr-icon: url("01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__PlayFromStart__.svg"); }
 .TTR__menu-item[data-icon="prepare"] { --ttr-icon: url("01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__Prepare__.svg"); }
+.TTR__menu-item[data-icon="paste"]   { --ttr-icon: url("01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__PasteClipboard__.svg"); }
 .TTR__menu-item[data-icon="copy"]    { --ttr-icon: url("01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__PasteClipboard__.svg"); }
 .TTR__menu-item[data-icon="stop"]    { --ttr-icon: url("01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__Stop__.svg"); }
 
@@ -658,22 +659,10 @@
 .TTR__voice-sections-toggle:checked::before { transform: translateX(1.1rem); }
 .TTR__voice-sections-toggle:focus-visible { outline: 2px solid #263b49; outline-offset: 2px; }
 
-/* Section chooser: the voice rows again, one per section, in a list that scrolls on a long document */
-.TTR__section-modal {
-    width: min(94vw, 30rem);
-}
-
-.TTR__section-modal .TTR__voice-choices {
-    max-height: min(46vh, 22rem);
-    overflow-y: auto;
-}
-
-.TTR__section-modal .TTR__voice-choice-note {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
+/* Pick mode (sections on, Prepare pressed): click a sentence, or select a passage, to start there */
+.TTR__picking .TTR__w { cursor: pointer; }
+.TTR__picking .TTR__w:hover { background: #ffeb3b; border-radius: 2px; }
+#js__audioPrepare[aria-pressed="true"] { outline: 2px solid #ffeb3b; outline-offset: 1px; }
 
 /* Right-click menu items that sectioned reading swaps in and out (an author display beats [hidden]) */
 .TTR__menu-item[hidden] { display: none; }
@@ -775,3 +764,21 @@
 .TTR__voice-modal-head h2 { margin: 0; }
 .TTR__voice-modal p.TTR__voice-intro { margin: -0.4rem 0 1rem; color: #54636d; font-size: 0.8rem; }
 .TTR__voice-intro[hidden] { display: none; }
+
+/* Full screen button (header): the corner brackets point out, or in while full screen */
+.TTR__fullscreen-icon {
+    display: block;
+    width: 1.05rem;
+    height: 1.05rem;
+    pointer-events: none;
+    background-color: currentColor;
+    -webkit-mask: url("01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__FullScreen__.svg") center / contain no-repeat;
+    mask: url("01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__FullScreen__.svg") center / contain no-repeat;
+}
+
+.TTR__fullscreen-button[aria-pressed="true"] .TTR__fullscreen-icon {
+    -webkit-mask-image: url("01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__FullScreenExit__.svg");
+    mask-image: url("01__AppAssets__TextToReader/UiIcons__MenuIcons__ReadAloud/Icon__ReadAloud__FullScreenExit__.svg");
+}
+
+.TTR__fullscreen-button[hidden] { display: none; }

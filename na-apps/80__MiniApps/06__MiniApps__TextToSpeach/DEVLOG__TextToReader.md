@@ -430,7 +430,7 @@ LEGACY SOURCE
 ----------------------------------------------------------------
 1.9.0 - 27-Oct-2026 | Read In Sections
   - New switch in the voice modal, Read in sections (remembered, NaUserConfig__SectionedReading).
-    On, Prepare opens a chooser (section list, the selection's or on-screen one preselected) and the
+    On, Prepare switches on a pick mode: click a sentence, or select a passage, in the text and the
     document is rendered ten sentences at a time (NaMiniApp__SectionSentences). The chosen section
     plays as soon as it is rendered; the rest render outwards from the one being heard: after, before,
     two after, two before... Measured on Easton: 40 s of audio rendered in 5.4 s; restarting on kept
@@ -451,3 +451,19 @@ LEGACY SOURCE
     NaMiniApp__FirstSectionSentences), later ones stay at 10, so reading
     from the top starts after half as much rendering. SplitSections takes
     the first size as an optional third argument.
+  - Picking the start is done in the text, as for any word or passage (no list dialog): with sections on,
+    Prepare turns on pick mode (pointer on words; Esc or Prepare again cancels); a click starts at that
+    sentence, a selection starts at its first sentence, and Prepare with a selection already made starts at once.
+  - Paste: the right-click menu opens with Paste (above a rule, before the transport items), and on a
+    phone a long-press anywhere on a blank Read view pastes the clipboard and renders it. A refused or
+    empty clipboard falls back to Edit or the launch modal.
+  - Phones: the floating status no longer sits over the first line of text. It fades after 2 s (was 3), and
+    while the other sections render in the background there is no progress bar holding it up (the bar
+    shows only when you are waiting on a section). New Full screen button in the header (corner-bracket
+    icons, in and out), hidden where the browser has no Fullscreen API (iPhone).
+
+----------------------------------------------------------------
+1.9.1 - 27-Oct-2026 | Pick In Text, Paste, Full Screen, Phone Status
+  - Release of the 1.9.0 follow-ups above: picking the section start in the text, Paste (menu and
+    blank-view long-press), the Full screen button, the 2 s status fade and the (i) voice-modal layout.
+    Version 1.9.1 in the HTML (every ?v=), the AppConfig and the service worker.

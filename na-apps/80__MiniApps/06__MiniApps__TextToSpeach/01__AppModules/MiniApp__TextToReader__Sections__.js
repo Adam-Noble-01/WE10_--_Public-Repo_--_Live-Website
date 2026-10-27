@@ -10,8 +10,8 @@
 //
 // HOW IT WORKS (the run itself lives in ReadAloud__.js; this file is its parts):
 //   - The reading plan's sentences are cut into sections of NaMiniApp__SectionSentences
-//     (10). The reader picks the first section (the chooser below, or the word that was
-//     right-clicked), renders it, plays it, and keeps rendering outwards from the section
+//     (10). The reader picks the first section by clicking or selecting
+//     in the text, renders it, plays it, and keeps rendering outwards from the section
 //     being heard: the one after, the one before, two after, two before, and so on.
 //   - A rendered section is kept as 16-bit PCM in a Blob (half the memory of the engine's
 //     floats, and the browser may hold it on disk) with its sentence timing. The WAV header
@@ -39,7 +39,6 @@ import { Na__TextToReader__BindSentenceTiming } from "./MiniApp__TextToReader__H
 // -----------------------------------------------------------------------------
 
  const Na__Sections__Cache = new Map();   // key -> { key, data, sampleRate, samples, bytes, timing }
- let Na__Sections__Nodes   = null;
 
 // endregion -------------------------------------------------------------------
 
@@ -222,98 +221,6 @@ export function Na__TextToReader__SectionCacheRetain(Na__Keys) {
     for (const Na__Key of [...Na__Sections__Cache.keys()]) {
         if (!Na__Wanted.has(Na__Key)) Na__Sections__Cache.delete(Na__Key);
     }
-}
-// ------------------------------------------------------------
-
-// endregion -------------------------------------------------------------------
-
-
-// -----------------------------------------------------------------------------
-// REGION | Section Chooser
-// -----------------------------------------------------------------------------
-
-// FUNCTION | Snippet - The first few words of a section, cut at a word
-// ------------------------------------------------------------
-function Na__Sections__Snippet(Na__Text, Na__Length) {
-    if (Na__Text.length <= Na__Length) return Na__Text;
-    const Na__Cut = Na__Text.lastIndexOf(" ", Na__Length);
-    return Na__Text.slice(0, Na__Cut > Na__Length / 2 ? Na__Cut : Na__Length).replace(/[\s,;:]+$/, "") + "…";
-}
-// ------------------------------------------------------------
-
-
-// FUNCTION | InitialiseSectionChooser - Hand the module its dialog
-// ------------------------------------------------------------
-// nodes: { dialog, summary, list, start, cancel }
-export function Na__TextToReader__InitialiseSectionChooser(Na__Nodes) {
-    Na__Sections__Nodes = Na__Nodes;
-}
-// ------------------------------------------------------------
-
-
-// FUNCTION | ChooseSection - Ask which section to read first; resolves its index, or null if cancelled
-// ------------------------------------------------------------
-// options: { preselect: index to start on, isReady(section): is its audio already rendered }
-export function Na__TextToReader__ChooseSection(Na__Sections, Na__Options = {}) {
-    const { dialog, summary, list, start, cancel } = Na__Sections__Nodes;
-    const Na__Preselect = Math.max(0, Math.min(Na__Sections.length - 1, Na__Options.preselect || 0));
-    const Na__Sentences = Na__Sections.reduce((Na__Sum, Na__Section) => Na__Sum + Na__Section.sentences.length, 0);
-
-    summary.textContent = Na__Sections.length + (Na__Sections.length === 1 ? " section" : " sections") + ", " +
-        Na__Sentences + " sentences. Pick the first to read. The sections after it and before it are " +
-        "prepared while you listen.";
-
-    list.replaceChildren(...Na__Sections.map((Na__Section) => {
-        const Na__Last = Na__Section.first + Na__Section.sentences.length;
-        const Na__Row = document.createElement("label");
-        Na__Row.className = "TTR__voice-choice";
-
-        const Na__Radio = document.createElement("input");
-        Na__Radio.type = "radio";
-        Na__Radio.name = "js__sectionChoice";
-        Na__Radio.value = String(Na__Section.index);
-        Na__Radio.checked = Na__Section.index === Na__Preselect;
-
-        const Na__Name = document.createElement("span");
-        Na__Name.className = "TTR__voice-choice-name";
-        Na__Name.textContent = "Section " + (Na__Section.index + 1);
-
-        const Na__State = document.createElement("span");
-        Na__State.className = "TTR__voice-choice-state";
-        Na__State.textContent = Na__Options.isReady?.(Na__Section) ? "Ready" : "";
-
-        const Na__Note = document.createElement("span");
-        Na__Note.className = "TTR__voice-choice-note";
-        Na__Note.textContent = "Sentences " + (Na__Section.first + 1) + "–" + Na__Last +
-            " · “" + Na__Sections__Snippet(Na__Section.text, 64) + "”";
-
-        Na__Row.append(Na__Radio, Na__Name, Na__State, Na__Note);
-        return Na__Row;
-    }));
-
-    return new Promise((Na__Resolve) => {
-        let Na__Settled = false;
-        const Na__Finish = (Na__Value) => {
-            if (Na__Settled) return;
-            Na__Settled = true;
-            if (dialog.open) dialog.close();
-            Na__Resolve(Na__Value);
-        };
-
-        start.onclick  = () => {
-            const Na__Checked = list.querySelector("input:checked");
-            Na__Finish(Na__Checked ? Number(Na__Checked.value) : null);
-        };
-        cancel.onclick = () => Na__Finish(null);
-        dialog.onclose = () => Na__Finish(null);   // Escape
-        list.ondblclick = (Na__Event) => {
-            const Na__Radio = Na__Event.target.closest(".TTR__voice-choice")?.querySelector("input");
-            if (Na__Radio) Na__Finish(Number(Na__Radio.value));
-        };
-
-        dialog.showModal();
-        list.querySelector("input:checked")?.closest(".TTR__voice-choice")?.scrollIntoView({ block: "nearest" });
-    });
 }
 // ------------------------------------------------------------
 

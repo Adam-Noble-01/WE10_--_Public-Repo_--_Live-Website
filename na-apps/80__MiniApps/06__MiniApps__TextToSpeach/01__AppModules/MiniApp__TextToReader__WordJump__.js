@@ -13,6 +13,8 @@
 // MENU  : right-click anywhere but the editor replaces the browser's menu:
 //         Play From Here, Play / Pause, Play From Start, Read Selection, Copy, Stop.
 //         Play From Here before any audio exists prepares the article first.
+//         Paste (top, above a rule) replaces the text with the clipboard. On a phone, a
+//         long-press anywhere on a blank Read view pastes the same way.
 //         With sectioned reading on, Prepare & Play This Section takes the place of
 //         Read Selection: it reads on from the section holding the selection (or the word).
 //
@@ -250,6 +252,7 @@ function Na__WordJump__OpenMenu(Na__X, Na__Y, Na__Word) {
     const Na__Sections = document.body.dataset.ttrSections === "on";   // Set by the voice modal's switch
 
     Na__WordJump__MenuWord = Na__Word;
+    Na__WordJump__SetItem("paste", Na__Reading && Boolean(navigator.clipboard?.readText));
     Na__WordJump__SetItem("here", Na__Reading && Boolean(Na__Word) && (Na__HasAudio || Na__CanPrep));
     if (Na__HasAudio) {
         Na__WordJump__SetItem("toggle", true, audio.paused ? "Play" : "Pause", audio.paused ? "play" : "pause");
@@ -294,6 +297,9 @@ function Na__WordJump__RunAction(Na__Action) {
     Na__WordJump__CloseMenu();
 
     switch (Na__Action) {
+        case "paste":
+            Na__WordJump__Nodes.onPaste();
+            break;
         case "here":
             if (Na__Word) Na__WordJump__PlayFromHere(Na__Word);
             break;
@@ -326,6 +332,14 @@ function Na__WordJump__RunAction(Na__Action) {
 function Na__WordJump__HandleContextMenu(Na__Event) {
     if (Na__Event.target.closest?.("textarea, input, [contenteditable='true']")) return;
     if (document.querySelector("dialog[open]")) return;   // A modal is up: the page menu would sit beneath it
+
+    // A blank Read view has no words to press: a long-press anywhere on it (phone) pastes the clipboard
+    if (Na__WordJump__PointerType === "touch" && document.body.dataset.ttrMode === "read" &&
+        !Na__WordJump__Nodes.article.textContent.trim()) {
+        Na__Event.preventDefault();
+        Na__WordJump__Nodes.onPaste();
+        return;
+    }
 
     if (Na__WordJump__PointerType === "touch") {
         // A long-press: jump if this is a word in prepared audio, otherwise leave the phone's own menu
@@ -368,12 +382,12 @@ function Na__WordJump__HandleMenuKeys(Na__Event) {
 // FUNCTION | Wire the gestures and the menu
 // ------------------------------------------------------------
 export function Na__TextToReader__InitialiseWordJump(Na__Config) {
-    const { article, audio, menu, prepare, pause, stop } = Na__Config || {};
-    if (!article || !audio || !menu || !prepare || !pause || !stop) {
+    const { article, audio, menu, prepare, pause, stop, onPaste } = Na__Config || {};
+    if (!article || !audio || !menu || !prepare || !pause || !stop || !onPaste) {
         console.error("Text To Reader word jump: missing required elements.");
         return;
     }
-    Na__WordJump__Nodes = { article, audio, menu, prepare, pause, stop };
+    Na__WordJump__Nodes = { article, audio, menu, prepare, pause, stop, onPaste };
 
     // Gestures on the article
     article.addEventListener("mousedown", Na__WordJump__HandleMouseDown);

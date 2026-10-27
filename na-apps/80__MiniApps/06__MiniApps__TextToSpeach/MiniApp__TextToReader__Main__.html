@@ -27,7 +27,7 @@
   - 01__AppModules/MiniApp__TextToReader__ActivityLog__.js     (Na logo: processing times and failures)
   - 01__AppModules/MiniApp__TextToReader__MarkdownRender__.js  (render pipeline)
   - 01__AppModules/MiniApp__TextToReader__SpeechEngines__.js   (Phonon / Kokoro voices, CDN install)
-  - 01__AppModules/MiniApp__TextToReader__Sections__.js        (read a long document a section at a time: chooser, order, cache)
+  - 01__AppModules/MiniApp__TextToReader__Sections__.js        (read a long document a section at a time: order, cache)
   - MiniApp__TextToReader__MarkdownStyle__.css                 (A4 Markdown document styles)
   - MiniApp__TextToReader__AppConfig__.json                    (config source)
 
@@ -55,10 +55,10 @@
         <link rel="stylesheet"
               href="../../../assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_30_-_STYL_-_Core-Default-Web-Utility-App-Stylesheet.css" />
         <!-- ?v= : see REGION | Versioned App Files at the foot of the body -->
-        <link rel="stylesheet" href="MiniApp__TextToReader__Style__.css?v=1.9.0" />
+        <link rel="stylesheet" href="MiniApp__TextToReader__Style__.css?v=1.9.1" />
         <!-- @delegate: MiniApp__TextToReader__MarkdownStyle__.css -->
-        <link rel="stylesheet" href="MiniApp__TextToReader__MarkdownStyle__.css?v=1.9.0" />
-        <link rel="stylesheet" href="MiniApp__TextToReader__ReadAloud__.css?v=1.9.0" />
+        <link rel="stylesheet" href="MiniApp__TextToReader__MarkdownStyle__.css?v=1.9.1" />
+        <link rel="stylesheet" href="MiniApp__TextToReader__ReadAloud__.css?v=1.9.1" />
     </head>
 <!-- endregion -------------------------------------------------------- -->
 
@@ -84,6 +84,15 @@
 
                         <div class="TTR__header-end">
                             <span id="js__appVersion" class="HEAD__version-note"></span>
+
+                            <!-- Full screen on / off (hidden where the browser has no Fullscreen API, e.g. iPhone) -->
+                            <div id="js__fullscreenButton"
+                                 class="TTR__upload-icon-button TTR__fullscreen-button"
+                                 role="button"
+                                 aria-pressed="false"
+                                 title="Full screen">
+                                <span class="TTR__fullscreen-icon" aria-hidden="true"></span>
+                            </div>
 
                             <!-- Opens the text source modal (clipboard or file) -->
                             <!-- @delegate: 01__AppModules/MiniApp__TextToReader__FileUpload__.js -->
@@ -202,6 +211,9 @@
                         <!-- @delegate: 01__AppModules/MiniApp__TextToReader__WordJump__.js -->
                         <!-- --------------------------------------------- -->
                             <div id="js__wordMenu" class="TTR__menu" role="menu" aria-label="Reading options" hidden>
+                                <!-- Paste: replaces the text with the clipboard (long-press does the same on a blank Read view) -->
+                                <button class="TTR__menu-item" type="button" role="menuitem" data-action="paste" data-icon="paste"><span class="TTR__menu-icon" aria-hidden="true"></span><span class="TTR__menu-label">Paste</span></button>
+                                <hr class="TTR__menu-rule" />
                                 <button class="TTR__menu-item" type="button" role="menuitem" data-action="here" data-icon="play"><span class="TTR__menu-icon" aria-hidden="true"></span><span class="TTR__menu-label">Play From Here</span></button>
                                 <button class="TTR__menu-item" type="button" role="menuitem" data-action="toggle" data-icon="play"><span class="TTR__menu-icon" aria-hidden="true"></span><span class="TTR__menu-label">Play</span></button>
                                 <button class="TTR__menu-item" type="button" role="menuitem" data-action="start" data-icon="restart"><span class="TTR__menu-icon" aria-hidden="true"></span><span class="TTR__menu-label">Play From Start</span></button>
@@ -258,25 +270,6 @@
                                 <div class="TTR__voice-modal-actions">
                                     <button id="js__voiceModalDownload" class="TTR__icon-download" type="button">Download voice</button>
                                     <button id="js__voiceModalLater" type="button">Not now</button>
-                                </div>
-                            </dialog>
-                        <!-- endregion ------------------------------------ -->
-
-                        <!-- --------------------------------------------- -->
-                        <!-- REGION | Section Chooser Modal                -->
-                        <!-- With "Read in sections" on, Prepare asks which -->
-                        <!-- section to read first. Rows are built in       -->
-                        <!-- Sections.js; the section on screen (or the     -->
-                        <!-- selection's) is preselected.                   -->
-                        <!-- @delegate: 01__AppModules/MiniApp__TextToReader__Sections__.js -->
-                        <!-- --------------------------------------------- -->
-                            <dialog id="js__sectionModal" class="TTR__voice-modal TTR__section-modal" aria-labelledby="js__sectionModalTitle">
-                                <h2 id="js__sectionModalTitle">Where should reading start?</h2>
-                                <p id="js__sectionModalSummary"></p>
-                                <div id="js__sectionChoices" class="TTR__voice-choices" role="radiogroup" aria-labelledby="js__sectionModalTitle"></div>
-                                <div class="TTR__voice-modal-actions">
-                                    <button id="js__sectionStart" type="button">Start reading</button>
-                                    <button id="js__sectionCancel" type="button">Cancel</button>
                                 </div>
                             </dialog>
                         <!-- endregion ------------------------------------ -->
@@ -348,24 +341,24 @@
             <script type="importmap">
             {
                 "imports": {
-                    "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js"       : "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js?v=1.9.0",
-                    "./01__AppModules/MiniApp__TextToReader__FileUpload__.js"     : "./01__AppModules/MiniApp__TextToReader__FileUpload__.js?v=1.9.0",
-                    "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js" : "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js?v=1.9.0",
-                    "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js" : "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js?v=1.9.0",
-                    "./01__AppModules/MiniApp__TextToReader__CsvTable__.js"       : "./01__AppModules/MiniApp__TextToReader__CsvTable__.js?v=1.9.0",
-                    "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js"      : "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js?v=1.9.0",
-                    "./01__AppModules/MiniApp__TextToReader__SpeechEngines__.js"  : "./01__AppModules/MiniApp__TextToReader__SpeechEngines__.js?v=1.9.0",
-                    "./01__AppModules/MiniApp__TextToReader__Highlight__.js"      : "./01__AppModules/MiniApp__TextToReader__Highlight__.js?v=1.9.0",
-                    "./01__AppModules/MiniApp__TextToReader__Sections__.js"       : "./01__AppModules/MiniApp__TextToReader__Sections__.js?v=1.9.0",
-                    "./01__AppModules/MiniApp__TextToReader__SourceModal__.js"    : "./01__AppModules/MiniApp__TextToReader__SourceModal__.js?v=1.9.0",
-                    "./01__AppModules/MiniApp__TextToReader__WordJump__.js"       : "./01__AppModules/MiniApp__TextToReader__WordJump__.js?v=1.9.0",
-                    "./01__AppModules/MiniApp__TextToReader__UserConfig__.js"     : "./01__AppModules/MiniApp__TextToReader__UserConfig__.js?v=1.9.0",
-                    "./01__AppModules/MiniApp__TextToReader__ActivityLog__.js"    : "./01__AppModules/MiniApp__TextToReader__ActivityLog__.js?v=1.9.0"
+                    "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js"       : "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js?v=1.9.1",
+                    "./01__AppModules/MiniApp__TextToReader__FileUpload__.js"     : "./01__AppModules/MiniApp__TextToReader__FileUpload__.js?v=1.9.1",
+                    "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js" : "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js?v=1.9.1",
+                    "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js" : "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js?v=1.9.1",
+                    "./01__AppModules/MiniApp__TextToReader__CsvTable__.js"       : "./01__AppModules/MiniApp__TextToReader__CsvTable__.js?v=1.9.1",
+                    "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js"      : "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js?v=1.9.1",
+                    "./01__AppModules/MiniApp__TextToReader__SpeechEngines__.js"  : "./01__AppModules/MiniApp__TextToReader__SpeechEngines__.js?v=1.9.1",
+                    "./01__AppModules/MiniApp__TextToReader__Highlight__.js"      : "./01__AppModules/MiniApp__TextToReader__Highlight__.js?v=1.9.1",
+                    "./01__AppModules/MiniApp__TextToReader__Sections__.js"       : "./01__AppModules/MiniApp__TextToReader__Sections__.js?v=1.9.1",
+                    "./01__AppModules/MiniApp__TextToReader__SourceModal__.js"    : "./01__AppModules/MiniApp__TextToReader__SourceModal__.js?v=1.9.1",
+                    "./01__AppModules/MiniApp__TextToReader__WordJump__.js"       : "./01__AppModules/MiniApp__TextToReader__WordJump__.js?v=1.9.1",
+                    "./01__AppModules/MiniApp__TextToReader__UserConfig__.js"     : "./01__AppModules/MiniApp__TextToReader__UserConfig__.js?v=1.9.1",
+                    "./01__AppModules/MiniApp__TextToReader__ActivityLog__.js"    : "./01__AppModules/MiniApp__TextToReader__ActivityLog__.js?v=1.9.1"
                 }
             }
             </script>
 
-            <script type="module" src="01__AppModules/MiniApp__TextToReader__Main__.js?v=1.9.0"></script>
+            <script type="module" src="01__AppModules/MiniApp__TextToReader__Main__.js?v=1.9.1"></script>
         <!-- endregion ---------------------------------------------------- -->
     </body>
 <!-- endregion -------------------------------------------------------- -->
