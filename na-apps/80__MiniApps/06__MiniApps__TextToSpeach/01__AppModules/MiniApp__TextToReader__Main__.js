@@ -370,11 +370,19 @@ function Na__TextToReader__RegisterEventListeners() {
     });
 
     // Native paste into Edit: let the browser insert text before rendering and starting.
-    // Do not regenerate on every keystroke; normal editing remains under user control.
-    Na__TextToReader__Dom.Na__InputText.addEventListener("paste", () => {
-        setTimeout(() => {
+    // A coalesced input fallback also catches mobile keyboards that skip the paste event.
+    let Na__NativePasteTimer = 0;
+    const Na__QueueNativePaste = () => {
+        clearTimeout(Na__NativePasteTimer);
+        Na__NativePasteTimer = setTimeout(() => {
             if (Na__TextToReader__Dom.Na__InputText.value.trim()) Na__TextToReader__ShowTextInReadView();
         }, 0);
+    };
+    Na__TextToReader__Dom.Na__InputText.addEventListener("paste", Na__QueueNativePaste);
+    Na__TextToReader__Dom.Na__InputText.addEventListener("input", (Na__Event) => {
+        if (Na__Event.inputType === "insertFromPaste" || Na__Event.inputType === "insertFromDrop") {
+            Na__QueueNativePaste();
+        }
     });
 }
 // ------------------------------------------------------------
