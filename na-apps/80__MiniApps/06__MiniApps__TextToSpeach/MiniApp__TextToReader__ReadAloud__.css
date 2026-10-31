@@ -181,22 +181,31 @@
     opacity: 0;
 }
 
-/* Phones: no room in the bar, so the status floats just under it over the paper */
+/* Phones: show only a thin progress line at the toolbar edge. Status messages
+   remain available to screen readers, but never obscure the text. */
 @media (max-width: 768px) {
     .TTR__audio-info {
         position: absolute;
         top: 100%;
         left: 0;
         right: 0;
+        height: 0.25rem;
         z-index: 2;
         pointer-events: none;
     }
-
+    .TTR__audio-info progress {
+        height: 0.25rem;
+        margin: 0;
+    }
     .TTR__audio-status {
-        padding: 0.3rem 0.6rem;
-        background: rgba(248, 250, 251, 0.96);
-        border-bottom: 1px solid #d6dce0;
-        white-space: normal;
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        border: 0;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
     }
 }
 
@@ -659,10 +668,23 @@
 .TTR__voice-sections-toggle:checked::before { transform: translateX(1.1rem); }
 .TTR__voice-sections-toggle:focus-visible { outline: 2px solid #263b49; outline-offset: 2px; }
 
-/* Pick mode (sections on, Prepare pressed): click a sentence, or select a passage, to start there */
-.TTR__picking .TTR__w { cursor: pointer; }
-.TTR__picking .TTR__w:hover { background: #ffeb3b; border-radius: 2px; }
-#js__audioPrepare[aria-pressed="true"] { outline: 2px solid #ffeb3b; outline-offset: 1px; }
+/* Direct sentence jumping: mouse hover previews and touch highlights on press.
+   This works before a section is ready, as well as during playback. */
+body[data-ttr-mode="read"][data-ttr-sections="on"] .TTR__w {
+    cursor: pointer;
+    -webkit-tap-highlight-color: rgba(38, 59, 73, 0.12);
+}
+@media (hover: hover) and (pointer: fine) {
+    body[data-ttr-mode="read"][data-ttr-sections="on"] .TTR__s:not(.TTR__s--on):hover {
+        background: rgba(38, 59, 73, 0.1);
+        border-radius: 2px;
+        box-decoration-break: clone;
+        -webkit-box-decoration-break: clone;
+    }
+}
+body[data-ttr-mode="read"][data-ttr-sections="on"] .TTR__s:not(.TTR__s--on):active {
+    background: rgba(38, 59, 73, 0.14);
+}
 
 /* Right-click menu items that sectioned reading swaps in and out (an author display beats [hidden]) */
 .TTR__menu-item[hidden] { display: none; }
