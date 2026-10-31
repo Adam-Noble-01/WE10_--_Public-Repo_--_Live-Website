@@ -55,10 +55,10 @@
         <link rel="stylesheet"
               href="../../../assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_30_-_STYL_-_Core-Default-Web-Utility-App-Stylesheet.css" />
         <!-- ?v= : see REGION | Versioned App Files at the foot of the body -->
-        <link rel="stylesheet" href="MiniApp__TextToReader__Style__.css?v=1.9.1" />
+        <link rel="stylesheet" href="MiniApp__TextToReader__Style__.css?v=1.9.2" />
         <!-- @delegate: MiniApp__TextToReader__MarkdownStyle__.css -->
-        <link rel="stylesheet" href="MiniApp__TextToReader__MarkdownStyle__.css?v=1.9.1" />
-        <link rel="stylesheet" href="MiniApp__TextToReader__ReadAloud__.css?v=1.9.1" />
+        <link rel="stylesheet" href="MiniApp__TextToReader__MarkdownStyle__.css?v=1.9.2" />
+        <link rel="stylesheet" href="MiniApp__TextToReader__ReadAloud__.css?v=1.9.2" />
     </head>
 <!-- endregion -------------------------------------------------------- -->
 
@@ -244,8 +244,8 @@
                                     <summary class="TTR__voice-list-heading">Select Voice Model</summary>
                                     <div id="js__voiceModalChoices" class="TTR__voice-choices" role="radiogroup" aria-labelledby="js__voiceModalTitle"></div>
                                 </details>
-                                <!-- Sections: a switch, wired in ReadAloud.js (remembered). On, Prepare asks where to start and
-                                     renders a section at a time; the note's wording and number come from the AppConfig. -->
+                                <!-- Sections: a remembered switch; sectioned playback begins at the start automatically.
+                                     Tap a sentence to jump while the remaining sections prepare. -->
                                 <div class="TTR__voice-sections">
                                     <div class="TTR__voice-sections-row">
                                         <label class="TTR__voice-sections-label" for="js__voiceSectionsToggle">Read in sections</label>
@@ -341,24 +341,24 @@
             <script type="importmap">
             {
                 "imports": {
-                    "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js"       : "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js?v=1.9.1",
-                    "./01__AppModules/MiniApp__TextToReader__FileUpload__.js"     : "./01__AppModules/MiniApp__TextToReader__FileUpload__.js?v=1.9.1",
-                    "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js" : "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js?v=1.9.1",
-                    "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js" : "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js?v=1.9.1",
-                    "./01__AppModules/MiniApp__TextToReader__CsvTable__.js"       : "./01__AppModules/MiniApp__TextToReader__CsvTable__.js?v=1.9.1",
-                    "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js"      : "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js?v=1.9.1",
-                    "./01__AppModules/MiniApp__TextToReader__SpeechEngines__.js"  : "./01__AppModules/MiniApp__TextToReader__SpeechEngines__.js?v=1.9.1",
-                    "./01__AppModules/MiniApp__TextToReader__Highlight__.js"      : "./01__AppModules/MiniApp__TextToReader__Highlight__.js?v=1.9.1",
-                    "./01__AppModules/MiniApp__TextToReader__Sections__.js"       : "./01__AppModules/MiniApp__TextToReader__Sections__.js?v=1.9.1",
-                    "./01__AppModules/MiniApp__TextToReader__SourceModal__.js"    : "./01__AppModules/MiniApp__TextToReader__SourceModal__.js?v=1.9.1",
-                    "./01__AppModules/MiniApp__TextToReader__WordJump__.js"       : "./01__AppModules/MiniApp__TextToReader__WordJump__.js?v=1.9.1",
-                    "./01__AppModules/MiniApp__TextToReader__UserConfig__.js"     : "./01__AppModules/MiniApp__TextToReader__UserConfig__.js?v=1.9.1",
-                    "./01__AppModules/MiniApp__TextToReader__ActivityLog__.js"    : "./01__AppModules/MiniApp__TextToReader__ActivityLog__.js?v=1.9.1"
+                    "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js"       : "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js?v=1.9.2",
+                    "./01__AppModules/MiniApp__TextToReader__FileUpload__.js"     : "./01__AppModules/MiniApp__TextToReader__FileUpload__.js?v=1.9.2",
+                    "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js" : "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js?v=1.9.2",
+                    "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js" : "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js?v=1.9.2",
+                    "./01__AppModules/MiniApp__TextToReader__CsvTable__.js"       : "./01__AppModules/MiniApp__TextToReader__CsvTable__.js?v=1.9.2",
+                    "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js"      : "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js?v=1.9.2",
+                    "./01__AppModules/MiniApp__TextToReader__SpeechEngines__.js"  : "./01__AppModules/MiniApp__TextToReader__SpeechEngines__.js?v=1.9.2",
+                    "./01__AppModules/MiniApp__TextToReader__Highlight__.js"      : "./01__AppModules/MiniApp__TextToReader__Highlight__.js?v=1.9.2",
+                    "./01__AppModules/MiniApp__TextToReader__Sections__.js"       : "./01__AppModules/MiniApp__TextToReader__Sections__.js?v=1.9.2",
+                    "./01__AppModules/MiniApp__TextToReader__SourceModal__.js"    : "./01__AppModules/MiniApp__TextToReader__SourceModal__.js?v=1.9.2",
+                    "./01__AppModules/MiniApp__TextToReader__WordJump__.js"       : "./01__AppModules/MiniApp__TextToReader__WordJump__.js?v=1.9.2",
+                    "./01__AppModules/MiniApp__TextToReader__UserConfig__.js"     : "./01__AppModules/MiniApp__TextToReader__UserConfig__.js?v=1.9.2",
+                    "./01__AppModules/MiniApp__TextToReader__ActivityLog__.js"    : "./01__AppModules/MiniApp__TextToReader__ActivityLog__.js?v=1.9.2"
                 }
             }
             </script>
 
-            <script type="module" src="01__AppModules/MiniApp__TextToReader__Main__.js?v=1.9.1"></script>
+            <script type="module" src="01__AppModules/MiniApp__TextToReader__Main__.js?v=1.9.2"></script>
         <!-- endregion ---------------------------------------------------- -->
     </body>
 <!-- endregion -------------------------------------------------------- -->
