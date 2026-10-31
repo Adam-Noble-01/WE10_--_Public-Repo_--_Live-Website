@@ -141,6 +141,22 @@ function Na__WordJump__HandleDoubleClick(Na__Event) {
 // ------------------------------------------------------------
 
 
+// FUNCTION | Single tap/click jumps to a sentence, even before that section is ready
+// ------------------------------------------------------------
+function Na__WordJump__HandleClick(Na__Event) {
+    if (document.body.dataset.ttrMode !== "read" || document.body.dataset.ttrSections !== "on") return;
+    if (Na__WordJump__PressFired) {
+        Na__WordJump__PressFired = false;
+        return;
+    }
+    if (Na__Event.target.closest?.("a, button, input, textarea, [contenteditable='true']")) return;
+    const Na__Word = Na__WordJump__WordAt(Na__Event.target);
+    if (!Na__Word || Na__WordJump__ArticleSelection()) return;
+    Na__TextToReader__PlayFromWord(Na__Word);
+}
+// --------------------------------------------------------
+
+
 // FUNCTION | Cancel a pending long-press
 // ------------------------------------------------------------
 function Na__WordJump__CancelPress() {
@@ -393,6 +409,7 @@ export function Na__TextToReader__InitialiseWordJump(Na__Config) {
     // Gestures on the article
     article.addEventListener("mousedown", Na__WordJump__HandleMouseDown);
     article.addEventListener("dblclick", Na__WordJump__HandleDoubleClick);
+    article.addEventListener("click", Na__WordJump__HandleClick);
     article.addEventListener("pointermove", Na__WordJump__HandlePointerMove);
     article.addEventListener("selectstart", Na__WordJump__HandleSelectStart);
     for (const Na__Name of ["pointerup", "pointercancel", "pointerleave"]) {
