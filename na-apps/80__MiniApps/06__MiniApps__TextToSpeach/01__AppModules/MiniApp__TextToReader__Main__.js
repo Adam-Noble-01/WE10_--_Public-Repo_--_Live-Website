@@ -51,7 +51,8 @@ import { Na__TextToReader__InitialiseActivityLog } from "./MiniApp__TextToReader
 import {
     Na__TextToReader__InitialiseReadAloud,
     Na__TextToReader__StopReadAloud,
-    Na__TextToReader__SetReadAloudVisible
+    Na__TextToReader__SetReadAloudVisible,
+    Na__TextToReader__StartLoadedText
 } from "./MiniApp__TextToReader__ReadAloud__.js";
 
 // endregion -------------------------------------------------------------------
@@ -213,9 +214,10 @@ function Na__TextToReader__RenderCurrentInput() {
 // ------------------------------------------------------------
 function Na__TextToReader__ShowTextInReadView() {
     if (Na__TextToReader__GetActiveMode() === "read") {
-        Na__TextToReader__RenderCurrentInput();
+        if (Na__TextToReader__RenderCurrentInput()) Na__TextToReader__StartLoadedText();
         Na__TextToReader__FocusReadableArticle();
     } else {
+        // The Read tab's mode-change handler renders and starts playback.
         Na__TextToReader__SetActiveMode("read");
     }
     Na__TextToReader__Dom.Na__Output.closest(".TTR__panel--output")?.scrollTo({ top: 0 });
@@ -315,7 +317,7 @@ function Na__TextToReader__HandleModeChange(Na__Mode) {
     if (Na__Mode !== "read") Na__TextToReader__StopReadAloud();
 
     if (Na__Mode === "read") {
-        Na__TextToReader__RenderCurrentInput();
+        if (Na__TextToReader__RenderCurrentInput()) Na__TextToReader__StartLoadedText();
         Na__TextToReader__FocusReadableArticle();
         return;
     }
@@ -365,6 +367,14 @@ function Na__TextToReader__RegisterEventListeners() {
         acceptedExtensions  : Na__Defaults.NaMiniApp__AcceptedFileExtensions,
         uiText              : Na__UiText,
         onFileLoaded        : Na__TextToReader__HandleFileLoaded
+    });
+
+    // Native paste into Edit: let the browser insert text before rendering and starting.
+    // Do not regenerate on every keystroke; normal editing remains under user control.
+    Na__TextToReader__Dom.Na__InputText.addEventListener("paste", () => {
+        setTimeout(() => {
+            if (Na__TextToReader__Dom.Na__InputText.value.trim()) Na__TextToReader__ShowTextInReadView();
+        }, 0);
     });
 }
 // ------------------------------------------------------------
@@ -436,7 +446,9 @@ async function Na__TextToReader__BootstrapApp() {
     // Launch: ask for text first; the voice download prompt waits until this modal closes.
     // Text the browser restored into the editor (a reload) is shown instead.
     if (Na__TextToReader__Dom.Na__InputText.value.trim()) {
-        Na__TextToReader__RenderCurrentInput();
+        if (Na__TextToReader__RenderCurrentInput() && Na__TextToReader__GetActiveMode() === "read") {
+            Na__TextToReader__StartLoadedText();
+        }
     } else {
         Na__TextToReader__OpenSourceModal();
     }
