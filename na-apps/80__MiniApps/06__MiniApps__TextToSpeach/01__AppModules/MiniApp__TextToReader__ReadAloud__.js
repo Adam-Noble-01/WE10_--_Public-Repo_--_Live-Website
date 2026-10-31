@@ -132,6 +132,8 @@ let Na__Reader__Run = null;
 let Na__Reader__SectionAudio = null;
 let Na__Reader__SectionStarting = false;
 let Na__Reader__Picking = false;
+let Na__Reader__QueuedRequest = null;  // Sentence tapped before the first run is ready
+let Na__Reader__AutoStartPending = false; // Continue after a missing voice is installed
 // endregion -------------------------------------------------------------------
 
 
@@ -736,8 +738,14 @@ async function Na__Reader__ConfirmModalChoice() {
     const Na__Model = Na__Reader__FindModel(Na__Reader__ModalChoice);
     if (!Na__Model) return;
     if (!await Na__Reader__IsInstalled(Na__Model) && !await Na__Reader__InstallOffline(Na__Model)) return;
+    const Na__Resume = Na__Reader__AutoStartPending;
+    const Na__Queued = Na__Reader__QueuedRequest;
     Na__Reader__SelectModel(Na__Model.NaMiniApp__ModelId);
     Na__Reader__CloseModal();
+    if (Na__Resume) {
+        Na__Reader__QueuedRequest = Na__Queued;
+        Na__TextToReader__StartLoadedText();
+    }
 }
 // --------------------------------------------------------
 
@@ -793,6 +801,8 @@ function Na__Reader__ReleaseAudio() {
 // again in the same voice starts at once.
 export function Na__TextToReader__StopReadAloud() {
     Na__Reader__GenerationId++;
+    Na__Reader__AutoStartPending = false;
+    Na__Reader__QueuedRequest = null;
     Na__Reader__SetPicking(false);
     if (Na__Reader__Run) {
         Na__Reader__Run.dead = true;
@@ -868,7 +878,20 @@ async function Na__Reader__PrepareAudio() {
         return;
     }
 
-    if (!await Na__Reader__EnsureVoiceInstalled()) return;
+    Na__Reader__AutoStartPending = true;
+    const Na__RequestedGeneration = Na__Reader__GenerationId;
+    Na__Reader__SetBusy(true);
+    Na__Reader__Nodes.stop.disabled = false;
+    Na__Reader__SetStatus("Preparing speech…");
+    Na__Reader__SetProgress(null);
+
+    const Na__VoiceReady = await Na__Reader__EnsureVoiceInstalled();
+    if (Na__RequestedGeneration !== Na__Reader__GenerationId) return;
+    if (!Na__VoiceReady) {
+        Na__Reader__SetBusy(false);
+        Na__Reader__Nodes.progress.hidden = true;
+        return;
+    }
 
     Na__TextToReader__StopReadAloud();
     const Na__JobId = ++Na__Reader__GenerationId;
@@ -1248,20 +1271,37 @@ function Na__Reader__HandlePick(Na__Event) {
 // --------------------------------------------------------
 // Play From Here starts at the given word's sentence, and with Na__WholeSection (Prepare & Play
 // This Section) at the start of its section. Without a word the start of the selection is used;
-// with no selection either, pick mode waits for a click or selection in the text. Rendered
-// sections from an earlier read are reused, so starting again on text already rendered needs no
-// engine and no waiting.
+// with no selection it starts at the beginning. Rendered sections from an earlier read
+// are reused, so starting again on text already rendered needs no engine and no waiting.
 async function Na__Reader__PrepareSections(Na__StartWord, Na__WholeSection = false) {
-    if (Na__Reader__SectionStarting) return;
+    if (Na__Reader__SectionStarting) {
+        if (Na__StartWord) Na__Reader__QueuedRequest = { word: Na__StartWord, whole: Na__WholeSection };
+        return;
+    }
     Na__Reader__SectionStarting = true;
+    Na__Reader__AutoStartPending = true;
+    const Na__RequestedGeneration = Na__Reader__GenerationId;
+    Na__Reader__SetBusy(true);
+    Na__Reader__Nodes.stop.disabled = false;
+    Na__Reader__SetStatus("Preparing the first section…");
+    Na__Reader__SetProgress(null);
 
     try {
         const Na__Plan = Na__TextToReader__BuildReadingPlan(Na__Reader__Article, true);
         if (!Na__Plan.length) {
             Na__Reader__SetStatus("No article text to read.");
+            Na__Reader__AutoStartPending = false;
+            Na__Reader__SetBusy(false);
+            Na__Reader__Nodes.progress.hidden = true;
             return;
         }
-        if (!await Na__Reader__EnsureVoiceInstalled()) return;
+        const Na__VoiceReady = await Na__Reader__EnsureVoiceInstalled();
+        if (Na__RequestedGeneration !== Na__Reader__GenerationId) return;
+        if (!Na__VoiceReady) {
+            Na__Reader__SetBusy(false);
+            Na__Reader__Nodes.progress.hidden = true;
+            return;
+        }
 
         const Na__Size = Math.max(1, Number(Na__Reader__Config.NaMiniApp__SectionSentences) || 10);
         const Na__FirstSize = Math.max(1, Number(Na__Reader__Config.NaMiniApp__FirstSectionSentences) || Na__Size);
@@ -1273,15 +1313,13 @@ async function Na__Reader__PrepareSections(Na__StartWord, Na__WholeSection = fal
             for (const Na__Sentence of Na__Section.sentences) Na__SectionOf.set(Na__Sentence.id, Na__Section.index);
         }
 
-        // The start is picked in the text, the way a word or passage is always picked: the word
-        // given, else the start of the selection. With neither, wait for the listener to pick.
-        const Na__Pointed = Na__StartWord || Na__TextToReader__SelectionStartWord(Na__Reader__Article);
-        const Na__Start = Na__SectionOf.get(Na__Pointed?.closest(".TTR__s")?.dataset.s) ?? -1;
-        if (Na__Start < 0) {
-            Na__Reader__SetPicking(true);
-            return;
-        }
-        const Na__StartAt = Na__WholeSection ? null : Na__Pointed;
+        // No selection is required: default to section zero. A tap during voice loading
+        // takes priority, and later taps jump immediately within the active run.
+        const Na__Queued = Na__Reader__QueuedRequest;
+        const Na__Pointed = Na__Queued?.word || Na__StartWord || Na__TextToReader__SelectionStartWord(Na__Reader__Article);
+        const Na__Start = Na__SectionOf.get(Na__Pointed?.closest(".TTR__s")?.dataset.s) ?? 0;
+        const Na__StartAt = Na__Queued?.whole || Na__WholeSection ? null : Na__Pointed;
+        Na__Reader__QueuedRequest = null;
         Na__Reader__SetPicking(false);
         window.getSelection()?.removeAllRanges();   // The selection has said where to start
 
@@ -1323,6 +1361,11 @@ async function Na__Reader__PrepareSections(Na__StartWord, Na__WholeSection = fal
         Na__Reader__SetProgress(null);
         Na__Reader__PumpSections(Na__Run);
 
+    } catch (Na__Error) {
+        Na__Reader__SetBusy(false);
+        Na__Reader__Nodes.progress.hidden = true;
+        Na__Reader__SetStatus("Unable to start reading: " + Na__Error.message);
+        Na__TextToReader__Log("error", "Unable to start reading: " + Na__Error.message);
     } finally {
         Na__Reader__SectionStarting = false;
     }
@@ -1388,7 +1431,7 @@ function Na__Reader__SetSectionMode(Na__On, Na__Persist) {
     if (Na__Reader__Modal.sectionsToggle) Na__Reader__Modal.sectionsToggle.checked = Na__Reader__SectionMode;
     document.body.dataset.ttrSections = Na__Reader__SectionMode ? "on" : "off";   // The right-click menu reads this
 
-    const Na__Label = Na__Reader__SectionMode ? "Choose a section and play" : "Prepare & Play";
+    const Na__Label = "Prepare & Play";
     Na__Reader__Nodes.prepare.title = Na__Label;
     Na__Reader__Nodes.prepare.setAttribute("aria-label", Na__Label);
 
@@ -1396,7 +1439,7 @@ function Na__Reader__SetSectionMode(Na__On, Na__Persist) {
     Na__TextToReader__SetUserSetting(Na__Reader__UserSection, "NaUserConfig__SectionedReading", Na__Reader__SectionMode);
     Na__TextToReader__StopReadAloud();   // What is prepared was made the other way
     Na__Reader__SetStatus(Na__Reader__SectionMode
-        ? "Reading in sections. Tap Prepare to choose where to start."
+        ? "Reading in sections. Starts at the beginning; tap a sentence to jump."
         : "Reading the whole document at once.");
 }
 // --------------------------------------------------------
@@ -1435,6 +1478,16 @@ async function Na__Reader__TogglePause() {
 // --------------------------------------------------------
 
 
+// FUNCTION | StartLoadedText - Begin synthesis on paste, file load or Read
+// --------------------------------------------------------
+export function Na__TextToReader__StartLoadedText() {
+    if (!Na__Reader__Config || !Na__Reader__Article?.textContent.trim()) return;
+    if (Na__Reader__SectionMode) void Na__Reader__PrepareSections(null);
+    else void Na__Reader__PrepareAudio();
+}
+// --------------------------------------------------------
+
+
 // FUNCTION | SetReadAloudVisible - Audio controls belong to the Read tab alone
 // --------------------------------------------------------
 export function Na__TextToReader__SetReadAloudVisible(Na__Visible) {
@@ -1468,8 +1521,8 @@ export function Na__TextToReader__InitialiseReadAloud({ config, article }) {
     const Na__FirstSectionSize = Number(config.NaMiniApp__FirstSectionSentences) || Na__SectionSize;
     if (Na__Reader__Modal.sectionsNote) Na__Reader__Modal.sectionsNote.textContent = "Renders " + Na__SectionSize + " sentences at a time (the first " +
         "section " + Na__FirstSectionSize + ", to start sooner), so a long " +
-        "document starts reading after one section, not after all of it. Click a sentence, or select a passage, " +
-        "to choose where to start; the sections after it and before it are prepared while you listen.";
+        "document starts reading after one section, not after all of it. It starts at the beginning automatically. " +
+        "Tap any sentence to jump there; other sections are prepared while you listen.";
     // Each (i) button shows or hides the text its aria-controls names
     for (const Na__Info of Na__Reader__Modal.dialog.querySelectorAll(".TTR__voice-info")) {
         Na__Info.addEventListener("click", () => {
@@ -1504,7 +1557,11 @@ export function Na__TextToReader__InitialiseReadAloud({ config, article }) {
     Na__Reader__Modal.download.addEventListener("click", Na__Reader__ConfirmModalChoice);
     Na__Reader__Modal.later.addEventListener("click", () => {
         Na__Reader__CloseModal();
-        if (Na__Reader__ModalForced) Na__Reader__OnDismiss?.();
+        if (Na__Reader__ModalForced) {
+            Na__Reader__AutoStartPending = false;
+            Na__Reader__QueuedRequest = null;
+            Na__Reader__OnDismiss?.();
+        }
     });
     Na__Reader__Nodes.model?.addEventListener("click", () => Na__Reader__OpenVoiceModal(false));
     Na__Reader__Modal.dialog.addEventListener("cancel", (Na__Event) => Na__Event.preventDefault());
