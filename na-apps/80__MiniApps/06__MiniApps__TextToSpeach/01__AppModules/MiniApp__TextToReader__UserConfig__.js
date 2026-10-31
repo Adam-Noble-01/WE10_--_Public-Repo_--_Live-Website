@@ -67,7 +67,7 @@ function Na__UserConfig__BuildDefaults(Na__ReadAloudConfig, Na__AppVersion) {
             "NaUserConfig__VoiceModelId"  : Na__ReadAloudConfig.NaMiniApp__DefaultModelId || null,
             "NaUserConfig__PlaybackSpeed" : Number(Na__ReadAloudConfig.NaMiniApp__DefaultSpeed) || 2,
             "NaUserConfig__PitchPercent"  : 0,
-            "NaUserConfig__SectionedReading" : false
+            "NaUserConfig__SectionedReading" : true
         },
         "NaUserConfig__Files" : {
             "NaUserConfig__LastFileName"   : null,
