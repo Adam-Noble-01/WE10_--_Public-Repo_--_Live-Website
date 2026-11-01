@@ -134,6 +134,18 @@ let Na__Reader__SectionStarting = false;
 let Na__Reader__Picking = false;
 let Na__Reader__QueuedRequest = null;  // Sentence tapped before the first run is ready
 let Na__Reader__AutoStartPending = false; // Continue after a missing voice is installed
+let Na__Reader__TransportDragging = false;
+const Na__Reader__Transport = {
+    bar       : document.getElementById("js__audioTransport"),
+    previous  : document.getElementById("js__audioPrevSentence"),
+    backward  : document.getElementById("js__audioBackTen"),
+    seek      : document.getElementById("js__audioSeek"),
+    forward   : document.getElementById("js__audioForwardTen"),
+    next      : document.getElementById("js__audioNextSentence"),
+    elapsed   : document.getElementById("js__audioElapsed"),
+    duration  : document.getElementById("js__audioDuration"),
+    section   : document.getElementById("js__audioSectionLabel")
+};
 // endregion -------------------------------------------------------------------
 
 
@@ -325,6 +337,7 @@ function Na__Reader__SetBusy(Na__Busy) {
     Na__Reader__Nodes.prepare.disabled = Na__Busy;
     Na__Reader__Nodes.stop.disabled = !Na__Busy && !Na__Reader__Ready;
     Na__Reader__Nodes.pause.disabled = !Na__Reader__Ready;
+    Na__Reader__RefreshTransport();
 }
 // --------------------------------------------------------
 
@@ -392,6 +405,168 @@ function Na__Reader__UpdatePlaybackState() {
     Na__Reader__Nodes.pause.hidden = !Na__Reader__Ready;
     Na__Reader__Nodes.pause.disabled = !Na__Reader__Ready;
     Na__Reader__Nodes.stop.disabled = !Na__Reader__Generating && !Na__Reader__Ready;
+    Na__Reader__RefreshTransport();
+}
+// --------------------------------------------------------
+
+
+// FUNCTION | TransportDuration - Duration of the currently generated WAV, not the whole document
+// --------------------------------------------------------
+function Na__Reader__TransportDuration() {
+    const Na__Duration = Na__Reader__Nodes.audio.duration;
+    if (Number.isFinite(Na__Duration) && Na__Duration > 0) return Na__Duration;
+    if (Na__Reader__SectionAudio) {
+        return Na__Reader__SectionAudio.samples /
+            (Na__Reader__SectionAudio.sampleRate * Na__Reader__AppliedPitch);
+    }
+    if (Na__Reader__Pcm && Na__Reader__SampleRate) {
+        return Na__Reader__Pcm.length / (Na__Reader__SampleRate * Na__Reader__AppliedPitch);
+    }
+    return 0;
+}
+// --------------------------------------------------------
+
+
+// FUNCTION | TransportClock - Display time in minutes and seconds
+// --------------------------------------------------------
+function Na__Reader__TransportClock(Na__Seconds) {
+    const Na__Time = Math.floor(Math.max(0, Number.isFinite(Na__Seconds) ? Na__Seconds : 0));
+    return Math.floor(Na__Time / 60) + ":" + String(Na__Time % 60).padStart(2, "0");
+}
+// --------------------------------------------------------
+
+
+// FUNCTION | RefreshTransport - Keep section, seek bar and button states in sync
+// --------------------------------------------------------
+function Na__Reader__RefreshTransport() {
+    const Na__Ui = Na__Reader__Transport;
+    if (!Na__Ui.bar) return;
+    const Na__Run = Na__Reader__Run;
+    const Na__Active = document.body.dataset.ttrMode === "read" &&
+        Boolean(Na__Reader__Article?.textContent.trim()) &&
+        (Na__Reader__Generating || Na__Reader__Ready || Boolean(Na__Run));
+    Na__Ui.bar.hidden = !Na__Active;
+    if (!Na__Active) return;
+
+    const Na__Audio = Na__Reader__Nodes.audio;
+    const Na__Duration = Na__Reader__Ready ? Na__Reader__TransportDuration() : 0;
+    const Na__Playable = Na__Reader__Ready && Na__Duration > 0 &&
+        (!Na__Run || (Na__Run.current >= 0 && Na__Run.waitingFor < 0));
+    const Na__Time = Na__Playable ? Math.max(0, Math.min(Na__Duration, Na__Audio.currentTime || 0)) : 0;
+
+    Na__Ui.previous.disabled = !Na__Playable;
+    Na__Ui.backward.disabled = !Na__Playable;
+    Na__Ui.forward.disabled  = !Na__Playable;
+    Na__Ui.next.disabled     = !Na__Playable;
+    Na__Ui.seek.disabled     = !Na__Playable;
+    if (Na__Run) {
+        const Na__Index = Na__Run.waitingFor >= 0 ? Na__Run.waitingFor : Na__Run.current;
+        Na__Ui.section.textContent = Na__Index >= 0
+            ? "Section " + (Na__Index + 1) + "/" + Na__Run.sections.length
+            : "Preparing…";
+    } else {
+        Na__Ui.section.textContent = Na__Playable ? "Document" : "Preparing…";
+    }
+    Na__Ui.seek.setAttribute("aria-label", "Seek within " + Na__Ui.section.textContent.toLowerCase());
+    if (!Na__Reader__TransportDragging) {
+        Na__Ui.seek.value = Na__Playable ? String(Math.round(1000 * Na__Time / Na__Duration)) : "0";
+        Na__Ui.elapsed.textContent = Na__Reader__TransportClock(Na__Time);
+    }
+    Na__Ui.duration.textContent = Na__Reader__TransportClock(Na__Duration);
+}
+// --------------------------------------------------------
+
+
+// FUNCTION | SeekRelative - Skip ten seconds, crossing cached sections where possible
+// --------------------------------------------------------
+function Na__Reader__SeekRelative(Na__Seconds) {
+    const Na__Run = Na__Reader__Run;
+    const Na__Audio = Na__Reader__Nodes.audio;
+    if (!Na__Reader__Ready || (Na__Run && (Na__Run.current < 0 || Na__Run.waitingFor >= 0))) return;
+    const Na__Duration = Na__Reader__TransportDuration();
+    if (!Na__Duration) return;
+
+    let Na__Offset = (Na__Audio.currentTime || 0) + Na__Seconds;
+    if (!Na__Run) {
+        Na__Audio.currentTime = Math.max(0, Math.min(Na__Duration, Na__Offset));
+        Na__Reader__RefreshTransport();
+        return;
+    }
+
+    let Na__Index = Na__Run.current;
+    for (let Na__Guard = 0; Na__Guard < Na__Run.sections.length + 1; Na__Guard++) {
+        const Na__Record = Na__TextToReader__SectionCacheGet(Na__Run.keys[Na__Index]);
+        const Na__Length = Na__Index === Na__Run.current ? Na__Duration :
+            (Na__Record ? Na__Record.samples / (Na__Record.sampleRate * Na__Reader__AppliedPitch) : 0);
+
+        if (Na__Offset < 0) {
+            if (Na__Index === 0) {
+                Na__Audio.currentTime = 0;
+                break;
+            }
+            Na__Index--;
+            const Na__Previous = Na__TextToReader__SectionCacheGet(Na__Run.keys[Na__Index]);
+            if (!Na__Previous) {
+                const Na__Last = Na__Run.sections[Na__Index].sentences.at(-1)?.words[0] || null;
+                Na__Reader__GoToSection(Na__Run, Na__Index, Na__Last);
+                return;
+            }
+            Na__Offset += Na__Previous.samples / (Na__Previous.sampleRate * Na__Reader__AppliedPitch);
+            continue;
+        }
+
+        if (Na__Length > 0 && Na__Offset >= Na__Length) {
+            if (Na__Index === Na__Run.sections.length - 1) {
+                Na__Audio.currentTime = Math.max(0, Na__Duration - 0.05);
+                break;
+            }
+            Na__Offset -= Na__Length;
+            Na__Index++;
+            if (!Na__TextToReader__SectionCacheHas(Na__Run.keys[Na__Index])) {
+                Na__Reader__GoToSection(Na__Run, Na__Index, null, Na__Offset);
+                return;
+            }
+            continue;
+        }
+
+        if (Na__Index === Na__Run.current) Na__Audio.currentTime = Na__Offset;
+        else Na__Reader__GoToSection(Na__Run, Na__Index, null, Na__Offset);
+        break;
+    }
+    Na__Reader__RefreshTransport();
+}
+// --------------------------------------------------------
+
+
+// FUNCTION | NavigateSentence - Previous/next sentence within or across sections
+// --------------------------------------------------------
+function Na__Reader__NavigateSentence(Na__Direction) {
+    const Na__Run = Na__Reader__Run;
+    if (!Na__Reader__Ready || (Na__Run && Na__Run.waitingFor >= 0)) return;
+    const Na__Audio = Na__Reader__Nodes.audio;
+    const Na__Timeline = Na__Reader__ScaleTimeline(Na__Reader__AppliedPitch) || [];
+    if (!Na__Timeline.length) return;
+
+    const Na__Time = Na__Audio.currentTime || 0;
+    let Na__Current = Na__Timeline.findIndex((Na__Sentence) => Na__Time < Na__Sentence.end - 0.015);
+    if (Na__Current < 0) Na__Current = Na__Timeline.length - 1;
+    const Na__Target = Na__Direction < 0
+        ? (Na__Time > Na__Timeline[Na__Current].start + 1.5 ? Na__Current : Na__Current - 1)
+        : Na__Current + 1;
+
+    if (Na__Target >= 0 && Na__Target < Na__Timeline.length) {
+        Na__Audio.currentTime = Na__Timeline[Na__Target].start;
+        Na__Audio.play().catch(() => Na__Reader__SetStatus("Tap Play to continue."));
+    } else if (Na__Run && Na__Direction > 0 && Na__Run.current + 1 < Na__Run.sections.length) {
+        Na__Reader__GoToSection(Na__Run, Na__Run.current + 1, null);
+    } else if (Na__Run && Na__Direction < 0 && Na__Run.current > 0) {
+        const Na__PreviousSection = Na__Run.sections[Na__Run.current - 1];
+        const Na__LastWord = Na__PreviousSection.sentences.at(-1)?.words[0] || null;
+        Na__Reader__GoToSection(Na__Run, Na__Run.current - 1, Na__LastWord);
+    } else if (Na__Direction < 0) {
+        Na__Audio.currentTime = 0;
+    }
+    Na__Reader__RefreshTransport();
 }
 // --------------------------------------------------------
 
@@ -1115,7 +1290,7 @@ function Na__Reader__OnSectionReady(Na__Run, Na__Index, Na__Record) {
                 " of audio (section " + (Na__Index + 1) + " of " + Na__Run.sections.length + ")");
             Na__Run.firstLog = null;
         }
-        Na__Reader__LoadSection(Na__Run, Na__Index, Na__Run.pendingWord);
+        Na__Reader__LoadSection(Na__Run, Na__Index, Na__Run.pendingWord, Na__Run.pendingSeconds);
     }
 
     if (!Na__Run.completeLogged && Na__Reader__ReadyCount(Na__Run) === Na__Run.sections.length) {
@@ -1155,7 +1330,7 @@ function Na__Reader__FailRun(Na__Run, Na__Error) {
 // --------------------------------------------------------
 // With a word, playback starts at that word's sentence. The page scrolls to follow, as it does
 // for any highlighted sentence.
-function Na__Reader__LoadSection(Na__Run, Na__Index, Na__Word) {
+function Na__Reader__LoadSection(Na__Run, Na__Index, Na__Word, Na__Offset = null) {
     const Na__Record = Na__TextToReader__SectionCacheGet(Na__Run.keys[Na__Index]);
     if (!Na__Record) return false;
 
@@ -1175,8 +1350,13 @@ function Na__Reader__LoadSection(Na__Run, Na__Index, Na__Word) {
 
     const Na__Piece = Na__Word?.closest(".TTR__s");
     const Na__Entry = Na__Piece && Na__Timeline.find((Na__Candidate) => Na__Candidate.pieces.includes(Na__Piece));
-    if (Na__Entry) {
-        Na__Audio.addEventListener("loadedmetadata", () => { Na__Audio.currentTime = Na__Entry.start; }, { once: true });
+    if (Na__Entry || Na__Offset !== null) {
+        const Na__Wanted = Na__Entry ? Na__Entry.start : Na__Offset;
+        Na__Audio.addEventListener("loadedmetadata", () => {
+            // A rapid second jump may have replaced the source before metadata arrived.
+            if (Na__Run.dead || Na__Reader__Run !== Na__Run || Na__Run.current !== Na__Index) return;
+            Na__Audio.currentTime = Math.max(0, Math.min(Math.max(0, Na__Audio.duration - 0.05), Na__Wanted));
+        }, { once: true });
     }
     if (Na__OldUrl) URL.revokeObjectURL(Na__OldUrl);
 
@@ -1184,6 +1364,7 @@ function Na__Reader__LoadSection(Na__Run, Na__Index, Na__Word) {
     Na__Run.anchor = Na__Index;
     Na__Run.waitingFor = -1;
     Na__Run.pendingWord = null;
+    Na__Run.pendingSeconds = null;
     Na__Run.finished = false;
 
     if (!Na__Reader__Ready) {
@@ -1205,11 +1386,12 @@ function Na__Reader__LoadSection(Na__Run, Na__Index, Na__Word) {
 
 // FUNCTION | WaitForSection - Hold playback until a section is rendered, and render it before any other
 // --------------------------------------------------------
-function Na__Reader__WaitForSection(Na__Run, Na__Index, Na__Word) {
+function Na__Reader__WaitForSection(Na__Run, Na__Index, Na__Word, Na__Offset = null) {
     Na__Reader__Nodes.audio.pause();
     Na__Run.waitingFor = Na__Index;
     Na__Run.anchor = Na__Index;
     Na__Run.pendingWord = Na__Word;
+    Na__Run.pendingSeconds = Na__Offset;
     Na__Run.finished = false;
     Na__Run.failed = null;
     if (Na__Run.rendering >= 0 && Na__Run.rendering !== Na__Index) Na__Run.epoch++;
@@ -1221,8 +1403,10 @@ function Na__Reader__WaitForSection(Na__Run, Na__Index, Na__Word) {
 
 // FUNCTION | GoToSection - Play from a section (or a word in it), now if rendered, else as soon as it is
 // --------------------------------------------------------
-function Na__Reader__GoToSection(Na__Run, Na__Index, Na__Word) {
-    if (!Na__Reader__LoadSection(Na__Run, Na__Index, Na__Word)) Na__Reader__WaitForSection(Na__Run, Na__Index, Na__Word);
+function Na__Reader__GoToSection(Na__Run, Na__Index, Na__Word, Na__Offset = null) {
+    if (!Na__Reader__LoadSection(Na__Run, Na__Index, Na__Word, Na__Offset)) {
+        Na__Reader__WaitForSection(Na__Run, Na__Index, Na__Word, Na__Offset);
+    }
 }
 // --------------------------------------------------------
 
@@ -1336,6 +1520,7 @@ async function Na__Reader__PrepareSections(Na__StartWord, Na__WholeSection = fal
             current     : -1,
             waitingFor  : Na__Start,
             pendingWord : Na__StartAt,
+            pendingSeconds : null,
             rendering   : -1,
             epoch       : 0,
             pumping     : false,
@@ -1494,6 +1679,7 @@ export function Na__TextToReader__SetReadAloudVisible(Na__Visible) {
     Na__Reader__Nodes.panel.hidden = !Na__Visible;
     if (Na__Visible && Na__Reader__Config) Na__Reader__EnsureVoiceInstalled();
     if (!Na__Visible) Na__Reader__CloseModal();
+    Na__Reader__RefreshTransport();
 }
 // --------------------------------------------------------
 
@@ -1572,10 +1758,35 @@ export function Na__TextToReader__InitialiseReadAloud({ config, article }) {
     Na__Reader__Nodes.pause.addEventListener("click", Na__Reader__TogglePause);
     Na__Reader__Nodes.speed.addEventListener("click", Na__Reader__StepSpeed);
 
+    // Transport: direct playback movement; sections are created on demand if missing.
+    const Na__Transport = Na__Reader__Transport;
+    if (Na__Transport.bar) {
+        Na__Transport.previous.addEventListener("click", () => Na__Reader__NavigateSentence(-1));
+        Na__Transport.next.addEventListener("click", () => Na__Reader__NavigateSentence(1));
+        Na__Transport.backward.addEventListener("click", () => Na__Reader__SeekRelative(-10));
+        Na__Transport.forward.addEventListener("click", () => Na__Reader__SeekRelative(10));
+        Na__Transport.seek.addEventListener("input", () => {
+            Na__Reader__TransportDragging = true;
+            const Na__Seconds = Na__Reader__TransportDuration() * Number(Na__Transport.seek.value) / 1000;
+            Na__Transport.elapsed.textContent = Na__Reader__TransportClock(Na__Seconds);
+        });
+        Na__Transport.seek.addEventListener("change", () => {
+            const Na__Seconds = Na__Reader__TransportDuration() * Number(Na__Transport.seek.value) / 1000;
+            if (Na__Reader__Ready && Number.isFinite(Na__Seconds)) {
+                Na__Reader__Nodes.audio.currentTime = Na__Seconds;
+            }
+            Na__Reader__TransportDragging = false;
+            Na__Reader__RefreshTransport();
+        });
+    }
+
     for (const Na__Name of ["play", "pause", "ended"]) {
         Na__Reader__Nodes.audio.addEventListener(Na__Name, Na__Reader__UpdatePlaybackState);
     }
     Na__Reader__Nodes.audio.addEventListener("ended", Na__Reader__AdvanceSection);
+    for (const Na__Name of ["loadedmetadata", "timeupdate", "durationchange", "seeked", "emptied"]) {
+        Na__Reader__Nodes.audio.addEventListener(Na__Name, Na__Reader__RefreshTransport);
+    }
 
     if ("mediaSession" in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
@@ -1585,9 +1796,26 @@ export function Na__TextToReader__InitialiseReadAloud({ config, article }) {
         navigator.mediaSession.setActionHandler("play", () => Na__Reader__Nodes.audio.play());
         navigator.mediaSession.setActionHandler("pause", () => Na__Reader__Nodes.audio.pause());
         navigator.mediaSession.setActionHandler("stop", Na__TextToReader__StopReadAloud);
+        // Android's notification / headset commands use the same transport logic.
+        for (const [Na__Action, Na__Callback] of [
+            ["seekbackward", (Na__Details) => Na__Reader__SeekRelative(-(Na__Details.seekOffset || 10))],
+            ["seekforward", (Na__Details) => Na__Reader__SeekRelative(Na__Details.seekOffset || 10)],
+            ["previoustrack", () => Na__Reader__NavigateSentence(-1)],
+            ["nexttrack", () => Na__Reader__NavigateSentence(1)],
+            ["seekto", (Na__Details) => {
+                const Na__Duration = Na__Reader__TransportDuration();
+                if (Na__Reader__Ready && Na__Duration && Number.isFinite(Na__Details.seekTime)) {
+                    Na__Reader__Nodes.audio.currentTime = Math.max(0, Math.min(Na__Duration, Na__Details.seekTime));
+                }
+            }]
+        ]) {
+            try { navigator.mediaSession.setActionHandler(Na__Action, Na__Callback); }
+            catch (Na__Error) { console.info("Media action unavailable: " + Na__Action, Na__Error); }
+        }
     }
 
     Na__Reader__UpdateModelButton();
+    Na__Reader__RefreshTransport();
 
     if ("serviceWorker" in navigator) {
         Na__Reader__EnsureCrossOriginIsolation().catch((Na__Error) => console.warn("Offline worker not yet installed:", Na__Error));
