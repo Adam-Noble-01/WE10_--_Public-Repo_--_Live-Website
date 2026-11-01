@@ -47,6 +47,12 @@ import { Na__TextToReader__LoadUserConfig } from "./MiniApp__TextToReader__UserC
 // @delegate: ./MiniApp__TextToReader__ActivityLog__.js
 import { Na__TextToReader__InitialiseActivityLog } from "./MiniApp__TextToReader__ActivityLog__.js";
 
+// @delegate: ./MiniApp__TextToReader__CompactTransport__.js
+import {
+    Na__TextToReader__InitialiseCompactTransport,
+    Na__TextToReader__ResetCompactTransport
+} from "./MiniApp__TextToReader__CompactTransport__.js";
+
 // @delegate: ./MiniApp__TextToReader__ReadAloud__.js
 import {
     Na__TextToReader__InitialiseReadAloud,
@@ -220,7 +226,7 @@ function Na__TextToReader__ShowTextInReadView() {
         // The Read tab's mode-change handler renders and starts playback.
         Na__TextToReader__SetActiveMode("read");
     }
-    Na__TextToReader__Dom.Na__Output.closest(".TTR__panel--output")?.scrollTo({ top: 0 });
+    Na__TextToReader__ResetCompactTransport();
 }
 // ------------------------------------------------------------
 
@@ -313,6 +319,7 @@ function Na__TextToReader__HandleFileLoaded() {
 // ------------------------------------------------------------
 function Na__TextToReader__HandleModeChange(Na__Mode) {
     Na__TextToReader__ApplyPanelVisibility(Na__Mode);
+    Na__TextToReader__ResetCompactTransport();
     Na__TextToReader__SetReadAloudVisible(Na__Mode === "read");
     if (Na__Mode !== "read") Na__TextToReader__StopReadAloud();
 
@@ -448,6 +455,7 @@ async function Na__TextToReader__BootstrapApp() {
         onPaste : Na__TextToReader__PasteFromMenu
     });
     Na__TextToReader__RegisterEventListeners();
+    Na__TextToReader__InitialiseCompactTransport();
     Na__TextToReader__InitialiseFullscreen(document.getElementById("js__fullscreenButton"));
     Na__TextToReader__ApplyPanelVisibility(Na__TextToReader__GetActiveMode());
 
