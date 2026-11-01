@@ -413,8 +413,8 @@ function Na__Reader__UpdatePlaybackState() {
 // FUNCTION | TransportDuration - Duration of the currently generated WAV, not the whole document
 // --------------------------------------------------------
 function Na__Reader__TransportDuration() {
-    const Na__Duration = Na__Reader__Nodes.audio.duration;
-    if (Number.isFinite(Na__Duration) && Na__Duration > 0) return Na__Duration;
+    // Prefer the active record, since an audio.src replacement may temporarily retain
+    // metadata (including duration) from the previous section.
     if (Na__Reader__SectionAudio) {
         return Na__Reader__SectionAudio.samples /
             (Na__Reader__SectionAudio.sampleRate * Na__Reader__AppliedPitch);
@@ -422,7 +422,8 @@ function Na__Reader__TransportDuration() {
     if (Na__Reader__Pcm && Na__Reader__SampleRate) {
         return Na__Reader__Pcm.length / (Na__Reader__SampleRate * Na__Reader__AppliedPitch);
     }
-    return 0;
+    const Na__Duration = Na__Reader__Nodes.audio.duration;
+    return Number.isFinite(Na__Duration) && Na__Duration > 0 ? Na__Duration : 0;
 }
 // --------------------------------------------------------
 
@@ -501,8 +502,9 @@ function Na__Reader__SeekRelative(Na__Seconds) {
 
         if (Na__Offset < 0) {
             if (Na__Index === 0) {
-                Na__Audio.currentTime = 0;
-                break;
+                if (Na__Index === Na__Run.current) Na__Audio.currentTime = 0;
+                else Na__Reader__GoToSection(Na__Run, 0, null, 0);
+                return;
             }
             Na__Index--;
             const Na__Previous = Na__TextToReader__SectionCacheGet(Na__Run.keys[Na__Index]);
@@ -517,8 +519,10 @@ function Na__Reader__SeekRelative(Na__Seconds) {
 
         if (Na__Length > 0 && Na__Offset >= Na__Length) {
             if (Na__Index === Na__Run.sections.length - 1) {
-                Na__Audio.currentTime = Math.max(0, Na__Duration - 0.05);
-                break;
+                const Na__End = Math.max(0, Na__Length - 0.05);
+                if (Na__Index === Na__Run.current) Na__Audio.currentTime = Na__End;
+                else Na__Reader__GoToSection(Na__Run, Na__Index, null, Na__End);
+                return;
             }
             Na__Offset -= Na__Length;
             Na__Index++;
@@ -1200,6 +1204,7 @@ function Na__Reader__ReportSections(Na__Run) {
     // rendering of the others is silent, so the message fades and never sits over the text on a phone.
     if (Na__Run.waitingFor >= 0) Na__Reader__SetProgress(100 * Na__Ready / Na__Total);
     else Na__Reader__Nodes.progress.hidden = true;
+    Na__Reader__RefreshTransport();
 }
 // --------------------------------------------------------
 
@@ -1775,6 +1780,14 @@ export function Na__TextToReader__InitialiseReadAloud({ config, article }) {
             if (Na__Reader__Ready && Number.isFinite(Na__Seconds)) {
                 Na__Reader__Nodes.audio.currentTime = Na__Seconds;
             }
+            Na__Reader__TransportDragging = false;
+            Na__Reader__RefreshTransport();
+        });
+        Na__Transport.seek.addEventListener("pointercancel", () => {
+            Na__Reader__TransportDragging = false;
+            Na__Reader__RefreshTransport();
+        });
+        Na__Transport.seek.addEventListener("blur", () => {
             Na__Reader__TransportDragging = false;
             Na__Reader__RefreshTransport();
         });
