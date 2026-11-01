@@ -144,6 +144,81 @@
     margin-left: auto;
 }
 
+/* Transport sits below the toolbar in normal document flow, including on mobile.
+   The duration and scrub range represent the currently loaded audio section only. */
+.TTR__transport {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 46px;
+    padding: 0.3rem 0.65rem;
+    border-bottom: 1px solid #e1e6e9;
+    background: #f8fafb;
+    color: #263b49;
+    font-family: "Open Sans", Arial, sans-serif;
+}
+.TTR__transport[hidden] { display: none !important; }
+.TTR__transport-button {
+    flex: 0 0 auto;
+    min-width: 38px;
+    min-height: 38px;
+    padding: 0 0.35rem;
+    border: 1px solid #b3bec5;
+    border-radius: 4px;
+    background: #fff;
+    color: inherit;
+    font: inherit;
+    font-weight: 600;
+    font-size: 0.92rem;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.TTR__transport-button:disabled { opacity: 0.35; cursor: default; }
+.TTR__transport-button:focus-visible,
+.TTR__transport-seek input:focus-visible { outline: 2px solid #263b49; outline-offset: 2px; }
+.TTR__transport-skip { font-size: 0.75rem; font-variant-numeric: tabular-nums; }
+.TTR__transport-seek {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.1rem;
+    min-width: 0;
+}
+.TTR__transport-times {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.3rem;
+    color: #54636d;
+    font-size: 0.7rem;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+.TTR__transport-times span:nth-child(2) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+.TTR__transport-seek input {
+    width: 100%;
+    min-width: 0;
+    height: 16px;
+    margin: 0;
+    accent-color: #263b49;
+    cursor: pointer;
+    touch-action: pan-y;
+}
+.TTR__transport-seek input:disabled { opacity: 0.45; cursor: default; }
+@media (max-width: 420px) {
+    .TTR__transport { gap: 0.25rem; padding: 0.25rem 0.35rem; }
+    .TTR__transport-button { min-width: 35px; min-height: 38px; padding: 0 0.2rem; }
+    .TTR__transport-times { font-size: 0.64rem; }
+}
+
 /* Status and progress: a slim row under the bar, gone when empty */
 /* Status fills the gap in the tool bar between the tabs and the controls,
    one line, then fades out (ReadAloud.js adds --faded a few seconds after
