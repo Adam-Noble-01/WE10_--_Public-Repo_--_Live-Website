@@ -131,7 +131,6 @@ let Na__Reader__SectionMode = false;
 let Na__Reader__Run = null;
 let Na__Reader__SectionAudio = null;
 let Na__Reader__SectionStarting = false;
-let Na__Reader__Picking = false;
 let Na__Reader__QueuedRequest = null;  // Sentence tapped before the first run is ready
 let Na__Reader__AutoStartPending = false; // Continue after a missing voice is installed
 let Na__Reader__TransportDragging = false;
@@ -982,7 +981,6 @@ export function Na__TextToReader__StopReadAloud() {
     Na__Reader__GenerationId++;
     Na__Reader__AutoStartPending = false;
     Na__Reader__QueuedRequest = null;
-    Na__Reader__SetPicking(false);
     if (Na__Reader__Run) {
         Na__Reader__Run.dead = true;
         Na__Reader__Run = null;
@@ -1038,9 +1036,7 @@ async function Na__Reader__SynthesiseSentences(Na__Tts, Na__Sentences, Na__Signa
 // --------------------------------------------------------
 async function Na__Reader__PrepareAudio() {
     if (Na__Reader__SectionMode) {
-        // Prepare again while picking cancels the pick
-        if (Na__Reader__Picking) Na__Reader__SetPicking(false);
-        else await Na__Reader__PrepareSections(null);
+        await Na__Reader__PrepareSections(null);
         return;
     }
 
@@ -1433,29 +1429,6 @@ function Na__Reader__AdvanceSection() {
 // --------------------------------------------------------
 
 
-// FUNCTION | SetPicking - Pick mode: the next click on a sentence, or passage selected, starts reading there
-// --------------------------------------------------------
-// Prepare, with sections on and nothing selected, turns this on instead of opening a list.
-// Words show a pointer; Escape, Stop or Prepare again cancels.
-function Na__Reader__SetPicking(Na__On) {
-    if (Na__On === Na__Reader__Picking) return;
-    Na__Reader__Picking = Na__On;
-    document.body.classList.toggle("TTR__picking", Na__On);
-    Na__Reader__Nodes.prepare.setAttribute("aria-pressed", String(Na__On));
-    Na__Reader__SetStatus(Na__On ? "Click the sentence, or select the passage, where reading should start. Esc cancels." : "");
-}
-
-function Na__Reader__HandlePick(Na__Event) {
-    if (!Na__Reader__Picking) return;
-    // After the click settles, so a drag-selection is complete
-    setTimeout(() => {
-        const Na__Word = Na__TextToReader__SelectionStartWord(Na__Reader__Article) || Na__Event.target.closest?.(".TTR__w");
-        if (Na__Word) Na__Reader__PrepareSections(Na__Word);
-    }, 0);
-}
-// --------------------------------------------------------
-
-
 // FUNCTION | PrepareSections - Pick the first section, render and play it, and render the rest while it plays
 // --------------------------------------------------------
 // Play From Here starts at the given word's sentence, and with Na__WholeSection (Prepare & Play
@@ -1509,8 +1482,7 @@ async function Na__Reader__PrepareSections(Na__StartWord, Na__WholeSection = fal
         const Na__Start = Na__SectionOf.get(Na__Pointed?.closest(".TTR__s")?.dataset.s) ?? 0;
         const Na__StartAt = Na__Queued?.whole || Na__WholeSection ? null : Na__Pointed;
         Na__Reader__QueuedRequest = null;
-        Na__Reader__SetPicking(false);
-        window.getSelection()?.removeAllRanges();   // The selection has said where to start
+            window.getSelection()?.removeAllRanges();   // The selection has said where to start
 
         Na__TextToReader__StopReadAloud();                // Ends an earlier read; its rendered sections stay
         Na__TextToReader__SectionCacheRetain(Na__Keys);   // Drops other text's, which could never be played
@@ -1707,7 +1679,7 @@ export function Na__TextToReader__InitialiseReadAloud({ config, article }) {
     Na__Reader__BuildPitchControls();
     Na__Reader__SetPitch(Na__TextToReader__GetUserSetting(Na__Reader__UserSection, "NaUserConfig__PitchPercent"), false);
 
-    // Sections: the voice modal's switch, picking the start in the text, words played from other sections
+    // Sections: the voice modal's switch and direct sentence tapping; no pick-mode prompt
     const Na__SectionSize = Number(config.NaMiniApp__SectionSentences) || 10;
     const Na__FirstSectionSize = Number(config.NaMiniApp__FirstSectionSentences) || Na__SectionSize;
     if (Na__Reader__Modal.sectionsNote) Na__Reader__Modal.sectionsNote.textContent = "Renders " + Na__SectionSize + " sentences at a time (the first " +
@@ -1726,10 +1698,6 @@ export function Na__TextToReader__InitialiseReadAloud({ config, article }) {
     Na__Reader__SetSectionMode(Na__TextToReader__GetUserSetting(Na__Reader__UserSection, "NaUserConfig__SectionedReading"), false);
     Na__Reader__Modal.sectionsToggle?.addEventListener("change", () =>
         Na__Reader__SetSectionMode(Na__Reader__Modal.sectionsToggle.checked, true));
-    article.addEventListener("pointerup", Na__Reader__HandlePick);
-    document.addEventListener("keydown", (Na__Event) => {
-        if (Na__Event.key === "Escape" && Na__Reader__Picking) Na__Reader__SetPicking(false);
-    });
     Na__TextToReader__SetOutsideJumpHandler(Na__Reader__JumpToWord);
 
     const Na__StoredSpeed = Number(Na__TextToReader__GetUserSetting(Na__Reader__UserSection, "NaUserConfig__PlaybackSpeed"));
