@@ -879,3 +879,155 @@ body[data-ttr-mode="read"][data-ttr-sections="on"] .TTR__s:not(.TTR__s--on):acti
 }
 
 .TTR__fullscreen-button[hidden] { display: none; }
+
+
+/* =============================================================================
+   CONTEXT-AWARE READER TRANSPORT | Expanded toolbar -> minimal centred bar
+   The read pane itself scrolls (.FULL__page-app-container), not window.
+   The actual playback buttons remain mounted once; no duplicate player UI.
+   ============================================================================= */
+
+/* The original toolbar becomes sticky within the article's scroll container.
+   Its normal flow position still reserves space at the top of the document. */
+body[data-ttr-mode="read"] .TTR__toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 25;
+    transition:
+        background-color 360ms cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 360ms ease,
+        min-height 360ms cubic-bezier(0.22, 1, 0.36, 1),
+        margin-top 360ms ease,
+        border-color 360ms ease;
+}
+
+/* Shrink the global header while keeping the paper and internal scroll position.
+   max-height is interpolable, unlike height:auto -> height:0. */
+.HEAD__container {
+    min-height: 0;
+    max-height: 140px;
+    overflow: hidden;
+    transition:
+        max-height 360ms cubic-bezier(0.22, 1, 0.36, 1),
+        padding 360ms cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 240ms ease,
+        border-color 280ms ease;
+}
+body.TTR__compact-reader .HEAD__container {
+    max-height: 0;
+    min-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-width: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* At the guarded scroll threshold the full toolbar morphs into a small centred
+   dock. The tabs and voice selector fade; the transport's seeking row has
+   already scrolled away with the article, making more room for the text. */
+body.TTR__compact-reader .TTR__toolbar {
+    min-height: 50px;
+    margin-top: 0;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 0.24rem max(0.35rem, env(safe-area-inset-right));
+    border-bottom-color: #dce3e7;
+    background-color: rgba(248, 250, 251, 0.97);
+    box-shadow: 0 2px 9px rgba(38, 59, 73, 0.075);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+body.TTR__compact-reader .TTR__tablist {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-8px);
+}
+.TTR__tablist {
+    transition: opacity 240ms ease, transform 320ms ease, visibility 320ms ease;
+}
+body.TTR__compact-reader .TTR__toolbar .TTR__audio-actions {
+    margin: 0 auto;
+    padding: 0;
+    gap: 0.45rem;
+    align-items: center;
+    justify-content: center;
+}
+body.TTR__compact-reader .TTR__toolbar .TTR__audio-actions button {
+    min-height: 40px;
+}
+body.TTR__compact-reader .TTR__toolbar .TTR__audio-actions .TTR__audio-icon-btn {
+    width: 40px;
+}
+
+/* The voice/model selector and decorative speaker contract to nothing. */
+#js__audioModel {
+    transition: width 320ms cubic-bezier(0.22, 1, 0.36, 1),
+                max-width 320ms cubic-bezier(0.22, 1, 0.36, 1),
+                padding 320ms ease, border-width 320ms ease, opacity 200ms ease;
+}
+body.TTR__compact-reader #js__audioModel {
+    width: 0 !important;
+    max-width: 0;
+    min-width: 0;
+    padding: 0;
+    border-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    visibility: hidden;
+    pointer-events: none;
+}
+body.TTR__compact-reader .TTR__audio-playing { display: none; }
+
+/* The progress line is still visible when synthesising; status text never sits
+   over the paper. On desktop it too becomes screen-reader-only in compact mode. */
+body.TTR__compact-reader .TTR__audio-info {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: 0;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    height: 3px;
+    flex: none;
+    pointer-events: none;
+}
+body.TTR__compact-reader .TTR__audio-info progress {
+    height: 3px;
+    width: 100%;
+    margin: 0;
+}
+body.TTR__compact-reader .TTR__audio-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+body.TTR__compact-reader .TTR__transport {
+    /* Transport remains at its original document position, not pinned. */
+    position: static;
+}
+
+/* Keep scroll-to-highlight and manual section jumps clear of the compact dock. */
+body[data-ttr-mode="read"] .FULL__page-app-container { scroll-padding-top: 62px; }
+body[data-ttr-mode="read"] .MAIN__output .TTR__s { scroll-margin-top: 62px; }
+
+@media (prefers-reduced-motion: reduce) {
+    .HEAD__container,
+    body[data-ttr-mode="read"] .TTR__toolbar,
+    .TTR__tablist,
+    #js__audioModel {
+        transition-duration: 0.01ms !important;
+    }
+}
