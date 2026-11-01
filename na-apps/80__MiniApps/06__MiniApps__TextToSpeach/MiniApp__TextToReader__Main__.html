@@ -176,6 +176,28 @@
                                 </section>
                             </div>
                             <audio id="js__audioElement" preload="auto"></audio>
+                            <!-- Audio transport remains in document flow, never over the text.
+                                 Seek is within the current generated section, not an estimated
+                                 duration for audio that has not yet been synthesised. -->
+                            <nav id="js__audioTransport" class="TTR__transport" aria-label="Audio transport controls" hidden>
+                                <button id="js__audioPrevSentence" class="TTR__transport-button" type="button"
+                                        aria-label="Previous sentence" title="Previous sentence" disabled>⏮</button>
+                                <button id="js__audioBackTen" class="TTR__transport-button TTR__transport-skip" type="button"
+                                        aria-label="Rewind 10 seconds" title="Rewind 10 seconds" disabled>−10</button>
+                                <div class="TTR__transport-seek">
+                                    <div class="TTR__transport-times">
+                                        <span id="js__audioElapsed">0:00</span>
+                                        <span id="js__audioSectionLabel">Preparing…</span>
+                                        <span id="js__audioDuration">0:00</span>
+                                    </div>
+                                    <input id="js__audioSeek" type="range" min="0" max="1000" value="0" step="1"
+                                           aria-label="Seek within current section" disabled />
+                                </div>
+                                <button id="js__audioForwardTen" class="TTR__transport-button TTR__transport-skip" type="button"
+                                        aria-label="Forward 10 seconds" title="Forward 10 seconds" disabled>+10</button>
+                                <button id="js__audioNextSentence" class="TTR__transport-button" type="button"
+                                        aria-label="Next sentence" title="Next sentence" disabled>⏭</button>
+                            </nav>
                         <!-- endregion ------------------------------------ -->
 
                         <!-- --------------------------------------------- -->
