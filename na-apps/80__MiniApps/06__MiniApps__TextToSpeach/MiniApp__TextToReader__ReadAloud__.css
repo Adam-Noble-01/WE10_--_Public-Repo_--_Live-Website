@@ -887,6 +887,17 @@ body[data-ttr-mode="read"][data-ttr-sections="on"] .TTR__s:not(.TTR__s--on):acti
    The actual playback buttons remain mounted once; no duplicate player UI.
    ============================================================================= */
 
+/* The document column must grow with the full article. Its old flex:1/min-height:0
+   kept main at viewport height and would terminate sticky positioning partway down
+   longer documents, even though the article overflowed far beyond that point. */
+body[data-ttr-mode="read"] .MAIN__container {
+    flex: 0 0 auto;
+    min-height: 100%;
+}
+body[data-ttr-mode="read"] .TTR__panel--output {
+    flex: 0 0 auto;
+}
+
 /* The original toolbar becomes sticky within the article's scroll container.
    Its normal flow position still reserves space at the top of the document. */
 body[data-ttr-mode="read"] .TTR__toolbar {
