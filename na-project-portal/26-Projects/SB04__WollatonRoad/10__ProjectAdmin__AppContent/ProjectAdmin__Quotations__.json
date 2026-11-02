@@ -68,7 +68,7 @@
                 },
                 {
                     "description": "Coordination & Admin",
-                    "itemDescription": "1. Coordination with the Client and with the appointed Contractor.\n2. Project administration for the Concept Design stage.",
+                    "itemDescription": "1. Coordination with the Client and with the Client's Appointed Contractor.\n2. Project administration for the Concept Design stage.",
                     "quantity": 2,
                     "unit": "Hours",
                     "rate": 25,
@@ -156,7 +156,7 @@
                 },
                 {
                     "description": "Design Phase 03 - Building Regulations",
-                    "itemDescription": "1. See the Building Regulations contract for more details.\n2. Currently opted out due to the Main Contractor becoming the Building Regulations Compliance Agent.",
+                    "itemDescription": "1. See the Building Regulations contract for more details.\n2. Currently opted out, as the Client's Appointed Contractor is wholly responsible for Building Regulations compliance.",
                     "quantity": 0,
                     "unit": "Optional",
                     "rate": 1600,
@@ -196,7 +196,7 @@
             },
             "additionalTerms": "",
             "createdDate": "17-Aug-2026 at 17:15",
-            "lastModified": "10-Oct-2026 at 16:28"
+            "lastModified": "02-Nov-2026 at 11:56"
         }
     ]
 }
