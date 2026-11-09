@@ -1,3 +1,60 @@
 {
-    "invoices": []
+    "invoices": [
+        {
+            "invoiceRef": "INV-SK02-2026-001",
+            "invoiceDate": "09-Nov-2026",
+            "dueDate": "16-Nov-2026",
+            "status": "unpaid",
+            "projectAddress": "",
+            "projectDescription": "Concept Design Services - Two Storey Side Extension on the corner side with a First Floor Rear Projection, Single Storey Rear Extension across the full width of the house replacing the Existing Conservatory to form an open plan Kitchen and Dining Room, conversion of the Existing Garage, a remodelled Entrance Hall and Staircase, a wider Lounge, and a new Boundary Fence along the road.",
+            "clientDataStorage": "cloudflare-r2-encrypted",
+            "lineItems": [
+                {
+                    "description": "Design Phase - 01 : Concept Design",
+                    "itemDescription": "-> Stage Payment 1 of 2\n-> Next due on completion of the Planning Approval stage\n-> Fee as per Quote Ref: QUO-SK02-2026-001\n  -> A separate pass-through invoice recoups the Ordnance Survey data.\n\nServices Rendered\n1. Initial Design Consultation (free of charge)\n2. Building Survey & Travel\n3. Boundary Alignment : Title Plan & OS Data\n4. Model Existing Site Conditions\n5. Prepare Design Proposal & Design Development\n6. Design Review Meeting\n7. Finalisation of TrueVision Experience & Distribution\n8. Coordination & Admin",
+                    "quantity": 1,
+                    "rate": 1700,
+                    "unit": "item"
+                }
+            ],
+            "totals": {
+                "subtotal": 1700,
+                "vatApplicable": true,
+                "vatRate": 20,
+                "vat": 340,
+                "grandTotal": 2040
+            },
+            "personalNote": "Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.",
+            "createdDate": "09/11/2026, 18:23:10",
+            "lastModified": "09/11/2026, 18:26:01"
+        },
+        {
+            "invoiceRef": "INV-SK02-2026-002",
+            "invoiceDate": "09-Nov-2026",
+            "dueDate": "16-Nov-2026",
+            "status": "unpaid",
+            "projectAddress": "",
+            "projectDescription": "Third party pass-through cost - Ordnance Survey mapping data for 32 Ascott Gardens.",
+            "clientDataStorage": "cloudflare-r2-encrypted",
+            "lineItems": [
+                {
+                    "description": "OS Mapping Data",
+                    "itemDescription": "-> Ordnance Survey MasterMap data for 32 Ascott Gardens, in CAD format.\n-> Purchased from MapServe on 09-Nov-2026.\n-> A pass-through cost: I bought the data and recharge it to you, with a small handling charge.\n-> I usually recharge this with the planning stage. On this job I bought it early, because the side boundary has been a concern from the start. The data lets me check where the Ordnance Survey places your boundaries against your title plan and the scan.\n-> The same data will be used for the site and block plans in the planning drawings.",
+                    "quantity": 1,
+                    "rate": 45,
+                    "unit": "item"
+                }
+            ],
+            "totals": {
+                "subtotal": 45,
+                "vatApplicable": false,
+                "vatRate": 0,
+                "vat": 0,
+                "grandTotal": 45
+            },
+            "personalNote": "Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.",
+            "createdDate": "09/11/2026, 18:26:01",
+            "lastModified": "09/11/2026, 18:26:01"
+        }
+    ]
 }
