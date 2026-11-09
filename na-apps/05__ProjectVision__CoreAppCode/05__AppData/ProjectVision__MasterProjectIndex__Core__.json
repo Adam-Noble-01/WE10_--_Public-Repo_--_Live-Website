@@ -1,5 +1,5 @@
 {
-    "buildTimestamp": "2026-10-19T17:51:20.094546+00:00",
+    "buildTimestamp": "2026-11-09T23:42:26.927752+00:00",
     "projects": {
         "JH03": {
             "projectCode": "JH03",
@@ -10,7 +10,8 @@
                 "projectAdmin": false,
                 "planVision": true,
                 "trueVision": false
-            }
+            },
+            "planVisionDrawings": 32
         },
         "RJ03": {
             "projectCode": "RJ03",
@@ -21,7 +22,8 @@
                 "projectAdmin": false,
                 "planVision": false,
                 "trueVision": false
-            }
+            },
+            "planVisionDrawings": 0
         },
         "SB03": {
             "projectCode": "SB03",
@@ -32,7 +34,8 @@
                 "projectAdmin": false,
                 "planVision": false,
                 "trueVision": false
-            }
+            },
+            "planVisionDrawings": 0
         },
         "SM05": {
             "projectCode": "SM05",
@@ -43,7 +46,8 @@
                 "projectAdmin": false,
                 "planVision": false,
                 "trueVision": false
-            }
+            },
+            "planVisionDrawings": 0
         },
         "AA00": {
             "projectCode": "AA00",
@@ -54,7 +58,8 @@
                 "projectAdmin": true,
                 "planVision": true,
                 "trueVision": true
-            }
+            },
+            "planVisionDrawings": 0
         },
         "BH03": {
             "projectCode": "BH03",
@@ -65,7 +70,8 @@
                 "projectAdmin": true,
                 "planVision": true,
                 "trueVision": true
-            }
+            },
+            "planVisionDrawings": 8
         },
         "EB03": {
             "projectCode": "EB03",
@@ -76,7 +82,8 @@
                 "projectAdmin": true,
                 "planVision": true,
                 "trueVision": true
-            }
+            },
+            "planVisionDrawings": 15
         },
         "JW02": {
             "projectCode": "JW02",
@@ -87,7 +94,8 @@
                 "projectAdmin": true,
                 "planVision": true,
                 "trueVision": true
-            }
+            },
+            "planVisionDrawings": 0
         },
         "NP03": {
             "projectCode": "NP03",
@@ -98,7 +106,8 @@
                 "projectAdmin": true,
                 "planVision": true,
                 "trueVision": true
-            }
+            },
+            "planVisionDrawings": 12
         },
         "PS01": {
             "projectCode": "PS01",
@@ -109,7 +118,8 @@
                 "projectAdmin": true,
                 "planVision": true,
                 "trueVision": true
-            }
+            },
+            "planVisionDrawings": 0
         },
         "PS02": {
             "projectCode": "PS02",
@@ -120,7 +130,8 @@
                 "projectAdmin": true,
                 "planVision": true,
                 "trueVision": true
-            }
+            },
+            "planVisionDrawings": 0
         },
         "RB05": {
             "projectCode": "RB05",
@@ -131,7 +142,8 @@
                 "projectAdmin": true,
                 "planVision": true,
                 "trueVision": true
-            }
+            },
+            "planVisionDrawings": 8
         },
         "SB04": {
             "projectCode": "SB04",
@@ -142,7 +154,8 @@
                 "projectAdmin": true,
                 "planVision": true,
                 "trueVision": true
-            }
+            },
+            "planVisionDrawings": 0
         },
         "SK02": {
             "projectCode": "SK02",
@@ -153,7 +166,8 @@
                 "projectAdmin": true,
                 "planVision": true,
                 "trueVision": true
-            }
+            },
+            "planVisionDrawings": 0
         }
     }
 }
