@@ -3,7 +3,7 @@
         "NaMiniApp__AppTitle": "Text To Reader",
         "NaMiniApp__AppSubTitle": "Reader Utils",
         "NaMiniApp__Created": "19-Sep-2026",
-        "NaMiniApp__Version": "1.9.4"
+        "NaMiniApp__Version": "1.9.5"
     },
     "NaMiniApp__Assets": {
         "NaMiniApp__MarkedEsmUrl": "./02__PhononRuntime/marked.esm.js"
@@ -57,6 +57,7 @@
         "NaMiniApp__PitchRangePercent": 25,
         "NaMiniApp__MaxCharacters": 12000,
         "NaMiniApp__SectionSentences": 10,
+        "NaMiniApp__IntermediateSectionSentences": 4,
         "NaMiniApp__FirstSectionSentences": 2,
         "NaMiniApp__SectionCacheMegabytes": 400,
         "NaMiniApp__Models": [

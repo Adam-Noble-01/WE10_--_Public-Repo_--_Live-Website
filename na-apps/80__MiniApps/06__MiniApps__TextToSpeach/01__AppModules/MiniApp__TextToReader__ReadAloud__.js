@@ -27,6 +27,9 @@ import {
     Na__TextToReader__SplitSections,
     Na__TextToReader__SectionKey,
     Na__TextToReader__PlanSectionRender,
+    Na__TextToReader__RecordBatchTiming,
+    Na__TextToReader__TargetBatchSize,
+    Na__TextToReader__ResizePendingSections,
     Na__TextToReader__PackSection,
     Na__TextToReader__SectionWav,
     Na__TextToReader__SectionTimeline,
@@ -124,8 +127,8 @@ let Na__Reader__SampleRate = 0;
 let Na__Reader__EncodeWav = null;
 let Na__Reader__BaseTimeline = null;
 
-// Sectioned reading (the voice modal's switch): the document is rendered and played ten
-// sentences at a time. Run is the active read; SectionAudio is the kept section now on the
+// Sectioned reading: two sentences first, then adaptive four / ten-sentence sections.
+// Run is the active read; SectionAudio is the kept section now on the
 // audio element, standing in for Pcm when pitch is applied.
 let Na__Reader__SectionMode = false;
 let Na__Reader__Run = null;
@@ -1154,8 +1157,8 @@ async function Na__Reader__PrepareAudio() {
 
 // REGION | Sectioned Reading
 // --------------------------------------------------------
-// A long document is read a section at a time (AppConfig NaMiniApp__SectionSentences, 10; the
-// opening section NaMiniApp__FirstSectionSentences, 5, so reading from the top starts sooner).
+// Start with two sentences, then loop over four-sentence batches until measured
+// rendering speed and buffered playback safely allow ten-sentence batches.
 // The first section is rendered and played at once; the rest are rendered outwards from the
 // one being heard, while it plays (order, cache and memory budget: Sections__.js). Only one
 // section is on the audio element: when it ends the next is loaded, or waited for.
@@ -1234,10 +1237,50 @@ async function Na__Reader__RenderSection(Na__Run, Na__Index) {
             Na__NextUpdate += Na__Tts.sampleRate * 2;
         });
     if (!Na__Rendered) return null;
-    return Na__TextToReader__PackSection(Na__Run.keys[Na__Index], Na__Rendered.pcm, Na__Tts.sampleRate, Na__Rendered.timeline);
+    const Na__Record = Na__TextToReader__PackSection(Na__Run.keys[Na__Index],
+        Na__Rendered.pcm, Na__Tts.sampleRate, Na__Rendered.timeline);
+    Na__Record.renderSeconds = Math.max(0.001, (performance.now() - Na__Start) / 1000);
+    return Na__Record;
 }
 // --------------------------------------------------------
 
+
+// FUNCTION | BufferedPlaySeconds - Uninterrupted ready audio ahead of the playhead
+// ------------------------------------------------------------
+// Count only contiguous cached sections. Convert audio-element time back to
+// raw synthesized time using the active pitch factor, then apply reading speed.
+function Na__Reader__BufferedPlaySeconds(Na__Run) {
+    if (Na__Run.current < 0 || Na__Run.waitingFor >= 0) return 0;
+    let Na__Seconds = 0;
+    for (let Na__I = Na__Run.current; Na__I < Na__Run.sections.length; Na__I++) {
+        const Na__Record = Na__TextToReader__SectionCacheGet(Na__Run.keys[Na__I]);
+        if (!Na__Record) break;
+        let Na__AudioSeconds = Na__Record.samples / Na__Record.sampleRate;
+        if (Na__I === Na__Run.current) {
+            const Na__Played = (Number(Na__Reader__Nodes.audio.currentTime) || 0) * Na__Reader__AppliedPitch;
+            Na__AudioSeconds = Math.max(0, Na__AudioSeconds - Na__Played);
+        }
+        Na__Seconds += Na__AudioSeconds / Math.max(0.25, Na__Reader__Speed);
+    }
+    return Na__Seconds;
+}
+// --------------------------------------------------------
+
+// FUNCTION | MaybeResizeAhead - Upgrade or downgrade pending section sizes safely
+// --------------------------------------------------------
+function Na__Reader__MaybeResizeAhead(Na__Run, Na__Index) {
+    if (Na__Run.current < 0 || Na__Run.waitingFor >= 0 || Na__Index <= Na__Run.current) return false;
+    const Na__Buffered = Na__Reader__BufferedPlaySeconds(Na__Run);
+    const Na__Desired = Na__TextToReader__TargetBatchSize(Na__Run.adaptive, Na__Buffered, Na__Reader__Speed);
+    if (Na__Desired === Na__Run.adaptive.batchSize) return false;
+    if (!Na__TextToReader__ResizePendingSections(Na__Run, Na__Index, Na__Desired)) return false;
+    Na__Run.adaptive.batchSize = Na__Desired;
+    Na__TextToReader__Log("info", "Adaptive reading: " + Na__Desired +
+        "-sentence batches; " + Na__Buffered.toFixed(1) + " s buffered at " +
+        Na__Reader__Speed + "x playback.");
+    return true;
+}
+// --------------------------------------------------------
 
 // FUNCTION | PumpSections - Keep rendering outwards from the anchor until every section is ready
 // --------------------------------------------------------
@@ -1253,8 +1296,9 @@ function Na__Reader__PumpSections(Na__Run) {
                 const Na__Next = Na__TextToReader__PlanSectionRender(Na__Run.sections.length, Na__Run.anchor,
                     (Na__I) => Na__TextToReader__SectionCacheHas(Na__Run.keys[Na__I]),
                     Na__TextToReader__SectionCacheBytes() >= Na__Reader__SectionBudgetBytes());
-                if (Na__Next.evict >= 0) Na__TextToReader__SectionCacheDrop(Na__Run.keys[Na__Next.evict]);
                 if (Na__Next.render < 0) break;
+                if (Na__Reader__MaybeResizeAhead(Na__Run, Na__Next.render)) continue;
+                if (Na__Next.evict >= 0) Na__TextToReader__SectionCacheDrop(Na__Run.keys[Na__Next.evict]);
 
                 if (!Na__Run.tts) {
                     // Only needed once something must be rendered: kept sections play with no engine at all
@@ -1267,6 +1311,9 @@ function Na__Reader__PumpSections(Na__Run) {
                 Na__Run.rendering = -1;
                 if (!Na__Record) continue;   // dropped for a section needed sooner, or the run ended
 
+                Na__TextToReader__RecordBatchTiming(Na__Run.adaptive,
+                    Na__Run.sections[Na__Next.render].sentences.length, Na__Record.renderSeconds,
+                    Na__Record.samples / Na__Record.sampleRate, Na__Reader__Speed);
                 Na__TextToReader__SectionCachePut(Na__Record);
                 Na__Reader__OnSectionReady(Na__Run, Na__Next.render, Na__Record);
             }
@@ -1466,8 +1513,9 @@ async function Na__Reader__PrepareSections(Na__StartWord, Na__WholeSection = fal
         }
 
         const Na__Size = Math.max(1, Number(Na__Reader__Config.NaMiniApp__SectionSentences) || 10);
-        const Na__FirstSize = Math.max(1, Number(Na__Reader__Config.NaMiniApp__FirstSectionSentences) || Na__Size);
-        const Na__Sections = Na__TextToReader__SplitSections(Na__Plan, Na__Size, Na__FirstSize);
+        const Na__MediumSize = Math.max(1, Number(Na__Reader__Config.NaMiniApp__IntermediateSectionSentences) || 4);
+        const Na__FirstSize = Math.max(1, Number(Na__Reader__Config.NaMiniApp__FirstSectionSentences) || Na__MediumSize);
+        const Na__Sections = Na__TextToReader__SplitSections(Na__Plan, Na__MediumSize, Na__FirstSize);
         const Na__ModelId = Na__Reader__SelectedModel().NaMiniApp__ModelId;
         const Na__Keys = Na__Sections.map((Na__Section) => Na__TextToReader__SectionKey(Na__ModelId, Na__Section));
         const Na__SectionOf = new Map();
@@ -1488,8 +1536,20 @@ async function Na__Reader__PrepareSections(Na__StartWord, Na__WholeSection = fal
         Na__TextToReader__SectionCacheRetain(Na__Keys);   // Drops other text's, which could never be played
 
         const Na__Run = {
+            plan        : Na__Plan,
+            modelId     : Na__ModelId,
             sections    : Na__Sections,
             keys        : Na__Keys,
+            adaptive    : {
+                mediumSize : Na__MediumSize,
+                largeSize  : Na__Size,
+                batchSize  : Na__MediumSize,
+                mediumSeen : false,
+                mediumFast : false,
+                renderPerSentence : null,
+                speechPerSentence : null,
+                lastRenderPerSentence : null
+            },
             sectionOf   : Na__SectionOf,
             controller  : new AbortController(),
             tts         : null,
@@ -1681,11 +1741,13 @@ export function Na__TextToReader__InitialiseReadAloud({ config, article }) {
 
     // Sections: the voice modal's switch and direct sentence tapping; no pick-mode prompt
     const Na__SectionSize = Number(config.NaMiniApp__SectionSentences) || 10;
-    const Na__FirstSectionSize = Number(config.NaMiniApp__FirstSectionSentences) || Na__SectionSize;
-    if (Na__Reader__Modal.sectionsNote) Na__Reader__Modal.sectionsNote.textContent = "Renders " + Na__SectionSize + " sentences at a time (the first " +
-        "section " + Na__FirstSectionSize + ", to start sooner), so a long " +
-        "document starts reading after one section, not after all of it. It starts at the beginning automatically. " +
-        "Tap any sentence to jump there; other sections are prepared while you listen.";
+    const Na__MediumSectionSize = Number(config.NaMiniApp__IntermediateSectionSentences) || 4;
+    const Na__FirstSectionSize = Number(config.NaMiniApp__FirstSectionSentences) || Na__MediumSectionSize;
+    if (Na__Reader__Modal.sectionsNote) Na__Reader__Modal.sectionsNote.textContent =
+        "Starts after " + Na__FirstSectionSize + " sentences, then prepares " +
+        Na__MediumSectionSize + " at a time until it can safely keep " + Na__SectionSize +
+        "-sentence batches ahead of playback. It adapts if your device slows down. " +
+        "Tap any sentence to jump there; the rest prepare while you listen.";
     // Each (i) button shows or hides the text its aria-controls names
     for (const Na__Info of Na__Reader__Modal.dialog.querySelectorAll(".TTR__voice-info")) {
         Na__Info.addEventListener("click", () => {

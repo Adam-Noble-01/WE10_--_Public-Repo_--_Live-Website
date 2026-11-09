@@ -9,10 +9,10 @@
 // CREATED : 27-Oct-2026
 //
 // HOW IT WORKS (the run itself lives in ReadAloud__.js; this file is its parts):
-//   - The reading plan's sentences are cut into sections of NaMiniApp__SectionSentences
-//     (10). The reader picks the first section by clicking or selecting
-//     in the text, renders it, plays it, and keeps rendering outwards from the section
-//     being heard: the one after, the one before, two after, two before, and so on.
+//   - The first two sentences start playback. Four-sentence sections build the
+//     runway; measured synthesis speed and buffered playback may promote to ten.
+//     If the device slows, future unrendered batches return to four.
+//   - Render order remains around the playhead, favouring the forward direction.
 //   - A rendered section is kept as 16-bit PCM in a Blob (half the memory of the engine's
 //     floats, and the browser may hold it on disk) with its sentence timing. The WAV header
 //     is added when it is played, so a pitch change needs no re-rendering.
@@ -69,6 +69,83 @@ export function Na__TextToReader__SplitSections(Na__Plan, Na__Size, Na__FirstSiz
 }
 // ------------------------------------------------------------
 
+
+// FUNCTION | RecordBatchTiming - Measure real synthesis throughput for adaptive batching
+// ------------------------------------------------------------
+// Use a moving average for device speed changes and the last sample as a
+// conservative bound. A slow four-sentence render blocks promotion to ten.
+export function Na__TextToReader__RecordBatchTiming(Na__State, Na__Count, Na__RenderSeconds, Na__SpeechSeconds, Na__Speed) {
+    if (!Na__State || !(Na__Count > 0) || !(Na__RenderSeconds > 0) || !(Na__SpeechSeconds > 0)) return;
+    const Na__RenderPerSentence = Na__RenderSeconds / Na__Count;
+    const Na__SpeechPerSentence = Na__SpeechSeconds / Na__Count;
+    const Na__Blend = 0.35;
+    Na__State.renderPerSentence = Na__State.renderPerSentence == null
+        ? Na__RenderPerSentence
+        : Na__State.renderPerSentence * (1 - Na__Blend) + Na__RenderPerSentence * Na__Blend;
+    Na__State.speechPerSentence = Na__State.speechPerSentence == null
+        ? Na__SpeechPerSentence
+        : Na__State.speechPerSentence * (1 - Na__Blend) + Na__SpeechPerSentence * Na__Blend;
+    Na__State.lastRenderPerSentence = Na__RenderPerSentence;
+    if (Na__Count === Na__State.mediumSize) {
+        Na__State.mediumSeen = true;
+        Na__State.mediumFast = Na__RenderSeconds <=
+            (Na__SpeechSeconds / Math.max(0.25, Na__Speed)) * 0.8;
+    }
+}
+// --------------------------------------------------------
+
+// FUNCTION | TargetBatchSize - Only enlarge when playback has a safe runway
+// ------------------------------------------------------------
+// Promote with 50% spare rendering time plus 3s; once at ten, use a less
+// stringent 20% plus 2s threshold to avoid rapid back-and-forth switching.
+export function Na__TextToReader__TargetBatchSize(Na__State, Na__BufferedSeconds, Na__Speed) {
+    const Na__Medium = Na__State.mediumSize;
+    const Na__Large = Na__State.largeSize;
+    if (!Na__State.mediumSeen || !Na__State.mediumFast ||
+        !(Na__State.renderPerSentence > 0) || !(Na__State.speechPerSentence > 0)) return Na__Medium;
+    const Na__Estimate = Math.max(Na__State.renderPerSentence, Na__State.lastRenderPerSentence) * Na__Large;
+    const Na__Playout = Na__State.speechPerSentence * Na__Large / Math.max(0.25, Na__Speed);
+    if (Na__State.batchSize === Na__Large) {
+        return Na__Estimate < Na__Playout * 0.95 &&
+            Na__BufferedSeconds >= Na__Estimate * 1.2 + 2 ? Na__Large : Na__Medium;
+    }
+    return Na__Estimate < Na__Playout * 0.8 &&
+        Na__BufferedSeconds >= Na__Estimate * 1.5 + 3 ? Na__Large : Na__Medium;
+}
+// --------------------------------------------------------
+
+// FUNCTION | ResizePendingSections - Repartition only unrendered future audio
+// ------------------------------------------------------------
+// Keep the active section, previous results and cache keys stable. Seeking
+// remains correct because every future sentence id gets a new section mapping.
+export function Na__TextToReader__ResizePendingSections(Na__Run, Na__Index, Na__Size) {
+    if (!Na__Run?.plan || !Na__Run.modelId || Na__Run.rendering >= 0 ||
+        Na__Run.waitingFor >= 0 || Na__Index <= Na__Run.current ||
+        Na__Index < 0 || Na__Index >= Na__Run.sections.length) return false;
+    const Na__OldTail = Na__Run.sections.slice(Na__Index);
+    if (Na__OldTail.some((Na__Section, Na__Offset) =>
+        Na__TextToReader__SectionCacheHas(Na__Run.keys[Na__Index + Na__Offset]))) return false;
+    const Na__First = Na__OldTail[0].first;
+    const Na__NewTail = Na__TextToReader__SplitSections(Na__Run.plan.slice(Na__First), Na__Size);
+    if (Na__OldTail.length === Na__NewTail.length &&
+        Na__OldTail.every((Na__Section, Na__I) =>
+            Na__Section.sentences.length === Na__NewTail[Na__I].sentences.length)) return false;
+    const Na__NextSections = Na__Run.sections.slice(0, Na__Index);
+    for (const Na__Section of Na__NewTail) {
+        Na__Section.first += Na__First;
+        Na__Section.index = Na__NextSections.length;
+        Na__NextSections.push(Na__Section);
+    }
+    Na__Run.sections = Na__NextSections;
+    Na__Run.keys = Na__NextSections.map((Na__Section) =>
+        Na__TextToReader__SectionKey(Na__Run.modelId, Na__Section));
+    Na__Run.sectionOf = new Map();
+    for (const Na__Section of Na__NextSections) {
+        for (const Na__Sentence of Na__Section.sentences) Na__Run.sectionOf.set(Na__Sentence.id, Na__Section.index);
+    }
+    return true;
+}
+// --------------------------------------------------------
 
 // FUNCTION | SectionKey - What makes rendered audio reusable: the voice and the exact sentences
 // ------------------------------------------------------------

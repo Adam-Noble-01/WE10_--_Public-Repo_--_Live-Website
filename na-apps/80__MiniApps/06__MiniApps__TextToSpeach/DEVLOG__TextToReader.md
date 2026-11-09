@@ -467,3 +467,20 @@ LEGACY SOURCE
   - Release of the 1.9.0 follow-ups above: picking the section start in the text, Paste (menu and
     blank-view long-press), the Full screen button, the 2 s status fade and the (i) voice-modal layout.
     Version 1.9.1 in the HTML (every ?v=), the AppConfig and the service worker.
+
+----------------------------------------------------------------
+1.9.5 - 09-Nov-2026 | Adaptive Early Sentence Loading
+  - First section remains 2 sentences. Subsequent sections are 4 until the
+    measured rendering rate and the contiguous buffered playback time justify
+    moving to batches of 10.
+  - After a fast 4-sentence render, estimate the next 10 from actual synthesis
+    times, speech durations and the user's playback speed. Require at least
+    50% rendering headroom plus 3 seconds before promoting.
+  - Repeat 4-sentence sections while the runway is too short. Fall back from
+    10 to 4 if synthesis slows or buffer headroom shrinks; separate promote
+    and retain thresholds prevent oscillation.
+  - Repartition only unrendered future sections, preserving active playback,
+    rendered cache entries, seek-to-sentence indices and timing. Jumps that
+    are waiting for synthesis are never repartitioned.
+  - Voice-modal help, HTML import cache busters and the offline service-worker
+    shell are all updated to version 1.9.5.
