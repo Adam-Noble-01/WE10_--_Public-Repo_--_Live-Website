@@ -36,17 +36,22 @@ jobs:
 
       # GitHub Pages enforces a 1 GB limit on the published site. The repository
       # is ~3.1 GB, which caused deployments to fail with a 503 at the deploy step.
-      # These three groups are never served from Pages, so they are pruned from the
+      # These groups are never served from Pages, so they are pruned from the
       # checkout before upload. Nothing is removed from the repository itself.
       #   - GLB models      : TrueVision loads these from cdn.noble-architecture.com (R2)
       #   - CAD audit cache : local working cache for the desktop CadAuditTools app
       #   - Archive zips    : superseded app versions and dev asset bundles
+      #   - .claude         : Claude skills and settings (~260 MB), never part of the site
+      #   - App archives    : na-apps/00__Archive and 70__ProductionTools/00__Archive (old app versions)
+      #   - Quarantine      : na-project-portal/00__Deleted__Quarantine (deleted projects, not public)
+      # Project 00__Archive folders stay: PlanVision can show archived documents to clients.
       - name: Prune assets not served from Pages
         run: |
           echo "Size before prune: $(du -sh . | cut -f1)"
           find . -path ./.git -prune -o -type f -name '*.glb' -print -delete | wc -l | xargs echo "  GLB removed:"
           rm -rf ./na-apps/70__ProductionTools/Noble__CadAuditTools/04__LocalProjectCache
           find . -path ./.git -prune -o -type f -name '*.zip' -print -delete | wc -l | xargs echo "  ZIP removed:"
+          rm -rf ./.claude ./na-apps/00__Archive ./na-apps/70__ProductionTools/00__Archive ./na-project-portal/00__Deleted__Quarantine
           echo "Size after prune:  $(du -sh . | cut -f1)"
 
       # Publish pinned third-party inference binaries without committing them
@@ -93,11 +98,21 @@ jobs:
           test -s "$RUNTIME/ort-wasm-simd-threaded.jsep.wasm"
           echo "Published kokoro-js 1.2.1 with ONNX Runtime from transformers 3.5.1."
 
+      # The artifact is named per attempt. "Re-run jobs" keeps the run's earlier uploads, and
+      # deploy-pages refuses a run holding two artifacts of the same name ("Multiple artifacts
+      # named github-pages"), so a re-run of a failed deploy could never succeed (run #728).
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload the pruned repository
           path: '.'
+          name: github-pages-${{ github.run_attempt }}
+
+      # The site is ~3.8 GB, well over Pages' stated 1 GB, and GitHub can take longer than the
+      # default 10 minutes to accept it ("Timeout reached, aborting!", 09-Nov-2026): 30 minutes.
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-${{ github.run_attempt }}
+          timeout: 1800000

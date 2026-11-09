@@ -484,3 +484,39 @@ LEGACY SOURCE
     are waiting for synthesis are never repartitioned.
   - Voice-modal help, HTML import cache busters and the offline service-worker
     shell are all updated to version 1.9.5.
+
+----------------------------------------------------------------
+1.9.6 - 09-Nov-2026 | Sections Sized To The Device (Replaces The 1.9.5 Tiers)
+  - 1.9.5 never went live (its Pages deploy timed out). A review and a playback
+    simulation found it still left gaps: the 4-sentence second section took
+    longer to render than the 2-sentence opener took to play on any device
+    slower than about half real time, so mid-range phones paused once or twice
+    right after starting. Its 4 / 10 switch never governed that step.
+  - Each section the listener reaches next is now cut, just before it renders,
+    to the most sentences (up to 10) that can render before the playhead gets
+    there: the device's measured rendering speed against the audio already
+    ready ahead. Speed is learned per character (plus a charge per sentence),
+    not per sentence, and in wall-clock time, so a reading-speed change needs
+    no re-measuring. A device that renders slower than it is listened to runs
+    steady 4-sentence cycles (and the activity log says so once).
+  - The opener is 2 sentences, more (up to 4) when they come to under 100
+    characters: a heading and "Overview." are a second of audio.
+  - A tap on a sentence not yet rendered re-cuts the unrendered stretch so a
+    short section starts AT that sentence: the wait is for about 2 sentences,
+    never a whole 10-sentence section.
+  - Stop then Play (or leaving Read and coming back) reuses every rendered
+    section whatever size it was cut to: the new cut follows the rendered audio.
+    1.9.5 dropped every 10-sentence section on a restart.
+  - Rendering runs ahead of the playhead until NaMiniApp__SectionRunwaySeconds
+    (60) of audio is ready, then outwards (ahead, behind, ahead...). Before,
+    a mid-document start spent half its rendering time behind the listener.
+  - Status lines, the transport label and the log count sentences
+    ("Sentences 11-14/140"), since section numbers change as sections are re-cut.
+  - Rendered and rendering sections are never re-cut; anything held across an
+    await keeps the section object, never its index.
+  - New: 04__Testing/MiniApp__TextToReader__Sections__Test__.mjs (node, no
+    browser). 13 checks plus a playback simulation at 0.3-1.2x real time.
+  - Checked in the pane with Easton at 2x: sections 4,1,3,9,10,10 with no gap;
+    Stop then Play replayed at once with nothing re-rendered; a tap on
+    sentence 35 started "sentences 35-36" after 1.7 s.
+  - Version 1.9.6 in the HTML (every ?v=), the AppConfig and the service worker.

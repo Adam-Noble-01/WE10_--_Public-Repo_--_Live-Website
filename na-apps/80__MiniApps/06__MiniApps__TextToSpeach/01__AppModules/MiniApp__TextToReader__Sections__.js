@@ -9,10 +9,20 @@
 // CREATED : 27-Oct-2026
 //
 // HOW IT WORKS (the run itself lives in ReadAloud__.js; this file is its parts):
-//   - The first two sentences start playback. Four-sentence sections build the
-//     runway; measured synthesis speed and buffered playback may promote to ten.
-//     If the device slows, future unrendered batches return to four.
-//   - Render order remains around the playhead, favouring the forward direction.
+//   - Sections are not fixed. The opening section holds NaMiniApp__FirstSectionSentences (2),
+//     so reading starts quickly. After that, the section the listener reaches next is cut,
+//     just before it renders, to the most sentences (up to NaMiniApp__SectionSentences, 10)
+//     this device can render before the playhead gets there: its measured rendering speed
+//     against the audio already rendered ahead. Sections not yet reached are cut at
+//     NaMiniApp__IntermediateSectionSentences (4), as is a section when the device cannot
+//     keep ahead at all.
+//   - A jump to a sentence that is not rendered re-cuts the unrendered stretch so a short
+//     section starts AT that sentence: the wait is for two sentences, whatever was planned.
+//   - Rendered sections, and the one rendering, are never re-cut. Cutting reuses rendered
+//     audio: a run of sentences already rendered becomes a section of its own, so reading the
+//     same text again plays at once, whatever size it was cut to the first time.
+//   - Rendering runs ahead of the playhead until a runway is built, then outwards from it:
+//     the one after, the one before, two after, two before, and so on.
 //   - A rendered section is kept as 16-bit PCM in a Blob (half the memory of the engine's
 //     floats, and the browser may hold it on disk) with its sentence timing. The WAV header
 //     is added when it is played, so a pitch change needs no re-rendering.
@@ -38,7 +48,15 @@ import { Na__TextToReader__BindSentenceTiming } from "./MiniApp__TextToReader__H
 // REGION | Module-Level Variables
 // -----------------------------------------------------------------------------
 
- const Na__Sections__Cache = new Map();   // key -> { key, data, sampleRate, samples, bytes, timing }
+const Na__Sections__Cache = new Map();   // key -> { key, data, sampleRate, samples, bytes, timing }
+
+// Section sizing. Rendering cost is counted as "work": a section's characters plus a fixed
+// charge per sentence, as every sentence is its own request to the speech engine.
+const Na__Sections__WorkPerSentence = 20;     // characters' worth of engine start-up per sentence
+const Na__Sections__TimingBlend     = 0.35;   // weight of the newest render in the running average
+const Na__Sections__RenderSafety    = 1.25;   // a section must render in 80% of its runway...
+const Na__Sections__RenderMargin    = 1.5;    // ...less 1.5 s, so one slow sentence makes no gap
+const Na__Sections__OpenerCharacters = 100;   // an opening section holds at least this much text (~6 s)
 
 // endregion -------------------------------------------------------------------
 
@@ -47,22 +65,31 @@ import { Na__TextToReader__BindSentenceTiming } from "./MiniApp__TextToReader__H
 // REGION | Sections
 // -----------------------------------------------------------------------------
 
-// FUNCTION | SplitSections - Cut the reading plan into sections of a fixed number of sentences
+// FUNCTION | CutSections - Cut part of the reading plan into sections, reusing rendered ones
 // ------------------------------------------------------------
-// Returns [{ index, first, sentences, text }]; first is the 0-based plan position of the
-// section's first sentence. Na__FirstSize (optional) makes the opening section shorter, so
-// reading from the top starts sooner; every later section has Na__Size sentences.
-export function Na__TextToReader__SplitSections(Na__Plan, Na__Size, Na__FirstSize = Na__Size) {
+// Covers plan positions [Na__From, Na__To). Where audio is already rendered for a run of
+// sentences (this voice, these exact sentences) that run becomes a section of its own, so the
+// same text read again plays at once whatever size it was cut to before. Elsewhere sections
+// hold Na__Size sentences (the first one Na__FirstSize), each ended early where a rendered run
+// starts. Returns [{ index, first, sentences, text }]: first is the plan position of the
+// section's first sentence; index is set when the run is indexed (IndexSections).
+export function Na__TextToReader__CutSections(Na__Plan, Na__From, Na__To, Na__Size, Na__ModelId, Na__FirstSize = Na__Size) {
     const Na__Sections = [];
-    for (let Na__First = 0; Na__First < Na__Plan.length;) {
-        const Na__Count = Na__Sections.length === 0 ? Na__FirstSize : Na__Size;
-        const Na__Sentences = Na__Plan.slice(Na__First, Na__First + Na__Count);
-        Na__Sections.push({
-            index     : Na__Sections.length,
-            first     : Na__First,
-            sentences : Na__Sentences,
-            text      : Na__Sentences.map((Na__Sentence) => Na__Sentence.text).join(" ")
-        });
+    const Na__Longest = Na__Sections__LongestCached();
+
+    for (let Na__First = Na__From; Na__First < Na__To;) {
+        let Na__Count = Na__Sections__CachedRunAt(Na__Plan, Na__First, Na__To, Na__ModelId, Na__Longest);
+        if (!Na__Count) {
+            const Na__Wanted = Math.max(1, Na__Sections.length === 0 ? Na__FirstSize : Na__Size);
+            Na__Count = Math.min(Na__Wanted, Na__To - Na__First);
+            for (let Na__Next = Na__First + 1; Na__Next < Na__First + Na__Count; Na__Next++) {
+                if (Na__Sections__CachedRunAt(Na__Plan, Na__Next, Na__To, Na__ModelId, Na__Longest)) {
+                    Na__Count = Na__Next - Na__First;   // stop where rendered audio starts
+                    break;
+                }
+            }
+        }
+        Na__Sections.push(Na__Sections__MakeSection(Na__Plan, Na__First, Na__Count));
         Na__First += Na__Count;
     }
     return Na__Sections;
@@ -70,82 +97,211 @@ export function Na__TextToReader__SplitSections(Na__Plan, Na__Size, Na__FirstSiz
 // ------------------------------------------------------------
 
 
-// FUNCTION | RecordBatchTiming - Measure real synthesis throughput for adaptive batching
+// FUNCTION | IndexSections - Number a run's sections and rebuild its keys and sentence lookup
 // ------------------------------------------------------------
-// Use a moving average for device speed changes and the last sample as a
-// conservative bound. A slow four-sentence render blocks promotion to ten.
-export function Na__TextToReader__RecordBatchTiming(Na__State, Na__Count, Na__RenderSeconds, Na__SpeechSeconds, Na__Speed) {
-    if (!Na__State || !(Na__Count > 0) || !(Na__RenderSeconds > 0) || !(Na__SpeechSeconds > 0)) return;
-    const Na__RenderPerSentence = Na__RenderSeconds / Na__Count;
-    const Na__SpeechPerSentence = Na__SpeechSeconds / Na__Count;
-    const Na__Blend = 0.35;
-    Na__State.renderPerSentence = Na__State.renderPerSentence == null
-        ? Na__RenderPerSentence
-        : Na__State.renderPerSentence * (1 - Na__Blend) + Na__RenderPerSentence * Na__Blend;
-    Na__State.speechPerSentence = Na__State.speechPerSentence == null
-        ? Na__SpeechPerSentence
-        : Na__State.speechPerSentence * (1 - Na__Blend) + Na__SpeechPerSentence * Na__Blend;
-    Na__State.lastRenderPerSentence = Na__RenderPerSentence;
-    if (Na__Count === Na__State.mediumSize) {
-        Na__State.mediumSeen = true;
-        Na__State.mediumFast = Na__RenderSeconds <=
-            (Na__SpeechSeconds / Math.max(0.25, Na__Speed)) * 0.8;
-    }
-}
-// --------------------------------------------------------
-
-// FUNCTION | TargetBatchSize - Only enlarge when playback has a safe runway
-// ------------------------------------------------------------
-// Promote with 50% spare rendering time plus 3s; once at ten, use a less
-// stringent 20% plus 2s threshold to avoid rapid back-and-forth switching.
-export function Na__TextToReader__TargetBatchSize(Na__State, Na__BufferedSeconds, Na__Speed) {
-    const Na__Medium = Na__State.mediumSize;
-    const Na__Large = Na__State.largeSize;
-    if (!Na__State.mediumSeen || !Na__State.mediumFast ||
-        !(Na__State.renderPerSentence > 0) || !(Na__State.speechPerSentence > 0)) return Na__Medium;
-    const Na__Estimate = Math.max(Na__State.renderPerSentence, Na__State.lastRenderPerSentence) * Na__Large;
-    const Na__Playout = Na__State.speechPerSentence * Na__Large / Math.max(0.25, Na__Speed);
-    if (Na__State.batchSize === Na__Large) {
-        return Na__Estimate < Na__Playout * 0.95 &&
-            Na__BufferedSeconds >= Na__Estimate * 1.2 + 2 ? Na__Large : Na__Medium;
-    }
-    return Na__Estimate < Na__Playout * 0.8 &&
-        Na__BufferedSeconds >= Na__Estimate * 1.5 + 3 ? Na__Large : Na__Medium;
-}
-// --------------------------------------------------------
-
-// FUNCTION | ResizePendingSections - Repartition only unrendered future audio
-// ------------------------------------------------------------
-// Keep the active section, previous results and cache keys stable. Seeking
-// remains correct because every future sentence id gets a new section mapping.
-export function Na__TextToReader__ResizePendingSections(Na__Run, Na__Index, Na__Size) {
-    if (!Na__Run?.plan || !Na__Run.modelId || Na__Run.rendering >= 0 ||
-        Na__Run.waitingFor >= 0 || Na__Index <= Na__Run.current ||
-        Na__Index < 0 || Na__Index >= Na__Run.sections.length) return false;
-    const Na__OldTail = Na__Run.sections.slice(Na__Index);
-    if (Na__OldTail.some((Na__Section, Na__Offset) =>
-        Na__TextToReader__SectionCacheHas(Na__Run.keys[Na__Index + Na__Offset]))) return false;
-    const Na__First = Na__OldTail[0].first;
-    const Na__NewTail = Na__TextToReader__SplitSections(Na__Run.plan.slice(Na__First), Na__Size);
-    if (Na__OldTail.length === Na__NewTail.length &&
-        Na__OldTail.every((Na__Section, Na__I) =>
-            Na__Section.sentences.length === Na__NewTail[Na__I].sentences.length)) return false;
-    const Na__NextSections = Na__Run.sections.slice(0, Na__Index);
-    for (const Na__Section of Na__NewTail) {
-        Na__Section.first += Na__First;
-        Na__Section.index = Na__NextSections.length;
-        Na__NextSections.push(Na__Section);
-    }
-    Na__Run.sections = Na__NextSections;
-    Na__Run.keys = Na__NextSections.map((Na__Section) =>
-        Na__TextToReader__SectionKey(Na__Run.modelId, Na__Section));
+// Run.sectionOf maps a sentence id (a .TTR__s element's data-s) to its section's index.
+export function Na__TextToReader__IndexSections(Na__Run) {
     Na__Run.sectionOf = new Map();
-    for (const Na__Section of Na__NextSections) {
-        for (const Na__Sentence of Na__Section.sentences) Na__Run.sectionOf.set(Na__Sentence.id, Na__Section.index);
-    }
-    return true;
+    Na__Run.sections.forEach((Na__Section, Na__Index) => {
+        Na__Section.index = Na__Index;
+        for (const Na__Sentence of Na__Section.sentences) Na__Run.sectionOf.set(Na__Sentence.id, Na__Index);
+    });
+    Na__Run.keys = Na__Run.sections.map((Na__Section) => Na__TextToReader__SectionKey(Na__Run.modelId, Na__Section));
 }
-// --------------------------------------------------------
+// ------------------------------------------------------------
+
+
+// FUNCTION | UnrenderedStretch - The unbroken run of re-cuttable sections around one
+// ------------------------------------------------------------
+// A section can be re-cut unless it is rendered or rendering now. Returns { low, high, from, to }
+// (section indices, and the plan positions they cover, to exclusive), or null if Na__Index
+// itself cannot be re-cut.
+export function Na__TextToReader__UnrenderedStretch(Na__Run, Na__Index) {
+    const Na__Sections = Na__Run.sections;
+    const Na__Fixed = (Na__I) => Na__I === Na__Run.rendering || Na__TextToReader__SectionCacheHas(Na__Run.keys[Na__I]);
+    if (!(Na__Index >= 0 && Na__Index < Na__Sections.length) || Na__Fixed(Na__Index)) return null;
+
+    let Na__Low = Na__Index;
+    let Na__High = Na__Index;
+    while (Na__Low > 0 && !Na__Fixed(Na__Low - 1)) Na__Low--;
+    while (Na__High < Na__Sections.length - 1 && !Na__Fixed(Na__High + 1)) Na__High++;
+    return {
+        low  : Na__Low,
+        high : Na__High,
+        from : Na__Sections[Na__Low].first,
+        to   : Na__Sections[Na__High].first + Na__Sections[Na__High].sentences.length
+    };
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | RecutSections - Re-cut the unrendered stretch around a section so one starts at a given sentence
+// ------------------------------------------------------------
+// Within the stretch around Na__Index (UnrenderedStretch) a section of Na__Size sentences starts
+// at plan position Na__Start (shortened if the stretch ends first); what is either side is cut
+// at Na__DefaultSize. The run's current, anchor, waitingFor and rendering indices are moved to
+// follow what they named. Returns the new section's index; -1, changing nothing, when
+// Na__Index is rendered or rendering, or Na__Start is outside the stretch.
+export function Na__TextToReader__RecutSections(Na__Run, Na__Index, Na__Start, Na__Size, Na__DefaultSize) {
+    const Na__Stretch = Na__TextToReader__UnrenderedStretch(Na__Run, Na__Index);
+    if (!Na__Stretch || !(Na__Start >= Na__Stretch.from && Na__Start < Na__Stretch.to)) return -1;
+    const Na__End = Math.min(Na__Stretch.to, Na__Start + Math.max(1, Na__Size));
+
+    // Already cut that way: leave it, and every index, alone
+    const Na__Existing = Na__Run.sections[Na__Index];
+    if (Na__Existing.first === Na__Start && Na__Existing.sentences.length === Na__End - Na__Start) return Na__Index;
+
+    // Each index is remembered by the first sentence of its section, and found again by it
+    const Na__Fields = ["current", "anchor", "waitingFor", "rendering"];
+    const Na__Positions = Na__Fields.map((Na__Field) => Na__Run.sections[Na__Run[Na__Field]]?.first ?? -1);
+
+    const Na__Behind = Na__TextToReader__CutSections(Na__Run.plan, Na__Stretch.from, Na__Start, Na__DefaultSize, Na__Run.modelId);
+    const Na__Target = Na__Sections__MakeSection(Na__Run.plan, Na__Start, Na__End - Na__Start);
+    const Na__Ahead  = Na__TextToReader__CutSections(Na__Run.plan, Na__End, Na__Stretch.to, Na__DefaultSize, Na__Run.modelId);
+    Na__Run.sections = [
+        ...Na__Run.sections.slice(0, Na__Stretch.low),
+        ...Na__Behind, Na__Target, ...Na__Ahead,
+        ...Na__Run.sections.slice(Na__Stretch.high + 1)
+    ];
+    Na__TextToReader__IndexSections(Na__Run);
+
+    Na__Fields.forEach((Na__Field, Na__I) => {
+        Na__Run[Na__Field] = Na__Positions[Na__I] < 0 ? -1 : Na__Run.sectionOf.get(Na__Run.plan[Na__Positions[Na__I]].id);
+    });
+    return Na__Target.index;
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | OpenerSize - Sentences in a section the listener is waiting for
+// ------------------------------------------------------------
+// Na__Sizes.first sentences, and more (up to Na__Sizes.medium) while they come to less than
+// Na__Sections__OpenerCharacters: a heading and a one-word line are a second of audio, too
+// little for anything after them to render in time.
+export function Na__TextToReader__OpenerSize(Na__Plan, Na__Start, Na__Sizes) {
+    let Na__Count = 0;
+    let Na__Characters = 0;
+    while (Na__Start + Na__Count < Na__Plan.length &&
+           (Na__Count < Na__Sizes.first || (Na__Count < Na__Sizes.medium && Na__Characters < Na__Sections__OpenerCharacters))) {
+        Na__Characters += Na__Plan[Na__Start + Na__Count].text.length;
+        Na__Count++;
+    }
+    return Math.max(1, Na__Count);
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | RecordRenderTiming - Learn this device's speed from a finished section
+// ------------------------------------------------------------
+// Rendering is counted per unit of work (characters plus a charge per sentence, as every
+// sentence is its own engine request), never per sentence: a heading and a long sentence
+// differ tenfold. It is wall-clock seconds. Audio is counted per character, in the voice's own
+// seconds before reading speed, so a change of speed needs no re-measuring. For rendering both
+// a running average (a device that slows down, warm or in a hidden tab, is followed) and the
+// newest figure (one slow section counts at once) are kept; sizing uses the slower of the two.
+export function Na__TextToReader__RecordRenderTiming(Na__Timing, Na__Sentences, Na__Seconds, Na__AudioSeconds) {
+    const Na__Work = Na__Sections__Work(Na__Sentences, Na__Sentences?.length || 0);
+    const Na__Characters = Na__Work - (Na__Sentences?.length || 0) * Na__Sections__WorkPerSentence;
+    if (!Na__Timing || !(Na__Work > 0) || !(Na__Seconds > 0)) return;
+    const Na__Blend = (Na__Old, Na__New) => Na__Old == null
+        ? Na__New
+        : Na__Old * (1 - Na__Sections__TimingBlend) + Na__New * Na__Sections__TimingBlend;
+    const Na__Rate = Na__Seconds / Na__Work;
+    Na__Timing.secondsPerWork = Na__Blend(Na__Timing.secondsPerWork, Na__Rate);
+    Na__Timing.lastSecondsPerWork = Na__Rate;
+    if (Na__AudioSeconds > 0 && Na__Characters > 0) {
+        Na__Timing.audioPerCharacter = Na__Blend(Na__Timing.audioPerCharacter, Na__AudioSeconds / Na__Characters);
+    }
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | FitSectionSize - The most sentences that can render before the listener needs them
+// ------------------------------------------------------------
+// Na__Runway is the seconds of rendered audio, at the listener's reading speed (Na__Speed),
+// between the playhead and plan position Na__Start; Na__Limit is the plan position the section
+// may not reach. Returns { size, fitted, keepsAhead }:
+//   - no runway (the listener is waiting): the opening size (OpenerSize), to start sooner
+//   - nothing measured yet: Na__Sizes.medium
+//   - the next Na__Sizes.medium sentences would render slower than they are listened to
+//     (keepsAhead false): a pause is coming whatever the size, so steady medium cycles
+//   - otherwise the most sentences, up to Na__Sizes.large, whose rendering fits the runway
+//     with a margin (fitted true); if not even one fits, one (the shortest possible wait)
+export function Na__TextToReader__FitSectionSize(Na__Plan, Na__Start, Na__Limit, Na__Timing, Na__Runway, Na__Sizes, Na__Speed = 1) {
+    const Na__Room = Math.max(1, Math.min(Na__Limit, Na__Plan.length) - Na__Start);
+    const Na__Size = (Na__Count) => Math.max(1, Math.min(Na__Count, Na__Room));
+    if (!(Na__Runway > 0)) {
+        return { size: Na__Size(Na__TextToReader__OpenerSize(Na__Plan, Na__Start, Na__Sizes)), fitted: false, keepsAhead: null };
+    }
+
+    const Na__Rate = Math.max(Na__Timing?.secondsPerWork || 0, Na__Timing?.lastSecondsPerWork || 0);
+    if (!(Na__Rate > 0)) return { size: Na__Size(Na__Sizes.medium), fitted: false, keepsAhead: null };
+
+    // Judged on the text coming up, not on what was measured: an average rate, and that
+    // text's own length in speech
+    const Na__Ahead = Na__Plan.slice(Na__Start, Na__Start + Na__Size(Na__Sizes.medium));
+    const Na__Listen = (Na__Timing.audioPerCharacter || 0) *
+        (Na__Sections__Work(Na__Ahead, Na__Ahead.length) - Na__Ahead.length * Na__Sections__WorkPerSentence) /
+        Math.max(0.25, Number(Na__Speed) || 1);
+    const Na__KeepsAhead = !(Na__Listen > 0) || Na__Timing.secondsPerWork * Na__Sections__Work(Na__Ahead, Na__Ahead.length) < Na__Listen;
+    if (!Na__KeepsAhead) return { size: Na__Size(Na__Sizes.medium), fitted: false, keepsAhead: false };
+
+    let Na__Fit = 0;
+    for (let Na__Count = 1; Na__Count <= Math.min(Na__Sizes.large, Na__Room); Na__Count++) {
+        const Na__Work = Na__Sections__Work(Na__Plan.slice(Na__Start, Na__Start + Na__Count), Na__Count);
+        if (Na__Work * Na__Rate * Na__Sections__RenderSafety + Na__Sections__RenderMargin > Na__Runway) break;
+        Na__Fit = Na__Count;
+    }
+    return { size: Na__Size(Na__Fit || 1), fitted: Na__Fit > 0, keepsAhead: true };
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | Work - How much rendering some sentences are, in characters
+// ------------------------------------------------------------
+function Na__Sections__Work(Na__Sentences, Na__Count) {
+    let Na__Work = 0;
+    for (let Na__I = 0; Na__I < Na__Count; Na__I++) Na__Work += Na__Sentences[Na__I].text.length + Na__Sections__WorkPerSentence;
+    return Na__Work;
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | MakeSection - One section: plan positions [Na__First, Na__First + Na__Count)
+// ------------------------------------------------------------
+function Na__Sections__MakeSection(Na__Plan, Na__First, Na__Count) {
+    const Na__Sentences = Na__Plan.slice(Na__First, Na__First + Na__Count);
+    return {
+        index     : -1,
+        first     : Na__First,
+        sentences : Na__Sentences,
+        text      : Na__Sentences.map((Na__Sentence) => Na__Sentence.text).join(" ")
+    };
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | LongestCached - The most sentences any rendered section holds (0 if none)
+// ------------------------------------------------------------
+function Na__Sections__LongestCached() {
+    let Na__Longest = 0;
+    for (const Na__Record of Na__Sections__Cache.values()) Na__Longest = Math.max(Na__Longest, Na__Record.timing.length);
+    return Na__Longest;
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | CachedRunAt - Sentences in the longest rendered section starting at a plan position (0 if none)
+// ------------------------------------------------------------
+function Na__Sections__CachedRunAt(Na__Plan, Na__First, Na__To, Na__ModelId, Na__Longest) {
+    for (let Na__Count = Math.min(Na__Longest, Na__To - Na__First); Na__Count > 0; Na__Count--) {
+        const Na__Key = Na__TextToReader__SectionKey(Na__ModelId, { sentences: Na__Plan.slice(Na__First, Na__First + Na__Count) });
+        if (Na__Sections__Cache.has(Na__Key)) return Na__Count;
+    }
+    return 0;
+}
+// ------------------------------------------------------------
+
 
 // FUNCTION | SectionKey - What makes rendered audio reusable: the voice and the exact sentences
 // ------------------------------------------------------------
@@ -160,16 +316,27 @@ export function Na__TextToReader__SectionKey(Na__ModelId, Na__Section) {
 // Outwards from the anchor (the section being heard or waited for): the anchor itself, then
 // one after, one before, two after, two before... skipping those already ready and those
 // off either end. Ahead wins a tie, because the listener reaches it first.
+// With Na__AheadFirst (the runway ahead of the playhead is still short) every section from the
+// anchor onwards comes before any behind it: time spent behind is time the playhead gains.
 // Over budget, the farthest ready section (behind wins a tie) goes to make room, but only if
 // it is farther out than the one to render; otherwise there is nothing better to hold and
 // rendering waits for the anchor to move.
 // Returns { render, evict }, each an index or -1.
-export function Na__TextToReader__PlanSectionRender(Na__Count, Na__Anchor, Na__IsReady, Na__OverBudget) {
+export function Na__TextToReader__PlanSectionRender(Na__Count, Na__Anchor, Na__IsReady, Na__OverBudget, Na__AheadFirst = false) {
     const Na__Centre = Math.max(0, Math.min(Na__Count - 1, Na__Anchor));
     let Na__Render = -1;
 
+    if (Na__AheadFirst) {
+        for (let Na__Index = Na__Centre; Na__Index < Na__Count; Na__Index++) {
+            if (!Na__IsReady(Na__Index)) {
+                Na__Render = Na__Index;
+                break;
+            }
+        }
+    }
+
     search:
-    for (let Na__Distance = 0; Na__Distance < Na__Count; Na__Distance++) {
+    for (let Na__Distance = 0; Na__Render < 0 && Na__Distance < Na__Count; Na__Distance++) {
         for (const Na__Index of Na__Distance === 0 ? [Na__Centre] : [Na__Centre + Na__Distance, Na__Centre - Na__Distance]) {
             if (Na__Index >= 0 && Na__Index < Na__Count && !Na__IsReady(Na__Index)) {
                 Na__Render = Na__Index;
