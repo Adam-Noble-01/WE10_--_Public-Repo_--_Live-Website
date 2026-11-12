@@ -1,0 +1,77 @@
+{
+    "NaMiniApp__Meta" : {
+        "NaMiniApp__AppTitle"    : "Tab Capture Studio",
+        "NaMiniApp__AppSubTitle" : "Timed and change triggered image capture from a browser tab",
+        "NaMiniApp__Created"     : "12-Nov-2026",
+        "NaMiniApp__Version"     : "1.0.1"
+    },
+
+    "NaMiniApp__Capture" : {
+        "NaMiniApp__MaxWidth"         : 7680,
+        "NaMiniApp__MaxHeight"        : 4320,
+        "NaMiniApp__FrameRate"        : 30,
+        "NaMiniApp__TickMs"           : 25,
+        "NaMiniApp__AnalysisMs"       : 120,
+        "NaMiniApp__AnalysisWidth"    : 160,
+        "NaMiniApp__StillPct"         : 0.5,
+        "NaMiniApp__ThumbWidth"       : 240,
+        "NaMiniApp__MaxQueue"         : 6,
+        "NaMiniApp__MinRegionPx"      : 32,
+        "NaMiniApp__ZipPartMaxBytes"  : 1900000000,
+        "NaMiniApp__StatsMs"          : 200
+    },
+
+    "NaMiniApp__Overlay" : {
+        "NaMiniApp__Width"  : 400,
+        "NaMiniApp__Height" : 440
+    },
+
+    "NaMiniApp__Defaults" : {
+        "Mode"             : "change",
+        "IntervalSec"      : 1,
+        "SkipDuplicates"   : true,
+        "DuplicatePct"     : 1,
+        "ChangePct"        : 20,
+        "TolerancePct"     : 8,
+        "SettleOn"         : true,
+        "SettleMs"         : 500,
+        "SettleTimeoutSec" : 3,
+        "MinGapSec"        : 0.5,
+        "Format"           : "jpeg",
+        "Quality"          : 95,
+        "Scale"            : 100,
+        "SaveTo"           : "zip",
+        "Subfolder"        : true,
+        "StartDelaySec"    : 3,
+        "MaxImages"        : 0,
+        "MaxMinutes"       : 0,
+        "Sound"            : false,
+        "Flash"            : true,
+        "Grid"             : true,
+        "Aspect"           : "free",
+        "Region"           : { "x" : 0, "y" : 0, "w" : 1, "h" : 1 }
+    },
+
+    "NaMiniApp__UiText" : {
+        "NaMiniApp__PageTitle"        : "Tab Capture Studio",
+        "NaMiniApp__StatusNoSource"   : "No tab chosen",
+        "NaMiniApp__StatusReady"      : "Ready",
+        "NaMiniApp__StatusCountdown"  : "Starting in",
+        "NaMiniApp__StatusRecording"  : "Recording",
+        "NaMiniApp__StatusPaused"     : "Paused",
+        "NaMiniApp__StatusFinishing"  : "Finishing images",
+        "NaMiniApp__StatusSaving"     : "Saving",
+        "NaMiniApp__Unsupported"      : "This tool needs Microsoft Edge or Google Chrome (version 116 or later) on a desktop computer. Tab capture, the frame reader or the floating window is missing in this browser.",
+        "NaMiniApp__NoOverlay"        : "The floating window is not available in this browser. Recording still works: control it from this page.",
+        "NaMiniApp__PickCancelled"    : "No tab was shared.",
+        "NaMiniApp__SourceEnded"      : "Sharing ended.",
+        "NaMiniApp__NeedSource"       : "Choose a tab to capture first.",
+        "NaMiniApp__NeedFolder"       : "Choose a folder first, or switch Save to Zip download.",
+        "NaMiniApp__NothingCaptured"  : "Stopped. No images were captured.",
+        "NaMiniApp__Dropped"          : "The encoder could not keep up, so an image was skipped. Use a longer interval or JPEG.",
+        "NaMiniApp__ZipSaved"         : "Zip saved to your Downloads folder.",
+        "NaMiniApp__FolderSaved"      : "Images and CaptureLog.csv written to the folder.",
+        "NaMiniApp__FolderError"      : "Could not write to the folder. Check the folder permission.",
+        "NaMiniApp__RegionLockedHint" : "Changing the frame during a run changes the image size for the images after it."
+    }
+}

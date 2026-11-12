@@ -1,0 +1,987 @@
+/* =============================================================================
+   NOBLE ARCHITECTURE - MINI APP - TAB CAPTURE STUDIO - STYLESHEET
+   =============================================================================
+
+   FILE    : MiniApp__PhotoUtils__TabCaptureStudio__Style__.css
+   AUTHOR  : Adam Noble - Noble Architecture
+   PURPOSE : Sidebar + live stage layout, frame editor, filmstrip, and the
+             floating control window (copied into it when it opens)
+   CREATED : 12-Nov-2026
+
+   ========================================================================== */
+
+/* -----------------------------------------------------------------------------
+   REGION | CSS Variables
+   -------------------------------------------------------------------------- */
+:root {
+    --TCS_Col_PageBackground       : #141619;
+    --TCS_Col_PanelBackground      : #1e2126;
+    --TCS_Col_PanelDark            : #181a1f;
+    --TCS_Col_InputBackground      : #121417;
+    --TCS_Col_Border               : #2e333d;
+    --TCS_Col_TextMain             : #e4e7ec;
+    --TCS_Col_TextMuted            : #949ca8;
+    --TCS_Col_Accent               : #0ea5e9;
+    --TCS_Col_AccentHover          : #0284c7;
+    --TCS_Col_Ready                : #10b981;
+    --TCS_Col_Record               : #ef4444;
+    --TCS_Col_RecordHover          : #dc2626;
+    --TCS_Col_Paused               : #f59e0b;
+    --TCS_Col_Frame                : #fbbf24;
+    --TCS_Size_Sidebar             : 390px;
+    --TCS_Size_Film                : 128px;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Base Layout
+   -------------------------------------------------------------------------- */
+* {
+    box-sizing                     : border-box;
+    margin                         : 0;
+    padding                        : 0;
+}
+
+body {
+    font-family                    : "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color               : var(--TCS_Col_PageBackground);
+    color                          : var(--TCS_Col_TextMain);
+    display                        : flex;
+    height                         : 100vh;
+    overflow                       : hidden;
+}
+
+.TCS__error-message {
+    padding                        : 20px;
+    color                          : var(--TCS_Col_Record);
+}
+
+.TCS__muted {
+    color                          : var(--TCS_Col_TextMuted);
+    font-size                      : 12px;
+}
+
+.TCS__hint {
+    color                          : var(--TCS_Col_TextMuted);
+    font-size                      : 11px;
+    line-height                    : 1.5;
+    margin-top                     : 8px;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Sidebar
+   -------------------------------------------------------------------------- */
+.TCS__sidebar {
+    width                          : var(--TCS_Size_Sidebar);
+    flex-shrink                    : 0;
+    background-color               : var(--TCS_Col_PanelBackground);
+    border-right                   : 1px solid var(--TCS_Col_Border);
+    display                        : flex;
+    flex-direction                 : column;
+    height                         : 100vh;
+    z-index                        : 10;
+}
+
+.TCS__sidebar-header {
+    padding                        : 16px 20px;
+    border-bottom                  : 1px solid var(--TCS_Col_Border);
+    background                     : var(--TCS_Col_PanelDark);
+}
+
+.TCS__sidebar-header h1 {
+    font-size                      : 16px;
+    font-weight                    : 700;
+    letter-spacing                 : 0.4px;
+    color                          : #fff;
+    display                        : flex;
+    align-items                    : center;
+    gap                            : 8px;
+}
+
+.TCS__badge {
+    background                     : var(--TCS_Col_Record);
+    color                          : #fff;
+    font-size                      : 10px;
+    padding                        : 2px 6px;
+    border-radius                  : 4px;
+    font-weight                    : 700;
+    text-transform                 : uppercase;
+}
+
+.TCS__sidebar-header p {
+    font-size                      : 12px;
+    color                          : var(--TCS_Col_TextMuted);
+    margin-top                     : 4px;
+}
+
+.TCS__version-note {
+    font-size                      : 10px;
+    font-weight                    : 400;
+    color                          : var(--TCS_Col_TextMuted);
+}
+
+.TCS__controls-scroll {
+    flex                           : 1;
+    overflow-y                     : auto;
+    padding                        : 14px 20px;
+}
+
+.TCS__warning-banner {
+    display                        : none;
+    margin                         : 12px 20px 0 20px;
+    background                     : rgba(239, 68, 68, 0.15);
+    border                         : 1px solid var(--TCS_Col_Record);
+    color                          : #fca5a5;
+    padding                        : 8px 10px;
+    border-radius                  : 4px;
+    font-size                      : 11.5px;
+    line-height                    : 1.45;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Control Groups And Fields
+   -------------------------------------------------------------------------- */
+.TCS__control-group {
+    margin-bottom                  : 16px;
+    background                     : var(--TCS_Col_PanelDark);
+    border                         : 1px solid var(--TCS_Col_Border);
+    border-radius                  : 6px;
+    padding                        : 14px;
+}
+
+.TCS__control-group h2 {
+    font-size                      : 12px;
+    text-transform                 : uppercase;
+    letter-spacing                 : 0.6px;
+    color                          : var(--TCS_Col_Accent);
+    margin-bottom                  : 12px;
+    font-weight                    : 700;
+}
+
+.TCS__field-row {
+    display                        : flex;
+    gap                            : 10px;
+    margin-bottom                  : 10px;
+}
+
+.TCS__field-row:last-child {
+    margin-bottom                  : 0;
+}
+
+.TCS__field {
+    flex                           : 1;
+    min-width                      : 0;
+    display                        : flex;
+    flex-direction                 : column;
+}
+
+.TCS__field label {
+    font-size                      : 11px;
+    color                          : var(--TCS_Col_TextMuted);
+    margin-bottom                  : 5px;
+    font-weight                    : 600;
+    white-space                    : nowrap;
+    overflow                       : hidden;
+    text-overflow                  : ellipsis;
+}
+
+.TCS__field input,
+.TCS__field select {
+    width                          : 100%;
+    background                     : var(--TCS_Col_InputBackground);
+    border                         : 1px solid var(--TCS_Col_Border);
+    color                          : var(--TCS_Col_TextMain);
+    padding                        : 7px 9px;
+    border-radius                  : 4px;
+    font-size                      : 13px;
+    outline                        : none;
+    transition                     : border-color 0.15s;
+}
+
+.TCS__field input:focus,
+.TCS__field select:focus {
+    border-color                   : var(--TCS_Col_Accent);
+}
+
+.TCS__field input:disabled,
+.TCS__field select:disabled {
+    opacity                        : 0.55;
+}
+
+.TCS__checkbox-row {
+    display                        : flex;
+    align-items                    : center;
+    gap                            : 8px;
+    margin-top                     : 8px;
+    cursor                         : pointer;
+    font-size                      : 12px;
+    color                          : var(--TCS_Col_TextMain);
+}
+
+.TCS__checkbox-row input {
+    accent-color                   : var(--TCS_Col_Accent);
+    width                          : 15px;
+    height                         : 15px;
+    cursor                         : pointer;
+    flex-shrink                    : 0;
+}
+
+.TCS__source-info {
+    margin-top                     : 10px;
+}
+
+.TCS__source-label {
+    font-size                      : 13px;
+    font-weight                    : 600;
+    white-space                    : nowrap;
+    overflow                       : hidden;
+    text-overflow                  : ellipsis;
+}
+
+.TCS__folder-row {
+    display                        : none;
+    flex-wrap                      : wrap;
+    align-items                    : center;
+    gap                            : 8px;
+    margin-bottom                  : 10px;
+}
+
+.TCS__folder-row .TCS__checkbox-row {
+    width                          : 100%;
+    margin-top                     : 0;
+}
+
+.TCS__mode-panel {
+    margin-top                     : 12px;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Segmented Mode Switch
+   -------------------------------------------------------------------------- */
+.TCS__segmented {
+    display                        : flex;
+    background                     : var(--TCS_Col_InputBackground);
+    border                         : 1px solid var(--TCS_Col_Border);
+    border-radius                  : 5px;
+    padding                        : 3px;
+    gap                            : 3px;
+}
+
+.TCS__segmented label {
+    flex                           : 1;
+    cursor                         : pointer;
+}
+
+.TCS__segmented input {
+    position                       : absolute;
+    opacity                        : 0;
+    pointer-events                 : none;
+}
+
+.TCS__segmented span {
+    display                        : block;
+    text-align                     : center;
+    font-size                      : 12px;
+    font-weight                    : 600;
+    padding                        : 7px 4px;
+    border-radius                  : 3px;
+    color                          : var(--TCS_Col_TextMuted);
+    transition                     : background 0.15s, color 0.15s;
+}
+
+.TCS__segmented input:checked + span {
+    background                     : var(--TCS_Col_Accent);
+    color                          : #fff;
+}
+
+.TCS__segmented input:focus-visible + span {
+    outline                        : 2px solid var(--TCS_Col_Accent);
+    outline-offset                 : 1px;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Meters
+   -------------------------------------------------------------------------- */
+.TCS__meters {
+    margin-top                     : 14px;
+    padding-top                    : 12px;
+    border-top                     : 1px solid var(--TCS_Col_Border);
+}
+
+.TCS__meter-row {
+    display                        : flex;
+    justify-content                : space-between;
+    font-size                      : 11px;
+    margin-bottom                  : 4px;
+}
+
+.TCS__meter-label {
+    color                          : var(--TCS_Col_TextMuted);
+}
+
+.TCS__meter-value {
+    font-weight                    : 700;
+    font-variant-numeric           : tabular-nums;
+}
+
+.TCS__meter {
+    position                       : relative;
+    height                         : 8px;
+    background                     : var(--TCS_Col_InputBackground);
+    border                         : 1px solid var(--TCS_Col_Border);
+    border-radius                  : 4px;
+    margin-bottom                  : 10px;
+    overflow                       : hidden;
+}
+
+.TCS__meter-fill {
+    height                         : 100%;
+    width                          : 0;
+    background                     : var(--TCS_Col_Accent);
+    transition                     : width 0.15s linear;
+}
+
+.TCS__meter-fill--hot {
+    background                     : var(--TCS_Col_Ready);
+}
+
+.TCS__meter-fill--motion {
+    background                     : var(--TCS_Col_Paused);
+}
+
+.TCS__meter-mark {
+    position                       : absolute;
+    top                            : -1px;
+    bottom                         : -1px;
+    width                          : 2px;
+    margin-left                    : -1px;
+    background                     : #fff;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Buttons
+   -------------------------------------------------------------------------- */
+.TCS__button-row {
+    display                        : flex;
+    gap                            : 8px;
+}
+
+.TCS__button-row > .TCS__btn {
+    flex                           : 1;
+}
+
+.TCS__button-row--small {
+    margin-top                     : 10px;
+}
+
+.TCS__button-row--inline > .TCS__btn {
+    flex                           : 0 0 auto;
+}
+
+.TCS__btn {
+    border                         : none;
+    border-radius                  : 5px;
+    padding                        : 10px 14px;
+    font-family                    : inherit;
+    font-size                      : 13px;
+    font-weight                    : 700;
+    cursor                         : pointer;
+    display                        : flex;
+    align-items                    : center;
+    justify-content                : center;
+    gap                            : 8px;
+    color                          : var(--TCS_Col_TextMain);
+    background                     : #2b303b;
+    transition                     : background 0.15s, transform 0.05s, opacity 0.15s;
+}
+
+.TCS__btn:active:not(:disabled) {
+    transform                      : translateY(1px);
+}
+
+.TCS__btn:disabled {
+    opacity                        : 0.4;
+    cursor                         : default;
+}
+
+.TCS__btn--primary {
+    background                     : var(--TCS_Col_Accent);
+    color                          : #fff;
+}
+
+.TCS__btn--primary:hover:not(:disabled) {
+    background                     : var(--TCS_Col_AccentHover);
+}
+
+.TCS__btn--secondary {
+    background                     : #2b303b;
+    border                         : 1px solid #3d4452;
+}
+
+.TCS__btn--secondary:hover:not(:disabled),
+.TCS__btn--small:hover:not(:disabled) {
+    background                     : #353b49;
+}
+
+.TCS__btn--small {
+    padding                        : 6px 10px;
+    font-size                      : 11.5px;
+    font-weight                    : 600;
+    background                     : #2b303b;
+    border                         : 1px solid #3d4452;
+}
+
+.TCS__btn--record,
+.TCS__btn--stop {
+    background                     : var(--TCS_Col_Record);
+    color                          : #fff;
+}
+
+.TCS__btn--record::before {
+    content                        : "";
+    width                          : 10px;
+    height                         : 10px;
+    border-radius                  : 50%;
+    background                     : #fff;
+}
+
+.TCS__btn--record:hover:not(:disabled),
+.TCS__btn--stop:hover:not(:disabled) {
+    background                     : var(--TCS_Col_RecordHover);
+}
+
+.TCS__sidebar-footer {
+    padding                        : 14px 20px;
+    border-top                     : 1px solid var(--TCS_Col_Border);
+    background                     : var(--TCS_Col_PanelDark);
+    display                        : flex;
+    flex-direction                 : column;
+    gap                            : 8px;
+}
+
+.TCS__sidebar-footer .TCS__btn--record {
+    padding                        : 12px 16px;
+    font-size                      : 14px;
+}
+
+.TCS__sidebar-footer .TCS__button-row .TCS__btn {
+    padding                        : 9px 6px;
+    font-size                      : 12px;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Quick Guide
+   -------------------------------------------------------------------------- */
+.TCS__guide summary {
+    cursor                         : pointer;
+    font-size                      : 12px;
+    font-weight                    : 700;
+    color                          : var(--TCS_Col_Accent);
+    text-transform                 : uppercase;
+    letter-spacing                 : 0.6px;
+}
+
+.TCS__guide ol {
+    margin                         : 10px 0 0 18px;
+    font-size                      : 12px;
+    line-height                    : 1.55;
+}
+
+.TCS__guide li {
+    margin-bottom                  : 4px;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Workspace, Toolbar And Stage
+   -------------------------------------------------------------------------- */
+.TCS__workspace {
+    flex                           : 1;
+    min-width                      : 0;
+    display                        : flex;
+    flex-direction                 : column;
+    background                     : radial-gradient(circle at center, #22262e 0%, #141619 100%);
+    position                       : relative;
+    overflow                       : hidden;
+}
+
+.TCS__workspace-toolbar {
+    height                         : 44px;
+    flex-shrink                    : 0;
+    background                     : rgba(24, 26, 31, 0.85);
+    border-bottom                  : 1px solid var(--TCS_Col_Border);
+    display                        : flex;
+    align-items                    : center;
+    gap                            : 18px;
+    padding                        : 0 20px;
+    font-size                      : 12px;
+    color                          : var(--TCS_Col_TextMuted);
+}
+
+.TCS__summary {
+    white-space                    : nowrap;
+    overflow                       : hidden;
+    text-overflow                  : ellipsis;
+    font-variant-numeric           : tabular-nums;
+}
+
+.TCS__status-pill {
+    display                        : inline-flex;
+    align-items                    : center;
+    gap                            : 7px;
+    color                          : var(--TCS_Col_TextMain);
+    font-weight                    : 700;
+    flex-shrink                    : 0;
+    padding                        : 4px 10px;
+    border-radius                  : 12px;
+    background                     : #2b303b;
+}
+
+.TCS__status-dot {
+    width                          : 9px;
+    height                         : 9px;
+    border-radius                  : 50%;
+    background                     : var(--TCS_Col_TextMuted);
+}
+
+[data-state="ready"]     .TCS__status-dot { background: var(--TCS_Col_Ready); }
+[data-state="countdown"] .TCS__status-dot { background: var(--TCS_Col_Paused); }
+[data-state="paused"]    .TCS__status-dot { background: var(--TCS_Col_Paused); }
+[data-state="finishing"] .TCS__status-dot,
+[data-state="saving"]    .TCS__status-dot { background: var(--TCS_Col_Accent); }
+[data-state="recording"] .TCS__status-dot { background: var(--TCS_Col_Record); animation: TCS__Pulse 1.1s ease-in-out infinite; }
+
+.TCS__status-pill[data-state="recording"] {
+    background                     : rgba(239, 68, 68, 0.18);
+}
+
+@keyframes TCS__Pulse {
+    0%, 100%                       { opacity: 1; }
+    50%                            { opacity: 0.25; }
+}
+
+.TCS__stage {
+    flex                           : 1;
+    min-height                     : 0;
+    position                       : relative;
+    display                        : flex;
+    align-items                    : center;
+    justify-content                : center;
+    padding                        : 18px;
+}
+
+.TCS__stage-placeholder {
+    max-width                      : 420px;
+    text-align                     : center;
+    color                          : var(--TCS_Col_TextMuted);
+    font-size                      : 13px;
+    line-height                    : 1.6;
+}
+
+.TCS__placeholder-title {
+    color                          : var(--TCS_Col_TextMain);
+    font-size                      : 16px;
+    font-weight                    : 700;
+    margin-bottom                  : 6px;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Frame Editor (main page and floating window)
+   -------------------------------------------------------------------------- */
+.TCS__frame-wrap {
+    position                       : relative;
+    overflow                       : hidden;
+    flex-shrink                    : 0;
+    box-shadow                     : 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    background                     : #000;
+}
+
+.TCS__frame-video {
+    display                        : block;
+    width                          : 100%;
+    height                         : 100%;
+}
+
+.TCS__region-layer {
+    position                       : absolute;
+    inset                          : 0;
+    cursor                         : crosshair;
+    touch-action                   : none;
+    user-select                    : none;
+}
+
+.TCS__region-box {
+    position                       : absolute;
+    border                         : 2px solid var(--TCS_Col_Frame);
+    box-shadow                     : 0 0 0 9999px rgba(0, 0, 0, 0.55);
+    cursor                         : move;
+    outline                        : none;
+}
+
+.TCS__region-box:focus-visible {
+    border-color                   : #fff;
+}
+
+.TCS__region-grid {
+    position                       : absolute;
+    inset                          : 0;
+    pointer-events                 : none;
+    display                        : none;
+    background-image               :
+        linear-gradient(to right, transparent calc(33.333% - 0.5px), rgba(255, 255, 255, 0.35) calc(33.333% - 0.5px), rgba(255, 255, 255, 0.35) calc(33.333% + 0.5px), transparent calc(33.333% + 0.5px),
+                                   transparent calc(66.666% - 0.5px), rgba(255, 255, 255, 0.35) calc(66.666% - 0.5px), rgba(255, 255, 255, 0.35) calc(66.666% + 0.5px), transparent calc(66.666% + 0.5px)),
+        linear-gradient(to bottom, transparent calc(33.333% - 0.5px), rgba(255, 255, 255, 0.35) calc(33.333% - 0.5px), rgba(255, 255, 255, 0.35) calc(33.333% + 0.5px), transparent calc(33.333% + 0.5px),
+                                   transparent calc(66.666% - 0.5px), rgba(255, 255, 255, 0.35) calc(66.666% - 0.5px), rgba(255, 255, 255, 0.35) calc(66.666% + 0.5px), transparent calc(66.666% + 0.5px));
+}
+
+.TCS__region-box--grid .TCS__region-grid {
+    display                        : block;
+}
+
+.TCS__region-label {
+    position                       : absolute;
+    left                           : 0;
+    top                            : 0;
+    padding                        : 2px 6px;
+    font-size                      : 11px;
+    font-weight                    : 700;
+    color                          : #111;
+    background                     : var(--TCS_Col_Frame);
+    white-space                    : nowrap;
+    pointer-events                 : none;
+    font-variant-numeric           : tabular-nums;
+}
+
+.TCS__region-handle {
+    position                       : absolute;
+    width                          : 12px;
+    height                         : 12px;
+    margin                         : -7px 0 0 -7px;
+    background                     : #fff;
+    border                         : 2px solid var(--TCS_Col_Frame);
+    border-radius                  : 2px;
+}
+
+.TCS__region-handle--nw { left: 0;    top: 0;    cursor: nwse-resize; }
+.TCS__region-handle--n  { left: 50%;  top: 0;    cursor: ns-resize; }
+.TCS__region-handle--ne { left: 100%; top: 0;    cursor: nesw-resize; }
+.TCS__region-handle--e  { left: 100%; top: 50%;  cursor: ew-resize; }
+.TCS__region-handle--se { left: 100%; top: 100%; cursor: nwse-resize; }
+.TCS__region-handle--s  { left: 50%;  top: 100%; cursor: ns-resize; }
+.TCS__region-handle--sw { left: 0;    top: 100%; cursor: nesw-resize; }
+.TCS__region-handle--w  { left: 0;    top: 50%;  cursor: ew-resize; }
+
+.TCS__region-layer--locked {
+    pointer-events                 : none;
+}
+
+.TCS__region-layer--locked .TCS__region-handle {
+    display                        : none;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Filmstrip
+   -------------------------------------------------------------------------- */
+.TCS__film {
+    flex-shrink                    : 0;
+    border-top                     : 1px solid var(--TCS_Col_Border);
+    background                     : rgba(24, 26, 31, 0.92);
+}
+
+.TCS__film-header {
+    display                        : flex;
+    align-items                    : center;
+    gap                            : 14px;
+    padding                        : 8px 16px;
+    font-size                      : 12px;
+    font-weight                    : 600;
+}
+
+.TCS__film-header .TCS__button-row {
+    margin-left                    : auto;
+}
+
+.TCS__filmstrip {
+    display                        : flex;
+    gap                            : 8px;
+    overflow-x                     : auto;
+    padding                        : 0 16px 12px 16px;
+    height                         : var(--TCS_Size_Film);
+}
+
+.TCS__film-item {
+    position                       : relative;
+    flex                           : 0 0 auto;
+    height                         : 100%;
+    border                         : 1px solid var(--TCS_Col_Border);
+    border-radius                  : 4px;
+    overflow                       : hidden;
+    background                     : #000;
+    cursor                         : pointer;
+    padding                        : 0;
+}
+
+.TCS__film-item img {
+    display                        : block;
+    height                         : 100%;
+    width                          : auto;
+}
+
+.TCS__film-item span {
+    position                       : absolute;
+    left                           : 4px;
+    bottom                         : 4px;
+    font-size                      : 10px;
+    font-weight                    : 700;
+    color                          : #fff;
+    background                     : rgba(0, 0, 0, 0.65);
+    padding                        : 1px 5px;
+    border-radius                  : 3px;
+}
+
+.TCS__film-item--out img {
+    opacity                        : 0.25;
+}
+
+.TCS__film-item--out::after {
+    content                        : "Left out";
+    position                       : absolute;
+    inset                          : 0;
+    display                        : flex;
+    align-items                    : center;
+    justify-content                : center;
+    font-size                      : 11px;
+    font-weight                    : 700;
+    color                          : #fca5a5;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Toast
+   -------------------------------------------------------------------------- */
+.TCS__toast {
+    position                       : absolute;
+    left                           : 50%;
+    top                            : 58px;
+    transform                      : translate(-50%, -8px);
+    max-width                      : 70%;
+    background                     : #2b303b;
+    border                         : 1px solid #3d4452;
+    color                          : var(--TCS_Col_TextMain);
+    padding                        : 9px 14px;
+    border-radius                  : 6px;
+    font-size                      : 12.5px;
+    box-shadow                     : 0 8px 24px rgba(0, 0, 0, 0.5);
+    opacity                        : 0;
+    pointer-events                 : none;
+    transition                     : opacity 0.2s, transform 0.2s;
+    z-index                        : 20;
+}
+
+.TCS__toast--show {
+    opacity                        : 1;
+    transform                      : translate(-50%, 0);
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Floating Control Window
+   -------------------------------------------------------------------------- */
+.TCS__pip-body {
+    display                        : block;
+    height                         : 100vh;
+    overflow                       : hidden;
+    background                     : var(--TCS_Col_PanelBackground);
+}
+
+.TCS__pip {
+    display                        : flex;
+    flex-direction                 : column;
+    height                         : 100vh;
+    gap                            : 8px;
+    padding                        : 8px;
+    border                         : 3px solid transparent;
+}
+
+.TCS__pip[data-state="recording"] { border-color: var(--TCS_Col_Record); }
+.TCS__pip[data-state="paused"]    { border-color: var(--TCS_Col_Paused); }
+.TCS__pip[data-state="countdown"] { border-color: var(--TCS_Col_Paused); }
+
+.TCS__pip-header {
+    display                        : flex;
+    align-items                    : center;
+    gap                            : 8px;
+    font-size                      : 13px;
+    font-weight                    : 700;
+    font-variant-numeric           : tabular-nums;
+}
+
+.TCS__pip-dot {
+    width                          : 11px;
+    height                         : 11px;
+    border-radius                  : 50%;
+    background                     : var(--TCS_Col_TextMuted);
+    flex-shrink                    : 0;
+}
+
+.TCS__pip[data-state="recording"] .TCS__pip-dot { background: var(--TCS_Col_Record); animation: TCS__Pulse 1.1s ease-in-out infinite; }
+.TCS__pip[data-state="paused"]    .TCS__pip-dot,
+.TCS__pip[data-state="countdown"] .TCS__pip-dot { background: var(--TCS_Col_Paused); }
+.TCS__pip[data-state="ready"]     .TCS__pip-dot { background: var(--TCS_Col_Ready); }
+
+.TCS__pip-state {
+    flex                           : 1;
+    white-space                    : nowrap;
+    overflow                       : hidden;
+    text-overflow                  : ellipsis;
+}
+
+.TCS__pip-count {
+    color                          : var(--TCS_Col_TextMuted);
+}
+
+.TCS__pip-view {
+    position                       : relative;
+    flex                           : 1;
+    min-height                     : 80px;
+    background                     : #0d0f12;
+    border-radius                  : 4px;
+    overflow                       : hidden;
+}
+
+.TCS__pip-editor {
+    position                       : absolute;
+    inset                          : 0;
+    display                        : flex;
+    align-items                    : center;
+    justify-content                : center;
+}
+
+.TCS__pip-editor .TCS__frame-wrap {
+    box-shadow                     : none;
+}
+
+.TCS__pip-crop {
+    position                       : absolute;
+    inset                          : 0;
+    width                          : 100%;
+    height                         : 100%;
+}
+
+.TCS__pip-countdown {
+    position                       : absolute;
+    inset                          : 0;
+    display                        : none;
+    align-items                    : center;
+    justify-content                : center;
+    font-size                      : 64px;
+    font-weight                    : 700;
+    color                          : #fff;
+    background                     : rgba(0, 0, 0, 0.45);
+    pointer-events                 : none;
+}
+
+.TCS__pip-flash {
+    position                       : absolute;
+    inset                          : 0;
+    background                     : #fff;
+    opacity                        : 0;
+    pointer-events                 : none;
+}
+
+.TCS__pip-flash--on {
+    animation                      : TCS__Flash 0.35s ease-out;
+}
+
+@keyframes TCS__Flash {
+    0%                             { opacity: 0.75; }
+    100%                           { opacity: 0; }
+}
+
+.TCS__pip-meter-row {
+    display                        : flex;
+    align-items                    : center;
+    gap                            : 8px;
+}
+
+.TCS__pip-meter-col {
+    flex                           : 1;
+    min-width                      : 0;
+}
+
+.TCS__pip-meter-text {
+    display                        : block;
+    font-size                      : 11px;
+    color                          : var(--TCS_Col_TextMuted);
+    margin-bottom                  : 4px;
+    white-space                    : nowrap;
+    overflow                       : hidden;
+    text-overflow                  : ellipsis;
+}
+
+.TCS__pip-meter-col .TCS__meter {
+    margin-bottom                  : 0;
+}
+
+.TCS__pip-thumb {
+    height                         : 40px;
+    width                          : auto;
+    max-width                      : 90px;
+    border-radius                  : 3px;
+    border                         : 1px solid var(--TCS_Col_Border);
+    background                     : #000;
+}
+
+.TCS__pip-thumb:not([src]) {
+    visibility                     : hidden;
+}
+
+.TCS__pip-buttons {
+    display                        : flex;
+    gap                            : 6px;
+}
+
+.TCS__pip-buttons .TCS__btn {
+    flex                           : 1;
+    padding                        : 9px 6px;
+    font-size                      : 12px;
+}
+
+.TCS__pip-tabs {
+    display                        : flex;
+    align-items                    : center;
+    gap                            : 4px;
+}
+
+.TCS__pip-tab {
+    font-family                    : inherit;
+    font-size                      : 11px;
+    font-weight                    : 600;
+    padding                        : 4px 9px;
+    border-radius                  : 3px;
+    border                         : 1px solid var(--TCS_Col_Border);
+    background                     : transparent;
+    color                          : var(--TCS_Col_TextMuted);
+    cursor                         : pointer;
+}
+
+.TCS__pip-tab--active {
+    background                     : var(--TCS_Col_Accent);
+    border-color                   : var(--TCS_Col_Accent);
+    color                          : #fff;
+}
+
+.TCS__pip-hint {
+    margin-left                    : auto;
+    font-size                      : 10.5px;
+    color                          : var(--TCS_Col_TextMuted);
+}
+/* endregion ---------------------------------------------------------------- */

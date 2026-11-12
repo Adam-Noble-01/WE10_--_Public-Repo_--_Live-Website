@@ -1,0 +1,373 @@
+<!-- =============================================================================
+  NOBLE ARCHITECTURE - MINI APP - TAB CAPTURE STUDIO
+  =============================================================================
+
+  FILE    : MiniApp__PhotoUtils__TabCaptureStudio__Main__.html
+  AUTHOR  : Adam Noble - Noble Architecture
+  PURPOSE : Capture a framed region of a nominated browser tab as an image set
+  CREATED : 12-Nov-2026
+
+  DESCRIPTION:
+  - Shares one browser tab (getDisplayMedia), shows it live, and lets you draw
+    a capture frame over it.
+  - Three modes: Timed (every N seconds), On change (when the framed view has
+    changed by a set percentage, optionally once it has settled) and Manual.
+  - A floating always-on-top control window (Document Picture-in-Picture)
+    shows REC, timer, count, a live view, pause, stop, capture now, and lets
+    you move and resize the frame without leaving the captured tab.
+  - Saves a zip when the run stops, or writes straight to a folder.
+  - All processing is local. Nothing is sent to any server.
+
+  MODULES:
+  - 01__AppModules/MiniApp__PhotoUtils__TabCaptureStudio__Main__.js         (controller)
+  - 01__AppModules/MiniApp__PhotoUtils__TabCaptureStudio__Worker__.js       (frame reader, triggers, encoder)
+  - 01__AppModules/MiniApp__PhotoUtils__TabCaptureStudio__RegionEditor__.js (frame editor)
+  - 01__AppModules/MiniApp__PhotoUtils__TabCaptureStudio__Overlay__.js      (floating control window)
+  - 01__AppModules/MiniApp__PhotoUtils__TabCaptureStudio__ZipWriter__.js    (stored zip writer, CRC32)
+  - MiniApp__PhotoUtils__TabCaptureStudio__Style__.css                      (styles, page and overlay)
+  - MiniApp__PhotoUtils__TabCaptureStudio__AppConfig__.json                 (config source)
+
+  =========================================================================== -->
+
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION | Document Head                                            -->
+<!-- ----------------------------------------------------------------- -->
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Noble Architecture Tab Capture Studio: timed and change triggered image capture from a browser tab." />
+        <meta name="author" content="Adam Noble - Noble Architecture" />
+        <title>Tab Capture Studio</title>
+
+        <link rel="icon" type="image/svg+xml"
+              href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__SVG-h50mm.svg" />
+
+        <!-- ?v= : see REGION | Versioned App Files at the foot of the body -->
+        <link id="js__styleLink" rel="stylesheet" href="MiniApp__PhotoUtils__TabCaptureStudio__Style__.css?v=1.0.1" />
+    </head>
+<!-- endregion -------------------------------------------------------- -->
+
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION | Document Body                                            -->
+<!-- ----------------------------------------------------------------- -->
+    <body>
+
+        <!-- --------------------------------------------------------- -->
+        <!-- REGION | Sidebar Controls                                 -->
+        <!-- --------------------------------------------------------- -->
+            <aside class="TCS__sidebar">
+                <div class="TCS__sidebar-header">
+                    <h1>
+                        <span id="js__appTitle">Tab Capture Studio</span>
+                        <span class="TCS__badge">Capture</span>
+                        <span id="js__appVersion" class="TCS__version-note"></span>
+                    </h1>
+                    <p id="js__appSubTitle"></p>
+                </div>
+
+                <div id="js__supportBanner" class="TCS__warning-banner"></div>
+
+                <div class="TCS__controls-scroll">
+
+                    <!-- ------------------------------------------------- -->
+                    <!-- REGION | 1. Source Tab                            -->
+                    <!-- ------------------------------------------------- -->
+                        <div class="TCS__control-group">
+                            <h2>1. Tab To Capture</h2>
+                            <div class="TCS__button-row">
+                                <button id="js__chooseSourceBtn" class="TCS__btn TCS__btn--primary" type="button">Choose tab</button>
+                                <button id="js__stopSourceBtn" class="TCS__btn TCS__btn--secondary" type="button" disabled>Stop sharing</button>
+                            </div>
+                            <div class="TCS__source-info">
+                                <div id="js__sourceLabel" class="TCS__source-label">No tab shared</div>
+                                <div id="js__sourceInfo" class="TCS__muted"></div>
+                            </div>
+                        </div>
+                    <!-- endregion ------------------------------------- -->
+
+                    <!-- ------------------------------------------------- -->
+                    <!-- REGION | 2. Capture Frame                         -->
+                    <!-- ------------------------------------------------- -->
+                        <div class="TCS__control-group">
+                            <h2>2. Capture Frame</h2>
+                            <div class="TCS__field-row">
+                                <div class="TCS__field">
+                                    <label for="js__aspect">Aspect</label>
+                                    <select id="js__aspect">
+                                        <option value="free">Free</option>
+                                        <option value="lock">Lock current</option>
+                                        <option value="1:1">1:1</option>
+                                        <option value="4:3">4:3</option>
+                                        <option value="3:2">3:2</option>
+                                        <option value="16:9">16:9</option>
+                                        <option value="21:9">21:9</option>
+                                    </select>
+                                </div>
+                                <div class="TCS__field">
+                                    <label for="js__scale">Output size</label>
+                                    <select id="js__scale">
+                                        <option value="100">100% (native)</option>
+                                        <option value="75">75%</option>
+                                        <option value="50">50%</option>
+                                        <option value="25">25%</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="TCS__field-row TCS__field-row--four">
+                                <div class="TCS__field"><label for="js__regionX">X (px)</label><input type="number" id="js__regionX" min="0" step="1" /></div>
+                                <div class="TCS__field"><label for="js__regionY">Y (px)</label><input type="number" id="js__regionY" min="0" step="1" /></div>
+                                <div class="TCS__field"><label for="js__regionW">Width</label><input type="number" id="js__regionW" min="1" step="1" /></div>
+                                <div class="TCS__field"><label for="js__regionH">Height</label><input type="number" id="js__regionH" min="1" step="1" /></div>
+                            </div>
+                            <div class="TCS__button-row TCS__button-row--small">
+                                <button id="js__presetFull" class="TCS__btn TCS__btn--small" type="button">Whole tab</button>
+                                <button id="js__presetCentre80" class="TCS__btn TCS__btn--small" type="button">Centre 80%</button>
+                                <button id="js__presetCentre" class="TCS__btn TCS__btn--small" type="button">Centre frame</button>
+                            </div>
+                            <label class="TCS__checkbox-row">
+                                <input type="checkbox" id="js__grid" />
+                                Show thirds grid on the frame
+                            </label>
+                            <p class="TCS__hint">Drag inside the frame to move it, drag the handles to resize, or drag outside it to draw a new one. Arrow keys nudge it (Shift for 10 px).</p>
+                        </div>
+                    <!-- endregion ------------------------------------- -->
+
+                    <!-- ------------------------------------------------- -->
+                    <!-- REGION | 3. Capture Mode                          -->
+                    <!-- ------------------------------------------------- -->
+                        <div class="TCS__control-group">
+                            <h2>3. Capture Mode</h2>
+                            <div class="TCS__segmented" role="radiogroup" aria-label="Capture mode">
+                                <label><input type="radio" name="js__mode" value="interval" /><span>Timed</span></label>
+                                <label><input type="radio" name="js__mode" value="change" /><span>On change</span></label>
+                                <label><input type="radio" name="js__mode" value="manual" /><span>Manual</span></label>
+                            </div>
+
+                            <div id="js__modeInterval" class="TCS__mode-panel">
+                                <div class="TCS__field-row">
+                                    <div class="TCS__field">
+                                        <label for="js__intervalSec">Capture every (seconds)</label>
+                                        <input type="number" id="js__intervalSec" min="0.1" max="3600" step="0.1" />
+                                    </div>
+                                    <div class="TCS__field">
+                                        <label for="js__duplicatePct">Duplicate below (%)</label>
+                                        <input type="number" id="js__duplicatePct" min="0" max="50" step="0.1" />
+                                    </div>
+                                </div>
+                                <label class="TCS__checkbox-row">
+                                    <input type="checkbox" id="js__skipDuplicates" />
+                                    Skip an image when the view has not changed since the last one
+                                </label>
+                            </div>
+
+                            <div id="js__modeChange" class="TCS__mode-panel">
+                                <div class="TCS__field-row">
+                                    <div class="TCS__field">
+                                        <label for="js__changePct">Capture when changed by (%)</label>
+                                        <input type="number" id="js__changePct" min="0.5" max="95" step="0.5" />
+                                    </div>
+                                    <div class="TCS__field">
+                                        <label for="js__tolerancePct">Pixel tolerance (%)</label>
+                                        <input type="number" id="js__tolerancePct" min="1" max="60" step="1" />
+                                    </div>
+                                </div>
+                                <label class="TCS__checkbox-row">
+                                    <input type="checkbox" id="js__settleOn" />
+                                    Wait until the view settles (tiles loaded)
+                                </label>
+                                <div class="TCS__field-row TCS__field-row--three">
+                                    <div class="TCS__field">
+                                        <label for="js__settleMs">Still for (ms)</label>
+                                        <input type="number" id="js__settleMs" min="0" max="10000" step="50" />
+                                    </div>
+                                    <div class="TCS__field">
+                                        <label for="js__settleTimeoutSec">Give up after (s)</label>
+                                        <input type="number" id="js__settleTimeoutSec" min="0.5" max="60" step="0.5" />
+                                    </div>
+                                    <div class="TCS__field">
+                                        <label for="js__minGapSec">Min gap (s)</label>
+                                        <input type="number" id="js__minGapSec" min="0" max="60" step="0.1" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="js__modeManual" class="TCS__mode-panel">
+                                <p class="TCS__hint">Start a run, then take each image with Capture now here or in the floating window (Space when the floating window has focus).</p>
+                            </div>
+
+                            <div class="TCS__meters">
+                                <div class="TCS__meter-row">
+                                    <span class="TCS__meter-label">Change since last image</span>
+                                    <span id="js__meterChangeText" class="TCS__meter-value">0%</span>
+                                </div>
+                                <div class="TCS__meter"><div id="js__meterChangeFill" class="TCS__meter-fill"></div><div id="js__meterChangeMark" class="TCS__meter-mark"></div></div>
+                                <div class="TCS__meter-row">
+                                    <span class="TCS__meter-label">Movement</span>
+                                    <span id="js__meterMotionText" class="TCS__meter-value">Still</span>
+                                </div>
+                                <div class="TCS__meter"><div id="js__meterMotionFill" class="TCS__meter-fill TCS__meter-fill--motion"></div></div>
+                                <button id="js__resetReferenceBtn" class="TCS__btn TCS__btn--small" type="button">Reset reference to this view</button>
+                            </div>
+                        </div>
+                    <!-- endregion ------------------------------------- -->
+
+                    <!-- ------------------------------------------------- -->
+                    <!-- REGION | 4. Output                                -->
+                    <!-- ------------------------------------------------- -->
+                        <div class="TCS__control-group">
+                            <h2>4. Output</h2>
+                            <div class="TCS__field-row">
+                                <div class="TCS__field">
+                                    <label for="js__setName">Set name (file and zip prefix)</label>
+                                    <input type="text" id="js__setName" maxlength="80" spellcheck="false" />
+                                </div>
+                            </div>
+                            <div class="TCS__field-row">
+                                <div class="TCS__field">
+                                    <label for="js__format">Format</label>
+                                    <select id="js__format">
+                                        <option value="jpeg">JPEG</option>
+                                        <option value="png">PNG (lossless)</option>
+                                        <option value="webp">WebP</option>
+                                    </select>
+                                </div>
+                                <div class="TCS__field" id="js__qualityField">
+                                    <label for="js__quality">Quality (%)</label>
+                                    <input type="number" id="js__quality" min="50" max="100" step="1" />
+                                </div>
+                            </div>
+                            <div class="TCS__field-row">
+                                <div class="TCS__field">
+                                    <label for="js__saveTo">Save to</label>
+                                    <select id="js__saveTo">
+                                        <option value="zip">Zip download when stopped</option>
+                                        <option value="folder">Folder (written as it captures)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="js__folderRow" class="TCS__folder-row">
+                                <button id="js__chooseFolderBtn" class="TCS__btn TCS__btn--small" type="button">Choose folder</button>
+                                <span id="js__folderLabel" class="TCS__muted">No folder chosen</span>
+                                <label class="TCS__checkbox-row">
+                                    <input type="checkbox" id="js__subfolder" />
+                                    New subfolder for each set
+                                </label>
+                            </div>
+                            <div class="TCS__field-row TCS__field-row--three">
+                                <div class="TCS__field">
+                                    <label for="js__startDelaySec">Start delay (s)</label>
+                                    <input type="number" id="js__startDelaySec" min="0" max="60" step="1" />
+                                </div>
+                                <div class="TCS__field">
+                                    <label for="js__maxImages">Stop after images</label>
+                                    <input type="number" id="js__maxImages" min="0" step="1" />
+                                </div>
+                                <div class="TCS__field">
+                                    <label for="js__maxMinutes">Stop after minutes</label>
+                                    <input type="number" id="js__maxMinutes" min="0" step="0.5" />
+                                </div>
+                            </div>
+                            <p class="TCS__hint">0 means no limit.</p>
+                            <label class="TCS__checkbox-row">
+                                <input type="checkbox" id="js__flash" />
+                                Flash the floating window on each capture
+                            </label>
+                            <label class="TCS__checkbox-row">
+                                <input type="checkbox" id="js__sound" />
+                                Shutter click on each capture
+                            </label>
+                        </div>
+                    <!-- endregion ------------------------------------- -->
+
+                    <!-- ------------------------------------------------- -->
+                    <!-- REGION | 5. Quick Guide                           -->
+                    <!-- ------------------------------------------------- -->
+                        <details class="TCS__control-group TCS__guide">
+                            <summary>Quick guide (Google Maps photogrammetry)</summary>
+                            <ol>
+                                <li>Open Google Maps in another tab and set up the 3D view.</li>
+                                <li>Click Choose tab, pick the Maps tab, then Share.</li>
+                                <li>Draw the frame over the 3D view, clear of the search bar, buttons and the Google Maps logo. Centre frame keeps the image centre on the view centre.</li>
+                                <li>Pick On change (for example 20%) or Timed, then Start recording. The floating window opens; click back on the Maps tab within the start delay.</li>
+                                <li>Orbit the camera. With Wait until settled, each image is taken once the view stops moving and the tiles have loaded.</li>
+                                <li>Pause to reposition, Stop to finish. The zip downloads straight away.</li>
+                            </ol>
+                            <p class="TCS__hint">The floating window is never in the images. The mouse pointer is, if it sits over the frame: orbit with Shift and the arrow keys, or with the Maps rotate buttons outside the frame, or raise Still for to about 2500 ms so the pointer fades first. Do not zoom the browser or resize the window during a run.</p>
+                        </details>
+                    <!-- endregion ------------------------------------- -->
+
+                </div>
+
+                <div class="TCS__sidebar-footer">
+                    <button id="js__startBtn" class="TCS__btn TCS__btn--record" type="button" disabled>Start recording</button>
+                    <div class="TCS__button-row">
+                        <button id="js__pauseBtn" class="TCS__btn TCS__btn--secondary" type="button" disabled>Pause</button>
+                        <button id="js__snapBtn"  class="TCS__btn TCS__btn--secondary" type="button" disabled>Capture now</button>
+                        <button id="js__stopBtn"  class="TCS__btn TCS__btn--secondary" type="button" disabled>Stop and save</button>
+                    </div>
+                    <button id="js__overlayBtn" class="TCS__btn TCS__btn--small" type="button" hidden>Open floating window</button>
+                </div>
+            </aside>
+        <!-- endregion ------------------------------------------------ -->
+
+        <!-- --------------------------------------------------------- -->
+        <!-- REGION | Workspace                                        -->
+        <!-- --------------------------------------------------------- -->
+            <main class="TCS__workspace">
+                <div class="TCS__workspace-toolbar">
+                    <div id="js__statusPill" class="TCS__status-pill" data-state="nosource">
+                        <span class="TCS__status-dot"></span>
+                        <span id="js__statusText">No tab chosen</span>
+                    </div>
+                    <div id="js__summaryText" class="TCS__summary"></div>
+                </div>
+
+                <div id="js__stageHost" class="TCS__stage">
+                    <div id="js__stagePlaceholder" class="TCS__stage-placeholder">
+                        <p class="TCS__placeholder-title">Choose a tab to capture</p>
+                        <p>Its live view appears here. Draw the capture frame over it, pick a mode, then start recording.</p>
+                    </div>
+                </div>
+
+                <section class="TCS__film">
+                    <div class="TCS__film-header">
+                        <span id="js__filmCount">No images yet</span>
+                        <span class="TCS__muted TCS__film-hint">Click an image to leave it out of the zip.</span>
+                        <div class="TCS__button-row TCS__button-row--inline">
+                            <button id="js__saveZipBtn" class="TCS__btn TCS__btn--small" type="button" disabled>Save zip again</button>
+                            <button id="js__clearBtn" class="TCS__btn TCS__btn--small" type="button" disabled>Clear</button>
+                        </div>
+                    </div>
+                    <div id="js__filmstrip" class="TCS__filmstrip"></div>
+                </section>
+
+                <div id="js__toast" class="TCS__toast" role="status" aria-live="polite"></div>
+            </main>
+        <!-- endregion ------------------------------------------------ -->
+
+        <!-- ------------------------------------------------------------- -->
+        <!-- REGION | Versioned App Files                                  -->
+        <!-- With EACH release, set every ?v= in this file to the new      -->
+        <!-- version (stylesheet link, this map and the script below) and  -->
+        <!-- NaMiniApp__Version in the AppConfig. The worker URL is built  -->
+        <!-- from NaMiniApp__Version, as import maps do not reach workers. -->
+        <!-- ------------------------------------------------------------- -->
+            <script type="importmap">
+            {
+                "imports": {
+                    "./01__AppModules/MiniApp__PhotoUtils__TabCaptureStudio__RegionEditor__.js" : "./01__AppModules/MiniApp__PhotoUtils__TabCaptureStudio__RegionEditor__.js?v=1.0.1",
+                    "./01__AppModules/MiniApp__PhotoUtils__TabCaptureStudio__Overlay__.js"      : "./01__AppModules/MiniApp__PhotoUtils__TabCaptureStudio__Overlay__.js?v=1.0.1",
+                    "./01__AppModules/MiniApp__PhotoUtils__TabCaptureStudio__ZipWriter__.js"    : "./01__AppModules/MiniApp__PhotoUtils__TabCaptureStudio__ZipWriter__.js?v=1.0.1"
+                }
+            }
+            </script>
+
+            <script type="module" src="01__AppModules/MiniApp__PhotoUtils__TabCaptureStudio__Main__.js?v=1.0.1"></script>
+        <!-- endregion ---------------------------------------------------- -->
+    </body>
+<!-- endregion -------------------------------------------------------- -->
+
+</html>

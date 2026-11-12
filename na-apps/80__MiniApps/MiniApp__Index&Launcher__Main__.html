@@ -406,7 +406,7 @@
                 // FUNCTION | Fetch And Parse Config Data
                 // ------------------------------------------------------------
                 function initialiseAppLauncher() {
-                    fetch(CONFIG_FILE_PATH)
+                    fetch(CONFIG_FILE_PATH, { cache: "no-cache" })
                         .then(function (response) {
                             if (!response.ok) {
                                 throw new Error("Failed to load config: " + response.status);
@@ -417,7 +417,9 @@
                             const meta      = config["MiniApp__Meta"]       || {};
                             const pageConf  = config["MiniApp__PageConfig"] || {};
                             const appsData  = config["MiniApp__AppsData"]   || {};
-                            const baseUrl   = meta["MiniApp__BaseUrl"]      || ".";
+                            // On a local server, launch the local copies rather than the live site
+                            const isLocal   = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+                            const baseUrl   = isLocal ? "." : (meta["MiniApp__BaseUrl"] || ".");
 
                             applyPageConfig(pageConf);
                             buildAppCards(baseUrl, appsData);

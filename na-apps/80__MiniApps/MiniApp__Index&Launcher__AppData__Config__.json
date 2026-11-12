@@ -202,6 +202,26 @@
             "MiniApp__LoadOrder"         : 9,
             "MiniApp__LaunchInNewTab"    : true,
             "MiniApp__LaunchInNewWindow" : false
+        },
+
+        "MiniApp__TabCaptureStudio_10" : {
+            "MiniApp__LaunchFile"        : "MiniApp__PhotoUtils__TabCaptureStudio__Main__.html",
+            "MiniApp__RelativePath"      : "04_MiniApps__PhotoUtils",
+            "MiniApp__Title"             : "Tab Capture Studio",
+            "MiniApp__Description"       : "Capture a framed region of another browser tab as an image set: every few seconds, or whenever the view has changed by a set percentage and settled. A floating window over the tab shows REC, the frame, pause, stop and capture now. Built for photogrammetry sets from Google Maps 3D; saves a zip or writes straight to a folder.",
+            "MiniApp__Notes"             : "Category: PhotoUtils. Edge or Chrome 116+. getDisplayMedia tab capture, MediaStreamTrackProcessor frames read in a module worker (not throttled while the tab is hidden), Document Picture-in-Picture control window, stored zip built from Blob parts (split under 1.9 GB). Worker URL is versioned from NaMiniApp__Version.",
+            "MiniApp__KeyWords"          : [
+                                                "Screen Capture",
+                                                "Photogrammetry",
+                                                "Google Maps",
+                                                "Time-lapse",
+                                                "Change Detection",
+                                                "Zip"
+                                           ],
+            "MiniApp__Added"             : "12-Nov-2026",
+            "MiniApp__LoadOrder"         : 10,
+            "MiniApp__LaunchInNewTab"    : true,
+            "MiniApp__LaunchInNewWindow" : false
         }
     }
 }
