@@ -31,6 +31,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 12-Nov-2026 - Version 1.5.1 (v2.184.0)
+// - PROJECT LIGHTING, ported from ValeVision 3D v2.98.0. The project's own
+//   lighting (SceneLighting__ProjectOverrides) is read as soon as the save
+//   merge base is registered, before any scene, drawing or navigation mode
+//   is announced; on localhost the key joins Na__DevSavedKeys, so a saved
+//   lighting is laid over the local copy from R2 like every Dev-menu key.
+//   The lighting setup is handed the app config's Scene__ProjectLighting.
+//
 // 19-Oct-2026 - Version 1.5.0 (v2.183.0)
 // - THE MODEL GATE (Na__AppFlow__ModelGate__). The model files and the sky
 //   dome wait at it, just after the drawings go out. It is open unless a
@@ -128,6 +136,12 @@
         Na__Scene__SetupDefaultSceneLighting,
         Na__Scene__ApplyEnvironmentMap
     } from '../06__Scene__LightingEffects/Na__Scene__DefaultSceneLighting.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | The Project's Own Lighting (read with the merge base, before any scene)
+    // @delegate: ../06__Scene__LightingEffects/Na__Scene__ProjectLighting__.js
+    // ------------------------------------------------------------
+    import { Na__ProjLight__LoadFromRecord } from '../06__Scene__LightingEffects/Na__Scene__ProjectLighting__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Fog Effect
@@ -406,7 +420,8 @@
         'RenderEffect__AssetCullDistanceMm',     // <-- Per-project furniture / decor cull distance
         'Navmode__FovOverrides',                 // <-- Per-project Orbit/Walk/Fly default FOV overrides
         'Camera__DefaultPosition',               // <-- Saved camera position / rotation / FOV
-        'OrbitHelperCube__Position'              // <-- Saved orbit target
+        'OrbitHelperCube__Position',             // <-- Saved orbit target
+        'SceneLighting__ProjectOverrides'        // <-- The project's own lighting, Dev Tools > Project Lighting (v2.184.0)
     ];
     // ------------------------------------------------------------
 
@@ -560,7 +575,8 @@
             ambientOcclusion            : Na__Config__AmbientOcclusion,
             progressiveRefine           : Na__Config__ProgressiveRefine,
             distanceCulling             : Na__Config__DistanceCulling,
-            perSceneLighting            : Na__Config__PerSceneLighting
+            perSceneLighting            : Na__Config__PerSceneLighting,
+            projectLighting             : Na__Config__ProjectLighting
         } = configs;
         // ---------------------------------------------------------------
 
@@ -571,7 +587,8 @@
             Na__Scene__Main,
             Na__Config__LightingConfig,
             Na__Config__GroundPlane,
-            Na__Config__PerSceneLighting || null                             // <-- Per-scene lighting switch, flight blend and slider ranges
+            Na__Config__PerSceneLighting || null,                            // <-- Per-scene lighting switch, flight blend and slider ranges
+            Na__Config__ProjectLighting  || null                             // <-- Project lighting switch (v2.184.0)
         );
         // THE SKY DOME IS THE MODEL'S, so it loads with the model files, behind
         // the model gate (below). Its only reader is the materials pass, which
@@ -1008,6 +1025,12 @@
         // Dev-menu saves merge changed keys into this object and write the whole
         // document back to R2, so model groups / camera / etc. are never dropped.
         Na__CfApi__SetLoadedProjectData(Na__ProjectData__Full);
+
+        // APPLY THE PROJECT'S OWN LIGHTING (the app default when key absent)
+        // Before any scene or drawing is announced, so every scene resolves
+        // over it; the 3D view only, never a drawing.
+        // @delegate: ../06__Scene__LightingEffects/Na__Scene__ProjectLighting__.js
+        Na__ProjLight__LoadFromRecord(Na__ProjectData__Full);
 
         // CAPTURE CANONICAL CAMERA START STATE (Reset View target on the nav toolbar)
         Na__CameraStartState__CaptureStartState(Na__Camera__Main, Na__Controls__Orbit, Na__Saved__ProjectCameraConfig);

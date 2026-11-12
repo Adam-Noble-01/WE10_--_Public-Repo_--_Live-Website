@@ -39,6 +39,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 12-Nov-2026 - Version 1.0.1 (v2.184.0)
+// - The approach pose carries PresentationMode__Scene__IsDrawingApproach, as
+//   ValeVision 3D's has since its port Phase 2, so the flight into an
+//   elevation eases the lights to the app default whatever the project's
+//   own lighting.
+//
 // 07-Sep-2026 - Version 1.0.0
 // - Initial implementation for the Elevation Drawings build.
 //
@@ -271,7 +277,8 @@
             PresentationMode__Scene__TransitionTimeToNextSceneMs : durationMs,
             PresentationMode__Scene__TransitionEasing            : easing,
             PresentationMode__Scene__CameraPosition              : built.camera,
-            PresentationMode__Scene__OrbitHelperCubePosition     : built.orbit
+            PresentationMode__Scene__OrbitHelperCubePosition     : built.orbit,
+            PresentationMode__Scene__IsDrawingApproach           : true         // <-- Lit by the app default, never the project's (Na__Scene__PerSceneLighting__)
         };
     }
     // ------------------------------------------------------------

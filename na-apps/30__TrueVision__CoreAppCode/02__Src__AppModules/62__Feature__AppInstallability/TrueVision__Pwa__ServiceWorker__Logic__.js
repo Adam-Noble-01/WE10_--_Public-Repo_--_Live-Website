@@ -34,6 +34,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 12-Nov-2026 - Version 1.17.0
+// - Token BUMPED to 2026-11-12-01 for v2.184.0 (Project Lighting, ported
+//   from ValeVision 3D v2.98.0). Na__Scene__PerSceneLighting__ gained exports
+//   (ApplyBase, SetProjectValues, GetProjectValues, GetAppDefaults,
+//   ResolveOverApp, DiffFromApp, SunBearingDeg, IsProjectEnabled) that the
+//   changed floor plan and elevation controllers, the scene Lighting fold and
+//   two new modules import; the loading sequence imports a new module;
+//   Index.html, the app config and the shell stylesheet (the shared confirm
+//   dialog) changed. A warm client must not pair an old lighting core with
+//   the new controllers, which would not link.
+//
 // 19-Oct-2026 - Version 1.16.0
 // - Token BUMPED to 2026-10-19-07 for v2.182.0 (the web viewer's measuring
 //   tools: snapping on the live site, only drawn lines, dimension size, undo
@@ -749,7 +760,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-10-19-07';                                                          // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-11-12-01';                                                          // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

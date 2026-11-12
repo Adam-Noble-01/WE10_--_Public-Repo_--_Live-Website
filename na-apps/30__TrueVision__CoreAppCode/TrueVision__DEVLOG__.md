@@ -2,6 +2,94 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.184.0  -  12-Nov-2026
+### Project Lighting: a Project Can Turn Its Own Sun, So Its 3D View Shades the Faces Its Own Way
+
+**What Adam asked for**
+- In ValeVision 3D the same day (its v2.98.0): "Add sun position so i can change the direction of the faces shaded (still
+  should be flat but can you see here some faces shad greyer than others? well on a project by project basis Id like a
+  way to control that", written to the project data as "a new data object for this and future scene lighting ovberides in
+  my 3 section json style", and "Ensure you need to confirm a save like with the camera and fog tools". Asked there, he
+  chose "3D view only" (drawings keep the app default) and "A section per light".
+- Then for this app: "Port the same feature to my app TrueVision 3D so I also have project by project saving for Noble
+  Architecture Clients, Note the Architecture for saving is differnet and uses a cloudflare r2 worker as there is no
+  dedicated server like with ValeVision ... Map out TrueVision Carefully bvefore coding anything." Asked whether
+  ValeVision's styled confirm dialog should come across, since TrueVision had none: "Bring the styled dialog".
+
+**Project Lighting** (Dev Tools, localhost, after Navigation Modes)
+- Rotation, Height, Sun and Ambient, each a slider with a number box, and Sun casts shadows: the controls of a scene's own
+  Lighting fold. Every change lights the model at once. A line says where the sun is (in compass words with North
+  Direction set), a status line whether the project is at the app default, saved or changed. Use App Default, Undo Changes
+  and Save Project Lighting, which asks first in words for what the press does: Save, Overwrite or Clear. Unsaved changes
+  raise the leave-site question.
+- **The project data's new object**, `SceneLighting__ProjectOverrides`, a section per light holding only what differs from
+  the app default: `__Sun` (`SceneLighting__Sun__RotationDeg`, `__HeightDeg`, `__Intensity`, `__ShadowsEnabled`) and
+  `__Ambient` (`SceneLighting__Ambient__Intensity`), after `__Description` and `__SchemaVersion` 1. An empty section is
+  left out, a project at the default has no key, and a later lighting override joins as a section. ValeVision 3D keeps the
+  same object, so the two apps read one shape.
+- **Saved to R2 like every Dev-menu key:** `Na__CfApi__MergeAndSaveKeys` merges the one key into the document the app
+  loaded and writes it whole through the na-truevision-api Worker; `Na__CfApi__DeleteProjectKeys` takes it out at the
+  default. The Worker needs no change: it stores whole documents under `NaProjectPortal/` and checks no keys. A save is live
+  the moment it lands, since the live site reads the project data from R2; on localhost the key joins `Na__DevSavedKeys`,
+  so it is laid over the local copy from R2 like the rest.
+- **Three layers:** the app default, the project's lighting, a scene's own. A scene without lighting follows the project,
+  and one that only lowers the sun keeps the project's direction. **The 3D view only:** both approach poses now carry
+  `PresentationMode__Scene__IsDrawingApproach` (as ValeVision's always have), so a flight into a plan or elevation eases
+  to the app default; the Layout Editor's drawing pictures were already lit by it. Leaving a drawing with no scene to fly
+  to puts the project's light back, and now stops a flight in that has not landed, which used to carry on, pull the camera
+  back and land on the drawing's light. 3D pictures on sheets are keyed by the project's lighting once a project has some;
+  with none, every stored key is unchanged.
+
+**The shared confirm dialog, from ValeVision 3D**
+- `Na__AppUtils__ConfirmDialog` was here without its markup or styles, so every confirm (the Layout Editor's included)
+  was the browser's own box. Its markup now follows the toast in `Index.html`, and its style region, with the secondary
+  action style its Cancel wears (placed before the base action's hover, as ValeVision has it), is in
+  `Na__UiFeature__Styles__DropdownAndToast__.css`. Every TrueVision confirm now opens in it.
+
+**Ported, and where it differs**
+- The lighting core is ValeVision's 1.1.0 verbatim: its change from the old core is, line for line, ValeVision's. The
+  record module differs only in its save (R2, not ValeVision's server). The Dev section differs in when it shows:
+  TrueVision builds its lights after `Index.html` has started the section (the loading sequence awaits the data library
+  first), so the section shows with authoring and goes, closed, if the app config switches project lighting off once the
+  project loads. The first headless run found it never appeared.
+
+**Files**
+- New: `06__Scene__LightingEffects/Na__Scene__ProjectLighting__.js` 1.0.0, `Na__Scene__ProjectLighting__DevMenu__.js`
+  1.0.0, `80__Testing__PrototypeEnvironment/Na__Test__ProjectLighting__.test.mjs` 1.0.0.
+- Changed: `Na__Scene__PerSceneLighting__.js` 1.1.0, `Na__Scene__DefaultSceneLighting.js`, `Na__AppFlow__LoadingSequence.js`
+  1.5.1, `Na__FloorPlan__Framing__.js` 1.0.1, `Na__Elevation__Framing__.js` 1.0.1, `Na__FloorPlan__ModeController__.js`
+  1.1.1, `Na__Elevation__ModeController__.js` 1.1.1, `Na__PresentationMode__DevMenu__SceneLightingRows__.js` 1.0.1 (words
+  only), `Index.html`, `Na__AppConfig__Main.json` (a new `Scene__ProjectLighting` block whose `Enabled` false ignores every
+  saved project lighting and hides the section; two descriptions), `Na__UiFeature__Styles__DropdownAndToast__.css`.
+- Service worker token: BUMPED to `2026-11-12-01` (`TrueVision__Pwa__ServiceWorker__Logic__.js` 1.17.0). The lighting core
+  gained exports that the changed controllers, the scene Lighting fold and the new modules import.
+
+**Tested**
+- `Na__Test__ProjectLighting__.test.mjs` (new), 32 checks, the R2 client stood in: the sections load and light the model;
+  a scene without lighting follows the project, a height-only scene keeps its direction, an approach pose and
+  `ApplyDefaults` give the app default, `ApplyBase` the project's; only what differs is written, the default writes
+  nothing, a hand-edited object is clamped; a save merges the one key, and at the default takes it out; switched off,
+  nothing is read; the approach poses carry the flag, the key is in `Na__DevSavedKeys`, and it is read after the merge
+  base and before the scenes go out.
+- `Na__Test__PerSceneLighting__.test.mjs`: all pass on the new core. Against the committed core, 12,000 comparisons (4,000
+  random scene blocks: resolve, build and picture key) on a project without its own lighting: none different.
+- `Na__Verify__Exports__`: PASS (563 files). `Na__Verify__ModuleGraph__`: nothing new failing (the Presentation Scenes
+  editor string, already listed).
+- The real app on localhost, JW02, served read-only (the Worker URL blanked in the served config, every workers.dev
+  request aborted: none was made). The section sat after Navigation Modes; Rotation 180 relit the model at once (the long
+  front wall greyer, the end face lighter, still flat) and the sun line moved from the North West to the South East; Save
+  opened the styled dialog ("Save Project Lighting?"), Cancel left the change pending, and confirming was refused with
+  "Project lighting not saved: Worker not configured". No script errors; the one 404 was the local drawings-fingerprint
+  API a plain file server does not have.
+
+**Not tested**
+- A real save to R2, and a project with saved lighting on the live site (the Node test covers the load and what a save
+  sends).
+- A plan or elevation entered and left in the live app here (the Node test checks the poses and the exits by source;
+  ValeVision 3D's headless run proved the same code paths there). A phone or tablet. The Layout Editor's own confirms in
+  the new dialog.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.183.0  -  19-Oct-2026
 ### The Project Hub's Way Into the Drawings: Open=Drawings, and the 3D Model Waits for the 3D Tab
 

@@ -48,6 +48,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 12-Nov-2026 - Version 1.1.1 (v2.184.0)
+// - Leaving an elevation with no scene to fly to stops a flight in that has
+//   not landed (it carried on, pulled the camera back from the pose set here
+//   and landed on the drawing's light) and lights the 3D view its own way
+//   again (Na__SceneLighting__ApplyBase): an elevation keeps the app's
+//   default lighting, the 3D view the project's, now that a project can have
+//   its own. As in ValeVision 3D v2.98.0's controllers.
+//
 // 20-Sep-2026 - Version 1.1.0 (Elevation Depth Fog)
 // - The elevation on screen is the one whose depth fog is drawn. Registering
 //   the drawing view hands the fog layer two closures over the live record -
@@ -188,8 +196,10 @@
     // @delegate: ../21__System__PresentationMode/
     // ------------------------------------------------------------
     import {
-        Na__PresentationMode__Camera__AnimateToScene
+        Na__PresentationMode__Camera__AnimateToScene,
+        Na__PresentationMode__Camera__CancelCurrentTransition
     } from '../21__System__PresentationMode/Na__PresentationMode__Camera__SceneTransition.js';
+    import { Na__SceneLighting__ApplyBase } from '../06__Scene__LightingEffects/Na__Scene__PerSceneLighting__.js';   // <-- The 3D view's own lighting, back as an elevation leaves
     import {
         Na__PresentationMode__UI__AddSceneNavigationRouter
     } from '../21__System__PresentationMode/Na__PresentationMode__UI__SceneCarousel.js';
@@ -680,6 +690,8 @@
         };
 
         if (!targetScene) {
+            Na__PresentationMode__Camera__CancelCurrentTransition();             // <-- Left before the flight in had landed: it would carry on, steer the camera and land on the drawing's light
+            Na__SceneLighting__ApplyBase({ requestRender : false });             // <-- The elevation was lit by the app default; the 3D view is lit by the project's (finish asks for the frame)
             finish();
             return true;
         }

@@ -490,6 +490,27 @@
     cursor                              : pointer;
 }
 
+.na-dropdown-menu__action--secondary {
+    background                          : rgba(23, 43, 58, 0.12);
+    color                               : #172b3a;
+}
+
+.na-dropdown-menu__action--secondary:hover {
+    background                          : rgba(23, 43, 58, 0.2);
+    color                               : #ffffff;                          /* <-- White text on hover */
+}
+
+.na-dropdown-menu__action--secondary:active {
+    background                          : rgba(23, 43, 58, 0.28);         /* <-- Darker press state */
+    transform                           : scale(0.97);                    /* <-- Subtle press-in effect */
+}
+
+.na-dropdown-menu__action--secondary.is-loading {
+    opacity                             : 0.5;                            /* <-- Dimmed during loading */
+    pointer-events                      : none;                           /* <-- Prevent double-click */
+    cursor                              : not-allowed;                    /* <-- Indicate disabled state */
+}
+
 .na-dropdown-menu__action:hover {
     background                          : #1e3a4f;
 }
@@ -1299,3 +1320,128 @@
 
 /* endregion -------------------------------------------------------- */
 
+
+/* ----------------------------------------------------------------- */
+/* The shared confirm dialog, from ValeVision 3D with v2.184.0         */
+/* (Project Lighting). Na__AppUtils__ConfirmDialog had no markup or    */
+/* styles here before, so every confirm fell back to the browser box.  */
+/* Its Cancel wears the secondary action style, added beside the base  */
+/* action style above, where ValeVision 3D keeps it.                  */
+/* ----------------------------------------------------------------- */
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Confirm Dialog (Shared Destructive-Action Modal)       */
+/* ----------------------------------------------------------------- */
+
+/* Root container - hidden by default, full-screen overlay when open */
+/* ----------------------------------------------------------------- */
+.na-confirm-dialog {
+    position                           : fixed;
+    inset                              : 0;
+    display                            : none;
+    align-items                        : center;
+    justify-content                    : center;
+    z-index                            : 9999;
+    font-family                        : 'Open Sans', sans-serif;
+}
+
+.na-confirm-dialog.is-open {
+    display                            : flex;
+}
+
+
+/* Dim Backdrop */
+/* ----------------------------------------------------------------- */
+.na-confirm-dialog__backdrop {
+    position                           : absolute;
+    inset                              : 0;
+    background                         : rgba(23, 43, 58, 0.55);
+    backdrop-filter                    : blur(2px);
+    -webkit-backdrop-filter            : blur(2px);
+}
+
+
+/* Centred Dialog Panel */
+/* ----------------------------------------------------------------- */
+.na-confirm-dialog__panel {
+    position                           : relative;
+    min-width                          : 320px;
+    max-width                          : 420px;
+    padding                            : 22px 24px 18px;
+    background                         : #ffffff;
+    border-radius                      : 8px;
+    box-shadow                         : 0 12px 32px rgba(0, 0, 0, 0.35);
+    border                             : 1px solid rgba(23, 43, 58, 0.18);
+}
+
+
+/* Title and Message Typography */
+/* ----------------------------------------------------------------- */
+.na-confirm-dialog__title {
+    font-size                          : 1.05rem;
+    font-weight                        : 700;
+    color                              : #172b3a;
+    margin                             : 0 0 10px;
+}
+
+.na-confirm-dialog__message {
+    font-size                          : 0.9rem;
+    line-height                        : 1.45;
+    color                              : rgba(23, 43, 58, 0.85);
+    margin                             : 0 0 18px;
+    white-space                        : pre-line;
+}
+
+
+/* The Word to Type (Choose with typeToConfirm: a final action, e.g. delete) */
+/* ----------------------------------------------------------------- */
+.na-confirm-dialog__input {
+    display                            : block;
+    width                              : 100%;
+    margin                             : -6px 0 16px;
+    padding                            : 8px 10px;
+    border                             : 1px solid rgba(23, 43, 58, 0.3);
+    border-radius                      : 6px;
+    font-family                        : inherit;
+    font-size                          : 0.9rem;
+    color                              : #172b3a;
+    background                         : #ffffff;
+}
+
+.na-confirm-dialog__input:focus {
+    outline                            : 2px solid rgba(179, 56, 44, 0.35);   /* <-- The destructive red, faint */
+    outline-offset                     : 0;
+    border-color                       : #b3382c;
+}
+
+
+/* Action Row */
+/* ----------------------------------------------------------------- */
+.na-confirm-dialog__actions {
+    display                            : flex;
+    justify-content                    : flex-end;
+    gap                                : 8px;
+}
+
+.na-confirm-dialog__confirm:disabled,
+.na-confirm-dialog__confirm:disabled:hover {
+    opacity                            : 0.45;                               /* <-- Off until the word is typed */
+    cursor                             : not-allowed;
+}
+
+
+/* Confirm Button - Destructive Variant (warm red accent) */
+/* ----------------------------------------------------------------- */
+.na-confirm-dialog__confirm--destructive {
+    background                         : #b3382c;
+    color                              : #ffffff;
+    border-color                       : #8c2c22;
+}
+
+.na-confirm-dialog__confirm--destructive:hover {
+    background                         : #8c2c22;
+    color                              : #ffffff;
+}
+
+
+/* endregion -------------------------------------------------------- */

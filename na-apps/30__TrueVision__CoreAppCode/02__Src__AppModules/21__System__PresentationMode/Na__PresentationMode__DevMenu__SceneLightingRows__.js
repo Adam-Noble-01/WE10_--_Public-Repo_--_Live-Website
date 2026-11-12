@@ -55,6 +55,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 12-Nov-2026 - Version 1.0.1 (TrueVision3D v2.184.0)
+// - Words only, for a project with its own lighting (Project Lighting), as
+//   ValeVision3D v2.98.0's 1.0.1: a scene's default is then the project's
+//   lighting, which the status line and Use Default now say; a drawing keeps
+//   the app's default; Rotation's 0 is the app's default direction.
+//
 // 28-Sep-2026 - Version 1.0.0
 // - Ported from ValeVision3D v2.71.0, where it was written the same day.
 //
@@ -76,7 +82,8 @@
         Na__SceneLighting__Resolve,
         Na__SceneLighting__ResolveScene,
         Na__SceneLighting__BuildBlock,
-        Na__SceneLighting__Apply
+        Na__SceneLighting__Apply,
+        Na__SceneLighting__GetProjectValues
     } from '../06__Scene__LightingEffects/Na__Scene__PerSceneLighting__.js';
     // ------------------------------------------------------------
 
@@ -110,7 +117,7 @@
             inputStep : 1,
             decimals  : 0,
             suffix    : '°',
-            title     : 'Turns the sun round the model, clockwise seen from above. 0 is the default direction. '
+            title     : 'Turns the sun round the model, clockwise seen from above. 0 is the app\'s default direction. '
                       + 'Double-click the slider to return it to the default.'
         },
         {
@@ -155,9 +162,10 @@
     // MODULE CONSTANTS | Status Line Wording
     // ------------------------------------------------------------
     const Na__PmLight__STATUS__DEFAULT = 'Default lighting. Move a control to preview a change.';
+    const Na__PmLight__STATUS__PROJECT = 'The project\'s lighting (Project Lighting). Move a control to preview a change.';
     const Na__PmLight__STATUS__SAVED   = 'This scene has its own lighting, saved.';
     const Na__PmLight__STATUS__PENDING = 'Changes not saved yet. Save Lighting keeps them for this scene.';
-    const Na__PmLight__STATUS__DRAWING = 'A drawing is on screen, so the viewport keeps the default lighting. Return to a 3D view to preview.';
+    const Na__PmLight__STATUS__DRAWING = 'A drawing is on screen, so the viewport keeps the app\'s default lighting. Return to a 3D view to preview.';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -354,7 +362,8 @@
         defaultBtn.type        = 'button';
         defaultBtn.className   = 'na-pm-dev__btn';
         defaultBtn.textContent = 'Use Default';
-        defaultBtn.title       = 'Put every lighting control back to the default. Save Lighting keeps the change.';
+        defaultBtn.title       = 'Put every lighting control back to the default: the project\'s lighting when it has its own, '
+                               + 'else the app\'s. Save Lighting keeps the change.';
 
         const saveBtn = document.createElement('button');
         saveBtn.type        = 'button';
@@ -374,8 +383,10 @@
                 status.textContent = Na__PmLight__STATUS__DRAWING;
             } else if (isPending) {
                 status.textContent = Na__PmLight__STATUS__PENDING;
+            } else if (isDefault) {
+                status.textContent = Na__SceneLighting__GetProjectValues() ? Na__PmLight__STATUS__PROJECT : Na__PmLight__STATUS__DEFAULT;
             } else {
-                status.textContent = isDefault ? Na__PmLight__STATUS__DEFAULT : Na__PmLight__STATUS__SAVED;
+                status.textContent = Na__PmLight__STATUS__SAVED;
             }
             status.classList.toggle('is-pending', isPending);
 

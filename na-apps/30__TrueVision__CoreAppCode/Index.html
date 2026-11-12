@@ -569,6 +569,20 @@
                         <button class="na-pm-dev__btn na-pm-dev__btn--primary" id="naNavModesDevSave">Save Navigation Modes</button>
                     </div>
                 </li>
+                <!-- -------------------------------------------------------- -->
+                <!-- PROJECT LIGHTING (localhost only): this project's sun and fill, saved to R2 after a confirm -->
+                <!-- @delegate: ./02__Src__AppModules/06__Scene__LightingEffects/Na__Scene__ProjectLighting__DevMenu__.js -->
+                <!-- -------------------------------------------------------- -->
+                <li class="na-dropdown-menu__item na-dropdown-menu__item--localhost-only" id="naProjectLightingDevItem" style="display:none;">
+                    <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naProjectLightingDevToggle" aria-expanded="false">
+                        Project Lighting
+                        <span class="na-dropdown-menu__subarrow">&#9662;</span>
+                    </button>
+                    <div class="na-dropdown-menu__panel na-pm-dev__panel" id="naProjectLightingDevPanel">
+                        <!-- Controls generated dynamically by Na__Scene__ProjectLighting__DevMenu__.js -->
+                    </div>
+                </li>
+                <!-- -------------------------------------------------------- -->
                 <li class="na-dropdown-menu__item na-dropdown-menu__item--localhost-only" id="naPmDevEditorItem" style="display:none;">
                     <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naPmDevEditorToggle" aria-expanded="false">
                         Presentation Scenes
@@ -797,6 +811,21 @@
     <!-- Toast Notification (success / error feedback) -->
     <div class="na-toast" id="naToastNotification"></div>
 
+    <!-- Shared Confirm Dialog (gates destructive / persistent dev actions) -->
+    <!-- @delegate: ./02__Src__AppModules/03__AppUtils/Na__AppUtils__ConfirmDialog.js -->
+    <!-- From ValeVision 3D with v2.184.0: until then the module had no markup here and every confirm fell back to the browser's own box -->
+    <div class="na-confirm-dialog" id="naConfirmDialog" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="na-confirm-dialog__backdrop" id="naConfirmDialogBackdrop"></div>
+        <div class="na-confirm-dialog__panel" role="document">
+            <div class="na-confirm-dialog__title" id="naConfirmDialogTitle">Confirm</div>
+            <div class="na-confirm-dialog__message" id="naConfirmDialogMessage"></div>
+            <div class="na-confirm-dialog__actions">
+                <button class="na-dropdown-menu__action na-dropdown-menu__action--secondary" id="naConfirmDialogCancel" type="button">Cancel</button>
+                <button class="na-dropdown-menu__action na-confirm-dialog__confirm" id="naConfirmDialogConfirm" type="button">Confirm</button>
+            </div>
+        </div>
+    </div>
+
     <!-- endregion -------------------------------------------------------- -->
 
 
@@ -875,6 +904,7 @@
     import { Na__CameraStartState__ResetView } from './02__Src__AppModules/10__NavigationAndCameras/Na__Camera__ProjectStartState.js';
     import { Na__UiFeature__InitializeNavigationHelpPanel, Na__UiFeature__OpenNavigationHelpPanel } from './02__Src__AppModules/10__NavigationAndCameras/Na__UiFeature__NavigationHelpPanel__Controls.js';
     import { Na__UiFeature__InitializeNavigationModesDevControls } from './02__Src__AppModules/70__System__DevTools/Na__UiFeature__NavigationModes__DevControls.js';
+    import { Na__ProjLightDev__Initialize } from './02__Src__AppModules/06__Scene__LightingEffects/Na__Scene__ProjectLighting__DevMenu__.js';
     import { Na__UiFeature__InitializeOrbitMaxDistanceDevControls } from './02__Src__AppModules/11__CameraUtils/Na__UiFeature__OrbitMaxDistance__DevControls.js';
     import { Na__UiFeature__InitializeAssetCullDistanceDevControls } from './02__Src__AppModules/70__System__DevTools/Na__UiFeature__AssetCullDistance__DevControls.js';
     import { Na__UiFeature__InitializeViewModeFovDevControls } from './02__Src__AppModules/11__CameraUtils/Na__UiFeature__ViewModeFov__DevControls.js';
@@ -953,6 +983,7 @@
     const Na__Config__CameraConfig = Na__AppConfig__Data.Scene__Default__CameraConfig;      // <-- Camera settings
     const Na__Config__LightingConfig = Na__AppConfig__Data.Scene__Default__LightingConfig;  // <-- Lighting settings
     const Na__Config__PerSceneLighting = Na__AppConfig__Data.Scene__PerSceneLighting || null; // <-- Per-scene lighting overrides (switch, flight blend, slider ranges)
+    const Na__Config__ProjectLighting = Na__AppConfig__Data.Scene__ProjectLighting || null;   // <-- A project's own lighting (switch); its sliders use the per-scene ranges
     const Na__Config__SceneEnvironment = Na__AppConfig__Data.Scene__Environment || null;     // <-- HDR environment settings
     const Na__Config__FogConfig = Na__AppConfig__Data.Scene__Default__FogConfig;            // <-- Fog settings
     const Na__Config__ControlsConfig = Na__AppConfig__Data.Scene__Default__ControlsConfig;  // <-- Controls settings
@@ -1598,7 +1629,8 @@
             ambientOcclusion            : Na__Config__AmbientOcclusion,
             progressiveRefine           : Na__Config__ProgressiveRefine,
             distanceCulling             : Na__Config__DistanceCulling,
-            perSceneLighting            : Na__Config__PerSceneLighting
+            perSceneLighting            : Na__Config__PerSceneLighting,
+            projectLighting             : Na__Config__ProjectLighting
         }
     });
     // CONTEXT MENU SYSTEM | Custom right-click menu (Orbit mode, desktop mouse)
@@ -1793,6 +1825,13 @@
             Na__UiFeature__RevealNavigationToolbarModes(walkEnabled, flyEnabled); // <-- Live toolbar button refresh
         }
     });
+
+    // DEV MENU | Project Lighting (localhost-only, save to R2 after a confirm)
+    // ------------------------------------------------------------
+    // @delegate: ./02__Src__AppModules/06__Scene__LightingEffects/Na__Scene__ProjectLighting__DevMenu__.js
+    // The module guards itself. The project's lighting itself is read by the
+    // loading sequence for everyone, clients included.
+    Na__ProjLightDev__Initialize({ showToast : Na__UiFeature__ShowToast });
 
     // @delegate: ./02__Src__AppModules/11__CameraUtils/Na__UiFeature__OrbitMaxDistance__DevControls.js
     const Na__OrbitMaxTouchMultiplier = (Number.isFinite(Na__Navmode__ConfigIpad.Navmode__IpadControls__OrbitMaxDistanceMultiplier)

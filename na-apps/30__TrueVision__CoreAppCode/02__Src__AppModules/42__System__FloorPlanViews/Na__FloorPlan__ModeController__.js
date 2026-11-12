@@ -43,6 +43,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 12-Nov-2026 - Version 1.1.1 (v2.184.0)
+// - Leaving a plan with no scene to fly to stops a flight in that has not
+//   landed (it carried on, pulled the camera back from the pose set here and
+//   landed on the drawing's light) and lights the 3D view its own way again
+//   (Na__SceneLighting__ApplyBase): a plan keeps the app's default lighting,
+//   the 3D view the project's, now that a project can have its own. As in
+//   ValeVision 3D v2.98.0's controllers.
+//
 // 07-Sep-2026 - Version 1.1.0
 // - Plan mode now registers itself with the drawing view broker rather than
 //   being the only 2D drawing the markup layers know about, and drives the
@@ -172,8 +180,10 @@
     // @delegate: ../21__System__PresentationMode/Na__PresentationMode__Camera__SceneTransition.js
     // ------------------------------------------------------------
     import {
-        Na__PresentationMode__Camera__AnimateToScene
+        Na__PresentationMode__Camera__AnimateToScene,
+        Na__PresentationMode__Camera__CancelCurrentTransition
     } from '../21__System__PresentationMode/Na__PresentationMode__Camera__SceneTransition.js';
+    import { Na__SceneLighting__ApplyBase } from '../06__Scene__LightingEffects/Na__Scene__PerSceneLighting__.js';   // <-- The 3D view's own lighting, back as a plan leaves
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Carousel Scene Navigation Override
@@ -617,6 +627,8 @@
         };
 
         if (!targetScene) {
+            Na__PresentationMode__Camera__CancelCurrentTransition();             // <-- Left before the flight in had landed: it would carry on, steer the camera and land on the drawing's light
+            Na__SceneLighting__ApplyBase({ requestRender : false });             // <-- The plan was lit by the app default; the 3D view is lit by the project's (finish asks for the frame)
             finish();
             return true;
         }

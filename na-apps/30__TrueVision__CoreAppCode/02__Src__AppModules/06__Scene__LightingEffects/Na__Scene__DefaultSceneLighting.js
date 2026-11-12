@@ -20,10 +20,11 @@
     // Builds the ambient fill and the sun, then hands both to the per-scene
     // lighting module, which places the sun from Scene__Default__LightingConfig
     // (its position moved there on 28-Sep-2026, same values) and from then on
-    // sets both lights whenever a scene asks for its own lighting.
-    // perSceneLightingConfig is the app config's Scene__PerSceneLighting block.
+    // sets both lights whenever a project or a scene asks for its own lighting.
+    // perSceneLightingConfig is the app config's Scene__PerSceneLighting block,
+    // projectLightingConfig its Scene__ProjectLighting block (v2.184.0).
     // ------------------------------------------------------------
-    function Na__Scene__SetupDefaultSceneLighting(scene, lightingConfig, groundPlaneConfig, perSceneLightingConfig) {
+    function Na__Scene__SetupDefaultSceneLighting(scene, lightingConfig, groundPlaneConfig, perSceneLightingConfig, projectLightingConfig) {
         if (!scene) return; // <-- Guard against invalid scene reference
 
         const ambientIntensity = (lightingConfig && Number.isFinite(lightingConfig.Scene__Default__LightingConfig__AmbientIntensity))
@@ -50,7 +51,8 @@
             ambientLight     : Na__Light__Ambient,
             directionalLight : Na__Light__Directional,
             lightingConfig   : lightingConfig,                                // <-- Default strengths, shadows and sun position
-            perSceneConfig   : perSceneLightingConfig || null                 // <-- Switch, flight blending and slider ranges
+            perSceneConfig   : perSceneLightingConfig || null,                // <-- Switch, flight blending and slider ranges
+            projectConfig    : projectLightingConfig || null                  // <-- Switch for a project's own lighting
         });
 
         // Only create ground plane when explicitly enabled via AppConfig

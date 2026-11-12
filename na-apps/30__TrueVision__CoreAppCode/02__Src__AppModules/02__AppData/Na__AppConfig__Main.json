@@ -15,7 +15,7 @@
         "Scene__Default__CameraConfig__Far": 1000
     },
     "Scene__Default__LightingConfig": {
-        "Scene__Default__LightingConfig__Description"          : "The lighting every scene uses unless it carries its own override (see Scene__PerSceneLighting). Intensities are three.js light intensities. The sun is the directional light, the only light that casts shadows: it sits at DirectionalPos, integer millimetres from the model origin, and shines towards the origin, so only its direction shades the faces while its distance keeps the shadow camera clear of the model. A scene's Rotation turns it about the vertical axis from this position and its Height sets its angle above the horizon. ShadowsEnabled false fades the sun's shadows out rather than switching shadow casting off, so no material has to recompile.",
+        "Scene__Default__LightingConfig__Description"          : "The app's default lighting: what a project's 3D view uses unless the project has its own (see Scene__ProjectLighting), what a scene uses unless it or its project carries an override (see Scene__PerSceneLighting), and what every plan, elevation and sheet picture always uses. Intensities are three.js light intensities. The sun is the directional light, the only light that casts shadows: it sits at DirectionalPos, integer millimetres from the model origin, and shines towards the origin, so only its direction shades the faces while its distance keeps the shadow camera clear of the model. A scene's Rotation turns it about the vertical axis from this position and its Height sets its angle above the horizon. ShadowsEnabled false fades the sun's shadows out rather than switching shadow casting off, so no material has to recompile.",
         "Scene__Default__LightingConfig__AmbientIntensity"     : 3.3,
         "Scene__Default__LightingConfig__DirectionalIntensity" : 0.7,
         "Scene__Default__LightingConfig__DirectionalPosXMm"    : 50000,
@@ -24,13 +24,17 @@
         "Scene__Default__LightingConfig__ShadowsEnabled"       : true
     },
     "Scene__PerSceneLighting": {
-        "Scene__PerSceneLighting__Description"             : "Per-scene lighting, authored in the Dev menu (Presentation Mode Scenes, a scene's Advanced section, Lighting). A scene stores only the settings that differ from Scene__Default__LightingConfig, under PresentationMode__Scene__Lighting in the project data, so every setting it leaves alone keeps following the default. Rotation is in degrees clockwise seen from above, 0 being the default direction; Height is the sun's angle above the horizon. Plans and elevations always use the default lighting. BlendDuringFlight eases one scene's lighting into the next over the camera flight; false cuts to it as the flight starts. The Min and Max values bound the Dev menu sliders. Enabled false ignores every stored override and hides the controls, without deleting anything.",
+        "Scene__PerSceneLighting__Description"             : "Per-scene lighting, authored in the Dev menu (Presentation Mode Scenes, a scene's Advanced section, Lighting). A scene stores only the settings that differ from the lighting the rest of its 3D view uses (its project's own, see Scene__ProjectLighting, else Scene__Default__LightingConfig), under PresentationMode__Scene__Lighting in the project data, so every setting it leaves alone keeps following that. Rotation is in degrees clockwise seen from above, 0 being the app's default direction; Height is the sun's angle above the horizon. Plans and elevations always use the app's default lighting. BlendDuringFlight eases one scene's lighting into the next over the camera flight; false cuts to it as the flight starts. The Min and Max values bound the Dev menu sliders, a scene's and Project Lighting's. Enabled false ignores every stored override and hides the controls, without deleting anything.",
         "Scene__PerSceneLighting__Enabled"                 : true,
         "Scene__PerSceneLighting__BlendDuringFlight"       : true,
         "Scene__PerSceneLighting__HeightMinDeg"            : 10,
         "Scene__PerSceneLighting__HeightMaxDeg"            : 90,
         "Scene__PerSceneLighting__DirectionalIntensityMax" : 3.0,
         "Scene__PerSceneLighting__AmbientIntensityMax"     : 6.0
+    },
+    "Scene__ProjectLighting": {
+        "Scene__ProjectLighting__Description" : "A project's own lighting for its 3D view (v2.184.0, ported from ValeVision 3D v2.98.0), authored in the localhost Dev menu (Project Lighting, after Navigation Modes) and saved after a confirm as SceneLighting__ProjectOverrides in TrueVision__ProjectData__.json on R2: a section per light, holding only the settings that differ from Scene__Default__LightingConfig, so anything it leaves alone keeps following the default. It lights the 3D view, every scene without lighting of its own and every 3D picture of one, clients included; a scene's own lighting is laid over it. Plans, elevations and sheet pictures keep the app's default lighting (Adam, 12-Nov-2026: '3D view only'). Its sliders use the Scene__PerSceneLighting ranges. Enabled false ignores every saved project lighting and hides the section, without deleting anything.",
+        "Scene__ProjectLighting__Enabled"     : true
     },
     "Scene__Environment": {
         "Scene__Environment__Description"          : "HDR environment map settings. Mirror-only mode keeps the rest of the model neutral while applying reflections to the targeted mirror material.",
