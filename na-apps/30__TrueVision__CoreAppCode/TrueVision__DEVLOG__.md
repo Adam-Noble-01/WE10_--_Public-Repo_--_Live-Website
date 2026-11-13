@@ -2,6 +2,57 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.184.1  -  13-Nov-2026
+### The 3D View Fits Between the Top Bar and the Bottom of the Window
+
+**What Adam asked for**
+- In ValeVision 3D, comparing Kann's SketchUp scene pictures with the app: "Yes I noticed the same the top and the bottom
+  seem truncated so fix that ... so just make the updates required to keep the canvas in the correct height bounds i.e.
+  base of window and underside of top bar". Shown the strip the app drew below the window: "wow yes lots was covered up! i
+  didnt realise", and "yes make this update to both ValeVision and TrueVision After".
+
+**What was wrong**
+- `Index.html` sized the renderer to the whole window, `setSize(innerWidth, innerHeight)`, which also writes that size
+  onto the canvas as an inline style, over the stylesheet's `calc(100vh - var(--Vale_HeaderHeight))`. The canvas starts
+  under the top bar, so it ran the bar's height (60 px, 48 px on a narrow window) off the bottom of the window: every view
+  sat that much low and its bottom edge was never seen. The camera's aspect was the window's, not the view's.
+
+**Now**
+- The 3D view runs from the underside of the top bar to the bottom of the window, and the camera is centred in it.
+- `01__AppCore/Na__AppCore__ViewportSize__.js` 1.0.0 (new, the same file as ValeVision 3D's): `Na__ViewportSize__Get`
+  reads the canvas's box as the stylesheet places it; `Na__ViewportSize__Watch` follows it with a ResizeObserver, so a
+  window resize or a header height change reaches the renderer, and announces each change as `na-viewport-size-changed`.
+- The renderer is sized with `setSize(w, h, false)`, never an inline size, so the stylesheet keeps the box.
+- The loading sequence's resize handler (1.5.2) takes the view's size from the watcher. The watcher runs it once as it is
+  attached, which replaces the model gate's own catch-up call.
+- The composer's targets, profile lines, FXAA, ambient occlusion, the drawing view's profile lines and the section cut
+  outlines start at the view's size, not the window's. `Na__RenderEffect__ProfileLines__.js` keeps its window fallback:
+  every caller passes a size.
+- `Na__CoreUi__Styles__RenderCanvas__.css`: a `100dvh` line after the `100vh` one, so a phone's toolbar showing or hiding
+  is the visible height.
+
+**Files**
+- New: `02__Src__AppModules/01__AppCore/Na__AppCore__ViewportSize__.js` 1.0.0.
+- Changed: `Index.html`, `Na__AppFlow__LoadingSequence.js` 1.5.2, `Na__RenderPipeline__PostProcessing__Setup.js`,
+  `Na__RenderEffect__AmbientOcclusion__.js`, `Na__DrawView__ProfileLines__.js`, `Na__SectionCut__CapMeshes__.js`,
+  `Na__CoreUi__Styles__RenderCanvas__.css`.
+- Service worker token: not bumped. No module a warm cache holds imports anything new (the one new file is fetched fresh),
+  so a mix of old and new modules still loads; the fix arrives with the shell's normal refresh.
+
+**Tested**
+- ESLint no-undef on every changed module and on `Index.html`'s inline module script: clean. `Na__Verify__Exports__`:
+  PASS (564 files). `Na__Verify__ModuleGraph__`: nothing new failing (the Presentation Scenes editor string, already
+  listed).
+- The app served from NaWeb on localhost (static, no project), headless Edge at 1500 x 1000: the canvas from 60 px to the
+  bottom of the window (bottom gap 0), drawing buffer 1500 x 940, no inline size. `--Vale_HeaderHeight` set to 120 px at
+  run time: the canvas 880 tall and the buffer with it, two `na-viewport-size-changed` events, then back to 940.
+- In ValeVision 3D, the same change measured against Kann's eight SketchUp pictures: 60 px low before, 0 after.
+
+**Not tested**
+- A project with a model on localhost (none loads from a plain file server), the drawing view and section cuts on screen,
+  a phone, and the Layout Editor's tab strip over the 3D view.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.184.0  -  12-Nov-2026
 ### Project Lighting: a Project Can Turn Its Own Sun, So Its 3D View Shades the Faces Its Own Way
 

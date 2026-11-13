@@ -85,6 +85,7 @@
 
     // MODULE IMPORTS | Three.js, Post Processing, Unit Conversion, Shader Source
     // ------------------------------------------------------------
+    import { Na__ViewportSize__Get } from '../01__AppCore/Na__AppCore__ViewportSize__.js';
     import * as THREE from 'three';
     import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
     import { Na__Math__ConvertMmToUnits } from '../04__MathUtils/Na__Math__Units.js';
@@ -273,7 +274,8 @@
         aoPass.uniforms['uCameraNear'].value              = camera.near;
         aoPass.uniforms['uInverseProjectionMatrix'].value.copy(camera.projectionMatrixInverse);
         aoPass.uniforms['uProjectionMatrix'].value.copy(camera.projectionMatrix);
-        aoPass.uniforms['uResolution'].value.set(window.innerWidth, window.innerHeight);
+        const viewSize = Na__ViewportSize__Get();                            // <-- The 3D view's box (under the top bar), not the window
+        aoPass.uniforms['uResolution'].value.set(viewSize.width, viewSize.height);
         aoPass.uniforms['uKernel'].value                  = kernel;
         aoPass.uniforms['uAoEnabled'].value               = 1.0;
         aoPass.uniforms['uAoCullDistance'].value           = cullDistanceUnits;
@@ -287,7 +289,7 @@
         blurPass.material.depthTest  = false;
 
         blurPass.uniforms['uBlurRadius'].value  = blurRadius;
-        blurPass.uniforms['uResolution'].value.set(window.innerWidth, window.innerHeight);
+        blurPass.uniforms['uResolution'].value.set(viewSize.width, viewSize.height);
 
         // ----- Per-frame camera sync -----
         function updateUniforms(cam) {

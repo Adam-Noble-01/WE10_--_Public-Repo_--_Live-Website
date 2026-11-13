@@ -31,6 +31,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Nov-2026 - Version 1.1.1 (v2.184.1)
+// - Cap outlines start at the 3D view's own size (Na__ViewportSize__Get), which
+//   now stops under the top bar, not the window's.
+//
 // 20-Sep-2026 - Version 1.1.0 (Elevation Depth Fog)
 // - RenderDepthInto: the overlay scene drawn into a bound depth buffer with
 //   nothing cleared, beside RenderOverlay, which clears depth first because it
@@ -49,6 +53,7 @@
 
     // MODULE IMPORTS | Three.js Core and Fat Lines
     // ------------------------------------------------------------
+    import { Na__ViewportSize__Get } from '../01__AppCore/Na__AppCore__ViewportSize__.js';
     import * as THREE from 'three';
     import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
     import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js';
@@ -149,7 +154,8 @@
             linewidth  : appearance.lineWidthPx,
             worldUnits : false
         });
-        outlineMaterial.resolution.set(window.innerWidth, window.innerHeight);
+        const viewSize = Na__ViewportSize__Get();                            // <-- The 3D view's box (under the top bar), not the window
+        outlineMaterial.resolution.set(viewSize.width, viewSize.height);
         const outlineMesh = new LineSegments2(new LineSegmentsGeometry(), outlineMaterial);
         outlineMesh.name = 'Na__SectionCut__CapOutline__' + id;
         outlineMesh.userData.naSectionCutHelper = true;

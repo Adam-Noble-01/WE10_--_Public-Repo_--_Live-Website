@@ -31,6 +31,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Nov-2026 - Version 1.5.2 (v2.184.1)
+// - The resize handler follows the 3D view's own box (Na__ViewportSize__Watch), not the window, and sizes
+//   the renderer without an inline style: the canvas runs from the underside of the top bar to the bottom
+//   of the window, where it used to run the bar's height off the bottom. It runs once as it is attached,
+//   which replaces the model gate's own catch-up call.
+//
 // 12-Nov-2026 - Version 1.5.1 (v2.184.0)
 // - PROJECT LIGHTING, ported from ValeVision 3D v2.98.0. The project's own
 //   lighting (SceneLighting__ProjectOverrides) is read as soon as the save
@@ -113,6 +119,7 @@
 
     // MODULE IMPORTS | Three.js GLTF Loader
     // ------------------------------------------------------------
+    import { Na__ViewportSize__Watch } from './Na__AppCore__ViewportSize__.js';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     // ------------------------------------------------------------
 
@@ -1620,13 +1627,12 @@
         // gate may have turned the phone, or watched the tab strip appear,
         // with nothing listening: the handler is run once for them below.
         // ---------------------------------------------------------------
-        const Na__AppFlow__OnResize = () => {
-            const width  = window.innerWidth;
-            const height = window.innerHeight;
-
+        // The 3D view's own box, not the window: it starts under the top bar.
+        // @delegate: ./Na__AppCore__ViewportSize__.js
+        const Na__AppFlow__OnResize = (width, height) => {
             Na__Camera__Main.aspect = width / height;
             Na__Camera__Main.updateProjectionMatrix();
-            Na__Renderer__Main.setSize(width, height);
+            Na__Renderer__Main.setSize(width, height, false);                // <-- false: an inline style would pin the box off the stylesheet
             if (Na__RenderComposer__Main && Na__RenderPipeline__State) {
                 Na__RenderComposer__Main.setSize(width, height);
                 Na__RenderPipeline__State.setDepthPrePassSize(width, height); // <-- Resize depth pre-pass RT
@@ -1644,8 +1650,7 @@
             Na__ElevationMode__HandleResize(width, height);
             Na__RenderLoop__RequestRenderOnce();
         };
-        window.addEventListener('resize', Na__AppFlow__OnResize);
-        if (Na__ModelGate__Result.Waited) Na__AppFlow__OnResize();          // <-- The window as it is now, not as it was when the page opened
+        Na__ViewportSize__Watch(Na__AppFlow__OnResize);                      // <-- Runs once now (the gate may have waited: the view as it is now, not as it was when the page opened), then on every change of the box
     }
     // ------------------------------------------------------------
 

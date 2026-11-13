@@ -77,6 +77,10 @@
 // - Initial implementation. Rounded geometry was disappearing from plans and
 //   elevations because the 2D render path carried no edge pass of any kind.
 //
+// 13-Nov-2026 - Version 1.0.1 (v2.184.1)
+// - Its own buffers and its first sizing take the 3D view's own box
+//   (Na__ViewportSize__Get), which now stops under the top bar, not the window.
+//
 // =============================================================================
 
 
@@ -86,6 +90,7 @@
 
     // MODULE IMPORTS | Three.js Core
     // ------------------------------------------------------------
+    import { Na__ViewportSize__Get } from '../01__AppCore/Na__AppCore__ViewportSize__.js';
     import * as THREE from 'three';
     // ------------------------------------------------------------
 
@@ -464,9 +469,10 @@
             Na__DrawProfile__OwnsTargets  = false;
         } else {
             const pixelRatio = renderer.getPixelRatio();
+            const viewSize   = Na__ViewportSize__Get();                      // <-- The 3D view's box (under the top bar), not the window
             Na__DrawProfile__AllocateTargets(
-                Math.max(1, Math.round(window.innerWidth  * pixelRatio)),
-                Math.max(1, Math.round(window.innerHeight * pixelRatio))
+                Math.max(1, Math.round(viewSize.width  * pixelRatio)),
+                Math.max(1, Math.round(viewSize.height * pixelRatio))
             );
         }
 
@@ -481,7 +487,8 @@
         });
 
         Na__DrawProfile__BuildQuad(edgeColor, edgeThreshold);
-        Na__DrawProfile__HandleResize(window.innerWidth, window.innerHeight);
+        const firstSize = Na__ViewportSize__Get();
+        Na__DrawProfile__HandleResize(firstSize.width, firstSize.height);
 
         Na__DrawProfile__Ready      = true;
         Na__DrawProfile__CacheDirty = true;

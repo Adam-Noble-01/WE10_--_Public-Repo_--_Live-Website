@@ -893,6 +893,7 @@
     import { Na__FlyMode__IsActive } from './02__Src__AppModules/10__NavigationAndCameras/Na__Navmode__FlyMode__SystemLogic.js';
     import { Na__WalkMode__IsActive } from './02__Src__AppModules/10__NavigationAndCameras/Na__Navmode__WalkMode__SystemLogic.js';
     import { Na__AppFlow__StartLoadingSequence } from './02__Src__AppModules/01__AppCore/Na__AppFlow__LoadingSequence.js';
+    import { Na__ViewportSize__Get } from './02__Src__AppModules/01__AppCore/Na__AppCore__ViewportSize__.js';
     import { Na__UiFeature__InitializeUserInstructionsMenuItem } from './02__Src__AppModules/75__System__UserInstructionsSystem/Na__UiFeature__UserInstructions__MenuItem.js';
     import { Na__UserInstructions__Initialize, Na__UserInstructions__Open } from './02__Src__AppModules/75__System__UserInstructionsSystem/Na__UserInstructions__SystemLogic.js';
     import { Na__UiFeature__FullscreenMode__Initialize, Na__UiFeature__FullscreenMode__Enter } from './02__Src__AppModules/76__System__FullscreenMode/Na__UiFeature__FullscreenMode__SystemLogic.js';
@@ -1099,9 +1100,13 @@
     const Na__Scene__Main = new THREE.Scene();
     // @delegate: ./02__Src__AppModules/07__Scene__EnvironmentEffects/Na__Scene__DefaultFogEffect.js
     
+    // THE 3D VIEW'S BOX | Under the top bar to the bottom of the window, as the stylesheet places the canvas
+    // @delegate: ./02__Src__AppModules/01__AppCore/Na__AppCore__ViewportSize__.js
+    const Na__ViewportSize__Boot = Na__ViewportSize__Get();
+
     const Na__Camera__Main = new THREE.PerspectiveCamera(
         Na__Config__CameraConfig.Scene__Default__CameraConfig__Fov,
-        window.innerWidth / window.innerHeight,
+        Na__ViewportSize__Boot.width / Na__ViewportSize__Boot.height,       // <-- The view's own shape, not the window's
         Na__Config__CameraConfig.Scene__Default__CameraConfig__Near,
         Na__Config__CameraConfig.Scene__Default__CameraConfig__Far
     );
@@ -1128,7 +1133,7 @@
         depth: true,
         logarithmicDepthBuffer: true
     });
-    Na__Renderer__Main.setSize(window.innerWidth, window.innerHeight);
+    Na__Renderer__Main.setSize(Na__ViewportSize__Boot.width, Na__ViewportSize__Boot.height, false);  // <-- false: the stylesheet owns the canvas's box (an inline height once ran it off the bottom)
     Na__Renderer__Main.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     Na__Renderer__Main.shadowMap.enabled = true;
     Na__Renderer__Main.shadowMap.type = THREE.PCFShadowMap;    // <-- r184 deprecates PCFSoftShadowMap and already drew PCFShadowMap in its place
@@ -1136,7 +1141,7 @@
     Na__Renderer__Main.toneMapping = THREE.NoToneMapping;
     Na__Renderer__Main.toneMappingExposure = 1.0;
     
-    const Na__LineResolution__Screen = new THREE.Vector2(window.innerWidth, window.innerHeight);
+    const Na__LineResolution__Screen = new THREE.Vector2(Na__ViewportSize__Boot.width, Na__ViewportSize__Boot.height);
     const Na__AppFlow__PipelineRef   = { current: null };                  // <-- Mutable ref; AppFlow writes pipeline state here
     const Na__Navmode__InitializeControls = Na__Device__UseTouchControls
         ? Na__DefaultNavmode__InitializeIpadControls

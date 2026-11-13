@@ -48,6 +48,7 @@
 
     // MODULE IMPORTS | Three.js Post Processing
     // ------------------------------------------------------------
+    import { Na__ViewportSize__Get } from '../01__AppCore/Na__AppCore__ViewportSize__.js';
     import * as THREE from 'three';
     import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
     import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
@@ -102,8 +103,9 @@
     // ------------------------------------------------------------
     function Na__RenderPipeline__SetupComposer(renderer, scene, camera, profileLinesConfig, fogPass, aoConfig, orbitTarget) {
         const pixelRatio = renderer.getPixelRatio();
-        const width      = window.innerWidth * pixelRatio;
-        const height     = window.innerHeight * pixelRatio;
+        const viewSize   = Na__ViewportSize__Get();                          // <-- The 3D view's box (under the top bar), not the window
+        const width      = viewSize.width * pixelRatio;
+        const height     = viewSize.height * pixelRatio;
 
         // AO-EXCLUDED LAYER SETUP
         // Materials with AoExclude: true in the library are moved to Three.js layer 1
@@ -151,7 +153,7 @@
         const profileLinesEnabled = profileLinesConfig
             && profileLinesConfig.RenderEffect__ProfileLines__Enabled === true;
         if (profileLinesEnabled) {
-            const profileLines = Na__RenderEffect__ProfileLines__Create(renderer, scene, camera, profileLinesConfig, window.innerWidth, window.innerHeight, orbitTarget);
+            const profileLines = Na__RenderEffect__ProfileLines__Create(renderer, scene, camera, profileLinesConfig, viewSize.width, viewSize.height, orbitTarget);
             profileLines.pass.material.depthWrite = false;
             profileLines.pass.material.depthTest  = false;
             composer.addPass(profileLines.pass);
@@ -255,8 +257,8 @@
         const fxaaPass = new ShaderPass(FXAAShader);
         fxaaPass.material.depthWrite = false;
         fxaaPass.material.depthTest  = false;
-        fxaaPass.material.uniforms['resolution'].value.x = 1 / (window.innerWidth * pixelRatio);
-        fxaaPass.material.uniforms['resolution'].value.y = 1 / (window.innerHeight * pixelRatio);
+        fxaaPass.material.uniforms['resolution'].value.x = 1 / (viewSize.width * pixelRatio);
+        fxaaPass.material.uniforms['resolution'].value.y = 1 / (viewSize.height * pixelRatio);
         composer.addPass(fxaaPass);
 
         function setFxaaSize(w, h) {
