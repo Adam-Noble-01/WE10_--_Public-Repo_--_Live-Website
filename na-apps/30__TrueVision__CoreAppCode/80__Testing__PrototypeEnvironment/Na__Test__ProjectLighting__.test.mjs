@@ -45,6 +45,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Nov-2026 - Version 1.0.1 (TrueVision3D v2.184.2)
+// - The app default's shadows are off: the picture key names a project's
+//   shadows only when they differ from the default, and Sun casts shadows set
+//   against the default is proved to be written as the flag alone.
+//
 // 12-Nov-2026 - Version 1.0.0
 // - Initial implementation, with Project Lighting (v2.184.0).
 //
@@ -205,8 +210,9 @@ import { tmpdir } from 'node:os';
         backToZero && backToZero.Scene__Lighting__RotationDeg === 0, backToZero);
     check('Use Default in a scene\'s fold means the project\'s lighting',
         JSON.stringify(lighting.Na__SceneLighting__GetDefaults()) === JSON.stringify(base));
+    const shadowsPart = (app.shadowIntensity >= 0.5) ? ',shadowsEnabled=false' : '';   // <-- Off is only a difference while the app default has shadows on (off since v2.184.2)
     check('a 3D picture of an unlit scene is keyed by the project\'s lighting',
-        lighting.Na__SceneLighting__SceneToken({}) === 'light:project:rotationDeg=135,heightDeg=40,ambientIntensity=2.5,shadowsEnabled=false',
+        lighting.Na__SceneLighting__SceneToken({}) === 'light:project:rotationDeg=135,heightDeg=40,ambientIntensity=2.5' + shadowsPart,
         lighting.Na__SceneLighting__SceneToken({}));
 
     lighting.Na__SceneLighting__ApplyDefaults({ requestRender : false });
@@ -223,6 +229,10 @@ import { tmpdir } from 'node:os';
         JSON.stringify(Object.keys(built)) === JSON.stringify(['SceneLighting__ProjectOverrides__Description', 'SceneLighting__ProjectOverrides__SchemaVersion', 'SceneLighting__ProjectOverrides__Sun'])
         && JSON.stringify(built.SceneLighting__ProjectOverrides__Sun) === JSON.stringify({ SceneLighting__Sun__RotationDeg : 90 }), built);
     check('the app default builds no object at all', project.Na__ProjLight__BuildBlock(app) === null);
+    const flippedShadows = project.Na__ProjLight__BuildBlock({ ...app, shadowIntensity : app.shadowIntensity >= 0.5 ? 0 : 1 });
+    check('Sun casts shadows set against the app default is written as the flag alone',
+        !!flippedShadows && JSON.stringify(flippedShadows.SceneLighting__ProjectOverrides__Sun)
+            === JSON.stringify({ SceneLighting__Sun__ShadowsEnabled : !(app.shadowIntensity >= 0.5) }), flippedShadows);
     const clamped = project.Na__ProjLight__ResolveBlock({ SceneLighting__ProjectOverrides__Sun : { SceneLighting__Sun__HeightDeg : 2, SceneLighting__Sun__Intensity : 9 } });
     check('a hand-edited object is clamped to the slider ranges, not refused',
         clamped.heightDeg === 10 && clamped.directionalIntensity === 3, clamped);

@@ -2,6 +2,51 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.184.2  -  13-Nov-2026
+### The Sun Casts No Shadows Unless a Project or a Scene Ticks Them On
+
+**What Adam asked for**
+- In ValeVision 3D, pointing at Kann's Project Lighting with Sun casts shadows ticked: "This sun cast shadows default make
+  it always = FALSE but can be toggled back on so off becomes the default", then "once confirmed in ValeVision / Build the
+  same lighting section of menu into TrueVision 3D's Dev Menu". ValeVision 3D v2.98.6 made the change.
+- The section itself has been here since v2.184.0 (Dev Tools, localhost, after Navigation Modes), the same module as
+  ValeVision's, so the same section now means the same default.
+
+**Now**
+- `Scene__Default__LightingConfig__ShadowsEnabled` is false. Project Lighting and a scene's Lighting fold open with Sun
+  casts shadows unticked; ticking it gives the sun's shadows back, saved as `SceneLighting__Sun__ShadowsEnabled` true
+  (project, to R2 after the confirm) or `Scene__Lighting__ShadowsEnabled` true (scene). No module changed: the lighting
+  core reads the flag from the config, and the config is fetched network-first.
+- Plans, elevations and Layout Editor drawing pictures, which always use the app default, have no sun shadows.
+- Pictures already made keep their look until they are made again. A 3D picture stored on a sheet keeps its key, so the
+  web viewer and the editor show its shadows until it next re-renders; a PDF exported on localhost always renders afresh,
+  so it has none. Keys were left alone on purpose: the web viewer shows clients the stored picture by its key, and a
+  changed key would blank every 3D frame there until each was rendered again on localhost.
+- A saved project lighting or scene that set `ShadowsEnabled` false says what the default now says, and stays off.
+
+**Files**
+- Changed: `02__Src__AppModules/02__AppData/Na__AppConfig__Main.json` (the flag and its description),
+  `80__Testing__PrototypeEnvironment/Na__Test__PerSceneLighting__.test.mjs` 1.0.2 and `Na__Test__ProjectLighting__.test.mjs`
+  1.0.1 (the default shadows read from the config, a shadows change made against the default, ShadowsEnabled true proved).
+- Service worker token: not bumped. Only the app config changed, and the worker fetches it network-first.
+
+**Tested**
+- `Na__Test__ProjectLighting__.test.mjs`: 33 checks, all pass (one more than before: the flag alone is written when Sun
+  casts shadows is set against the default). `Na__Test__PerSceneLighting__.test.mjs`: 41 checks, all pass (one more:
+  ShadowsEnabled true brings the shadow to full strength). Before the test changes, four checks failed only because they
+  assumed the old default.
+- `Na__Verify__Exports__`: PASS. `Na__Verify__ModuleGraph__`: nothing new failing (the Presentation Scenes editor string,
+  already listed).
+- The real app on localhost, JW02, served read-only (the Worker address blanked in the served config, service workers
+  blocked, every workers.dev request aborted): Project Lighting showed after Navigation Modes and opened at the app default
+  with Sun casts shadows unticked, the sun's shadow strength 0 and Save greyed; ticking it took the strength to 1, enabled
+  Save and said "Changes not saved yet"; unticking put it back. No script errors; the one 404 was the local
+  drawings-fingerprint API a plain file server does not have. Nothing was saved.
+
+**Not tested**
+- A real save to R2, the web viewer on the live site, a Layout Editor sheet or PDF on screen, a phone or tablet.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.184.1  -  13-Nov-2026
 ### The 3D View Fits Between the Top Bar and the Bottom of the Window
 

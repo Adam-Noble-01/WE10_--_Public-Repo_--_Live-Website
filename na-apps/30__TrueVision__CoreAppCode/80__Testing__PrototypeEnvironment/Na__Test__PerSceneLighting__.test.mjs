@@ -39,6 +39,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Nov-2026 - Version 1.0.2 (TrueVision3D v2.184.2)
+// - The default shadows are read from the app config, off since v2.184.2, as
+//   the strengths already were; a check that changes the shadows uses the
+//   opposite of the default, and ShadowsEnabled true is proved as well as
+//   false.
+//
 // 28-Sep-2026 - Version 1.0.1
 // - Ported from ValeVision3D with the module it proves. The default strengths
 //   are read from the app config, so the same checks hold for this app's 3.3
@@ -138,7 +144,9 @@ import { tmpdir } from 'node:os';
     const cfgSun     = appConfig.Scene__Default__LightingConfig.Scene__Default__LightingConfig__DirectionalIntensity;
     check(`default strengths come from the config: ambient ${cfgAmbient}, sun ${cfgSun}`,
         near(lights.ambient.intensity, cfgAmbient) && near(lights.sun.intensity, cfgSun));
-    check('shadows are on by default', lights.sun.shadow.intensity === 1);
+    const cfgShadowsOn = appConfig.Scene__Default__LightingConfig.Scene__Default__LightingConfig__ShadowsEnabled !== false;
+    check(`the default shadows come from the config: ${cfgShadowsOn ? 'on' : 'off'} (off since v2.184.2)`,
+        lights.sun.shadow.intensity === (cfgShadowsOn ? 1 : 0));
     check('registering asks for no frame (the first frame has not been drawn yet)', renderRequests === 0);
 
     const defaults = lighting.Na__SceneLighting__GetDefaults();
@@ -191,8 +199,9 @@ import { tmpdir } from 'node:os';
         lighting.Na__SceneLighting__BuildBlock({ ...defaults, rotationDeg : 360 }) === null
         && lighting.Na__SceneLighting__BuildBlock({ ...defaults, rotationDeg : 359.6 }) === null);
 
+    const flippedShadow = defaults.shadowIntensity >= 0.5 ? 0 : 1;              // <-- The opposite of the default, so the shadows are a change too
     const everything = lighting.Na__SceneLighting__BuildBlock({
-        rotationDeg : 45.4, heightDeg : 30.2, directionalIntensity : 0.804, ambientIntensity : 3.2, shadowIntensity : 0
+        rotationDeg : 45.4, heightDeg : 30.2, directionalIntensity : 0.804, ambientIntensity : 3.2, shadowIntensity : flippedShadow
     });
     check('every setting changed is stored at its precision: whole degrees, two places, shadows as a flag',
         !!everything
@@ -200,7 +209,7 @@ import { tmpdir } from 'node:os';
         && everything.Scene__Lighting__HeightDeg === 30
         && everything.Scene__Lighting__DirectionalIntensity === 0.8
         && everything.Scene__Lighting__AmbientIntensity === 3.2
-        && everything.Scene__Lighting__ShadowsEnabled === false, everything);
+        && everything.Scene__Lighting__ShadowsEnabled === (flippedShadow === 1), everything);
 
 
     // RESOLVE | The default with the block laid over it
@@ -209,7 +218,7 @@ import { tmpdir } from 'node:os';
     check('a partial block keeps every other setting at the exact default',
         partial.rotationDeg === 135 && partial.heightDeg === defaults.heightDeg
         && partial.ambientIntensity === defaults.ambientIntensity && partial.directionalIntensity === defaults.directionalIntensity
-        && partial.shadowIntensity === 1, partial);
+        && partial.shadowIntensity === defaults.shadowIntensity, partial);
 
     const clamped = lighting.Na__SceneLighting__Resolve({
         Scene__Lighting__RotationDeg : -90, Scene__Lighting__HeightDeg : 5,
@@ -222,6 +231,10 @@ import { tmpdir } from 'node:os';
     lighting.Na__SceneLighting__Apply(noShadows, { requestRender : false });
     check('ShadowsEnabled false fades the shadow to 0 without touching castShadow',
         noShadows.shadowIntensity === 0 && lights.sun.shadow.intensity === 0 && lights.sun.castShadow === undefined);
+    const withShadows = lighting.Na__SceneLighting__ResolveScene({ [KEY] : { Scene__Lighting__ShadowsEnabled : true } });
+    lighting.Na__SceneLighting__Apply(withShadows, { requestRender : false });
+    check('ShadowsEnabled true brings the shadow to full strength without touching castShadow',
+        withShadows.shadowIntensity === 1 && lights.sun.shadow.intensity === 1 && lights.sun.castShadow === undefined);
 
     check('no block, a junk block and no scene all resolve to the default',
         lighting.Na__SceneLighting__IsSame(lighting.Na__SceneLighting__ResolveScene({}), defaults)
@@ -230,7 +243,7 @@ import { tmpdir } from 'node:os';
 
     const roundTrip = lighting.Na__SceneLighting__Resolve(everything);
     check('a built block resolves back to the values it was built from (at stored precision)',
-        lighting.Na__SceneLighting__IsSame(roundTrip, { rotationDeg : 45, heightDeg : 30, directionalIntensity : 0.8, ambientIntensity : 3.2, shadowIntensity : 0 }), roundTrip);
+        lighting.Na__SceneLighting__IsSame(roundTrip, { rotationDeg : 45, heightDeg : 30, directionalIntensity : 0.8, ambientIntensity : 3.2, shadowIntensity : flippedShadow }), roundTrip);
 
 
     // BLEND | The flight's ease, the short way round
