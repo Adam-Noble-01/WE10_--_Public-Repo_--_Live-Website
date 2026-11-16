@@ -47,6 +47,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 15-Nov-2026 - Version 1.14.0 (TrueVision v2.186.1)
+// - A change to the project's plants or people ('na-placed-assets-changed', from their doors)
+//   fills the open sheet's frames again: they now load after the model, so a sheet can fill
+//   before they are built. Only a viewport that ticks them, or a 3D one, draws anything new.
+//
 // 22-Sep-2026 - Version 1.13.0 (TrueVision)
 // - AN OPEN GROUP'S VIEWPORTS STAY AT FULL STRENGTH. A group may hold
 //   viewports now (Na__LayoutEditor__Groups__ 1.4.0), and the fade was one
@@ -266,6 +271,7 @@
     let Na__LeSurface__Editable  = false;
     let Na__LeSurface__EditingId = null;    // <-- Viewport whose content is being repositioned (double-click)
     let Na__LeSurface__OnAsset   = null;
+    let Na__LeSurface__OnPlacedAssets = null;                                    // <-- Plants or people changed: the open sheet's frames fill again
     let Na__LeSurface__Pending   = null;    // <-- Reasons waiting for the next animation frame
     let Na__LeSurface__Frame     = 0;       // <-- The requestAnimationFrame handle holding them
     let Na__LeSurface__ZoomGesture = false; // <-- A wheel or pinch zoom is under way and has not yet rested
@@ -316,6 +322,8 @@
         Na__LeSurface__Handles  = null;                                          // <-- Created after the SVG layers so it sits on top
         Na__LeSurface__OnAsset  = () => Na__LeSurface__RefreshChrome();
         window.addEventListener(Na__LeChrome__ASSET_EVENT, Na__LeSurface__OnAsset);
+        Na__LeSurface__OnPlacedAssets = () => Na__LeSurface__Refresh('frames');   // <-- No sheet open: Refresh does nothing
+        window.addEventListener('na-placed-assets-changed', Na__LeSurface__OnPlacedAssets);
         Na__LeVectorQ__Ready();                                                  // <-- Vector Low holds the drawings from the first paint; Medium and High start let go
         return true;
     }
@@ -330,6 +338,8 @@
         Na__LeSurface__ZoomTimer = 0; Na__LeSurface__ZoomGesture = false;
         if (Na__LeSurface__OnAsset) window.removeEventListener(Na__LeChrome__ASSET_EVENT, Na__LeSurface__OnAsset);
         Na__LeSurface__OnAsset = null;
+        if (Na__LeSurface__OnPlacedAssets) window.removeEventListener('na-placed-assets-changed', Na__LeSurface__OnPlacedAssets);
+        Na__LeSurface__OnPlacedAssets = null;
         if (Na__LeSurface__Sheet) Na__LeSurface__ReleaseFrames();
         Na__LeSurface__Parked.clear();                                           // <-- Parked states are in no map but this one: forgetting them is releasing them
         if (Na__LeSurface__Room && Na__LeSurface__Room.parentNode) Na__LeSurface__Room.parentNode.removeChild(Na__LeSurface__Room);

@@ -474,6 +474,8 @@ written up (landed about 15:25).
   through the ProjectVision Flask server (`03__AppUtils/Na__AppUtils__LocalProjectMirror__.js`).
 - **Still open.** `CrossSection__SceneData` is in none of the three lists. That session has handed
   Adam a separate task for it.
+- **Closed in v2.184.3 (14-Nov-2026).** All three lists hold `CrossSection__SceneData`, and
+  `LayoutEditor__DrawingRegister` with it; on localhost the loader lays both over the local copy from R2.
 
 The analysis below is kept for the record.
 

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" stroke="#172b3a" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
+  <line x1="181.3" y1="736" x2="458.7" y2="736" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="544" y1="736" x2="821.3" y2="736" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="96" y="693.3" width="85.3" height="85.3" rx="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="458.7" y="693.3" width="85.3" height="85.3" rx="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="821.3" y="693.3" width="85.3" height="85.3" rx="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="309.3" y1="736" x2="309.3" y2="470" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M309.3 470C189 448.6 127.6 351.1 163.3 238C264.5 265 309.3 332.9 309.3 470Z" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M309.3 470C429.7 448.6 491 351.1 455.3 238C354.1 265 309.3 332.9 309.3 470Z" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="693.3" y1="736" x2="693.3" y2="470" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M693.3 470C573 448.6 511.7 351.1 547.3 238C648.5 265 693.3 332.9 693.3 470Z" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M693.3 470C813.7 448.6 875 351.1 839.3 238C738.1 265 693.3 332.9 693.3 470Z" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

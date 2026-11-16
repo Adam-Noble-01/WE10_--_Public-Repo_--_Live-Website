@@ -99,6 +99,24 @@
             "RenderConfig__InstanceConsolidation__Enabled"          : true,
             "RenderConfig__InstanceConsolidation__MinInstanceCount" : 16,
             "RenderConfig__InstanceConsolidation__FoliageCastShadow": false
+        },
+        "ModelLoading": {
+            "ModelLoading__Description"                        : "How a design phase's model files load. Staged: the files are fetched tier by tier in the order below, several at once, instead of one after another in project order. A category belongs to the first tier that names its element (the last part of its name with Existing or Proposed taken off; a token ending in __ is looked for in the whole name), and a category no tier names loads with the first tier. RevealAfterTier is the tier whose arrival shows the model to a reader, with the rest arriving around them (null: only when everything is in); an author waits for the whole model unless RevealEarlyWhenAuthoring is true, because the Layout Editor, baking and publishing key their pictures by a fingerprint of every category. Compare: the Existing and Proposed comparison loads its other phase in the background once the 3D view's model is whole, except on a phone, a device reporting less memory than PreloadMinDeviceMemoryGb, or with Save Data on, where it loads when the button is pressed. MinCachedPhases is the fewest design phases the phase library may keep loaded beside the one in the 3D view.",
+            "ModelLoading__Staged__Enabled"                    : true,
+            "ModelLoading__Staged__FilesInFlight"              : 6,
+            "ModelLoading__Staged__RevealAfterTier"            : "Architecture",
+            "ModelLoading__Staged__RevealEarlyWhenAuthoring"   : false,
+            "ModelLoading__Tiers": [
+                { "ModelLoading__Tier__Name": "Architecture",    "ModelLoading__Tier__StatusLabel": "the building",         "ModelLoading__Tier__ElementTokens": ["Walls", "Roofs", "LandscapeEnvironment", "SiteBoundaries", "Doors", "Floors", "Windows", "Stairs"] },
+                { "ModelLoading__Tier__Name": "Fixtures",        "ModelLoading__Tier__StatusLabel": "fixtures",             "ModelLoading__Tier__ElementTokens": ["Fixtures"] },
+                { "ModelLoading__Tier__Name": "Furniture",       "ModelLoading__Tier__StatusLabel": "furniture",            "ModelLoading__Tier__ElementTokens": ["Furniture"] },
+                { "ModelLoading__Tier__Name": "InteriorDecor",   "ModelLoading__Tier__StatusLabel": "interior decor",       "ModelLoading__Tier__ElementTokens": ["Decor"] },
+                { "ModelLoading__Tier__Name": "Context",         "ModelLoading__Tier__StatusLabel": "planting and context", "ModelLoading__Tier__ElementTokens": ["Vegetation", "SceneContextual"] },
+                { "ModelLoading__Tier__Name": "DrawingLinework", "ModelLoading__Tier__StatusLabel": "drawing linework",     "ModelLoading__Tier__ElementTokens": ["Linetype__"] }
+            ],
+            "ModelLoading__Compare__PreloadCounterpart"        : true,
+            "ModelLoading__Compare__PreloadMinDeviceMemoryGb"  : 4,
+            "ModelLoading__Compare__MinCachedPhases"           : 2
         }
     },
     "RenderEffect__ProfileLines": {

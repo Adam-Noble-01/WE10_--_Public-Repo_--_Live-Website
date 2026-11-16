@@ -50,6 +50,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 15-Nov-2026 - Version 1.4.0 (v2.185.0)
+// - DeleteKeys: top-level keys taken out of the repository copy, read fresh and
+//   written whole like a merge, on the same queue. Remove All Vegetation and
+//   Remove All Entourage delete their key on R2, then here.
+//
 // 19-Oct-2026 - Version 1.3.0
 // - Scene Sync: the merged document is written without the synced SketchUp
 //   records (Na__SceneSync__StrippedCopy), whoever handed the keys over: the
@@ -266,9 +271,24 @@
 
         // WRITE | The saved keys over the file's own, through the local server
         const merged  = Na__SceneSync__StrippedCopy(Object.assign({}, onDisk, partialObject));   // <-- Synced SketchUp records never reach the file
+        if (options && Array.isArray(options.removeKeys)) options.removeKeys.forEach((key) => { delete merged[key]; });   // <-- DeleteKeys: taken out, as R2 already has them
         const headers = {};
         if (options && options.drawingsBase !== undefined) headers[Na__LocalMirror__DrawingsBaseHeader] = options.drawingsBase || 'none';   // <-- null: the project had no drawings block when it was loaded
         return Na__LocalMirror__PostJson(place.writeUrl, place.origin, merged, headers);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Take Top-Level Keys Out of the Repository Copy of the Project Data
+    // ------------------------------------------------------------
+    // keyNames: the keys a save just deleted on R2 (Na__CfApi__DeleteProjectKeys).
+    // The file is read fresh, the keys are taken out and the rest is written back
+    // unchanged, on the same queue as MergeKeys. Resolves to { ok, skipped, error };
+    // never rejects. Skipped on the web build.
+    // ------------------------------------------------------------
+    function Na__LocalMirror__DeleteKeys(keyNames) {
+        const names = (Array.isArray(keyNames) ? keyNames : []).filter((name) => typeof name === 'string' && name);
+        return Na__LocalMirror__MergeKeys({}, { removeKeys : names });
     }
     // ------------------------------------------------------------
 
@@ -444,6 +464,7 @@
     // ------------------------------------------------------------
     export {
         Na__LocalMirror__MergeKeys,
+        Na__LocalMirror__DeleteKeys,
         Na__LocalMirror__DrawingsFingerprint,
         Na__LocalMirror__WriteSiblingFile,
         Na__LocalMirror__StatementTree,

@@ -48,6 +48,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 15-Nov-2026 - Version 1.1.0 (v2.185.0)
+// - CombineMasks: two vector masks as one (each pixel keeps the least of both), for a viewport with
+//   depth fog and plants or people.
+//
 // 23-Sep-2026 - Version 1.0.0
 // - Created with Phase 4 of TrueVision__PLAN__PublishingSystem__.md.
 //
@@ -249,6 +253,34 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | Two Vector Masks as One: Each Pixel Keeps the Least of Both
+    // ------------------------------------------------------------
+    // A viewport with depth fog and plants or people has a mask from each: a line
+    // shows only where both let it. The first mask is written in place and returned;
+    // the second is freed. Sizes are the picture's for both, as ApplyFog makes them.
+    // ------------------------------------------------------------
+    function Na__LePubRas__CombineMasks(first, second) {
+        if (!first) return second || null;
+        if (!second) return first;
+        const width  = first.canvas.width;
+        const height = first.canvas.height;
+        const a = first.context.getImageData(0, 0, width, height);
+        const scaled = Na__LePubRas__Canvas(width, height, true);
+        scaled.context.drawImage(second.canvas, 0, 0, width, height);
+        const b = scaled.context.getImageData(0, 0, width, height).data;
+        const d = a.data;
+        for (let i = 0; i < d.length; i += 4) {
+            const keep = Math.min(d[i], b[i]);
+            d[i] = keep; d[i + 1] = keep; d[i + 2] = keep; d[i + 3] = 255;
+        }
+        first.context.putImageData(a, 0, 0);
+        Na__LePubRas__Free(scaled);
+        Na__LePubRas__Free(second);
+        return first;
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -332,6 +364,7 @@
         Na__LePubRas__Hash,
         Na__LePubRas__Sha,
         Na__LePubRas__ApplyFog,
+        Na__LePubRas__CombineMasks,
         Na__LePubRas__FromSvg,
         Na__LePubRas__Ladder
     };

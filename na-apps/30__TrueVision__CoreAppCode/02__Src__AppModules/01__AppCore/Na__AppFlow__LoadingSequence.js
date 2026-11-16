@@ -31,6 +31,51 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 15-Nov-2026 - Version 1.7.0 (v2.186.0)
+// - THE MODEL LOADS IN STAGES (Na__ModelLoader__StartStagedLoad): the building,
+//   then fixtures, furniture and interior decor, several files at once. A
+//   reader sees the model as soon as the building is in and the rest arrives
+//   around them, with a small status in the corner; na-app-scene-ready is that
+//   first look, and the new na-app-model-complete is the whole model. An
+//   author still waits for the whole model (the Layout Editor, baking and
+//   publishing key their pictures by a fingerprint of every category), unless
+//   the config says otherwise. The design phase library is told the model is
+//   live only when it is whole, as before.
+// - Each category takes the materials library as it is built, off-scene, so
+//   nothing reaches the screen in the loader's plain materials. After the
+//   first look a category arriving refreshes only what holds a list of the
+//   scene's objects; the storey, toggle and door systems were bound at the
+//   first look to every category group, which exist, empty, from the start.
+// - Leaving the 3D view for a sheet or a drawing while the model is still
+//   arriving holds the Design Phase overlay up until it is whole.
+// - THE EXISTING AND PROPOSED COMPARISON. The effect chain is handed to
+//   Na__RenderEffect__SplitCompare__ while a comparison is on, every render
+//   request is noted there, and the section cut overlay is confined to the 3D
+//   view's own side of the line. Na__UiFeature__PhaseCompare__ is initialised
+//   beside the design phase library.
+// - The AO performance monitor is not fed while a model is loading or a
+//   comparison is on: neither says anything about the device.
+// - The Design Phase menu is handed a way to shut every door before a phase
+//   leaves the 3D view for the cache.
+//
+// 15-Nov-2026 - Version 1.6.0 (v2.185.0)
+// - VEGETATION AND ENTOURAGE, ported from ValeVision 3D v2.98.6. Every project
+//   tells the two doors its Vegetation__SceneData and Entourage__SceneData (null
+//   with none) once the drawings and section cuts are out, so each door decides
+//   whether anything loads. Both keys join Na__DevSavedKeys (on localhost they
+//   come from R2, as the drawings do) and Na__DevKeysAbsentAtDefault (Remove All
+//   deletes the key on R2, and the local copy's older planting must not return).
+//
+// 14-Nov-2026 - Version 1.5.3 (v2.184.3)
+// - THE DRAWING REGISTER AND SECTION CUTS join Na__DevSavedKeys: on localhost
+//   they are laid over the local copy from R2 like the drawings, so a copy
+//   older than R2 (the other PC saved last) is neither shown nor saved back.
+//   The build's and the sync's keep-lists hold them too.
+// - A RESET HOLDS (Na__DevKeysAbsentAtDefault). The Dev Tools keys a reset
+//   deletes on R2 are dropped from the loaded data when the R2 copy lacks
+//   them, so an older local value no longer comes back on localhost or rides
+//   out to R2 with the next save of any key.
+//
 // 13-Nov-2026 - Version 1.5.2 (v2.184.1)
 // - The resize handler follows the 3D view's own box (Na__ViewportSize__Watch), not the window, and sizes
 //   the renderer without an inline style: the canvas runs from the underside of the top bar to the bottom
@@ -131,10 +176,35 @@
     // MODULE IMPORTS | Model Loader
     // ------------------------------------------------------------
     import {
-        Na__ModelLoader__LoadAllModels,
+        Na__ModelLoader__StartStagedLoad,
         Na__ModelLoader__SeparateOrbitCubeUrl,
         Na__ModelLoader__LoadOrbitHelperCube
     } from '../15__ModelLoader/Na__ModelLoader__MultiModel.js';
+    import { Na__LoadPlan__ResolveSettings } from '../15__ModelLoader/Na__ModelLoader__LoadPlan__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | The Existing and Proposed Comparison, and the Model Stream Status
+    // ------------------------------------------------------------
+    // @delegate: ../05__RenderPipeline/Na__RenderEffect__SplitCompare__.js
+    // @delegate: ../26__System__ToggleModelElements/Na__UiFeature__PhaseCompare__.js
+    // @delegate: ./Na__AppFlow__ModelStreamStatus__.js
+    import {
+        Na__SplitCompare__IsActive,
+        Na__SplitCompare__GetLiveSide,
+        Na__SplitCompare__NoteRenderRequest,
+        Na__SplitCompare__Draw,
+        Na__SplitCompare__ScissorSide
+    } from '../05__RenderPipeline/Na__RenderEffect__SplitCompare__.js';
+    import { Na__PhaseCompare__Initialize } from '../26__System__ToggleModelElements/Na__UiFeature__PhaseCompare__.js';
+    import {
+        Na__ModelGroupTransitionOverlay__Show,
+        Na__ModelGroupTransitionOverlay__Hide
+    } from '../26__System__ToggleModelElements/Na__UiFeature__ModelGroupTransitionOverlay__.js';
+    import {
+        Na__StreamStatus__Show,
+        Na__StreamStatus__Hide
+    } from './Na__AppFlow__ModelStreamStatus__.js';
+    import { Na__DevGate__IsAuthoringEnabled } from '../03__AppUtils/Na__AppUtils__DevGate__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Scene Lighting
@@ -263,7 +333,11 @@
         Na__SectionCut__HandleResize,
         Na__SectionCut__SetModelRoot
     } from '../41__System__SectionCutEngine/Na__SectionCut__Engine__.js';
-    import { Na__DrawView__GetCamera } from '../40__System__DrawingViewCore/Na__DrawView__ActiveView__.js';
+    import {
+        Na__DrawView__GetCamera,
+        Na__DrawView__IsActive,
+        Na__DrawView__CHANGED_EVENT
+    } from '../40__System__DrawingViewCore/Na__DrawView__ActiveView__.js';
     import { Na__DrawMarkup__SyncFrame } from '../40__System__DrawingViewCore/Na__DrawView__MarkupMount__.js';
     import {
         Na__DrawProfile__Initialise,
@@ -296,7 +370,9 @@
         Na__DoorAnimation__Initialize,
         Na__DoorAnimation__RebindModelGroups,
         Na__DoorAnimation__Update,
-        Na__DoorAnimation__HasActiveAnimations
+        Na__DoorAnimation__HasActiveAnimations,
+        Na__DoorAnim__DoorRegistry,
+        Na__DoorAnim__ApplyPanelTransform
     } from '../25__System__3dObject__InteractionSystem/3dObjectIInteraction__Animation__ClickToOpenDoors__.js';
     // ------------------------------------------------------------
 
@@ -359,10 +435,13 @@
     // MODULE IMPORTS | Design Phase Library (every model group, the live one, the rest off-scene)
     // ------------------------------------------------------------
     import {
+        Na__PhaseLib__CHANGED_EVENT,
         Na__PhaseLib__Initialize,
         Na__PhaseLib__ResolvePreferredIndex,
         Na__PhaseLib__SetGroups,
-        Na__PhaseLib__SetLive
+        Na__PhaseLib__SetLive,
+        Na__PhaseLib__GetLiveId,
+        Na__PhaseLib__NoteLoadReport
     } from '../26__System__ToggleModelElements/Na__ModelGroup__PhaseLibrary__.js';
     // ------------------------------------------------------------
 
@@ -418,7 +497,10 @@
     // ------------------------------------------------------------
     // The localhost loader overlays ONLY these keys from the live R2 copy onto
     // the full base project data, so dev edits persist while model-defining
-    // keys always come from the complete base file.
+    // keys always come from the complete base file. Keep in sync with
+    // TRUEVISION_DEV_OWNED_KEYS in ProjectVision__BuildScript__.py and
+    // DEV_OWNED_PROJECT_DATA_KEYS in CloudflareR2__ModelSync__Main__.py: a key
+    // missing from either is wiped from R2 by the next build and sync.
     const Na__DevSavedKeys = [
         'PresentationMode__SavedCameraScenes',   // <-- Saved camera scenes (Presentation Mode)
         'LayoutEditor__DrawingsData',            // <-- Floor plans, elevations, sheets and their markup (v2.21.0)
@@ -428,7 +510,31 @@
         'Navmode__FovOverrides',                 // <-- Per-project Orbit/Walk/Fly default FOV overrides
         'Camera__DefaultPosition',               // <-- Saved camera position / rotation / FOV
         'OrbitHelperCube__Position',             // <-- Saved orbit target
-        'SceneLighting__ProjectOverrides'        // <-- The project's own lighting, Dev Tools > Project Lighting (v2.184.0)
+        'SceneLighting__ProjectOverrides',       // <-- The project's own lighting, Dev Tools > Project Lighting (v2.184.0)
+        'LayoutEditor__DrawingRegister',         // <-- The drawing register: numbering and revisions, saved with the drawings (v2.184.3)
+        'CrossSection__SceneData',               // <-- Section cuts by scene, saved with the drawings (v2.184.3)
+        'Vegetation__SceneData',                 // <-- Linework plants: their paths, strokes, palettes and line rules (v2.185.0)
+        'Entourage__SceneData'                   // <-- Camera-facing people and their line rules (v2.185.0)
+    ];
+    // ------------------------------------------------------------
+
+
+    // MODULE CONSTANTS | Dev-Menu Keys That Are Absent at Their Default (a reset deletes them)
+    // ------------------------------------------------------------
+    // A Dev Tools reset takes these keys out of the R2 copy
+    // (Na__CfApi__DeleteProjectKeys) rather than writing a default. So on
+    // localhost an R2 copy without one means the default, and the local copy's
+    // older value is dropped: shown, it would also go back to R2 with the next
+    // save of any key, since every save writes the whole loaded document. Keep
+    // in sync with DEV_OWNED_KEYS_ABSENT_AT_DEFAULT in
+    // CloudflareR2__ModelSync__Main__.py.
+    const Na__DevKeysAbsentAtDefault = [
+        'Navmode__OrbitMaxDistanceMm',           // <-- Orbit Max Zoom Radius, Reset
+        'RenderEffect__AssetCullDistanceMm',     // <-- Asset Cull Distance, Reset
+        'Navmode__FovOverrides',                 // <-- Default View FOVs, Reset
+        'SceneLighting__ProjectOverrides',       // <-- Project Lighting, back to the app default
+        'Vegetation__SceneData',                 // <-- Remove All Vegetation (v2.185.0)
+        'Entourage__SceneData'                   // <-- Remove All Entourage (v2.185.0)
     ];
     // ------------------------------------------------------------
 
@@ -620,6 +726,41 @@
             ? Na__Config__AmbientOcclusion.RenderEffect__AmbientOcclusion__PerformanceMonitorStartupDelayMs
             : 3000;
         let Na__RenderLoop__CanMonitorAoPerformance = false;                 // <-- Prevent startup spikes from disabling AO too early
+
+        // AO MONITOR | Not fed while a model is loading or a comparison is on
+        // ---------------------------------------------------------------
+        // The monitor switches ambient occlusion off for the session when
+        // frames run slow. A file being parsed between two frames, and a
+        // comparison drawing the scene twice, are both slow frames that say
+        // nothing about the device - and the model is now on screen while its
+        // heavier tiers and the comparison's other phase load.
+        // ---------------------------------------------------------------
+        let   Na__ModelLoad__LiveInFlight   = false;                         // <-- The 3D view's own model is loading
+        const Na__ModelLoad__PhasesInFlight = new Set();                     // <-- Design phases loading off-scene, by id
+        let   Na__ModelLoad__QuietUntil     = 0;                             // <-- performance.now() before which the frames after a load are not counted
+        const Na__ModelLoad__StartQuiet = () => {
+            Na__ModelLoad__QuietUntil = performance.now() + Math.max(0, Na__AoPerformanceMonitorStartupDelayMs);
+        };
+        window.addEventListener(Na__PhaseLib__CHANGED_EVENT, (event) => {
+            const detail = (event && event.detail) || {};
+            if (detail.kind === 'loading' && detail.groupId) {
+                Na__ModelLoad__PhasesInFlight.add(detail.groupId);
+            } else if ((detail.kind === 'ready' || detail.kind === 'failed' || detail.kind === 'evicted') && Na__ModelLoad__PhasesInFlight.delete(detail.groupId)) {
+                Na__ModelLoad__StartQuiet();
+            } else if (detail.kind === 'live-loading') {
+                Na__ModelLoad__LiveInFlight = true;                          // <-- The Design Phase menu is fetching a phase into the 3D view
+            } else if (detail.kind === 'live') {
+                Na__ModelLoad__LiveInFlight = false;
+                Na__ModelLoad__StartQuiet();
+            } else if (detail.kind === 'groups') {
+                Na__ModelLoad__PhasesInFlight.clear();
+            }
+        });
+        const Na__RenderLoop__AoMonitorIsFair = () => !Na__ModelLoad__LiveInFlight
+            && Na__ModelLoad__PhasesInFlight.size === 0
+            && performance.now() >= Na__ModelLoad__QuietUntil
+            && !Na__SplitCompare__IsActive();
+        // ---------------------------------------------------------------
 
         let modelUrls = [...Na__ModelDefaults__ModelUrls];                   // <-- Start with config defaults
         let Na__Saved__ProjectCameraConfig = null;                           // <-- Hoisted for post-OrbitCube re-apply
@@ -813,6 +954,60 @@
         });
         // ------------------------------------------------------------
 
+        // STAGED LOAD SETTINGS | The tiers, the first look, the comparison's background load
+        // ------------------------------------------------------------
+        // @delegate: ../15__ModelLoader/Na__ModelLoader__LoadPlan__.js
+        const Na__LoadSettings = Na__LoadPlan__ResolveSettings(Na__Config__Models);
+        // ------------------------------------------------------------
+
+        // HELPER FUNCTION | Rebuild What Holds a List of the Scene's Objects
+        // ------------------------------------------------------------
+        // The composer's profile line pass and the 2D drawings' own each keep
+        // a list of the scene's meshes and fat lines. Anything that joins or
+        // leaves the scene - a category arriving, the comparison's other phase -
+        // has them rebuilt, or its lines draw as solid quads in the normals.
+        // ------------------------------------------------------------
+        const Na__InvalidateSceneObjectCaches = () => {
+            if (Na__RenderPipeline__State && typeof Na__RenderPipeline__State.invalidateProfileLinesCache === 'function') {
+                Na__RenderPipeline__State.invalidateProfileLinesCache();
+            }
+            Na__DrawProfile__InvalidateSceneCache();
+        };
+        // ------------------------------------------------------------
+
+        // EXISTING AND PROPOSED | The comparison, registered beside the library it reads
+        // ------------------------------------------------------------
+        // Its button shows only on a project with both phases, and only once
+        // the model is on screen.
+        // @delegate: ../26__System__ToggleModelElements/Na__UiFeature__PhaseCompare__.js
+        // ------------------------------------------------------------
+        Na__PhaseCompare__Initialize({
+            scene                 : Na__Scene__Main,
+            modelRoot             : Na__ModelGroup__Root,
+            canvas                : Na__Renderer__Main.domElement,
+            invalidateSceneCaches : Na__InvalidateSceneObjectCaches,
+            settings              : Na__LoadSettings
+        });
+        // ------------------------------------------------------------
+
+        // HELPER FUNCTION | Shut Every Door at Once, Without Animating
+        // ------------------------------------------------------------
+        // For a phase about to leave the 3D view for the phase library. The
+        // door system reads a panel's closed pose from wherever it stands when
+        // it is next bound, so a door left open would come back with open as
+        // its closed pose.
+        // ------------------------------------------------------------
+        const Na__ShutEveryDoorNow = () => {
+            if (!Na__DoorAnim__DoorRegistry || typeof Na__DoorAnim__DoorRegistry.forEach !== 'function') return;
+            Na__DoorAnim__DoorRegistry.forEach((doorRecord) => {
+                (doorRecord && Array.isArray(doorRecord.panels) ? doorRecord.panels : []).forEach((panel) => {
+                    Na__DoorAnim__ApplyPanelTransform(panel.modObjectMesh, panel, 0);
+                    Na__DoorAnim__ApplyPanelTransform(panel.modObjectLinework, panel, 0);
+                });
+            });
+        };
+        // ------------------------------------------------------------
+
         // RESOLVE PROJECT-SPECIFIC MODEL URLS (the project was read off the address at the top)
         if (projectCode && projectFolder) {
             // NEW PATH | Fetch TrueVision__ProjectData__.json (full base) then,
@@ -831,6 +1026,9 @@
                         const r2Data = r2Result.data;
                         Na__DevSavedKeys.forEach((key) => {
                             if (r2Data[key] !== undefined) projectData[key] = r2Data[key]; // <-- Overlay dev-saved value from R2
+                        });
+                        Na__DevKeysAbsentAtDefault.forEach((key) => {
+                            if (r2Data[key] === undefined) delete projectData[key];   // <-- Reset to its default on R2: the local copy's older value must not come back
                         });
                         console.log('[TrueVision3D] Overlaid Dev-menu-saved keys from R2 (localhost source of truth).');
                     }
@@ -1105,6 +1303,19 @@
             }
         }));
 
+        // TELL THE VEGETATION AND ENTOURAGE DOORS (ported from ValeVision 3D v2.98.6)
+        // With or without a key, because an author can place them on any project:
+        // null is no key, and each door decides. For a reader with no key that is
+        // one test and nothing fetched.
+        // @delegate: ../24__System__Vegetation/Na__Vegetation__.js
+        // @delegate: ../28__System__Entourage/Na__Entourage__.js
+        window.dispatchEvent(new CustomEvent('na-vegetation-scenedata-loaded', {
+            detail : { sceneData : (Na__ProjectData__Full && Na__ProjectData__Full['Vegetation__SceneData']) || null }
+        }));
+        window.dispatchEvent(new CustomEvent('na-entourage-scenedata-loaded', {
+            detail : { sceneData : (Na__ProjectData__Full && Na__ProjectData__Full['Entourage__SceneData']) || null }
+        }));
+
         // THE MODEL GATE | The drawings are out; the model's own files wait here
         // ---------------------------------------------------------------
         // Open, so passed at once, unless a reader was sent straight to a
@@ -1119,34 +1330,74 @@
             .then((texture) => { Na__Scene__EnvironmentTexture = texture; return texture; });   // <-- Beside the model files; never rejects (null on failure), and kept even if the model fails
         // ---------------------------------------------------------------
 
-        // LOAD ALL MODELS VIA MULTI-MODEL LOADER
-        try {
-            let Na__LoadedModelGroups = null;                                 // <-- Map of category -> THREE.Group
+        // LOAD THE MODELS IN STAGES | The building first, then each heavier tier
+        // ---------------------------------------------------------------
+        // Every category group is under the model root, empty, the moment the
+        // load starts, and they fill stage by stage: walls, roofs, landscape,
+        // doors, floors, windows and stairs, then fixtures, then furniture,
+        // then interior decor. A READER is shown the model when the first
+        // stage is in (Na__LoadSettings.revealAfterTier) and the rest arrives
+        // around them. An AUTHOR waits for the whole model, as before: the
+        // Layout Editor, baking and publishing key what they make by a
+        // fingerprint of every category, and a picture made of half a model
+        // would be stored under a key nothing asks for again.
+        // @delegate: ../15__ModelLoader/Na__ModelLoader__MultiModel.js
+        // ---------------------------------------------------------------
+        let Na__StagedLoad        = null;                                    // <-- The staged load of the 3D view's own model
+        let Na__LoadedModelGroups = null;                                    // <-- Map of category -> THREE.Group, complete from the start
+        let Na__ModelStreaming    = false;                                   // <-- True from the first look until the model is whole
+        let Na__ModelHeldOverlay  = false;                                   // <-- The Design Phase overlay is up because the reader left the 3D view mid-load
+        const Na__ModelLoad__Marks = { startedAt : 0, firstLookAt : 0, completeAt : 0 };
+        const Na__ModelLoad__STREAMING_BODY_CLASS = 'na-model-streaming';   // <-- On the body from the first look until the model is whole: the scene carousel is hidden and ignores navigation meanwhile
 
-            if (modelUrls.length > 0) {
-                Na__LoadedModelGroups = await Na__ModelLoader__LoadAllModels(
-                    modelUrls,                                               // <-- Array of CDN URLs (orbit cube already filtered out)
-                    Na__ModelGroup__Root,                                    // <-- Scene root group
-                    Na__Config__Models,                                      // <-- Material configs (baseMesh + linework)
-                    Na__LineResolution__Screen,                              // <-- Screen resolution for line width
-                    Na__UiFeature__UpdateStatus                              // <-- Status callback for loading overlay
-                );
+        // HELPER FUNCTION | A Category Arrived After the First Look
+        // ------------------------------------------------------------
+        const Na__OnCategoryArrived = () => {
+            Na__InvalidateSceneObjectCaches();
+            window.dispatchEvent(new CustomEvent(NA__REQUEST_RENDER_EVENT));
+        };
+        // ------------------------------------------------------------
+
+        // HELPER FUNCTION | A Whole Stage Arrived After the First Look
+        // ------------------------------------------------------------
+        // The systems that hold a list of the model's own objects take the
+        // model again. The storey, toggle, context menu and door systems are
+        // NOT rebound: they were bound at the first look to the category
+        // groups, which have not changed, and rebinding would throw away
+        // whatever the reader has switched off or opened since.
+        // ------------------------------------------------------------
+        const Na__OnStageArrived = (stage) => {
+            if (!Na__ModelStreaming) return;
+            if (!Na__Config__CameraFollow || Na__Config__CameraFollow['3dObject__Interaction__CameraFollow__Enabled'] !== false) {
+                const { meshRoots, lineworkRoots } = Na__CollectCameraFollowModelGroups(Na__LoadedModelGroups);
+                Na__CameraFollow__Initialize(meshRoots, lineworkRoots, Na__Config__CameraFollow || {}, Na__Camera__Main);
             }
+            Na__WalkMode__SetCollisionMeshes(Na__ModelGroup__Root);
+            Na__DistanceCulling__RegisterModelGroups(Na__LoadedModelGroups);
+            Na__SectionCut__SetModelRoot(Na__ModelGroup__Root);              // <-- Fresh materials need the clip planes re-applied, then caps rebuilt
+            Na__OnCategoryArrived();
 
-            // THE SKY DOME, BEFORE ITS ONE READER (mirror and glass reflections)
-            await Na__Scene__EnvironmentLoad;
+            const next = Na__StagedLoad ? Na__StagedLoad.stages[stage.index + 1] : null;
+            if (next) Na__StreamStatus__Show('Loading ' + next.label + '...');
+        };
+        // ------------------------------------------------------------
 
-            // APPLY PBR MATERIALS FROM LIBRARY (second pass - selective override)
-            // Data is sourced from the DataLib cache loaded at sequence start via Na__DataLib__LoadAll().
-            await Na__ApplyLibraryMaterials(Na__LoadedModelGroups);
+        // HELPER FUNCTION | The 3D View's Model Is Whole
+        // ------------------------------------------------------------
+        const Na__FinishLiveModel = () => {
+            Na__ModelStreaming = false;
+            Na__ModelLoad__Marks.completeAt = performance.now();
+            Na__StreamStatus__Hide();
+            document.body.classList.remove(Na__ModelLoad__STREAMING_BODY_CLASS);   // <-- The scene carousel comes back: scenes are for a whole model
 
-            Na__UiFeature__ShowScene();                                      // <-- Reveal scene after all models loaded
-            window.setTimeout(() => {
-                Na__RenderLoop__CanMonitorAoPerformance = true;              // <-- Enable AO monitor only after scene settles
-            }, Math.max(0, Na__AoPerformanceMonitorStartupDelayMs));
-
-            // INITIALIZE MODEL-BOUND RUNTIME SYSTEMS
-            Na__ReinitializeModelBoundSystems(Na__LoadedModelGroups);
+            Na__PhaseLib__NoteLoadReport(Na__PhaseLib__GetLiveId(), {
+                live        : true,
+                stages      : Na__StagedLoad ? Na__StagedLoad.stages.map((stage) => ({ name : stage.name, categories : stage.keys.length })) : [],
+                progress    : Na__StagedLoad ? Na__StagedLoad.getProgress() : null,
+                startedAt   : Math.round(Na__ModelLoad__Marks.startedAt),
+                firstLookAt : Math.round(Na__ModelLoad__Marks.firstLookAt),
+                completeAt  : Math.round(Na__ModelLoad__Marks.completeAt)
+            });
             Na__PhaseLib__SetLive(undefined, Na__LoadedModelGroups);         // <-- The live phase is in: other design phases may load now
 
             // INITIALIZE MODEL GROUP SELECTOR (switch between design phases)
@@ -1158,13 +1409,117 @@
                     Na__LineResolution__Screen,
                     Na__UiFeature__UpdateStatus,
                     Na__ReinitializeModelBoundSystems,
-                    Na__ApplyLibraryMaterials                                // <-- A phase switched to gets the library materials too
+                    Na__ApplyLibraryMaterials,                               // <-- A phase switched to gets the library materials too
+                    { beforeSwap : Na__ShutEveryDoorNow }                    // <-- A phase leaves the 3D view for the cache with its doors shut
                 );
+            }
+
+            if (Na__ModelHeldOverlay) {
+                Na__ModelHeldOverlay = false;
+                Na__ModelGroupTransitionOverlay__Hide();
+            }
+            window.dispatchEvent(new CustomEvent('na-app-model-complete', {  // <-- Every category is in; na-app-scene-ready was the first look
+                detail : {
+                    categories  : Na__LoadedModelGroups ? Na__LoadedModelGroups.size : 0,
+                    firstLookMs : Math.round(Na__ModelLoad__Marks.firstLookAt - Na__ModelLoad__Marks.startedAt),
+                    completeMs  : Math.round(Na__ModelLoad__Marks.completeAt - Na__ModelLoad__Marks.startedAt)
+                }
+            }));
+            window.dispatchEvent(new CustomEvent(NA__REQUEST_RENDER_EVENT));
+        };
+        // ------------------------------------------------------------
+
+        // HELPER FUNCTION | The Reader Left the 3D View While the Model Is Still Arriving
+        // ------------------------------------------------------------
+        // A sheet or a drawing reads the whole model, so the Design Phase
+        // overlay goes up until it is whole - what the loading screen did when
+        // it stayed up for the whole load.
+        // ------------------------------------------------------------
+        const Na__HoldForWholeModel = () => {
+            if (!Na__ModelStreaming || Na__ModelHeldOverlay) return;
+            Na__ModelHeldOverlay = true;
+            Na__ModelGroupTransitionOverlay__Show('the rest of the model');
+        };
+        window.addEventListener('na-layouteditor-mode-changed', (event) => {
+            if (event && event.detail && event.detail.isActive) Na__HoldForWholeModel();
+        });
+        window.addEventListener(Na__DrawView__CHANGED_EVENT, () => {
+            if (Na__DrawView__IsActive()) Na__HoldForWholeModel();
+        });
+        // ------------------------------------------------------------
+
+        try {
+            Na__ModelLoad__Marks.startedAt = performance.now();
+            Na__ModelLoad__LiveInFlight    = true;                           // <-- Until the design phase library is told the model is live
+
+            if (modelUrls.length > 0) {
+                Na__StagedLoad = Na__ModelLoader__StartStagedLoad(
+                    modelUrls,                                               // <-- Array of CDN URLs (orbit cube already filtered out)
+                    Na__ModelGroup__Root,                                    // <-- Scene root group
+                    Na__Config__Models,                                      // <-- Material configs (baseMesh + linework) and the loading tiers
+                    Na__LineResolution__Screen,                              // <-- Screen resolution for line width
+                    {
+                        statusCallback     : (message) => { if (!Na__ModelStreaming) Na__UiFeature__UpdateStatus(message); },   // <-- The loading screen's words, until it lifts
+                        onCategoryBuilt    : async (category, holder) => {
+                            await Na__Scene__EnvironmentLoad;                // <-- The sky dome, before its one reader (mirror and glass reflections)
+                            await Na__ApplyLibraryMaterials(new Map([ [ category, holder ] ]));   // <-- PBR materials from the library, before the category is on screen
+                        },
+                        onCategoryAttached : () => { if (Na__ModelStreaming) Na__OnCategoryArrived(); },
+                        onStageLoaded      : Na__OnStageArrived
+                    }
+                );
+                Na__LoadedModelGroups = Na__StagedLoad.groups;
+            }
+
+            // WHEN THE MODEL IS SHOWN | The first stage for a reader, the whole model for an author
+            const Na__RevealEarly = Na__LoadSettings.revealAfterTier !== null
+                && (!Na__DevGate__IsAuthoringEnabled() || Na__LoadSettings.revealEarlyWhenAuthoring);
+            const Na__RevealStage = (Na__StagedLoad && Na__RevealEarly)
+                ? Na__StagedLoad.stages.find((stage) => stage.name === Na__LoadSettings.revealAfterTier)
+                : null;
+
+            if (Na__StagedLoad) {
+                if (Na__RevealStage) await Na__StagedLoad.whenStage(Na__RevealStage.index);
+                else                 await Na__StagedLoad.whenDone();
+            }
+            await Na__Scene__EnvironmentLoad;
+
+            Na__ModelStreaming = Boolean(Na__StagedLoad) && !Na__StagedLoad.getProgress().done;
+            Na__ModelLoad__Marks.firstLookAt = performance.now();
+
+            Na__UiFeature__ShowScene();                                      // <-- Reveal the scene: the building is in (a reader) or the whole model is (an author)
+            window.setTimeout(() => {
+                Na__RenderLoop__CanMonitorAoPerformance = true;              // <-- Enable AO monitor only after scene settles
+            }, Math.max(0, Na__AoPerformanceMonitorStartupDelayMs));
+
+            // INITIALIZE MODEL-BOUND RUNTIME SYSTEMS
+            // Every category group is in the Map, so the storeys and toggles are
+            // complete even while some groups are still empty.
+            Na__ReinitializeModelBoundSystems(Na__LoadedModelGroups);
+
+            if (Na__ModelStreaming) {
+                // THE REST ARRIVES AROUND THE READER. Not awaited: the render
+                // loop below has to be running for them to see it arrive.
+                document.body.classList.add(Na__ModelLoad__STREAMING_BODY_CLASS);
+                const next = Na__StagedLoad.stages[Na__RevealStage.index + 1];
+                if (next) Na__StreamStatus__Show('Loading ' + next.label + '...');
+                Na__StagedLoad.whenDone().then(Na__FinishLiveModel, (error) => {
+                    console.error('[TrueVision3D] Model load error after the first look:', error);
+                    Na__FinishLiveModel();
+                });
+            } else {
+                Na__FinishLiveModel();
             }
 
         } catch (error) {
             console.error('[TrueVision3D] Model load error:', error);
+            Na__ModelStreaming = false;
+            Na__StreamStatus__Hide();
+            document.body.classList.remove(Na__ModelLoad__STREAMING_BODY_CLASS);
             Na__PhaseLib__SetLive(undefined, null);                          // <-- Nothing may wait for a load that has failed
+            window.dispatchEvent(new CustomEvent('na-app-model-complete', {  // <-- Nor for this: the plants and people start on it (detail.failed says the model is not all there)
+                detail : { categories : 0, failed : true }
+            }));
             Na__UiFeature__UpdateStatus('Model load error - check console', true);
             Na__RenderLoop__CanMonitorAoPerformance = true;                  // <-- Do not keep monitor blocked forever on load errors
         }
@@ -1226,6 +1581,7 @@
         }
 
         function Na__RenderLoop__RequestRenderOnce() {
+            Na__SplitCompare__NoteRenderRequest();                            // <-- Unless the comparison's line asked, its two held pictures are stale
             if (document.hidden) return;
             Na__RenderLoop__CancelRefineWake();
             Na__RenderLoop__Refiner.reset();                                  // <-- The scene changed; the running average is stale
@@ -1254,11 +1610,41 @@
         // the walls smooth out while every profile line stays as stepped as it
         // was. The lines are the drawing.
         // ---------------------------------------------------------------
-        function Na__RenderLoop__DrawEffectChain() {
+        function Na__RenderLoop__DrawEffectChainOnce() {
             Na__RenderPipeline__State.updateAoUniforms(Na__Camera__Main);     // <-- Update AO camera matrices
             Na__RenderPipeline__State.renderDepthPrePass();                   // <-- Populate depth texture for fog + AO (no-op when profile lines provide it)
             Na__RenderPipeline__State.renderProfileNormals();                 // <-- Update profile lines
             Na__RenderComposer__Main.render();                                // <-- Render with post-processing
+        }
+        // ---------------------------------------------------------------
+
+        // SUB FUNCTION | The Effect Chain, or the Comparison in Its Place
+        // ---------------------------------------------------------------
+        // With the Existing and Proposed comparison on, the chain is run once
+        // for each side and the two are joined at the line. That happens in
+        // HERE, and not around the frame, so a refinement sample - which calls
+        // this function and reads the composer's buffer - averages the joined
+        // picture and never knows there were two. A frame in which something
+        // is moving is never held over for the line's next move.
+        // @delegate: ../05__RenderPipeline/Na__RenderEffect__SplitCompare__.js
+        // ---------------------------------------------------------------
+        function Na__RenderLoop__DrawEffectChain() {
+            if (Na__SplitCompare__IsActive()) {
+                const Na__Frame__IsStill = !Na__DoorAnimation__HasActiveAnimations()
+                    && Na__RenderLoop__OrbitTrailingFrames === 0
+                    && Na__RenderLoop__ActiveReasons.size === 0
+                    && !Na__WalkMode__IsActive()
+                    && !Na__FlyMode__IsActive();
+                const Na__Compare__Drew = Na__SplitCompare__Draw({
+                    renderer  : Na__Renderer__Main,
+                    composer  : Na__RenderComposer__Main,
+                    camera    : Na__Camera__Main,
+                    drawChain : Na__RenderLoop__DrawEffectChainOnce,
+                    cacheable : Na__Frame__IsStill
+                });
+                if (Na__Compare__Drew) return;
+            }
+            Na__RenderLoop__DrawEffectChainOnce();
         }
         // ---------------------------------------------------------------
 
@@ -1270,7 +1656,9 @@
         // canvas, so it has to go back on after each one.
         // ---------------------------------------------------------------
         function Na__RenderLoop__DrawSectionOverlay() {
-            Na__SectionCut__RenderOverlay(Na__Camera__Main);                  // <-- Section fills sit on top, free of post-processing
+            Na__SplitCompare__ScissorSide(Na__Renderer__Main, Na__SplitCompare__GetLiveSide(), () => {   // <-- The cut is the 3D view's own model's: with a comparison on it stays on that model's side of the line
+                Na__SectionCut__RenderOverlay(Na__Camera__Main);              // <-- Section fills sit on top, free of post-processing
+            });
         }
         // ---------------------------------------------------------------
 
@@ -1409,8 +1797,8 @@
                 // refinement chunk is several frames' work in one and would
                 // read to it as a catastrophic frame rate.
                 if (!Na__Refine__DidDraw) {
-                    if (Na__RenderLoop__CanMonitorAoPerformance) {
-                        Na__RenderPipeline__State.monitorAoFrame(deltaMs);   // <-- AO performance auto-disable check (post-startup only)
+                    if (Na__RenderLoop__CanMonitorAoPerformance && Na__RenderLoop__AoMonitorIsFair()) {
+                        Na__RenderPipeline__State.monitorAoFrame(deltaMs);   // <-- AO performance auto-disable check (post-startup only; never while a model loads or a comparison is on)
                     }
                     Na__RenderLoop__Refiner.noteNormalFrame(Na__RenderLoop__PrevTimestamp, deltaMs); // <-- Frame rate readout + chunk sizing
 

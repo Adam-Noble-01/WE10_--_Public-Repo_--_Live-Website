@@ -1,0 +1,110 @@
+{
+    "Entourage__AppConfig__Meta": {
+        "Meta__FileName"    : "Na__Entourage__AppConfig__.json",
+        "Meta__Description" : "The entourage system's defaults. A project's Entourage__SceneData is born with a full copy of these, and from then on the project's own values win. Figures are never loaded on a project that is not enabled, so nor is this file.",
+        "Meta__Version"     : "1.2.1",
+        "Meta__Created"     : "05-Nov-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+
+        "Meta__WhySameKeys" : "The keys of Entourage__LineRules__Config, Entourage__LineRulesAdvanced__Config and Entourage__PlaceDefaults__Config are exactly the keys in a project's record, so a default is one grep from where it is saved.",
+        "Meta__Plan"        : "ValeVision__PLAN__EntourageSystem__.md at the app's root."
+    },
+
+    "Entourage__SceneData__Config": {
+        "Entourage__SceneData__Description"                : "What a project's object starts with. ShowByDefault and DefaultTransparencyPercent are where every viewer opens the project: staff set them by moving Show and Transparency and saving (v2.98.4).",
+        "Entourage__SceneData__SchemaVersion"              : 1,
+        "Entourage__SceneData__EnabledByDefault"           : true,
+        "Entourage__SceneData__EnabledByDefaultNote"       : "On for every project unless an admin has unticked it in Dev Tools (Adam, 05-Nov-2026: 'make the admin ticked on boxes on by default now ... keep those gates so i can disable though'). Only a saved Enabled false turns a project off.",
+        "Entourage__SceneData__ShowByDefault"              : true,
+        "Entourage__SceneData__DefaultTransparencyPercent" : 60,
+        "Entourage__SceneData__DefaultTransparencyPercentNote" : "Adam, 05-Nov-2026: \"Default face transparency should be 60%\". Line and face fade together, as Garnett's plants do: his choice of treatment C on the look test.",
+        "Entourage__SceneData__ShowOnLiveDrawings"         : false
+    },
+
+    "Entourage__LineRules__Config": {
+        "Entourage__LineRules__Description"       : "The Entourage Linework panel's sliders. Weights are screen pixels, as RenderConfig__Linework__LineWidth is. They start at what Garnett's plants were tuned to, the look Adam asked these to match: \"the plants on that look amazing, so human entourage needs to be in the same flavour and vibe\".",
+        "Entourage__LineRules__LineWeightPx"      : 0.60,
+        "Entourage__LineRules__InnerWeightShare"  : 0.55,
+        "Entourage__LineRules__HooksFactor"       : 1.00,
+        "Entourage__LineRules__PenLiftsFactor"    : 1.00,
+        "Entourage__LineRules__SmoothingPasses"   : 2
+    },
+
+    "Entourage__LineRulesAdvanced__Config": {
+        "Entourage__LineRulesAdvanced__Description"     : "The panel's Advanced dropdown: how an outline becomes a drawn line.",
+        "Entourage__LineRulesAdvanced__CornerDeg"       : 50,
+        "Entourage__LineRulesAdvanced__CornerDegNote"   : "A turn sharper than this, measured over CornerSpanMm either side, stays a corner when the outline is smoothed.",
+        "Entourage__LineRulesAdvanced__CornerSpanMm"    : 24,
+        "Entourage__LineRulesAdvanced__PenLiftEveryMm"  : 700,
+        "Entourage__LineRulesAdvanced__PenLiftEveryMmNote" : "About how far along the outline the pen lifts, each one drawn from the figure's seed. The Pen lifts slider divides this: 2.00 is twice as many.",
+        "Entourage__LineRulesAdvanced__PenLiftGapMm"    : 24,
+        "Entourage__LineRulesAdvanced__HookNotchDeg"    : 55,
+        "Entourage__LineRulesAdvanced__HookNotchDegNote" : "A notch at least this sharp, an armpit or between the legs, may carry its line on inward as a short hook, as a plant's line does at a cusp.",
+        "Entourage__LineRulesAdvanced__HookChance"      : 0.80,
+        "Entourage__LineRulesAdvanced__HookMinMm"       : 50,
+        "Entourage__LineRulesAdvanced__HookMaxMm"       : 130,
+        "Entourage__LineRulesAdvanced__FillWallShare"   : 1.00,
+        "Entourage__LineRulesAdvanced__FillWallShareNote" : "A figure's fill against the model's walls: 1.00 is exactly the brightness of a wall facing the camera, worked out from the scene's lights for each view, as a plant's is.",
+        "Entourage__LineRulesAdvanced__FillTone"        : 0.975,
+        "Entourage__LineRulesAdvanced__FillToneNote"    : "The fill on a sheet, where a figure lies on paper and has no walls to match.",
+        "Entourage__LineRulesAdvanced__DepthBias"       : 0.00003,
+        "Entourage__LineRulesAdvanced__DepthBiasNote"   : "Log depth, as a plant's, so a figure's lines sit on its own fill and the model's 15 cm at 150 m does not reach the figure in front."
+    },
+
+    "Entourage__PlaceDefaults__Config": {
+        "Entourage__Place__Description" : "The asset browser: the next figure dropped from a card.",
+        "Entourage__Place__Scale"       : 1
+    },
+
+    "Entourage__Transparency__Config": {
+        "Entourage__Transparency__Description"               : "The Transparency slider. At 0 nothing changes: the same opaque route as if it did not exist.",
+        "Entourage__Transparency__SeeThroughFromPercent"     : 50,
+        "Entourage__Transparency__SeeThroughFromPercentNote" : "From here a figure stops masking the profile lines of what is behind it, so the wall's edges show through."
+    },
+
+    "Entourage__DevTools__Config": {
+        "Entourage__DevTools__Description"        : "The Dev section, the asset browser and moving figures about.",
+        "Entourage__DevTools__WarnAboveFigures"   : 300,
+        "Entourage__DevTools__WarnAboveFiguresNote" : "Every figure is in the project's file, and other apps read that file. Past this the Dev section says so.",
+        "Entourage__DevTools__DragThresholdPx"    : 6,
+        "Entourage__DevTools__DragThresholdPxNote" : "NPR's: a card moved less than this was a click, which arms it for the next click on the model.",
+        "Entourage__DevTools__RightClickSlopPx"   : 4,
+        "Entourage__DevTools__RightClickSlopPxNote" : "A right press that travelled further was a pan, so it opens no menu.",
+        "Entourage__DevTools__GhostPx"            : 76,
+        "Entourage__DevTools__MaxPlaceSlopeDeg"   : 55,
+        "Entourage__DevTools__MaxPlaceSlopeDegNote" : "A figure lands only on what faces up at least this much, so a drag over a wall keeps it on the last good spot.",
+        "Entourage__DevTools__ScaleMin"           : 0.50,
+        "Entourage__DevTools__ScaleMax"           : 1.50,
+        "Entourage__DevTools__ScaleStep"          : 0.01,
+        "Entourage__DevTools__JamesificationMin"  : 1.00,
+        "Entourage__DevTools__JamesificationMax"  : 1.50,
+        "Entourage__DevTools__JamesificationStep" : 0.01,
+        "Entourage__DevTools__JamesificationNote" : "Adam, 11-Nov-2026: a second slider, Jamesification, that stretches a figure's height only, 1 to 1.50. Saved as Entourage__Figure__HeightStretch, on top of Entourage__Figure__Scale; exactly 1 is not saved.",
+        "Entourage__DevTools__MenuScaleStep"      : 1.10,
+        "Entourage__DevTools__CopyOffsetMm"       : 700,
+        "Entourage__DevTools__HoverMs"            : 40,
+        "Entourage__DevTools__FocusMinM"          : 5,
+        "Entourage__DevTools__FocusFactor"        : 3.5,
+        "Entourage__DevTools__UndoDepth"          : 60
+    },
+
+    "Entourage__Ring__Config": {
+        "Entourage__Ring__Description"   : "What shows under a figure being interacted with, from NPR's footprint: AssetDrop__ShowMarker. It is on a 2D canvas over the model, so it can never print.",
+        "Entourage__Ring__MinRadiusMm"   : 400,
+        "Entourage__Ring__MinRadiusMmNote" : "Half the figure's width, or this if that is less.",
+        "Entourage__Ring__Stroke"        : "#5F7A91",
+        "Entourage__Ring__StrokePx"      : 2,
+        "Entourage__Ring__DashPx"        : [7, 5],
+        "Entourage__Ring__Fill"          : "rgba(95, 122, 145, 0.16)",
+        "Entourage__Ring__HoverStroke"   : "rgba(95, 122, 145, 0.65)",
+        "Entourage__Ring__HoverFill"     : "rgba(95, 122, 145, 0.08)",
+        "Entourage__Ring__FootDotPx"     : 5
+    },
+
+    "Entourage__Generators__Config": {
+        "Entourage__Generators__Description" : "What can draw a figure, by name and version. A saved seed must draw the same figure for ever, so a generator is never edited once a project can hold its figures: a new look is a new version, and the old one stays. The build util refuses an asset naming one not listed here.",
+        "Entourage__Generators__List"        : [
+            { "Generator__Name": "FlatFigure", "Generator__Versions": [1], "Generator__Note": "One flat figure turned to the camera. A Silhouette's outline is smoothed and takes pen lifts and hooks from the seed; a LineDrawing keeps its lines and takes pen lifts on its outline. Na__Entourage__FigureBuilder__.js" }
+        ]
+    }
+}

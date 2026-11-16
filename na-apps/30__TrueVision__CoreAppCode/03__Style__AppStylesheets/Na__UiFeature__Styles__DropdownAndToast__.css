@@ -454,6 +454,31 @@
     color                               : #172b3a;
 }
 
+/* A typed value beside a slider (v2.185.0, ValeVision 3D's rule): the vegetation and entourage Dev rows */
+.na-dropdown-menu__value-input {
+    width                               : 78px;
+    min-width                           : 78px;
+    padding                             : 4px 6px;
+    text-align                          : right;
+    font-weight                         : 600;
+    font-family                         : 'Courier New', monospace;
+    font-size                           : 0.85rem;
+    color                               : #172b3a;
+    border                              : 1px solid rgba(23, 43, 58, 0.25);
+    border-radius                       : 4px;
+    background                          : #ffffff;
+}
+
+.na-dropdown-menu__value-input::-webkit-outer-spin-button,
+.na-dropdown-menu__value-input::-webkit-inner-spin-button {
+    -webkit-appearance                  : none;
+    margin                              : 0;
+}
+
+.na-dropdown-menu__value-input[type="number"] {
+    -moz-appearance                     : textfield;
+}
+
 .na-dropdown-menu__textarea {
     width                               : 100%;
     min-height                          : 300px;

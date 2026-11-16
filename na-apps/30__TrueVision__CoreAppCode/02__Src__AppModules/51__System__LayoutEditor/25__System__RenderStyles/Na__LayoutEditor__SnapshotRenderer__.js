@@ -45,6 +45,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 15-Nov-2026 - Version 1.14.0 (v2.185.0, from ValeVision 3D v2.85.0 and v2.88.0)
+// - Plants and people on a sheet: Render2d can draw their layer alone, a twin of the depth fog, through
+//   the same tiles and camera as the picture, and holds them out of the base picture and the fog whatever
+//   a project does on its live drawings. The model's fingerprint, and a design phase's, takes their
+//   stamps when there are any, so a change to them redraws a sheet's 3D picture, and a project without
+//   them keeps its fingerprint.
+//
 // 28-Sep-2026 - Version 1.13.0 (per-scene lighting, v2.161.0)
 // - Render3d: the scene pose now also lights the model the scene's way
 //   (PresentationMode__Scene__Lighting), and the viewer's lighting goes back
@@ -221,6 +228,20 @@
     // ------------------------------------------------------------
     import { Na__DrawProfile__SetEdgeWidth, Na__DrawProfile__InvalidateSceneCache } from '../../40__System__DrawingViewCore/Na__DrawView__ProfileLines__.js';
     import { Na__SectCutCfg__GetAppearance, Na__SectCutCfg__SetAppearance } from '../../41__System__SectionCutEngine/Na__SectionCut__ConfigState__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Plants and People (the doors only: they load nothing more until a project has some)
+    // ------------------------------------------------------------
+    import {
+        Na__Vegetation__GetContentStamp,
+        Na__Vegetation__HoldDrawings,
+        Na__Vegetation__RenderDrawingLayer
+    } from '../../24__System__Vegetation/Na__Vegetation__.js';
+    import {
+        Na__Entourage__GetContentStamp,
+        Na__Entourage__HoldDrawings,
+        Na__Entourage__RenderDrawingLayer
+    } from '../../28__System__Entourage/Na__Entourage__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | The Drawing's Depth Fog Layer
@@ -513,16 +534,21 @@
     // modelSourceId asks for a design phase held off-scene instead of the live
     // model, and answers null while that phase is not loaded.
     // ------------------------------------------------------------
+    function Na__LeSnap__AssetStamps() {
+        const plants = Na__Vegetation__GetContentStamp();                        // <-- Plants are in a sheet's 3D pictures, so a change to them redraws one. None: exactly the fingerprint it always was
+        const people = Na__Entourage__GetContentStamp();                         // <-- Figures are in those pictures too. None: exactly the fingerprint it always was
+        return (plants ? '|plants:' + plants : '') + (people ? '|people:' + people : '');
+    }
     function Na__LeSnap__GetModelFingerprint(modelSourceId) {
         if (modelSourceId && !Na__PhaseLib__IsLive(modelSourceId)) {
             const held = Na__LeSnap__PhaseFingerprints(modelSourceId);
-            return held ? held.model : null;
+            return held ? held.model + Na__LeSnap__AssetStamps() : null;           // <-- A design phase's pictures hold them too: they stand in the scene, not in the model
         }
         if (Na__LeSnap__ModelFp === null) {
             const described = Na__PlStage__Describe(Na__LeSnap__ModelRoot);
             Na__LeSnap__ModelFp = Na__LeSnap__ModelHash(described);
         }
-        return Na__LeSnap__ModelFp;
+        return Na__LeSnap__ModelFp + Na__LeSnap__AssetStamps();
     }
     function Na__LeSnap__GetPipelineFingerprint(modelSourceId) {
         if (modelSourceId && !Na__PhaseLib__IsLive(modelSourceId)) {
@@ -860,7 +886,14 @@
     // picture pixel for pixel, but each frame is the fog alone on a transparent
     // ground and the Enhance pass is skipped. The png's alpha IS the fog.
     // ------------------------------------------------------------
-    function Na__LeSnap__Render2d(definition, windowMm, styles, widthPx, heightPx, modelLayers, antiAliasSamples, weights, modelSourceId, stillWanted, depthFog) {
+    function Na__LeSnap__AssetLayerFrame(camera, styles) {
+        const people = !!styles && styles.entourage === true && !!Na__Entourage__GetContentStamp();
+        const plants = !!styles && styles.vegetation === true && !!Na__Vegetation__GetContentStamp();
+        if (plants) Na__Vegetation__RenderDrawingLayer(camera);                 // <-- Clears, and leaves the model's depth and its own
+        if (people) Na__Entourage__RenderDrawingLayer(camera, plants);          // <-- Over the plants, behind what stands in front of it. Alone, it clears for itself
+        return plants || people;
+    }
+    function Na__LeSnap__Render2d(definition, windowMm, styles, widthPx, heightPx, modelLayers, antiAliasSamples, weights, modelSourceId, stillWanted, depthFog, plantsLayer) {
         if (!Na__LeSnap__IsReady() || !definition) return Promise.resolve(null);
         return Na__LeSnap__Enqueue(async () => {
             if (typeof stillWanted === 'function' && !stillWanted()) return null;  // <-- Nobody is waiting for it any more: the queue moves on
@@ -880,6 +913,8 @@
             let   doorsPosed  = null;                                              // <-- The drawing's door pose, for the finally to hand back
             const fogLayer    = depthFog || null;                                  // <-- A fog source: this render is the viewport's fog image, not its picture
             const fogWas      = Na__ElevFog__SetSource(fogLayer);                  // <-- Borrowed for this render; null for a picture, so nothing fogs it. Handed back in the finally
+            Na__Vegetation__HoldDrawings(true);                                    // <-- No plants in a picture or a fog: they come as a layer of their own, over the vectors, when a viewport ticks them
+            Na__Entourage__HoldDrawings(true);                                     // <-- Nor figures, which share that layer
             const lightingWas = Na__SceneLighting__GetLive();                      // <-- The light a 3D scene may have left on; put back after
             try {
                 // A DRAWING IS ALWAYS LIT BY THE DEFAULT, as it is in the viewer,
@@ -933,19 +968,23 @@
                     renderer : Na__LeSnap__Renderer, scene : Na__LeSnap__Scene, camera : camera,
                     getRenderPipelineState : () => Na__LeSnap__Pipeline(),
                     elevationOverrides     : Na__DrawView__RenderPreset__GetExportOverrides(),
-                    renderFrame            : fogLayer
-                        ? (cam) => Na__ElevFog__RenderLayerFrame(cam)                                 // <-- The fog alone, premultiplied on a transparent ground, through the same tiles and the same jitter as the picture
-                        : (cam) => Na__DrawView__RenderPreset__RenderFrame(cam),                      // <-- Flat render + silhouette + cut, the screen's exact order
+                    renderFrame            : plantsLayer
+                        ? (cam) => Na__LeSnap__AssetLayerFrame(cam, styles)                            // <-- Plants and people alone on a transparent ground, hidden by the model where it stands in front, through the same tiles as the picture
+                        : (fogLayer
+                            ? (cam) => Na__ElevFog__RenderLayerFrame(cam)                             // <-- The fog alone, premultiplied on a transparent ground, through the same tiles and the same jitter as the picture
+                            : (cam) => Na__DrawView__RenderPreset__RenderFrame(cam)),                 // <-- Flat render + silhouette + cut, the screen's exact order
                     antiAliasSamples       : antiAliasSamples,                                        // <-- Each tile drawn N times on sub-pixel jitter and averaged
                     targetWidth : Math.max(16, Math.round(widthPx)), targetHeight : Math.max(16, Math.round(heightPx))
                 });
-                if (!fogLayer && styles && styles.enhanceWhitecard === true) await Na__LeEnhance__Apply(result.canvas, weights ? weights.enhancePct : null);   // <-- Levels and sharpen at this viewport's strength: the whitecard greys go to paper white. Never on a fog image: levels would bend its alpha-carrying colour
+                if (!fogLayer && !plantsLayer && styles && styles.enhanceWhitecard === true) await Na__LeEnhance__Apply(result.canvas, weights ? weights.enhancePct : null);   // <-- Levels and sharpen at this viewport's strength: the whitecard greys go to paper white. Never on a fog image: levels would bend its alpha-carrying colour
                 return { dataUrl : result.canvas.toDataURL('image/png'), widthPx : result.width, heightPx : result.height };
             } catch (renderError) {
-                console.warn('[TrueVision3D LayoutEditor] 2D ' + (fogLayer ? 'depth fog layer' : 'underlay') + ' render failed:', renderError);
+                console.warn('[TrueVision3D LayoutEditor] 2D ' + (plantsLayer ? 'plants and people layer' : (fogLayer ? 'depth fog layer' : 'underlay')) + ' render failed:', renderError);
                 return null;
             } finally {
                 Na__ElevFog__SetSource(fogWas);                                                      // <-- Whoever had a drawing on screen has its fog back
+                Na__Vegetation__HoldDrawings(false);
+                Na__Entourage__HoldDrawings(false);
                 if (contextSaved) Na__ModelToggle__ApplySceneLayerVisibility(contextSaved);
                 Na__DrawView__MaterialPreset__Exit();
                 Na__DrawView__RenderPreset__Exit();

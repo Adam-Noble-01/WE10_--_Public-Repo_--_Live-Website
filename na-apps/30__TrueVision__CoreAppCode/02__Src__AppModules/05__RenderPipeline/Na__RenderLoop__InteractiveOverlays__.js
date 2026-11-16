@@ -49,6 +49,12 @@
 // 20-Sep-2026 - Version 1.0.0
 // - Initial implementation for the Drawing Planes build.
 //
+// 15-Nov-2026 - Version 1.1.0 (v2.185.0)
+// - GetLiveFrameNumber, from ValeVision 3D v2.84.0, for the linework plants' and
+//   people's frame budget: which interactive frame is being drawn, and 0 on every
+//   other render (a still, a thumbnail, a sheet's picture), which is drawn whole.
+//   ValeVision's BeginPreviewFrame is for its Video Studio, which TrueVision has not.
+//
 // =============================================================================
 
 
@@ -60,6 +66,7 @@
     // ------------------------------------------------------------
     const Na__InteractiveOverlays__Objects = new Set();   // <-- Object3D roots, each invisible outside a frame
     let   Na__InteractiveOverlays__InFrame = false;       // <-- True between BeginFrame and EndFrame
+    let   Na__InteractiveOverlays__FrameNumber = 0;       // <-- Counts interactive frames, so one frame's several renders can be told from the next frame's
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -128,6 +135,7 @@
     // ------------------------------------------------------------
     function Na__InteractiveOverlays__BeginFrame() {
         Na__InteractiveOverlays__InFrame = true;
+        Na__InteractiveOverlays__FrameNumber++;
         Na__InteractiveOverlays__Objects.forEach((object) => {
             object.visible = (object.userData.naOverlayWanted === true);
         });
@@ -148,6 +156,19 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | Which Interactive 3D Frame Is Being Drawn? 0 When None Is
+    // ------------------------------------------------------------
+    // For the one thing that may do less while the camera moves, because the
+    // frame right after it stops does the rest. A frame renders the scene
+    // several times, and the number says which of those belong together. Every
+    // other render is a picture somebody will keep, and 0 is what keeps it whole.
+    // ------------------------------------------------------------
+    function Na__InteractiveOverlays__GetLiveFrameNumber() {
+        return Na__InteractiveOverlays__InFrame ? Na__InteractiveOverlays__FrameNumber : 0;
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -163,7 +184,8 @@
         Na__InteractiveOverlays__SetWanted,
         Na__InteractiveOverlays__IsWanted,
         Na__InteractiveOverlays__BeginFrame,
-        Na__InteractiveOverlays__EndFrame
+        Na__InteractiveOverlays__EndFrame,
+        Na__InteractiveOverlays__GetLiveFrameNumber
     };
     // ------------------------------------------------------------
 

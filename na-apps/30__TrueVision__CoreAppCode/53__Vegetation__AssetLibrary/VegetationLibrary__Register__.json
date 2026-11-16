@@ -1,0 +1,51 @@
+{
+    "VegetationLibrary__Register__Meta": {
+        "Meta__FileName"    : "VegetationLibrary__Register__.json",
+        "Meta__Description" : "The single source of truth for the vegetation library's numbering: the namespace, the collections, each collection's types and the blocks of numbers they own. The build util and the app read it; nothing else decides a number.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "04-Nov-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+
+        "Meta__WhyThisForm" : "PainterlyNPR's register, with its own namespacer: VVL_07_1001 sits beside NPR_07_1001, and the collection and block numbers mean the same in both, so a shrub is 07_10xx in either library. Adam, 30-Oct-2026, of NPR: \"asset subfolder in numbered series in my style to keep things organised and unique asset ID codes\"."
+    },
+
+    "VegetationLibrary__Register__Numbering": {
+        "Numbering__Namespace"      : "VVL",
+        "Numbering__NamespaceNote"  : "ValeVision Linework: every asset Id starts VVL_, so an Id is unique beside NPR_ and the component library's own codes",
+        "Numbering__IdPattern"      : "^VVL_(0[5-9]|[1-7][0-9]|80)_[0-9]{2}[0-9][1-9]$",
+        "Numbering__IdPatternNote"  : "VVL_CC_TTFI. CC the collection, 05 to 80. TT the type's block. F the family, 0 to 9. I the item, 1 to 9. An I of 0 is a family's base and is never an asset",
+        "Numbering__RetiredIds"     : [],
+        "Numbering__RetiredIdsNote" : "A retired Id is never reused: projects may hold a pinned copy of it for ever. List it here when its asset's Meta__Status becomes Retired"
+    },
+
+    "VegetationLibrary__Register__Naming": {
+        "Naming__AssetFile"           : "{AssetId}__{Type}__{Name}__{Variant}__.json",
+        "Naming__AssetFileNote"       : "One file per asset, in its collection's folder: VVL_07_1001__Shrubs__RoundedShrub__Var-01__.json. No picture files and no SKP slot: cards are drawn live by the code that draws the scene",
+        "Naming__Segment"             : "^[A-Z][A-Za-z0-9]*(-[A-Za-z0-9]+)*$",
+        "Naming__Variant"             : "^Var-[0-9]{2}$",
+        "Naming__MaxRelativePath"     : 170,
+        "Naming__MaxRelativePathNote" : "Characters from this library's root, as NPR's: SketchUp's Ruby cannot open a path over 259, and Cloud Sync will read these from Stage 9"
+    },
+
+    "VegetationLibrary__Register__Collections": [
+        {
+            "Collection__Code"   : "07",
+            "Collection__Name"   : "VegetationElements",
+            "Collection__Label"  : "Vegetation",
+            "Collection__Folder" : "07__VegetationElements",
+            "Collection__Types"  : [
+                { "Type__Name": "Trees",       "Type__Block": "00", "Type__Label": "Trees" },
+                { "Type__Name": "Conifers",    "Type__Block": "05", "Type__Label": "Conifers" },
+                { "Type__Name": "Shrubs",      "Type__Block": "10", "Type__Label": "Shrubs" },
+                { "Type__Name": "Hedges",      "Type__Block": "15", "Type__Label": "Hedges" },
+                { "Type__Name": "Topiary",     "Type__Block": "20", "Type__Label": "Topiary" },
+                { "Type__Name": "Perennials",  "Type__Block": "25", "Type__Label": "Perennials" },
+                { "Type__Name": "Grasses",     "Type__Block": "30", "Type__Label": "Grasses" },
+                { "Type__Name": "Climbers",    "Type__Block": "35", "Type__Label": "Climbers" },
+                { "Type__Name": "Ferns",       "Type__Block": "40", "Type__Label": "Ferns" },
+                { "Type__Name": "GroundCover", "Type__Block": "45", "Type__Label": "Ground Cover" },
+                { "Type__Name": "Aquatic",     "Type__Block": "50", "Type__Label": "Aquatic" }
+            ]
+        }
+    ]
+}

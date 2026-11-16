@@ -1,0 +1,110 @@
+{
+    "Asset__Id"          : "VVL_07_1022",
+    "Asset__Name"        : "Low Border Drift (No Grass)",
+    "Asset__Description" : "A low spreading mass for long planter beds, with no strap leaf tufts at its foot. Its proxy stretches to the bed: the length changes how many clumps it has, never how big they are.",
+
+    "Asset__Meta": {
+        "Meta__Version" : "1.0.0",
+        "Meta__Created" : "06-Nov-2026",
+        "Meta__Author"  : "Adam Noble - Noble Architecture",
+        "Meta__Status"  : "Active"
+    },
+
+    "Asset__Identity": {
+        "Identity__CollectionCode" : "07",
+        "Identity__Type"           : "Shrubs",
+        "Identity__Family"         : "102",
+        "Identity__Item"           : 2,
+        "Identity__Name"           : "LowBorderDrift",
+        "Identity__Variant"        : "Var-02"
+    },
+
+    "Asset__Generator": {
+        "Generator__Name"    : "BallCluster",
+        "Generator__Version" : 1
+    },
+
+    "Asset__Proxy": {
+        "Proxy__Shape"       : "Dome",
+        "Proxy__RingCount"   : 5,
+        "Proxy__SectorCount" : 10
+    },
+
+    "Asset__Placement": {
+        "Placement__RotationVariationDeg"   : 8,
+        "Placement__ScaleVariationPercent"  : 6,
+        "Placement__HeightVariationPercent" : 8,
+        "Placement__AlignToPath"            : true,
+        "Placement__StretchAlongPath"       : true,
+        "Placement__MinSpacingMm"           : 1200,
+        "Placement__DefaultWeight"          : 25
+    },
+
+    "Asset__Catalogue": {
+        "Catalogue__Keywords"      : ["border", "drift", "low", "spreading", "planter", "no grass"],
+        "Catalogue__Season"        : "AllYear",
+        "Catalogue__BotanicalName" : null
+    },
+
+    "Asset__Size": {
+        "Size__WidthMm"     : 1800,
+        "Size__DepthMm"     : 680,
+        "Size__HeightMm"    : 640,
+        "Size__JitterShare" : 0.06
+    },
+
+    "Asset__Masses": {
+        "Masses__Layout"            : "Run",
+        "Masses__CountMin"          : 2,
+        "Masses__CountMax"          : 3,
+        "Masses__ScallopChordMinMm" : 55,
+        "Masses__ScallopChordMaxMm" : 190,
+        "Masses__ScallopDepth"      : 0.50,
+        "Masses__ScallopSkew"       : 1.35,
+        "Masses__TipShare"          : 0.00
+    },
+
+    "Asset__Clumps": {
+        "Clumps__RadiusMinMm"  : 55,
+        "Clumps__RadiusMaxMm"  : 115,
+        "Clumps__Skew"         : 1.25,
+        "Clumps__Spacing"      : 0.86,
+        "Clumps__ReachMin"     : 0.96,
+        "Clumps__ReachMax"     : 1.20,
+        "Clumps__ScallopDepth" : 0.20,
+        "Clumps__TipShare"     : 0.00,
+        "Clumps__Ellipse"      : 0.08,
+        "Clumps__Wobble"       : 0.015
+    },
+
+    "Asset__Nubs": {
+        "Nubs__Share"       : 0.30,
+        "Nubs__RadiusMinMm" : 20,
+        "Nubs__RadiusMaxMm" : 38
+    },
+
+    "Asset__Line": {
+        "Line__InteriorChance"  : 0.16,
+        "Line__InteriorSpanDeg" : 85,
+        "Line__TailChance"      : 0.55,
+        "Line__TailMinRad"      : 0.20,
+        "Line__TailMaxRad"      : 0.95,
+        "Line__CurlChance"      : 0.30,
+        "Line__CurlAmount"      : 0.58,
+        "Line__BreakChance"     : 0.05,
+        "Line__CuspHookChance"  : 0.40,
+        "Line__CuspHookMinMm"   : 38,
+        "Line__CuspHookMaxMm"   : 125,
+        "Line__SpurShare"       : 0.12
+    },
+
+    "Asset__Tufts": {
+        "Tufts__CountMin"     : 0,
+        "Tufts__CountMax"     : 0,
+        "Tufts__HeightMinMm"  : 320,
+        "Tufts__HeightMaxMm"  : 540,
+        "Tufts__BladesMin"    : 5,
+        "Tufts__BladesMax"    : 8,
+        "Tufts__BladeWidthMm" : 34
+    }
+}

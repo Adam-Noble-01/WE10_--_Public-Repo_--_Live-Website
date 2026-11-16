@@ -1,0 +1,96 @@
+{
+    "$schema"              : "https://json-schema.org/draft/2020-12/schema",
+    "$id"                  : "EntourageLibrary__Schema__AssetData__1.0.0__.json",
+    "title"                : "ValeVision 3D - One Entourage Asset 1.0.0",
+    "description"          : "One asset of 54__Entourage__AssetLibrary: a flat figure, its feet at height 0 and its turning point at x 0. A project pins a copy of this whole object in Entourage__SceneData__Assets the first time it uses the asset. Points are millimetres to one decimal in the figure's own plane, x across and y up, written as one string of x,y pairs, because the API rewrites a project's record with json.dumps(indent=4), which would spread a list of points over thousands of lines.",
+    "type"                 : "object",
+    "additionalProperties" : false,
+    "required"             : ["Asset__Id", "Asset__Name", "Asset__Description", "Asset__Meta", "Asset__Identity", "Asset__Source", "Asset__Generator", "Asset__Catalogue", "Asset__Size", "Asset__Figure"],
+    "properties"           : {
+        "Asset__Id"          : { "type": "string", "pattern": "^VVL_[0-9]{2}_[0-9]{4}$" },
+        "Asset__Name"        : { "type": "string", "minLength": 1, "description": "What a card and a person call it" },
+        "Asset__Description" : { "type": "string", "minLength": 1 },
+
+        "Asset__Meta": {
+            "type": "object", "additionalProperties": false,
+            "required": ["Meta__Version", "Meta__Created", "Meta__Author", "Meta__Status"],
+            "properties": {
+                "Meta__Version" : { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$", "description": "A project compares this with its pinned copy, to offer Update to latest" },
+                "Meta__Created" : { "type": "string", "pattern": "^[0-9]{2}-[A-Z][a-z]{2}-[0-9]{4}$" },
+                "Meta__Author"  : { "type": "string", "minLength": 1 },
+                "Meta__Status"  : { "enum": ["Active", "Draft", "Retired"] }
+            }
+        },
+
+        "Asset__Identity": {
+            "type": "object", "additionalProperties": false,
+            "required": ["Identity__CollectionCode", "Identity__Type", "Identity__Family", "Identity__Item", "Identity__Name", "Identity__Variant"],
+            "properties": {
+                "Identity__CollectionCode" : { "type": "string", "pattern": "^[0-9]{2}$" },
+                "Identity__Type"           : { "type": "string", "minLength": 1 },
+                "Identity__Family"         : { "type": "string", "pattern": "^[0-9]{3}$" },
+                "Identity__Item"           : { "type": "integer", "minimum": 1, "maximum": 9 },
+                "Identity__Name"           : { "type": "string", "pattern": "^[A-Z][A-Za-z0-9]*(-[A-Za-z0-9]+)*$" },
+                "Identity__Variant"        : { "type": "string", "pattern": "^Var-[0-9]{2}$" }
+            }
+        },
+
+        "Asset__Source": {
+            "type": "object", "additionalProperties": false,
+            "required": ["Source__SketchUpFile", "Source__Note"],
+            "properties": {
+                "Source__SketchUpFile" : { "type": "string", "minLength": 1, "description": "The component in the core library this was converted from, which stays the master" },
+                "Source__Note"         : { "type": "string", "minLength": 1 }
+            }
+        },
+
+        "Asset__Generator": {
+            "type": "object", "additionalProperties": false,
+            "required": ["Generator__Name", "Generator__Version"],
+            "properties": {
+                "Generator__Name"    : { "type": "string", "minLength": 1, "description": "Listed in Entourage__Generators__Config" },
+                "Generator__Version" : { "type": "integer", "minimum": 1, "description": "A saved seed draws the same figure for ever, so a generator is never edited: a new look is a new version" }
+            }
+        },
+
+        "Asset__Catalogue": {
+            "type": "object", "additionalProperties": false,
+            "required": ["Catalogue__Keywords"],
+            "properties": {
+                "Catalogue__Keywords" : { "type": "array", "items": { "type": "string", "minLength": 1 } }
+            }
+        },
+
+        "Asset__Size": {
+            "type": "object", "additionalProperties": false,
+            "required": ["Size__WidthMm", "Size__HeightMm"],
+            "properties": {
+                "Size__WidthMm"  : { "type": "integer", "exclusiveMinimum": 0 },
+                "Size__HeightMm" : { "type": "integer", "exclusiveMinimum": 0 }
+            }
+        },
+
+        "Asset__Figure": {
+            "type": "object", "additionalProperties": false,
+            "required": ["Figure__Kind"],
+            "properties": {
+                "Figure__Kind"          : { "enum": ["Silhouette", "LineDrawing"], "description": "A Silhouette is one closed outline, smoothed, with pen lifts and hooks added for each figure. A LineDrawing keeps every line as it was drawn" },
+                "Figure__OutlineMm"     : { "type": "string", "minLength": 1, "description": "A Silhouette's one closed loop" },
+                "Figure__FacesMm"       : {
+                    "type": "array",
+                    "description": "A LineDrawing's fill",
+                    "items": {
+                        "type": "object", "additionalProperties": false,
+                        "required": ["Face__OuterMm", "Face__HolesMm"],
+                        "properties": {
+                            "Face__OuterMm" : { "type": "string", "minLength": 1 },
+                            "Face__HolesMm" : { "type": "array", "items": { "type": "string", "minLength": 1 } }
+                        }
+                    }
+                },
+                "Figure__OuterChainsMm" : { "type": "array", "items": { "type": "string", "minLength": 1 }, "description": "A LineDrawing's outline, at the outer weight" },
+                "Figure__InnerChainsMm" : { "type": "array", "items": { "type": "string", "minLength": 1 }, "description": "A LineDrawing's detail, at the inner weight" }
+            }
+        }
+    }
+}

@@ -71,6 +71,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 15-Nov-2026 - Version 1.21.0 (TrueVision v2.185.0, from ValeVision 3D v2.85.0 and v2.88.0)
+// - The plants and people layer: filled, forced and redrawn with a viewport's other layers, off unless the
+//   viewport's Vegetation or Entourage style is ticked, and RenderPlantsForExport for the PDF and publishing.
+//
 // 19-Oct-2026 - Version 1.20.0 (TrueVision)
 // - Re-exports the PointCloud unit's PointCloudForPublish for the publisher:
 //   the point cloud at full strength, laid into a published viewport's
@@ -279,6 +283,10 @@
         Na__LeVp2d__ClearFog,
         Na__LeVp2d__RenderFog,
         Na__LeVp2d__ScheduleFog,
+        Na__LeVp2d__PlacePlants,
+        Na__LeVp2d__ClearPlants,
+        Na__LeVp2d__RenderPlants,
+        Na__LeVp2d__SchedulePlants,
         Na__LeVp2d__ShowProgress,
         Na__LeVp2d__HideProgress,
         Na__LeVp2d__Park,
@@ -286,6 +294,8 @@
         Na__LeVp2d__SetInteracting
     } from './Na__LayoutEditor__Viewport2d__Frame__.js';
     import { Na__LeVp2d__FogFor } from './Na__LayoutEditor__Viewport2d__DepthFog__.js';
+    import { Na__Vegetation__GetContentStamp } from '../../24__System__Vegetation/Na__Vegetation__.js';
+    import { Na__Entourage__GetContentStamp } from '../../28__System__Entourage/Na__Entourage__.js';
     import {
         Na__LeVp2d__EnsureLinework,
         Na__LeVp2d__StyleToken,
@@ -378,6 +388,7 @@
             state.lastArgs = { sheet : sheet, viewport : viewport, ppm : ppm };
             Na__LeVp2d__MarkRasterOnly(state, false);                            // <-- All vectors: Draft draws its lines
             Na__LeVp2d__ClearFog(state);                                         // <-- A site plan has no plane to be behind
+            Na__LeVp2d__ClearPlants(state);
             Na__LeVp2d__FillSitePlan(state, sheet, viewport, ppm);
             Na__LeVp2d__PointCloudFill(state, sheet, viewport, null, ppm);       // <-- A Plan or Site Plan scene lays on it as on a plan
             return;
@@ -392,6 +403,7 @@
             state.empty.hidden = false;
             state.underlay.hidden = true;
             Na__LeVp2d__ClearFog(state);
+            Na__LeVp2d__ClearPlants(state);
             Na__LeVp2d__PointCloudClear(state);                                  // <-- Nothing to place it against; the panel says so
             state.linework.innerHTML = ''; state.markup.innerHTML = '';
             state.lineworkKey = null; state.markupKey = null;
@@ -409,6 +421,7 @@
             if (state.timer) { window.clearTimeout(state.timer); state.timer = null; }
             state.underlay.hidden = true; state.renderedKey = null; state.renderedWindow = null; state.wantedKey = null;
             Na__LeVp2d__ClearFog(state);                                         // <-- Nor the previous model's fog
+            Na__LeVp2d__ClearPlants(state);
             state.linework.innerHTML = ''; state.lineworkKey = null; state.lineworkSvg = null; state.classes = null; state.classesKey = null; state.markup.innerHTML = '';
             Na__LeVp2d__HideProgress(state);
             const failed = modelSource.status === 'failed';
@@ -487,6 +500,25 @@
             else if (fogKey !== state.fogRenderedKey) Na__LeVp2d__ScheduleFog(state, viewport.Viewport__Id);
         }
 
+        // VEGETATION | The project's plants, as an image OVER the linework, so a wall's
+        // lines stop where a bush stands in front. Off unless this viewport ticks it,
+        // and it costs nothing then: no existing plan or elevation moves. The stamp is
+        // what the plants add up to, so moving one redraws this and only this.
+        const plantsStamp = Na__LeVp2d__AssetLayerStamp(styles);
+        if (!plantsStamp) {
+            Na__LeVp2d__ClearPlants(state);
+        } else {
+            const plantsKey = [ 'plants', described.definition.RecordHash, modelFp, Math.round(win.CentreX), Math.round(win.CentreY),
+                                Math.round(win.WidthMm), Math.round(win.HeightMm), styles.glassOpaque, styles.contextLayer,
+                                Na__LeModelLayers__Token(viewport), Na__LeRaster__Get(), Na__LeComposite__RasterToken(viewport) || '', plantsStamp ]
+                                .join('|');
+            if (state.plantsRenderedFp && state.plantsRenderedFp !== modelFp) state.plants.hidden = true;
+            else Na__LeVp2d__PlacePlants(state, win, ppm);
+            state.plantsWantedKey = plantsKey;
+            if (Na__LeDraft__IsOn()) { if (state.plantsTimer) { window.clearTimeout(state.plantsTimer); state.plantsTimer = null; } }
+            else if (plantsKey !== state.plantsRenderedKey) Na__LeVp2d__SchedulePlants(state, viewport.Viewport__Id);
+        }
+
         // LINEWORK | Cached classes paint now; otherwise they arrive later
         if (styles.projectedLinework === false) {
             // OFF | A raster viewport: no projection is ever asked for, nothing is
@@ -561,6 +593,7 @@
         if (!state || (body && state.body !== body)) return;
         if (state.timer) window.clearTimeout(state.timer);
         if (state.fogTimer) window.clearTimeout(state.fogTimer);                  // <-- The fog's own debounce too, or it renders a fog for a frame that has gone
+        if (state.plantsTimer) window.clearTimeout(state.plantsTimer);
         Na__LeVp2d__HideProgress(state);
         Na__LeVp2d__States.delete(viewportId);
     }
@@ -646,6 +679,15 @@
             state.fogRenderedKey = null; state.fogRenderedWindow = null;
             await Na__LeVp2d__RenderFog(state, viewport.Viewport__Id, viewport, described, fog, state.fogWantedKey, Na__LeRaster__Working());
         }
+
+        // PLANTS | And the fourth, for the same reason
+        if (Na__LeVp2d__AssetLayerStamp(styles)) {
+            if (state.plantsTimer) { window.clearTimeout(state.plantsTimer); state.plantsTimer = null; }
+            state.plantsRenderedKey = null; state.plantsRenderedWindow = null;
+            await Na__LeVp2d__RenderPlants(state, viewport.Viewport__Id, viewport, described, state.plantsWantedKey, Na__LeRaster__Working());
+        } else {
+            Na__LeVp2d__ClearPlants(state);
+        }
         return true;
     }
     // ------------------------------------------------------------
@@ -689,6 +731,40 @@
     }
     // ------------------------------------------------------------
 
+
+    // HELPER FUNCTION | What This Viewport's Plants and People Add Up To
+    // ------------------------------------------------------------
+    // People share the plants' layer: one image over the linework, so a person stands among
+    // the planting, each with its own tick. With plants alone this is the stamp it always was,
+    // so no ticked viewport redraws for it. Empty means no layer at all.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__AssetLayerStamp(styles) {
+        const plants = styles.vegetation === true ? Na__Vegetation__GetContentStamp() : '';
+        const people = styles.entourage === true ? Na__Entourage__GetContentStamp() : '';
+        return plants + (people ? '|people:' + people : '');
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | A Fresh Plants Image at Export Resolution (not cached)
+    // ------------------------------------------------------------
+    // RenderFogForExport's twin, for the layer the PDF and a published document lay
+    // over a viewport's vectors. Null when this viewport has ticked neither Vegetation
+    // nor Entourage, or the project has none, which is most viewports, and costs the
+    // PDF nothing.
+    // ------------------------------------------------------------
+    async function Na__LeVp2d__RenderPlantsForExport(viewport) {
+        if (Na__LeModel__IsSitePlanViewport(viewport)) return null;
+        if (!Na__LeVp2d__AssetLayerStamp(viewport.Viewport__Styles)) return null;
+        const described = Na__LeVp2d__Describe(viewport);
+        if (!described.definition) return null;
+        if (!(await Na__LeSource__WaitFor(described.modelSource.renderId))) return null;
+        const frame = viewport.Viewport__FrameMm;
+        const px    = Na__LeRaster__Fit(frame.WidthMm, frame.HeightMm, Na__LeRaster__Export());
+        return Na__LeSnap__Render2d(described.definition, described.window, viewport.Viewport__Styles, px.w, px.h, Na__LeDoors__RasterLayers(viewport), px.samples, Na__LeVp2d__RasterWeights(viewport), described.modelSource.renderId, undefined, null, true);
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -713,6 +789,7 @@
         Na__LeVp2d__SetInteracting,
         Na__LeVp2d__RenderForExport,
         Na__LeVp2d__RenderFogForExport,
+        Na__LeVp2d__RenderPlantsForExport,
         Na__LeVp2d__ForceRender,
         Na__LeVp2d__GetSnapSource,
         Na__LeVp2d__SitePlanDrawing,

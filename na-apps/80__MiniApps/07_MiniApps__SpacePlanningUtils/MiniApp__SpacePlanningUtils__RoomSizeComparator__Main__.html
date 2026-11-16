@@ -1,0 +1,290 @@
+<!-- =============================================================================
+  NOBLE ARCHITECTURE - MINI APP - ROOM SIZE COMPARATOR
+  =============================================================================
+
+  FILE    : MiniApp__SpacePlanningUtils__RoomSizeComparator__Main__.html
+  AUTHOR  : Adam Noble - Noble Architecture
+  PURPOSE : Compare a room's floor area with typical UK sizes for its room type
+  CREATED : 16-Nov-2026
+
+  DESCRIPTION:
+  - Type a room's area, or its length and width, in square metres or square
+    feet; flip units at any time without losing the value.
+  - Compare: the room type's five size bands (Min, Small, Medium, Large, O/S)
+    drawn to scale as nested boxes from a shared corner, with your room in
+    orange on top, a furniture piece for scale, and a verdict in words.
+  - All Rooms: every room type side by side on one scale, with your area as a
+    line across them all.
+  - Data & Sources: every figure, what changed from the original sheet and
+    why, and the sources behind each room. Copies straight into Google Sheets.
+  - All processing is local. No data is sent to any server.
+
+  MODULES:
+  - 01__AppModules/MiniApp__SpacePlanningUtils__RoomSizeComparator__Main__.js        (controller: config, state, events)
+  - 01__AppModules/MiniApp__SpacePlanningUtils__RoomSizeComparator__Units__.js       (m² / ft² maths, parsing, formatting)
+  - 01__AppModules/MiniApp__SpacePlanningUtils__RoomSizeComparator__RoomData__.js    (data load, classify an area)
+  - 01__AppModules/MiniApp__SpacePlanningUtils__RoomSizeComparator__PlanDrawing__.js (to-scale SVG drawing, PNG export)
+  - 01__AppModules/MiniApp__SpacePlanningUtils__RoomSizeComparator__CompareView__.js (verdict, band strip, band table, notes)
+  - 01__AppModules/MiniApp__SpacePlanningUtils__RoomSizeComparator__AllRoomsView__.js (every room on one scale)
+  - 01__AppModules/MiniApp__SpacePlanningUtils__RoomSizeComparator__DataView__.js    (figures, changes and sources)
+  - 01__AppModules/MiniApp__SpacePlanningUtils__RoomSizeComparator__UrlState__.js    (shareable link, remembered units)
+  - 02__AppData/RoomSizeComparator__RoomSizeData__UK__.json                          (validated room data and sources)
+  - MiniApp__SpacePlanningUtils__RoomSizeComparator__Style__.css                     (styles)
+  - MiniApp__SpacePlanningUtils__RoomSizeComparator__AppConfig__.json                (config source)
+
+  =========================================================================== -->
+
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION | Document Head                                            -->
+<!-- ----------------------------------------------------------------- -->
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Noble Architecture Room Size Comparator: compare a room's floor area with typical UK room sizes, drawn to scale, in square metres or square feet." />
+        <meta name="author" content="Adam Noble - Noble Architecture" />
+        <title>Room Size Comparator - Noble Architecture</title>
+        <meta name="theme-color" content="#555041" />
+
+        <link rel="icon" type="image/svg+xml"
+              href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__SVG-h50mm.svg" />
+
+        <link rel="stylesheet"
+              href="../../../assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_30_-_STYL_-_Core-Default-Web-Utility-App-Stylesheet.css" />
+        <!-- ?v= : see REGION | Versioned App Files at the foot of the body -->
+        <link rel="stylesheet" href="MiniApp__SpacePlanningUtils__RoomSizeComparator__Style__.css?v=1.0.0" />
+    </head>
+<!-- endregion -------------------------------------------------------- -->
+
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION | Document Body                                            -->
+<!-- ----------------------------------------------------------------- -->
+    <body>
+        <div class="PAGE__container">
+
+            <!-- --------------------------------------------------------- -->
+            <!-- REGION | Page Header                                      -->
+            <!-- --------------------------------------------------------- -->
+                <header class="HEAD__container">
+                    <div class="HEAD__nav RSC__header-nav">
+                        <img class="RSC__header-logo"
+                             src="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__SVG-h50mm.svg"
+                             alt="" width="26" height="26" />
+                        <div id="js__appTitle" class="HEAD__title">Room Size Comparator</div>
+                        <div class="RSC__header-end">
+                            <span id="js__appVersion" class="HEAD__version-note"></span>
+                        </div>
+                    </div>
+                </header>
+            <!-- endregion ------------------------------------------------ -->
+
+            <!-- --------------------------------------------------------- -->
+            <!-- REGION | Main Content                                     -->
+            <!-- --------------------------------------------------------- -->
+                <div class="FULL__page-app-container" id="js__scrollHost">
+                    <main class="MAIN__container RSC__main">
+
+                        <!-- --------------------------------------------- -->
+                        <!-- REGION | Tool Bar                             -->
+                        <!-- Compare | All Rooms | Data folder tabs on the -->
+                        <!-- left, the m² / ft² switch on the right.       -->
+                        <!-- --------------------------------------------- -->
+                            <div class="RSC__toolbar">
+                                <div class="RSC__tablist" role="tablist" aria-label="Views">
+                                    <button id="js__tabCompare" class="RSC__tab RSC__tab--active" type="button" role="tab"
+                                            aria-selected="true" aria-controls="js__viewCompare" data-rsc-view="compare">Compare</button>
+                                    <button id="js__tabAll" class="RSC__tab" type="button" role="tab"
+                                            aria-selected="false" aria-controls="js__viewAll" data-rsc-view="all" tabindex="-1">All Rooms</button>
+                                    <button id="js__tabData" class="RSC__tab" type="button" role="tab"
+                                            aria-selected="false" aria-controls="js__viewData" data-rsc-view="data" tabindex="-1">Data &amp; Sources</button>
+                                </div>
+
+                                <div class="RSC__segmented RSC__unit-switch" role="radiogroup" aria-label="Units" id="js__unitSwitch">
+                                    <label><input type="radio" name="js__unit" value="m2" checked /><span>m²</span></label>
+                                    <label><input type="radio" name="js__unit" value="ft2" /><span>ft²</span></label>
+                                </div>
+                            </div>
+                        <!-- endregion ------------------------------------ -->
+
+                        <!-- --------------------------------------------- -->
+                        <!-- REGION | Your Room Controls                   -->
+                        <!-- Shared by Compare and All Rooms.              -->
+                        <!-- --------------------------------------------- -->
+                            <section id="js__controls" class="RSC__controls" aria-label="Your room">
+                                <div class="RSC__field RSC__field--room">
+                                    <label for="js__roomSelect" id="js__roomSelectLabel" class="RSC__label">Room type</label>
+                                    <select id="js__roomSelect" class="RSC__select"></select>
+                                </div>
+
+                                <div class="RSC__field RSC__field--size">
+                                    <div class="RSC__size-head">
+                                        <span id="js__sizeLabel" class="RSC__label">Your room</span>
+                                        <div class="RSC__segmented RSC__segmented--small" role="radiogroup" aria-label="Enter the size as">
+                                            <label><input type="radio" name="js__inputMode" value="area" checked /><span id="js__modeAreaLabel">Area</span></label>
+                                            <label><input type="radio" name="js__inputMode" value="dims" /><span id="js__modeDimsLabel">Length × width</span></label>
+                                        </div>
+                                    </div>
+
+                                    <div id="js__areaRow" class="RSC__input-row">
+                                        <input id="js__areaInput" class="RSC__input RSC__input--area" type="text" inputmode="decimal"
+                                               autocomplete="off" spellcheck="false" placeholder="e.g. 12.5" aria-label="Floor area" />
+                                        <span id="js__areaSuffix" class="RSC__suffix">m²</span>
+                                    </div>
+
+                                    <div id="js__dimsRow" class="RSC__input-row" hidden>
+                                        <input id="js__lengthInput" class="RSC__input RSC__input--dim" type="text" inputmode="decimal"
+                                               autocomplete="off" spellcheck="false" placeholder="Length" aria-label="Length" />
+                                        <span class="RSC__suffix js__lengthSuffix">m</span>
+                                        <span class="RSC__times" aria-hidden="true">×</span>
+                                        <input id="js__widthInput" class="RSC__input RSC__input--dim" type="text" inputmode="decimal"
+                                               autocomplete="off" spellcheck="false" placeholder="Width" aria-label="Width" />
+                                        <span class="RSC__suffix js__lengthSuffix">m</span>
+                                    </div>
+
+                                    <p id="js__inputNote" class="RSC__input-note" role="status" aria-live="polite"></p>
+                                </div>
+
+                                <div class="RSC__field RSC__field--actions">
+                                    <button id="js__clearBtn" class="RSC__btn RSC__btn--ghost" type="button">Clear</button>
+                                    <button id="js__copyLinkBtn" class="RSC__btn RSC__btn--ghost" type="button">Copy link</button>
+                                </div>
+                            </section>
+                        <!-- endregion ------------------------------------ -->
+
+                        <!-- --------------------------------------------- -->
+                        <!-- REGION | Compare View                         -->
+                        <!-- @delegate: 01__AppModules/...__PlanDrawing__.js  -->
+                        <!-- @delegate: 01__AppModules/...__CompareView__.js  -->
+                        <!-- --------------------------------------------- -->
+                            <section id="js__viewCompare" class="RSC__view" role="tabpanel" aria-labelledby="js__tabCompare">
+                                <div class="RSC__compare-grid">
+
+                                    <div class="RSC__card RSC__card--plan">
+                                        <div class="RSC__card-head">
+                                            <h2 id="js__planTitle" class="RSC__card-title"></h2>
+                                            <div class="RSC__card-tools">
+                                                <label class="RSC__check">
+                                                    <input type="checkbox" id="js__furnitureToggle" checked />
+                                                    <span id="js__furnitureLabel">Furniture for scale</span>
+                                                </label>
+                                                <button id="js__savePngBtn" class="RSC__btn RSC__btn--ghost RSC__btn--small" type="button">Save image</button>
+                                            </div>
+                                        </div>
+                                        <div id="js__planHost" class="RSC__plan-host">
+                                            <svg id="js__planSvg" class="RSC__plan-svg" xmlns="http://www.w3.org/2000/svg" role="img"></svg>
+                                        </div>
+                                        <p id="js__planCaption" class="RSC__caption"></p>
+                                    </div>
+
+                                    <div class="RSC__side">
+                                        <div id="js__verdict" class="RSC__card RSC__card--verdict" aria-live="polite"></div>
+
+                                        <div class="RSC__card RSC__card--bands">
+                                            <h3 id="js__bandsTitle" class="RSC__card-title">Size bands</h3>
+                                            <div id="js__bandStrip" class="RSC__strip"></div>
+                                            <div class="RSC__table-wrap">
+                                                <table id="js__bandTable" class="RSC__band-table"></table>
+                                            </div>
+                                        </div>
+
+                                        <div id="js__roomNotes" class="RSC__card RSC__card--notes"></div>
+                                    </div>
+
+                                </div>
+                            </section>
+                        <!-- endregion ------------------------------------ -->
+
+                        <!-- --------------------------------------------- -->
+                        <!-- REGION | All Rooms View                       -->
+                        <!-- @delegate: 01__AppModules/...__AllRoomsView__.js -->
+                        <!-- --------------------------------------------- -->
+                            <section id="js__viewAll" class="RSC__view" role="tabpanel" aria-labelledby="js__tabAll" hidden>
+                                <div class="RSC__card">
+                                    <div class="RSC__card-head">
+                                        <h2 id="js__allTitle" class="RSC__card-title">Every room type, side by side</h2>
+                                        <div class="RSC__card-tools">
+                                            <input id="js__allFilter" class="RSC__input RSC__input--search" type="search"
+                                                   placeholder="Find a room…" aria-label="Find a room type" />
+                                            <select id="js__allSort" class="RSC__select RSC__select--small" aria-label="Sort room types">
+                                                <option value="group">By group</option>
+                                                <option value="size">By typical size</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <p id="js__allHint" class="RSC__caption RSC__caption--top"></p>
+                                    <div id="js__allLegend" class="RSC__legend"></div>
+                                    <div id="js__allChart" class="RSC__all"></div>
+                                </div>
+                            </section>
+                        <!-- endregion ------------------------------------ -->
+
+                        <!-- --------------------------------------------- -->
+                        <!-- REGION | Data And Sources View                -->
+                        <!-- @delegate: 01__AppModules/...__DataView__.js     -->
+                        <!-- --------------------------------------------- -->
+                            <section id="js__viewData" class="RSC__view" role="tabpanel" aria-labelledby="js__tabData" hidden>
+                                <div id="js__dataIntro" class="RSC__card RSC__card--prose"></div>
+                                <div class="RSC__card">
+                                    <div class="RSC__card-head">
+                                        <h2 id="js__dataTableTitle" class="RSC__card-title">All figures</h2>
+                                        <div class="RSC__card-tools">
+                                            <button id="js__copyTsvBtn" class="RSC__btn RSC__btn--ghost RSC__btn--small" type="button">Copy for Google Sheets</button>
+                                            <a id="js__downloadJsonLink" class="RSC__btn RSC__btn--ghost RSC__btn--small" href="./02__AppData/RoomSizeComparator__RoomSizeData__UK__.json" download>Download JSON</a>
+                                        </div>
+                                    </div>
+                                    <div id="js__dataTable" class="RSC__table-wrap"></div>
+                                </div>
+                            </section>
+                        <!-- endregion ------------------------------------ -->
+
+                        <div id="js__tooltip" class="RSC__tooltip" role="tooltip" hidden></div>
+                        <div id="js__toast" class="RSC__toast" role="status" aria-live="polite"></div>
+
+                    </main>
+                </div>
+            <!-- endregion ------------------------------------------------ -->
+
+            <!-- --------------------------------------------------------- -->
+            <!-- REGION | Page Footer                                      -->
+            <!-- --------------------------------------------------------- -->
+                <footer class="FOOT__container">
+                    <span id="js__pageFooter">© 2026 Noble Architecture | All Rights Reserved</span>
+                </footer>
+            <!-- endregion ------------------------------------------------ -->
+
+        </div>
+
+        <!-- ------------------------------------------------------------- -->
+        <!-- REGION | Versioned App Files                                  -->
+        <!-- Cloudflare tells browsers to keep JS and CSS for 4 hours      -->
+        <!-- (HTML and JSON: 10 minutes), and straight after a deploy its  -->
+        <!-- edge can still hand out the previous copy. So every app file  -->
+        <!-- loads by a versioned URL: a new ?v= is a URL nothing has      -->
+        <!-- cached. With EACH release, set every ?v= in this file to the  -->
+        <!-- new version: the stylesheet link in the head, this map and    -->
+        <!-- the script below. The map gives each module's plain URL its   -->
+        <!-- versioned one, so the import lines never change.              -->
+        <!-- ------------------------------------------------------------- -->
+            <script type="importmap">
+            {
+                "imports": {
+                    "./01__AppModules/MiniApp__SpacePlanningUtils__RoomSizeComparator__Units__.js"        : "./01__AppModules/MiniApp__SpacePlanningUtils__RoomSizeComparator__Units__.js?v=1.0.0",
+                    "./01__AppModules/MiniApp__SpacePlanningUtils__RoomSizeComparator__RoomData__.js"     : "./01__AppModules/MiniApp__SpacePlanningUtils__RoomSizeComparator__RoomData__.js?v=1.0.0",
+                    "./01__AppModules/MiniApp__SpacePlanningUtils__RoomSizeComparator__PlanDrawing__.js"  : "./01__AppModules/MiniApp__SpacePlanningUtils__RoomSizeComparator__PlanDrawing__.js?v=1.0.0",
+                    "./01__AppModules/MiniApp__SpacePlanningUtils__RoomSizeComparator__CompareView__.js"  : "./01__AppModules/MiniApp__SpacePlanningUtils__RoomSizeComparator__CompareView__.js?v=1.0.0",
+                    "./01__AppModules/MiniApp__SpacePlanningUtils__RoomSizeComparator__AllRoomsView__.js" : "./01__AppModules/MiniApp__SpacePlanningUtils__RoomSizeComparator__AllRoomsView__.js?v=1.0.0",
+                    "./01__AppModules/MiniApp__SpacePlanningUtils__RoomSizeComparator__DataView__.js"     : "./01__AppModules/MiniApp__SpacePlanningUtils__RoomSizeComparator__DataView__.js?v=1.0.0",
+                    "./01__AppModules/MiniApp__SpacePlanningUtils__RoomSizeComparator__UrlState__.js"     : "./01__AppModules/MiniApp__SpacePlanningUtils__RoomSizeComparator__UrlState__.js?v=1.0.0"
+                }
+            }
+            </script>
+
+            <script type="module" src="01__AppModules/MiniApp__SpacePlanningUtils__RoomSizeComparator__Main__.js?v=1.0.0"></script>
+        <!-- endregion ---------------------------------------------------- -->
+    </body>
+<!-- endregion -------------------------------------------------------- -->
+
+</html>

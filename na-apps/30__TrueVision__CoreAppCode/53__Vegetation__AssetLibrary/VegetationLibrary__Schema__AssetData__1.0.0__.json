@@ -1,0 +1,185 @@
+{
+    "$schema"              : "https://json-schema.org/draft/2020-12/schema",
+    "$id"                  : "VegetationLibrary__Schema__AssetData__1.0.0__.json",
+    "title"                : "ValeVision 3D - One Vegetation Asset 1.0.0",
+    "description"          : "One asset of 53__Vegetation__AssetLibrary: rules and ranges, never geometry. A project pins a copy of this whole object in Vegetation__SceneData__Assets the first time it uses the asset. Millimetres end Mm, shares and chances are 0 to 1. The build util checks every asset against this contract.",
+    "type"                 : "object",
+    "additionalProperties" : false,
+    "required"             : ["Asset__Id", "Asset__Name", "Asset__Description", "Asset__Meta", "Asset__Identity", "Asset__Generator", "Asset__Proxy", "Asset__Placement", "Asset__Catalogue", "Asset__Size", "Asset__Masses", "Asset__Clumps", "Asset__Nubs", "Asset__Line", "Asset__Tufts"],
+    "properties"           : {
+        "Asset__Id"          : { "type": "string", "pattern": "^VVL_[0-9]{2}_[0-9]{4}$" },
+        "Asset__Name"        : { "type": "string", "minLength": 1, "description": "What a card and a person call it" },
+        "Asset__Description" : { "type": "string", "minLength": 1 },
+
+        "Asset__Meta": {
+            "type": "object", "additionalProperties": false,
+            "required": ["Meta__Version", "Meta__Created", "Meta__Author", "Meta__Status"],
+            "properties": {
+                "Meta__Version" : { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$", "description": "A project compares this with its pinned copy, to offer Update to latest" },
+                "Meta__Created" : { "type": "string", "pattern": "^[0-9]{2}-[A-Z][a-z]{2}-[0-9]{4}$" },
+                "Meta__Author"  : { "type": "string", "minLength": 1 },
+                "Meta__Status"  : { "enum": ["Active", "Draft", "Retired"] }
+            }
+        },
+
+        "Asset__Identity": {
+            "type": "object", "additionalProperties": false,
+            "required": ["Identity__CollectionCode", "Identity__Type", "Identity__Family", "Identity__Item", "Identity__Name", "Identity__Variant"],
+            "properties": {
+                "Identity__CollectionCode" : { "type": "string", "pattern": "^[0-9]{2}$" },
+                "Identity__Type"           : { "type": "string", "minLength": 1 },
+                "Identity__Family"         : { "type": "string", "pattern": "^[0-9]{3}$" },
+                "Identity__Item"           : { "type": "integer", "minimum": 1, "maximum": 9 },
+                "Identity__Name"           : { "type": "string", "pattern": "^[A-Z][A-Za-z0-9]*(-[A-Za-z0-9]+)*$" },
+                "Identity__Variant"        : { "type": "string", "pattern": "^Var-[0-9]{2}$" }
+            }
+        },
+
+        "Asset__Generator": {
+            "type": "object", "additionalProperties": false,
+            "required": ["Generator__Name", "Generator__Version"],
+            "properties": {
+                "Generator__Name"    : { "type": "string", "minLength": 1, "description": "Listed in Vegetation__Generators__Config of Na__Vegetation__AppConfig__.json" },
+                "Generator__Version" : { "type": "integer", "minimum": 1, "description": "A saved seed draws the same bush for ever, so a new look is a new version and an old one is never edited" }
+            }
+        },
+
+        "Asset__Proxy": {
+            "type": "object", "additionalProperties": false,
+            "required": ["Proxy__Shape", "Proxy__RingCount", "Proxy__SectorCount"],
+            "properties": {
+                "Proxy__Shape"       : { "enum": ["Dome", "Box"] },
+                "Proxy__RingCount"   : { "type": "integer", "minimum": 2, "maximum": 12 },
+                "Proxy__SectorCount" : { "type": "integer", "minimum": 4, "maximum": 24 }
+            }
+        },
+
+        "Asset__Placement": {
+            "type": "object", "additionalProperties": false,
+            "required": ["Placement__RotationVariationDeg", "Placement__ScaleVariationPercent", "Placement__HeightVariationPercent", "Placement__AlignToPath", "Placement__StretchAlongPath", "Placement__MinSpacingMm", "Placement__DefaultWeight"],
+            "properties": {
+                "Placement__RotationVariationDeg"   : { "type": "number", "minimum": 0, "maximum": 180, "description": "Plus or minus, what the tools start from" },
+                "Placement__ScaleVariationPercent"  : { "type": "number", "minimum": 0, "maximum": 100 },
+                "Placement__HeightVariationPercent" : { "type": "number", "minimum": 0, "maximum": 100 },
+                "Placement__AlignToPath"            : { "type": "boolean", "description": "A long plant keeps its long side along a path; a round one turns freely" },
+                "Placement__StretchAlongPath"       : { "type": "boolean", "description": "The Linear Tool lays this as stretched runs, not a row of separate plants" },
+                "Placement__Clipped"                : { "type": "boolean", "description": "Optional. A managed plant: the Linear Tool varies nothing about it, and a run of it stops at each corner of a path and meets square" },
+                "Placement__MinSpacingMm"           : { "type": "integer", "exclusiveMinimum": 0, "description": "The Bush Tool keeps plants this far apart" },
+                "Placement__DefaultWeight"          : { "type": "number", "minimum": 0, "description": "Its starting probability when added to a palette. 0 stays out of a project's first mixed palette" }
+            }
+        },
+
+        "Asset__Catalogue": {
+            "type": "object", "additionalProperties": false,
+            "required": ["Catalogue__Keywords", "Catalogue__Season", "Catalogue__BotanicalName"],
+            "properties": {
+                "Catalogue__Keywords"      : { "type": "array", "items": { "type": "string" } },
+                "Catalogue__Season"        : { "enum": ["AllYear", "Spring", "Summer", "Autumn", "Winter"] },
+                "Catalogue__BotanicalName" : { "type": ["string", "null"], "description": "Null until someone names a species: these are generic plants, drawn" }
+            }
+        },
+
+        "Asset__Form": {
+            "type": "object", "additionalProperties": false,
+            "description": "Optional, read by the ClippedForm generator: the shape a clipped plant is kept to",
+            "required": ["Form__Shape", "Form__Inset", "Form__Waver", "Form__EdgeShare", "Form__MarkShare"],
+            "properties": {
+                "Form__Shape"           : { "enum": ["Box", "Ball", "Cone"] },
+                "Form__Inset"           : { "type": "number", "description": "How far in a clump's centre sits from the face, as a share of its radius: more is a flatter face" },
+                "Form__Waver"           : { "type": "number", "minimum": 0, "description": "Plus or minus on that, so a face is not ruled" },
+                "Form__EdgeShare"       : { "type": "number", "minimum": 0, "description": "A clump within this many of its radii of a box's edge draws a mark along it, so a top reads as a top" },
+                "Form__MarkShare"       : { "type": "number", "minimum": 0, "maximum": 1, "description": "The share of the other clumps that draw a small arc on the face: a flat shell's outlines never show, so this is its only texture" },
+                "Form__Batter"          : { "type": "number", "minimum": 0, "maximum": 0.5, "description": "Box only. How much narrower the top is, as a share: the lean of a clipped hedge" },
+                "Form__LapMm"           : { "type": "number", "minimum": 0, "description": "Box only. How far a run reaches past each joint on a path, and sinks into the next one's fill: more than two clumps across, or a joint shows" },
+                "Form__StemHeightShare" : { "type": "number", "minimum": 0, "maximum": 0.9, "description": "A head on a clear stem: this share of the height is stem" },
+                "Form__StemWidthMm"     : { "type": "number", "exclusiveMinimum": 0 }
+            }
+        },
+
+        "Asset__Size": {
+            "type": "object", "additionalProperties": false,
+            "required": ["Size__WidthMm", "Size__DepthMm", "Size__HeightMm", "Size__JitterShare"],
+            "properties": {
+                "Size__WidthMm"     : { "type": "integer", "exclusiveMinimum": 0 },
+                "Size__DepthMm"     : { "type": "integer", "exclusiveMinimum": 0 },
+                "Size__HeightMm"    : { "type": "integer", "exclusiveMinimum": 0 },
+                "Size__JitterShare" : { "type": "number", "minimum": 0, "maximum": 1 }
+            }
+        },
+
+        "Asset__Masses": {
+            "type": "object", "additionalProperties": false,
+            "required": ["Masses__Layout", "Masses__CountMin", "Masses__CountMax", "Masses__ScallopChordMinMm", "Masses__ScallopChordMaxMm", "Masses__ScallopDepth", "Masses__ScallopSkew", "Masses__TipShare"],
+            "properties": {
+                "Masses__Layout"            : { "enum": ["Mound", "Upright", "Run"] },
+                "Masses__CountMin"          : { "type": "integer", "minimum": 1 },
+                "Masses__CountMax"          : { "type": "integer", "minimum": 1 },
+                "Masses__ScallopChordMinMm" : { "type": "number", "exclusiveMinimum": 0 },
+                "Masses__ScallopChordMaxMm" : { "type": "number", "exclusiveMinimum": 0 },
+                "Masses__ScallopDepth"      : { "type": "number", "minimum": 0 },
+                "Masses__ScallopSkew"       : { "type": "number", "exclusiveMinimum": 0 },
+                "Masses__TipShare"          : { "type": "number", "minimum": 0, "maximum": 1 }
+            }
+        },
+
+        "Asset__Clumps": {
+            "type": "object", "additionalProperties": false,
+            "required": ["Clumps__RadiusMinMm", "Clumps__RadiusMaxMm", "Clumps__Skew", "Clumps__Spacing", "Clumps__ReachMin", "Clumps__ReachMax", "Clumps__ScallopDepth", "Clumps__TipShare", "Clumps__Ellipse", "Clumps__Wobble"],
+            "properties": {
+                "Clumps__RadiusMinMm"  : { "type": "number", "exclusiveMinimum": 0 },
+                "Clumps__RadiusMaxMm"  : { "type": "number", "exclusiveMinimum": 0 },
+                "Clumps__Skew"         : { "type": "number", "exclusiveMinimum": 0 },
+                "Clumps__Spacing"      : { "type": "number", "exclusiveMinimum": 0 },
+                "Clumps__ReachMin"     : { "type": "number", "exclusiveMinimum": 0 },
+                "Clumps__ReachMax"     : { "type": "number", "exclusiveMinimum": 0 },
+                "Clumps__ScallopDepth" : { "type": "number", "minimum": 0 },
+                "Clumps__TipShare"     : { "type": "number", "minimum": 0, "maximum": 1 },
+                "Clumps__Ellipse"      : { "type": "number", "minimum": 0 },
+                "Clumps__Wobble"       : { "type": "number", "minimum": 0 }
+            }
+        },
+
+        "Asset__Nubs": {
+            "type": "object", "additionalProperties": false,
+            "required": ["Nubs__Share", "Nubs__RadiusMinMm", "Nubs__RadiusMaxMm"],
+            "properties": {
+                "Nubs__Share"       : { "type": "number", "minimum": 0 },
+                "Nubs__RadiusMinMm" : { "type": "number", "exclusiveMinimum": 0 },
+                "Nubs__RadiusMaxMm" : { "type": "number", "exclusiveMinimum": 0 }
+            }
+        },
+
+        "Asset__Line": {
+            "type": "object", "additionalProperties": false,
+            "required": ["Line__InteriorChance", "Line__InteriorSpanDeg", "Line__TailChance", "Line__TailMinRad", "Line__TailMaxRad", "Line__CurlChance", "Line__CurlAmount", "Line__BreakChance", "Line__CuspHookChance", "Line__CuspHookMinMm", "Line__CuspHookMaxMm", "Line__SpurShare"],
+            "properties": {
+                "Line__InteriorChance"  : { "type": "number", "minimum": 0, "maximum": 1 },
+                "Line__InteriorSpanDeg" : { "type": "number", "exclusiveMinimum": 0 },
+                "Line__TailChance"      : { "type": "number", "minimum": 0, "maximum": 1 },
+                "Line__TailMinRad"      : { "type": "number", "minimum": 0 },
+                "Line__TailMaxRad"      : { "type": "number", "minimum": 0 },
+                "Line__CurlChance"      : { "type": "number", "minimum": 0, "maximum": 1 },
+                "Line__CurlAmount"      : { "type": "number", "minimum": 0, "maximum": 1 },
+                "Line__BreakChance"     : { "type": "number", "minimum": 0, "maximum": 1 },
+                "Line__CuspHookChance"  : { "type": "number", "minimum": 0, "maximum": 1 },
+                "Line__CuspHookMinMm"   : { "type": "number", "minimum": 0 },
+                "Line__CuspHookMaxMm"   : { "type": "number", "minimum": 0 },
+                "Line__SpurShare"       : { "type": "number", "minimum": 0, "maximum": 1 }
+            }
+        },
+
+        "Asset__Tufts": {
+            "type": "object", "additionalProperties": false,
+            "required": ["Tufts__CountMin", "Tufts__CountMax", "Tufts__HeightMinMm", "Tufts__HeightMaxMm", "Tufts__BladesMin", "Tufts__BladesMax", "Tufts__BladeWidthMm"],
+            "properties": {
+                "Tufts__CountMin"     : { "type": "integer", "minimum": 0 },
+                "Tufts__CountMax"     : { "type": "integer", "minimum": 0 },
+                "Tufts__HeightMinMm"  : { "type": "number", "minimum": 0 },
+                "Tufts__HeightMaxMm"  : { "type": "number", "minimum": 0 },
+                "Tufts__BladesMin"    : { "type": "integer", "minimum": 0 },
+                "Tufts__BladesMax"    : { "type": "integer", "minimum": 0 },
+                "Tufts__BladeWidthMm" : { "type": "number", "minimum": 0 }
+            }
+        }
+    }
+}

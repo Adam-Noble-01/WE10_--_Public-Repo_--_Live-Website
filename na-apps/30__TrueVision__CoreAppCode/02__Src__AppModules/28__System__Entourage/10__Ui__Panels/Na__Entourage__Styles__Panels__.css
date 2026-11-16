@@ -1,0 +1,210 @@
+/* =============================================================================
+ * TRUEVISION3D - ENTOURAGE - THE DEV PANELS' STYLES
+ * =============================================================================
+ *
+ * FILE       : Na__Entourage__Styles__Panels__.css
+ * NAMESPACE  : TrueVision3D
+ * MODULE     : System - Entourage
+ * AUTHOR     : Adam Noble - Noble Architecture
+ * PURPOSE    : What entourage's panels have that the plants' do not: cards tall enough for
+ *              a person, the right-click menu and the pictures in it
+ * CREATED    : 05-Nov-2026
+ *
+ * DESCRIPTION:
+ * - Added to the page by Na__Entourage__PanelShell__.js the first time an author opens
+ *   something, beside the plants' stylesheet, whose .na-veg- classes these panels share.
+ * - The menu sits over everything, as it opens from the model under the pointer.
+ *
+ * PORT NOTE:
+ * - Ported from   : ValeVision3D 23__System__Entourage/10__Ui__Panels/Na__Entourage__Styles__Panels__.css (ValeVision3D v2.98.6)
+ * - Ported on     : 15-Nov-2026 for TrueVision3D v2.185.0
+ * - Parity        : identical (header, console prefix and the Entourage folder's number apart)
+ * - Divergences   : none in behaviour. Entourage is 28__System__Entourage in TrueVision (its 23
+ *                   is Scene Sync); the vegetation and entourage READMEs list what differs around it.
+ * - Back-port     : n/a (this IS the port).
+ *
+ * -----------------------------------------------------------------------------
+ *
+ * DEVELOPMENT LOG:
+ * 11-Nov-2026 - Version 1.2.0 (ValeVision3D v2.96.0)
+ * - The right-click menu's who-added-it lines under its title (.na-ent-menu__owner).
+ *
+ * 05-Nov-2026 - Version 1.1.0 (ValeVision3D v2.89.0)
+ * - A long grid of pictures in the right-click menu scrolls inside it.
+ *
+ * 05-Nov-2026 - Version 1.0.0 (ValeVision3D v2.88.0)
+ * - Initial build.
+ *
+ * ============================================================================= */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Cards
+ * ----------------------------------------------------------------------------- */
+
+    .na-ent-cards {
+        display                            : grid;
+        grid-template-columns              : repeat(3, 1fr);
+        gap                                : 6px;
+    }
+
+    .na-ent-card {
+        margin                             : 0;
+        padding                            : 4px 2px 6px;
+        text-align                         : center;
+        touch-action                       : none;
+        user-select                        : none;
+        cursor                             : grab;
+    }
+
+    .na-ent-card canvas {
+        display                            : block;
+        margin                             : 0 auto;
+        pointer-events                     : none;
+    }
+
+    .na-ent-card .na-veg-card__name {
+        margin                             : 3px 2px 0;
+        font-size                          : 10.5px;
+        font-weight                        : 600;
+        line-height                        : 1.2;
+    }
+
+    .na-ent-card .na-veg-card__meta {
+        margin                             : 1px 2px 0;
+        font-size                          : 10px;
+    }
+
+    .na-ent-ghost {
+        position                           : fixed;
+        z-index                            : 1200;
+        transform                          : translate(-50%, -85%);
+        padding                            : 2px;
+        border                             : 1px solid rgba(23, 43, 58, 0.25);
+        border-radius                      : 6px;
+        background                         : rgba(255, 255, 255, 0.92);
+        box-shadow                         : 0 3px 12px rgba(0, 0, 0, 0.18);
+        pointer-events                     : none;                              /* <-- So what is under the pointer can be found */
+    }
+
+    .na-ent-ghost canvas {
+        display                            : block;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | The Pictures to Swap For
+ * ----------------------------------------------------------------------------- */
+
+    .na-ent-swaps {
+        display                            : grid;
+        grid-template-columns              : repeat(4, 1fr);
+        gap                                : 4px;
+        margin                             : 4px 0 6px;
+    }
+
+    .na-ent-swap {
+        display                            : flex;
+        justify-content                    : center;
+        padding                            : 2px;
+        border                             : 1px solid rgba(23, 43, 58, 0.12);
+        border-radius                      : 6px;
+        background                         : #ffffff;
+        cursor                             : pointer;
+    }
+
+    .na-ent-swap:hover {
+        border-color                       : #172b3a;
+        box-shadow                         : inset 0 0 0 1px #172b3a;
+    }
+
+    .na-ent-swap canvas {
+        display                            : block;
+        pointer-events                     : none;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | The Right-Click Menu
+ * ----------------------------------------------------------------------------- */
+
+    .na-ent-menu {
+        position                           : fixed;
+        z-index                            : 1300;
+        width                              : 256px;
+        padding                            : 6px;
+        border                             : 1px solid rgba(23, 43, 58, 0.12);
+        border-radius                      : 10px;
+        background                         : #ffffff;
+        box-shadow                         : 0 6px 22px rgba(0, 0, 0, 0.2);
+        color                              : #172b3a;
+        font-family                        : 'Open Sans', 'Segoe UI', sans-serif;
+        font-size                          : 13px;
+    }
+
+    .na-ent-menu__title {
+        padding                            : 4px 8px 6px;
+        border-bottom                      : 1px solid rgba(23, 43, 58, 0.12);
+        margin-bottom                      : 4px;
+        font-weight                        : 600;
+    }
+
+    .na-ent-menu__owner {                                                  /* <-- Who added it and when, under the name (v2.96.0) */
+        margin-top                         : 3px;
+        color                              : #5c6b78;
+        font-size                          : 11px;
+        font-weight                        : 400;
+        line-height                        : 1.35;
+        max-width                          : 260px;
+    }
+
+    .na-ent-menu__heading {
+        padding                            : 8px 8px 2px;
+        color                              : #5c6b78;
+        font-size                          : 11px;
+        font-weight                        : 600;
+    }
+
+    .na-ent-menu__row {
+        display                            : flex;
+        justify-content                    : space-between;
+        align-items                        : center;
+        width                              : 100%;
+        padding                            : 5px 8px;
+        border                             : 0;
+        border-radius                      : 6px;
+        background                         : transparent;
+        color                              : inherit;
+        font                               : inherit;
+        text-align                         : left;
+        cursor                             : pointer;
+    }
+
+    .na-ent-menu__row:hover {
+        background                         : #e7eef4;
+    }
+
+    .na-ent-menu__row--danger {
+        color                              : #a3322a;
+    }
+
+    .na-ent-menu__row--danger:hover {
+        background                         : #f8e8e6;
+    }
+
+    .na-ent-menu__hint {
+        color                              : #5c6b78;
+        font-size                          : 11px;
+    }
+
+    .na-ent-menu .na-ent-swaps {
+        max-height                         : 264px;
+        padding                            : 0 4px;
+        overflow-y                         : auto;
+    }
+
+/* endregion ------------------------------------------------------------------- */

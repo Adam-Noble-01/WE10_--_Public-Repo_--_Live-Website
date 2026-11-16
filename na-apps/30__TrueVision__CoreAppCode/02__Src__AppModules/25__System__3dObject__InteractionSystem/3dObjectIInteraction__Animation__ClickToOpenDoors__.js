@@ -45,6 +45,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 15-Nov-2026 - Version 1.10.0 (v2.185.0)
+// - Na__DoorAnim__SetClickHold, from ValeVision 3D v2.85.0: a tool taking clicks on
+//   the model holds door clicks by name, so a click meant for it no longer swings the
+//   door behind it. The vegetation and entourage tools use it.
+//
 // 14-Sep-2026 - Version 1.9.0
 // - A door's pose can be read and set without animating it. ComputePanelLocalPose
 //   answers a panel's local position and quaternion at any progress and touches
@@ -960,12 +965,26 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | A Tool Takes Clicks on the Model, or Gives Them Back
+    // ------------------------------------------------------------
+    // Holds are named, so two tools can never let go for each other: a click
+    // meant for a tool also swung whatever door was under it.
+    // ------------------------------------------------------------
+    const Na__DoorAnim__Holds = new Set();
+    function Na__DoorAnim__SetClickHold(reason, held) {
+        if (held) Na__DoorAnim__Holds.add(String(reason));
+        else Na__DoorAnim__Holds.delete(String(reason));
+    }
+    // ------------------------------------------------------------
+
+
     // SUB FUNCTION | Handle Pointer Up Event (Click Detection)
     // ------------------------------------------------------------
     function Na__DoorAnim__OnPointerUp(event) {
         if (event.button !== 0) return;                                          // <-- Left button only (see OnPointerDown)
         if (!Na__DoorAnim__PointerIsDown) return;                                // <-- Ignore if no prior pointerdown
         Na__DoorAnim__PointerIsDown = false;                                     // <-- Reset pointer state
+        if (Na__DoorAnim__Holds.size > 0) return;                                // <-- A tool is taking clicks on the model: a door behind one must not swing
 
         // Check pointer movement to distinguish click from orbit drag
         const deltaX = Math.abs(event.clientX - Na__DoorAnim__PointerDownX);    // <-- Horizontal movement
@@ -1468,6 +1487,7 @@
         Na__DoorAnimation__HasActiveAnimations,                                  // <-- True while any door animation is running
         Na__DoorAnimation__ScanForDoors,                                         // <-- Re-scan scene graph
         Na__DoorAnim__DoorRegistry,                                              // <-- Door registry Map (for proximity system)
+        Na__DoorAnim__SetClickHold,                                              // <-- A tool takes clicks on the model (vegetation and entourage tools)
         Na__DoorAnim__ToggleDoor,                                                // <-- Toggle whole door open/close (legacy + external callers)
         Na__DoorAnim__TogglePanel,                                               // <-- Toggle one panel on explicitly independent ADRs
         Na__DoorAnim__FindAdrAncestor,                                           // <-- Walk a raycast hit up to its ADR (Context Menu System)

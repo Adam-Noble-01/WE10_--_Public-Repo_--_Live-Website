@@ -1,0 +1,110 @@
+{
+    "Asset__Id"          : "VVL_07_1012",
+    "Asset__Name"        : "Upright Shrub (No Grass)",
+    "Asset__Description" : "A taller, looser shrub with a broken outline: smaller clumps, leaf tips on the edge and deep notches, with no grass tufts at its foot. Lifts the rhythm of a planter run.",
+
+    "Asset__Meta": {
+        "Meta__Version" : "1.0.0",
+        "Meta__Created" : "06-Nov-2026",
+        "Meta__Author"  : "Adam Noble - Noble Architecture",
+        "Meta__Status"  : "Active"
+    },
+
+    "Asset__Identity": {
+        "Identity__CollectionCode" : "07",
+        "Identity__Type"           : "Shrubs",
+        "Identity__Family"         : "101",
+        "Identity__Item"           : 2,
+        "Identity__Name"           : "UprightShrub",
+        "Identity__Variant"        : "Var-02"
+    },
+
+    "Asset__Generator": {
+        "Generator__Name"    : "BallCluster",
+        "Generator__Version" : 1
+    },
+
+    "Asset__Proxy": {
+        "Proxy__Shape"       : "Dome",
+        "Proxy__RingCount"   : 5,
+        "Proxy__SectorCount" : 10
+    },
+
+    "Asset__Placement": {
+        "Placement__RotationVariationDeg"   : 180,
+        "Placement__ScaleVariationPercent"  : 12,
+        "Placement__HeightVariationPercent" : 10,
+        "Placement__AlignToPath"            : false,
+        "Placement__StretchAlongPath"       : false,
+        "Placement__MinSpacingMm"           : 700,
+        "Placement__DefaultWeight"          : 25
+    },
+
+    "Asset__Catalogue": {
+        "Catalogue__Keywords"      : ["shrub", "upright", "tall", "loose", "leafy"],
+        "Catalogue__Season"        : "AllYear",
+        "Catalogue__BotanicalName" : null
+    },
+
+    "Asset__Size": {
+        "Size__WidthMm"     : 1050,
+        "Size__DepthMm"     : 950,
+        "Size__HeightMm"    : 1500,
+        "Size__JitterShare" : 0.12
+    },
+
+    "Asset__Masses": {
+        "Masses__Layout"            : "Upright",
+        "Masses__CountMin"          : 4,
+        "Masses__CountMax"          : 6,
+        "Masses__ScallopChordMinMm" : 55,
+        "Masses__ScallopChordMaxMm" : 190,
+        "Masses__ScallopDepth"      : 0.58,
+        "Masses__ScallopSkew"       : 1.40,
+        "Masses__TipShare"          : 0.45
+    },
+
+    "Asset__Clumps": {
+        "Clumps__RadiusMinMm"  : 55,
+        "Clumps__RadiusMaxMm"  : 120,
+        "Clumps__Skew"         : 1.35,
+        "Clumps__Spacing"      : 0.90,
+        "Clumps__ReachMin"     : 0.98,
+        "Clumps__ReachMax"     : 1.30,
+        "Clumps__ScallopDepth" : 0.26,
+        "Clumps__TipShare"     : 0.45,
+        "Clumps__Ellipse"      : 0.12,
+        "Clumps__Wobble"       : 0.02
+    },
+
+    "Asset__Nubs": {
+        "Nubs__Share"       : 0.40,
+        "Nubs__RadiusMinMm" : 22,
+        "Nubs__RadiusMaxMm" : 42
+    },
+
+    "Asset__Line": {
+        "Line__InteriorChance"  : 0.12,
+        "Line__InteriorSpanDeg" : 80,
+        "Line__TailChance"      : 0.70,
+        "Line__TailMinRad"      : 0.30,
+        "Line__TailMaxRad"      : 1.25,
+        "Line__CurlChance"      : 0.30,
+        "Line__CurlAmount"      : 0.62,
+        "Line__BreakChance"     : 0.08,
+        "Line__CuspHookChance"  : 0.50,
+        "Line__CuspHookMinMm"   : 40,
+        "Line__CuspHookMaxMm"   : 130,
+        "Line__SpurShare"       : 0.26
+    },
+
+    "Asset__Tufts": {
+        "Tufts__CountMin"     : 0,
+        "Tufts__CountMax"     : 0,
+        "Tufts__HeightMinMm"  : 260,
+        "Tufts__HeightMaxMm"  : 420,
+        "Tufts__BladesMin"    : 5,
+        "Tufts__BladesMax"    : 7,
+        "Tufts__BladeWidthMm" : 30
+    }
+}

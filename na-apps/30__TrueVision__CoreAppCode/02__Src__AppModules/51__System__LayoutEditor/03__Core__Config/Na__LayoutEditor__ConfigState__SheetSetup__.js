@@ -45,6 +45,9 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 15-Nov-2026 - Version 1.10.0 (v2.185.0, from ValeVision 3D v2.85.0 and v2.88.0)
+// - The Vegetation and Entourage styles' defaults: off, so no existing plan or elevation changes.
+//
 // 21-Sep-2026 - Version 1.9.0
 // - GetPlanDoorsSetup answers hideSwingsOnStoreys (PlanDoors
 //   HideSwingsOnStoreys, ['roof']): the storeys whose plans start with Hide
@@ -364,7 +367,9 @@
             hiddenLines       : flag('HiddenLines',       false),
             enhanceWhitecard  : flag('EnhanceWhitecard',  true),
             contextLayer      : flag('ContextLayer',      true),
-            depthFog          : flag('DepthFog',          true)                  // <-- Follow the drawing: its own fog is off until its author switches it on, so this shows nothing until then
+            depthFog          : flag('DepthFog',          true),                 // <-- Follow the drawing: its own fog is off until its author switches it on, so this shows nothing until then
+            vegetation        : flag('Vegetation',        false),                // <-- Off unless ticked per viewport, so no existing plan or elevation moves
+            entourage         : flag('Entourage',         false)                 // <-- The same for people
         };
     }
     // ------------------------------------------------------------

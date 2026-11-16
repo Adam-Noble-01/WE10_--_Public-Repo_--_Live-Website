@@ -217,5 +217,17 @@
         "Na__Hotkeys__Ui__ReleasePointerLock"      : "Escape",
         "Na__Hotkeys__Ui__ExitFullscreen"          : "Escape"
 
+    },
+    "Na__Hotkeys__Vegetation__Reference" : {
+        "Na__Hotkeys__Vegetation__Reference__Description" : "Keys the vegetation and entourage tools and panels handle themselves, while a tool is armed or one of their panels is open (v2.185.0). Listed here for documentation only: in the dispatch list the hotkey manager would take Enter, Escape and Delete from everything else.",
+        "Na__Hotkeys__Vegetation__FinishPath"   : "Enter",
+        "Na__Hotkeys__Vegetation__StopTool"     : "Escape",
+        "Na__Hotkeys__Vegetation__Remove"       : "Delete",
+        "Na__Hotkeys__Vegetation__EraseHold"    : "Alt (hold, Bush Tool)",
+        "Na__Hotkeys__Vegetation__Undo"         : "Ctrl+Z",
+        "Na__Hotkeys__Vegetation__Redo"         : "Ctrl+Y",
+        "Na__Hotkeys__Entourage__Move"          : "M",
+        "Na__Hotkeys__Entourage__Copy"          : "Ctrl+D",
+        "Na__Hotkeys__Entourage__Delete"        : "Delete"
     }
 }

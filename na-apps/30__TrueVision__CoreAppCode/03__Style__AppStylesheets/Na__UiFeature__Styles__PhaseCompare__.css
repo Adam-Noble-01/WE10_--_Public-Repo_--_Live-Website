@@ -1,0 +1,280 @@
+/* =============================================================================
+ * TRUEVISION3D - PHASE COMPARE AND MODEL STREAM STATUS STYLES
+ * =============================================================================
+ *
+ * FILE       : Na__UiFeature__Styles__PhaseCompare__.css
+ * NAMESPACE  : TrueVision3D
+ * MODULE     : Phase Compare Styles
+ * AUTHOR     : Adam Noble - Noble Architecture
+ * PURPOSE    : The Existing and Proposed line, its handle and labels, its loading
+ *              card, and the small status shown while a model's heavier tiers arrive
+ * CREATED    : 15-Nov-2026
+ *
+ * DESCRIPTION:
+ * - The overlay is laid over the 3D view's own box by
+ *   Na__UiFeature__PhaseCompare__.js and takes no pointer of its own: only the
+ *   line does, so the model still orbits under the comparison.
+ * - The line's grab zone is 44px wide whatever the line's own width, and the
+ *   handle is 46px: both are finger-sized on a phone.
+ * - The stream status is Na__AppFlow__ModelStreamStatus__.js's.
+ *
+ * =============================================================================
+ */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Phase Compare - Overlay and Line
+ * ----------------------------------------------------------------------------- */
+
+    /* OVERLAY | Sized to the 3D view's box by script; hidden until the comparison is on */
+    /* ------------------------------------------------------------ */
+    .na-phase-compare {
+        position                           : fixed;
+        display                            : none;
+        overflow                           : hidden;               /* <-- The labels ride with the line and are cut at the view's edge */
+        pointer-events                     : none;                 /* <-- The canvas keeps the pointer everywhere but on the line */
+        z-index                            : 1000;                 /* <-- Above the canvas and the tab strip; below the Tools menu (1001), the navigation toolbar (1002) and the scene carousel (1004), which keep their clicks where the line crosses them */
+    }
+
+    .na-phase-compare.na-phase-compare--on {
+        display                            : block;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* DIVIDER | The grab zone: full height, finger wide, centred on the line */
+    /* ------------------------------------------------------------ */
+    .na-phase-compare__divider {
+        position                           : absolute;
+        top                                : 0;
+        bottom                             : 0;
+        left                               : 50%;
+        width                              : 44px;
+        margin-left                        : -22px;
+        pointer-events                     : auto;
+        cursor                             : ew-resize;
+        touch-action                       : none;                 /* <-- A drag here is the line's, never the page's scroll or zoom */
+        outline                            : none;
+        -webkit-tap-highlight-color        : transparent;
+        user-select                        : none;
+        -webkit-user-select                : none;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* LINE | White with a dark edge, so it reads over a white model and a dark one */
+    /* ------------------------------------------------------------ */
+    .na-phase-compare__line {
+        position                           : absolute;
+        top                                : 0;
+        bottom                             : 0;
+        left                               : 50%;
+        width                              : 2px;
+        margin-left                        : -1px;
+        background-color                   : #ffffff;
+        box-shadow                         : 0 0 0 1px rgba(23, 43, 58, 0.55), 0 0 10px rgba(0, 0, 0, 0.22);
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* HANDLE | The round grip at mid height */
+    /* ------------------------------------------------------------ */
+    .na-phase-compare__handle {
+        position                           : absolute;
+        top                                : 50%;
+        left                               : 50%;
+        width                              : 46px;
+        height                             : 46px;
+        margin                             : -23px 0 0 -23px;
+        display                            : flex;
+        align-items                        : center;
+        justify-content                    : center;
+        background-color                   : #ffffff;
+        border                             : 1px solid rgba(23, 43, 58, 0.18);
+        border-radius                      : 50%;
+        box-shadow                         : 0 4px 16px rgba(0, 0, 0, 0.24);
+        transition                         : transform 0.12s ease, background-color 0.12s ease;
+    }
+
+    .na-phase-compare__handle svg {
+        width                              : 26px;
+        height                             : 26px;
+        fill                               : none;
+        stroke                             : #172b3a;               /* <-- Brand blue */
+        stroke-width                       : 3;
+        stroke-linecap                     : round;
+        stroke-linejoin                    : round;
+        pointer-events                     : none;
+    }
+
+    .na-phase-compare__divider:hover .na-phase-compare__handle,
+    .na-phase-compare__divider--dragging .na-phase-compare__handle {
+        background-color                   : #dbe9f7;               /* <-- The toolbar's active blue */
+        transform                          : scale(1.08);
+    }
+
+    .na-phase-compare__divider:focus-visible .na-phase-compare__handle {
+        box-shadow                         : 0 0 0 3px #5b9bd5, 0 4px 16px rgba(0, 0, 0, 0.24);
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* LABELS | Existing to the left of the handle, Proposed to the right; they ride with the line */
+    /* ------------------------------------------------------------ */
+    .na-phase-compare__label {
+        position                           : absolute;
+        top                                : 50%;
+        transform                          : translateY(-50%);
+        padding                            : 7px 14px;
+        font-family                        : 'Open Sans', sans-serif;
+        font-size                          : 0.88rem;
+        font-weight                        : 600;
+        letter-spacing                     : 0.3px;
+        color                              : #172b3a;
+        white-space                        : nowrap;
+        background-color                   : rgba(255, 255, 255, 0.94);
+        border                             : 1px solid rgba(23, 43, 58, 0.12);
+        border-radius                      : 999px;
+        box-shadow                         : 0 2px 10px rgba(0, 0, 0, 0.14);
+        opacity                            : 1;
+        transition                         : opacity 0.18s ease;
+        pointer-events                     : none;
+    }
+
+    .na-phase-compare__label--before {
+        right                              : calc(100% + 12px);    /* <-- Against the grab zone's left edge */
+    }
+
+    .na-phase-compare__label--after {
+        left                               : calc(100% + 12px);
+    }
+
+    .na-phase-compare__label--hidden {
+        opacity                            : 0;                    /* <-- Its side is too narrow to hold it */
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Phase Compare - Loading Card
+ * ----------------------------------------------------------------------------- */
+
+    /* LOADING CARD | Shown while the other phase loads; the model stays usable behind it */
+    /* ------------------------------------------------------------ */
+    .na-phase-compare__loading {
+        position                           : fixed;
+        top                                : 50%;
+        left                               : 50%;
+        transform                          : translate(-50%, -50%);
+        display                            : none;
+        flex-direction                     : column;
+        align-items                        : center;
+        max-width                          : calc(100vw - 48px);
+        padding                            : 26px 34px 22px;
+        background-color                   : rgba(255, 255, 255, 0.95);
+        border                             : 1px solid rgba(23, 43, 58, 0.08);
+        border-radius                      : 14px;
+        box-shadow                         : 0 10px 34px rgba(0, 0, 0, 0.20);
+        z-index                            : 1003;                 /* <-- Above the navigation toolbar */
+        pointer-events                     : none;
+    }
+
+    .na-phase-compare__loading.na-phase-compare__loading--on {
+        display                            : flex;
+    }
+
+    .na-phase-compare__loading-label {
+        margin                             : 0;
+        font-family                        : 'Open Sans', sans-serif;
+        font-size                          : 16px;
+        font-weight                        : 600;
+        letter-spacing                     : 0.4px;
+        color                              : #172b3a;
+        text-align                         : center;
+    }
+
+    .na-phase-compare__loading-status {
+        min-height                         : 18px;
+        margin                             : 6px 0 0 0;
+        font-family                        : 'Open Sans', sans-serif;
+        font-size                          : 13px;
+        font-weight                        : 400;
+        letter-spacing                     : 0.3px;
+        color                              : #4a5560;
+        text-align                         : center;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Model Stream Status
+ * ----------------------------------------------------------------------------- */
+
+    /* STATUS PILL | "Loading furniture..." while the model is already on screen */
+    /* ------------------------------------------------------------ */
+    .na-model-stream-status {
+        position                           : fixed;
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 9px;
+        padding                            : 7px 14px 7px 11px;
+        font-family                        : 'Open Sans', sans-serif;
+        font-size                          : 0.82rem;
+        font-weight                        : 600;
+        letter-spacing                     : 0.3px;
+        color                              : #172b3a;
+        white-space                        : nowrap;
+        background-color                   : rgba(255, 255, 255, 0.94);
+        border                             : 1px solid rgba(23, 43, 58, 0.10);
+        border-radius                      : 999px;
+        box-shadow                         : 0 2px 10px rgba(0, 0, 0, 0.12);
+        opacity                            : 0;
+        visibility                         : hidden;
+        transition                         : opacity 0.3s ease, visibility 0.3s ease;
+        pointer-events                     : none;
+        z-index                            : 1001;                 /* <-- Above the canvas, below the toolbar and the menus */
+    }
+
+    .na-model-stream-status.na-model-stream-status--on {
+        opacity                            : 1;
+        visibility                         : visible;
+    }
+
+    .na-model-stream-status__spinner {
+        width                              : 14px;
+        height                             : 14px;
+        flex-shrink                        : 0;
+        border                             : 2px solid rgba(23, 43, 58, 0.18);
+        border-top-color                   : #172b3a;
+        border-radius                      : 50%;
+        animation                          : na-model-stream-status-spin 0.9s linear infinite;
+    }
+
+    /* SCENE CAROUSEL | Waits for the whole model */
+    /* ------------------------------------------------------------ */
+    /* A scene may be a plan or an elevation, which cut and restyle the whole
+       model, so the carousel is out of reach from the first look until the
+       last tier is in. Na__AppFlow__LoadingSequence.js holds the class.      */
+    body.na-model-streaming .na-pm-carousel {
+        opacity                            : 0;
+        visibility                         : hidden;
+        pointer-events                     : none;
+    }
+    /* ------------------------------------------------------------ */
+
+    @keyframes na-model-stream-status-spin {
+        to { transform: rotate(360deg); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .na-model-stream-status__spinner {
+            animation                      : none;
+        }
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */

@@ -21,6 +21,18 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 15-Nov-2026 - Version 1.2.0 (v2.186.0)
+// - A PHASE ALREADY LOADED COMES BACK AT ONCE. The design phase library swaps
+//   it into the 3D view (Na__PhaseLib__SwapLive) and keeps the phase it
+//   replaces: no overlay, no download. Before this every switch threw the
+//   model on screen away and fetched the other one again, both ways.
+// - A phase not yet loaded is loaded beside the one on screen, under the
+//   overlay, and then swapped in, so the phase being left stays loaded too.
+//   The old path - clear the model root and fetch straight into it - remains
+//   for a phase the library cannot hand over.
+// - The Existing and Proposed comparison is closed before a switch: it holds
+//   the other phase in the scene.
+//
 // 13-Sep-2026 - Version 1.1.0
 // - Tells Na__ModelGroup__PhaseLibrary__ when a switch starts and when it has
 //   finished (after a failure too).
@@ -38,11 +50,18 @@ import {
 } from '../15__ModelLoader/Na__ModelLoader__MultiModel.js';
 // @delegate: ./Na__ModelGroup__PhaseLibrary__.js
 import {
+    Na__PhaseLib__CHANGED_EVENT,
     Na__PhaseLib__IdOf,
     Na__PhaseLib__GetLiveId,
+    Na__PhaseLib__GetStatus,
+    Na__PhaseLib__GetMessage,
+    Na__PhaseLib__Ensure,
+    Na__PhaseLib__SwapLive,
     Na__PhaseLib__SetLiveLoading,
     Na__PhaseLib__SetLive
 } from './Na__ModelGroup__PhaseLibrary__.js';
+// @delegate: ./Na__UiFeature__PhaseCompare__.js
+import { Na__PhaseCompare__Exit } from './Na__UiFeature__PhaseCompare__.js';
 import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderLoop__Invalidation.js';
 // @delegate: ./Na__UiFeature__ModelGroupTransitionOverlay__.js
 import {
@@ -85,6 +104,7 @@ import {
     let Na__GroupSelector__StatusCallback    = null;
     let Na__GroupSelector__ToggleReinitFn    = null;
     let Na__GroupSelector__AfterLoadFn       = null;
+    let Na__GroupSelector__BeforeSwapFn      = null;    // <-- Run on the phase in the 3D view just before it leaves for the cache (doors shut)
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -124,37 +144,26 @@ import {
 // REGION | Group Loading
 // -----------------------------------------------------------------------------
 
-    // FUNCTION | Load a Model Group by Index
+    // HELPER FUNCTION | Put a Loaded Phase Into the 3D View Without a Download
     // ------------------------------------------------------------
-    async function Na__GroupSelector__LoadGroup(groupIndex) {
-        if (Na__GroupSelector__IsLoading) return;
-        if (groupIndex === Na__GroupSelector__ActiveIndex) return;
-        if (groupIndex < 0 || groupIndex >= Na__GroupSelector__ModelGroups.length) return;
+    // Returns its category Map, or null when the design phase library cannot
+    // hand it over (not loaded, or a render has it at this moment).
+    // ------------------------------------------------------------
+    function Na__GroupSelector__SwapIn(groupId) {
+        if (!groupId || Na__PhaseLib__GetStatus(groupId) !== 'ready') return null;
+        if (Na__GroupSelector__BeforeSwapFn) Na__GroupSelector__BeforeSwapFn();   // <-- The phase leaving is kept: it leaves as it loaded
+        return Na__PhaseLib__SwapLive(groupId);
+    }
+    // ------------------------------------------------------------
 
-        Na__GroupSelector__IsLoading = true;
-        Na__GroupSelector__UpdateButtonStates(groupIndex);
 
-        const group = Na__GroupSelector__ModelGroups[groupIndex];
-        if (!group || !Array.isArray(group.modelUrls) || group.modelUrls.length === 0) {
-            Na__GroupSelector__IsLoading = false;
-            return;
-        }
-
-        Na__ModelGroupTransitionOverlay__Show(group.label);                // <-- Reveal transition overlay during phase swap
-
-        // HELPER | Mirror loader progress to both the global status and the overlay
-        const Na__GroupSelector__ProgressCallback = (message, isError = false) => {
-            if (Na__GroupSelector__StatusCallback) {
-                Na__GroupSelector__StatusCallback(message, isError);
-            }
-            Na__ModelGroupTransitionOverlay__UpdateStatus(message);
-        };
-
-        Na__GroupSelector__ProgressCallback(`Loading ${group.label || 'model group'}...`);
-
-        const groupId = Na__PhaseLib__IdOf(group);
-        Na__PhaseLib__SetLiveLoading(groupId);                             // <-- Off-scene design phases wait while the 3D view reloads
-
+    // HELPER FUNCTION | Fetch a Phase Straight Into the Model Root (the phase on screen is let go)
+    // ------------------------------------------------------------
+    // How every switch worked before the design phase library could swap, and
+    // still the way for a phase it cannot hand over. Returns the category Map,
+    // or null after a failure.
+    // ------------------------------------------------------------
+    async function Na__GroupSelector__FetchIntoModelRoot(group, groupIndex, progressCallback) {
         Na__GroupSelector__ClearModelRoot();
 
         let loadedGroups = null;
@@ -166,7 +175,7 @@ import {
                 Na__GroupSelector__ModelRoot,
                 Na__GroupSelector__ModelsConfig,
                 Na__GroupSelector__LineResolution,
-                Na__GroupSelector__ProgressCallback
+                progressCallback
             );
 
             if (Na__GroupSelector__AfterLoadFn) {
@@ -183,7 +192,80 @@ import {
             console.log(`[TrueVision3D] Model group switched to: ${group.label} (index ${groupIndex})`);
         } catch (error) {
             console.error('[TrueVision3D] Failed to load model group:', error);
-            Na__GroupSelector__ProgressCallback('Model group load error', true);
+            progressCallback('Model group load error', true);
+        }
+        return loadedGroups;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Load a Model Group by Index
+    // ------------------------------------------------------------
+    // A phase the design phase library holds is swapped into the 3D view at
+    // once. One it does not hold is loaded beside the phase on screen, under
+    // the overlay, then swapped in - so both stay loaded and either comes back
+    // at once from then on.
+    // ------------------------------------------------------------
+    async function Na__GroupSelector__LoadGroup(groupIndex) {
+        if (Na__GroupSelector__IsLoading) return;
+        if (groupIndex === Na__GroupSelector__ActiveIndex) return;
+        if (groupIndex < 0 || groupIndex >= Na__GroupSelector__ModelGroups.length) return;
+
+        Na__GroupSelector__IsLoading = true;
+        Na__GroupSelector__UpdateButtonStates(groupIndex);
+
+        const group = Na__GroupSelector__ModelGroups[groupIndex];
+        if (!group || !Array.isArray(group.modelUrls) || group.modelUrls.length === 0) {
+            Na__GroupSelector__IsLoading = false;
+            return;
+        }
+
+        const groupId = Na__PhaseLib__IdOf(group);
+        Na__PhaseCompare__Exit();                                          // <-- The comparison holds the other phase in the scene: it lets go first
+
+        // HELPER | Mirror loader progress to both the global status and the overlay
+        const Na__GroupSelector__ProgressCallback = (message, isError = false) => {
+            if (Na__GroupSelector__StatusCallback) {
+                Na__GroupSelector__StatusCallback(message, isError);
+            }
+            Na__ModelGroupTransitionOverlay__UpdateStatus(message);
+        };
+
+        // ALREADY LOADED | No overlay, no download
+        let loadedGroups = Na__GroupSelector__SwapIn(groupId);
+
+        // NOT LOADED YET | Loaded beside the phase on screen, then swapped in
+        if (!loadedGroups) {
+            Na__ModelGroupTransitionOverlay__Show(group.label);            // <-- Reveal transition overlay while the phase loads
+            Na__GroupSelector__ProgressCallback(`Loading ${group.label || 'model group'}...`);
+
+            const onProgress = (event) => {
+                const detail = (event && event.detail) || {};
+                if (detail.kind === 'progress' && detail.groupId === groupId) Na__ModelGroupTransitionOverlay__UpdateStatus(Na__PhaseLib__GetMessage(groupId));
+            };
+            window.addEventListener(Na__PhaseLib__CHANGED_EVENT, onProgress);
+            let inLibrary = false;
+            try {
+                inLibrary = groupId ? await Na__PhaseLib__Ensure(groupId) : false;
+            } catch (error) {
+                console.warn('[TrueVision3D] Design phase could not be loaded off-scene; fetching it into the 3D view instead.', error);
+            } finally {
+                window.removeEventListener(Na__PhaseLib__CHANGED_EVENT, onProgress);
+            }
+            if (inLibrary) loadedGroups = Na__GroupSelector__SwapIn(groupId);
+        }
+
+        if (loadedGroups) {
+            Na__GroupSelector__ActiveIndex = groupIndex;
+            if (Na__GroupSelector__ToggleReinitFn) {
+                Na__GroupSelector__ToggleReinitFn(loadedGroups);           // <-- Storeys, toggles, doors, culling and collision take the phase now in the 3D view
+            }
+            Na__RenderLoop__RequestRender();
+            console.log(`[TrueVision3D] Model group switched to: ${group.label} (index ${groupIndex}), from the design phase library.`);
+        } else {
+            // AS IT ALWAYS DID | The library could not hand it over
+            Na__PhaseLib__SetLiveLoading(groupId);                         // <-- Off-scene design phases wait while the 3D view reloads
+            loadedGroups = await Na__GroupSelector__FetchIntoModelRoot(group, groupIndex, Na__GroupSelector__ProgressCallback);
         }
 
         Na__PhaseLib__SetLive(groupId, loadedGroups);                      // <-- After a failure too: nothing may wait forever
@@ -268,7 +350,8 @@ import {
         lineResolution,
         statusCallback,
         toggleReinitFn,
-        afterLoadFn
+        afterLoadFn,
+        options
     ) {
         if (!modelGroups || modelGroups.length < 2) return;
 
@@ -280,6 +363,7 @@ import {
         Na__GroupSelector__StatusCallback = statusCallback;
         Na__GroupSelector__ToggleReinitFn = toggleReinitFn;
         Na__GroupSelector__AfterLoadFn    = (typeof afterLoadFn === 'function') ? afterLoadFn : null;
+        Na__GroupSelector__BeforeSwapFn   = (options && typeof options.beforeSwap === 'function') ? options.beforeSwap : null;
 
         // THE ACTIVE BUTTON IS THE PHASE THE 3D VIEW HOLDS. This was index 0, the
         // newest group, which the startup load does not pick when the newest is

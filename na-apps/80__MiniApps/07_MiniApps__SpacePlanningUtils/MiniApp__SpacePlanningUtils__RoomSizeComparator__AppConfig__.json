@@ -1,0 +1,122 @@
+{
+    "NaMiniApp__Meta": {
+        "NaMiniApp__AppTitle": "Room Size Comparator",
+        "NaMiniApp__AppSubTitle": "Space Planning Utils",
+        "NaMiniApp__Created": "16-Nov-2026",
+        "NaMiniApp__Version": "1.0.0"
+    },
+
+    "NaMiniApp__Assets": {
+        "NaMiniApp__RoomDataUrl": "./02__AppData/RoomSizeComparator__RoomSizeData__UK__.json"
+    },
+
+    "NaMiniApp__Defaults": {
+        "NaMiniApp__DefaultRoomId": "bedroom",
+        "NaMiniApp__DefaultUnit": "m2",
+        "NaMiniApp__DefaultView": "compare",
+        "NaMiniApp__DefaultInputMode": "area",
+        "NaMiniApp__ShowFurniture": true,
+        "NaMiniApp__MaxAreaM2": 2000,
+        "NaMiniApp__MaxLengthM": 100,
+        "NaMiniApp__PrefsStorageKey": "NaRoomSizeComparator__Prefs"
+    },
+
+    "NaMiniApp__Units": {
+        "NaMiniApp__SquareFeetPerSquareMetre": 10.7639104167,
+        "NaMiniApp__FeetPerMetre": 3.28083989501
+    },
+
+    "NaMiniApp__Colours": {
+        "NaMiniApp__BandRamp": {
+            "Min": "#86b6ef",
+            "Small": "#5598e7",
+            "Medium": "#2a78d6",
+            "Large": "#1c5cab",
+            "Oversized": "#104281"
+        },
+        "NaMiniApp__BandRampNote": "Ordinal ramp: one hue, light to dark, validated with the dataviz validator (--ordinal, light, #ffffff surface): monotone, adjacent dL >= 0.06, light end 2.11:1.",
+        "NaMiniApp__BandTintStrength": 0.22,
+        "NaMiniApp__BandOutline": "#104281",
+        "NaMiniApp__YourRoom": "#eb6834",
+        "NaMiniApp__Furniture": "#52514e",
+        "NaMiniApp__Grid": "#e8e7e1",
+        "NaMiniApp__InkPrimary": "#1f2a33",
+        "NaMiniApp__InkSecondary": "#52514e",
+        "NaMiniApp__InkMuted": "#7d7b75",
+        "NaMiniApp__Surface": "#ffffff"
+    },
+
+    "NaMiniApp__Drawing": {
+        "NaMiniApp__GridStepsMetres": [0.5, 1, 2, 5, 10, 20],
+        "NaMiniApp__GridStepsFeet": [1, 2, 5, 10, 20, 50],
+        "NaMiniApp__MinGridSpacingPx": 18,
+        "NaMiniApp__ExportScale": 2,
+        "NaMiniApp__ExportCredit": "Noble Architecture · Room Size Comparator"
+    },
+
+    "NaMiniApp__UiText": {
+        "NaMiniApp__PageTitle": "Room Size Comparator - Noble Architecture",
+        "NaMiniApp__AppHeading": "Room Size Comparator",
+        "NaMiniApp__TabCompare": "Compare",
+        "NaMiniApp__TabAll": "All Rooms",
+        "NaMiniApp__TabData": "Data & Sources",
+        "NaMiniApp__UnitsLabel": "Units",
+        "NaMiniApp__RoomTypeLabel": "Room type",
+        "NaMiniApp__YourRoomLabel": "Your room",
+        "NaMiniApp__ModeArea": "Area",
+        "NaMiniApp__ModeDims": "Length × width",
+        "NaMiniApp__AreaPlaceholder": "e.g. 12.5",
+        "NaMiniApp__LengthPlaceholder": "Length",
+        "NaMiniApp__WidthPlaceholder": "Width",
+        "NaMiniApp__FeetInputHint": "Feet, or feet and inches like 12'6\"",
+        "NaMiniApp__InputInvalid": "Enter a number, e.g. 12.5",
+        "NaMiniApp__ClearButton": "Clear",
+        "NaMiniApp__CopyLinkButton": "Copy link",
+        "NaMiniApp__SaveImageButton": "Save image",
+        "NaMiniApp__FurnitureToggle": "Furniture for scale",
+        "NaMiniApp__PlanTitle": "{room}: typical sizes, to scale",
+        "NaMiniApp__PlanCaptionEmpty": "Each box is one size band, drawn to scale from a shared corner. Grid squares are {grid}. Enter your room's size to draw it on top.",
+        "NaMiniApp__PlanCaptionRoom": "Your room is the orange outline, drawn to the same scale as the size bands. Grid squares are {grid}.",
+        "NaMiniApp__PlanCaptionShape": "Band boxes use a typical {ratio} : 1 plan shape; only their areas come from the data.",
+        "NaMiniApp__YourRoomTag": "Your room",
+        "NaMiniApp__VerdictEmptyTitle": "Enter your room's size",
+        "NaMiniApp__VerdictEmptyText": "Type its floor area, or switch to Length × width. Switch between m² and ft² at the top right at any time.",
+        "NaMiniApp__TypicalLine": "A typical (Medium) {room} is {area}, about {dims}.",
+        "NaMiniApp__ChipBelowMin": "Below minimum",
+        "NaMiniApp__ChipAboveOs": "Beyond oversized",
+        "NaMiniApp__ChipAbout": "About {band}",
+        "NaMiniApp__VerdictBetween": "Between {lower} ({lowerArea}) and {upper} ({upperArea}): {over} more than {lower}, {short} short of {upper}.",
+        "NaMiniApp__VerdictBelow": "{short} short of the minimum ({minArea}).",
+        "NaMiniApp__VerdictAbove": "{over} more than the oversized reference ({osArea}).",
+        "NaMiniApp__VerdictExact": "Exactly the {band} size ({area}).",
+        "NaMiniApp__PercentOfTypical": "{pct} of a typical (Medium) {room}",
+        "NaMiniApp__BandsTitle": "Size bands",
+        "NaMiniApp__BandHead": "Band",
+        "NaMiniApp__AreaHead": "Area",
+        "NaMiniApp__SizeHead": "About",
+        "NaMiniApp__NoteHead": "Notes",
+        "NaMiniApp__NotesTitle": "About these figures",
+        "NaMiniApp__AdjustedLead": "Changed from your sheet:",
+        "NaMiniApp__MergedLead": "Merged from your sheet:",
+        "NaMiniApp__EvidenceLabel": "Evidence",
+        "NaMiniApp__SourcesLink": "See the {count} sources",
+        "NaMiniApp__AllTitle": "Every room type, side by side",
+        "NaMiniApp__AllHint": "Each row shows a room type's five size bands. The orange line is your room. Click a room to compare it.",
+        "NaMiniApp__AllFilterPlaceholder": "Find a room…",
+        "NaMiniApp__AllSortGroup": "By group",
+        "NaMiniApp__AllSortSize": "By typical size",
+        "NaMiniApp__AllNoMatch": "No room types match.",
+        "NaMiniApp__DataTitle": "About the data",
+        "NaMiniApp__DataTableTitle": "All figures",
+        "NaMiniApp__CopyTsvButton": "Copy for Google Sheets",
+        "NaMiniApp__DownloadJsonButton": "Download JSON",
+        "NaMiniApp__ToastLinkCopied": "Link copied",
+        "NaMiniApp__ToastTsvCopied": "Table copied: paste it into Google Sheets",
+        "NaMiniApp__ToastCopyFailed": "Couldn't copy: the browser blocked the clipboard",
+        "NaMiniApp__ToastImageSaved": "Image saved",
+        "NaMiniApp__ToastImageFailed": "Couldn't save the image",
+        "NaMiniApp__FooterText": "© 2026 Noble Architecture | All Rights Reserved",
+        "NaMiniApp__ErrorConfigLoad": "Unable to load the app configuration.",
+        "NaMiniApp__ErrorDataLoad": "Unable to load the room size data."
+    }
+}

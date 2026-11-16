@@ -117,11 +117,14 @@ SKIP_FOLDER_PREFIXES               = ('.', '00__')
     # MODULE CONSTANTS | TrueVision Dev-Owned Project Data Keys
     # ------------------------------------------------------------
     # These keys are written live to R2 by the TrueVision Dev menu
-    # (Save Camera, Orbit Max, Navigation Modes, Presentation Scenes).
-    # The build pipeline must NEVER clobber them: when re-uploading the
-    # project data JSON, the existing R2 values for these keys are
-    # preserved (overlaid back onto the freshly built local document).
-    # Keep this list in sync with Na__DevSavedKeys in
+    # (Save Camera, Orbit Max, Navigation Modes, Presentation Scenes,
+    # Project Lighting), by the drawings save (the drawings, the drawing
+    # register, section cuts) and by Save Vegetation and Save Entourage (the
+    # placed plants and people). The build pipeline must NEVER clobber them:
+    # when re-uploading the project data JSON, the existing R2 values for
+    # these keys are preserved (overlaid back onto the freshly built local
+    # document). Keep this list in sync with TRUEVISION_DEV_OWNED_KEYS in
+    # ProjectVision__BuildScript__.py and Na__DevSavedKeys in
     # 30__TrueVision__CoreAppCode/.../Na__AppFlow__LoadingSequence.js
 DEV_OWNED_PROJECT_DATA_KEYS        = (
     'PresentationMode__SavedCameraScenes',     # <-- Saved camera scenes (Presentation Mode)
@@ -132,6 +135,29 @@ DEV_OWNED_PROJECT_DATA_KEYS        = (
     'Camera__DefaultPosition',                 # <-- Saved camera position / rotation / FOV
     'OrbitHelperCube__Position',               # <-- Saved orbit target
     'LayoutEditor__DrawingsData',              # <-- Floor plans, elevations and Layout Editor sheets (TrueVision v2.21.0+)
+    'SceneLighting__ProjectOverrides',         # <-- The project's own sun and fill, Dev Tools > Project Lighting (TrueVision v2.184.0)
+    'LayoutEditor__DrawingRegister',           # <-- The drawing register: numbering and revisions, saved with the drawings
+    'CrossSection__SceneData',                 # <-- Section cuts by scene, saved with the drawings
+    'Vegetation__SceneData',                   # <-- Linework plants, Save Vegetation (TrueVision v2.185.0)
+    'Entourage__SceneData',                    # <-- Camera-facing people, Save Entourage (TrueVision v2.185.0)
+)
+
+    # MODULE CONSTANTS | Dev-Owned Keys That Are Absent at Their Default
+    # ------------------------------------------------------------
+    # A TrueVision Dev Tools reset deletes these keys from the R2 copy
+    # (Na__CfApi__DeleteProjectKeys) rather than writing a default. So when
+    # R2 holds the project data but not one of these keys, the reset stands:
+    # the key is dropped from the upload (and so from the local mirror), or
+    # the local copy's older value would go back up and undo the reset.
+    # Keep in sync with Na__DevKeysAbsentAtDefault in
+    # 30__TrueVision__CoreAppCode/.../Na__AppFlow__LoadingSequence.js
+DEV_OWNED_KEYS_ABSENT_AT_DEFAULT   = (
+    'Navmode__OrbitMaxDistanceMm',             # <-- Orbit Max Zoom Radius, Reset
+    'RenderEffect__AssetCullDistanceMm',       # <-- Asset Cull Distance, Reset
+    'Navmode__FovOverrides',                   # <-- Default View FOVs, Reset
+    'SceneLighting__ProjectOverrides',         # <-- Project Lighting, back to the app default
+    'Vegetation__SceneData',                   # <-- Remove All Vegetation (TrueVision v2.185.0)
+    'Entourage__SceneData',                    # <-- Remove All Entourage (TrueVision v2.185.0)
 )
     # ------------------------------------------------------------
 
@@ -546,11 +572,15 @@ def build_project_data_operation(
 
     merged        = dict(local_data)
     dev_preserved = []
+    dev_reset     = []
     if remote_json:
         for key in DEV_OWNED_PROJECT_DATA_KEYS:
             if key in remote_json:
                 merged[key] = remote_json[key]                          # <-- Keep live dev edit from R2
                 dev_preserved.append(key)
+            elif key in DEV_OWNED_KEYS_ABSENT_AT_DEFAULT and key in merged:
+                del merged[key]                                         # <-- Reset to its default on R2: the local copy's older value must not go back up
+                dev_reset.append(key)
 
     merged_bytes = (json.dumps(merged, indent=4, ensure_ascii=False) + '\n').encode('utf-8')
 
@@ -565,6 +595,7 @@ def build_project_data_operation(
     elif merged != remote_json:
         action = 'update'
         note   = f" [preserved: {', '.join(dev_preserved)}]" if dev_preserved else ''
+        note  += f" [reset on R2, dropped: {', '.join(dev_reset)}]" if dev_reset else ''
         detail = f"UPDATE (local build + R2 dev keys){note}"
     else:
         action = 'skip'
@@ -582,6 +613,7 @@ def build_project_data_operation(
         'merged_bytes'      : merged_bytes,                             # <-- Upload these bytes, not the raw local file
         'local_out_of_sync' : local_out_of_sync,                        # <-- Mirror merged JSON back to local file
         'dev_preserved'     : dev_preserved,                            # <-- Dev keys pulled from R2 (for logging)
+        'dev_reset'         : dev_reset,                                # <-- Dev keys reset to their default on R2 and so dropped (for logging)
     }
     # ------------------------------------------------------------
 
@@ -612,7 +644,9 @@ def sync_project_data_to_local(operations: List[Dict]) -> int:
             write_bytes_file(local_path, merged_bytes)                  # <-- Temp + rename: a git diff mapping the file cannot block it
             updated += 1
             pulled = op.get('dev_preserved') or []
+            reset  = op.get('dev_reset') or []
             note   = f" [pulled: {', '.join(pulled)}]" if pulled else ''
+            note  += f" [reset on R2, dropped: {', '.join(reset)}]" if reset else ''   # <-- A SKIP can still drop one here: R2 already reset, the local copy not yet
             label  = 'drawing notes' if op.get('group_id') == '__drawing_notes__' else str(local_path)
             print(f"  {C_GREEN}[LOCAL SYNC] {label}{note}{C_RESET}")
         except OSError as error:

@@ -36,6 +36,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 15-Nov-2026 - Version 1.3.1 (v2.186.0)
+// - NavigateToScene does nothing while the body carries na-model-streaming:
+//   from the first look until the last tier of the model is in. A scene may be
+//   a plan or an elevation, which cut and restyle the whole model, so scenes
+//   wait for it. The strip is hidden for as long (the rule is in
+//   Na__UiFeature__Styles__PhaseCompare__.css), so only a key press gets here.
+//
 // 19-Sep-2026 - Version 1.3.0
 // - SetActiveScene now announces the switch as na-presentation-mode-scene-
 //   activated. The Dev menu answers it by folding down to that one scene, so
@@ -503,6 +510,16 @@
     // scene - a floor plan or an elevation.
     // ------------------------------------------------------------
     function Na__PresentationMode__UI__NavigateToScene(scene, sceneId) {
+        // THE MODEL IS STILL ARRIVING | Scenes wait for the whole of it
+        // Since v2.186.0 the model is on screen as soon as the building is in,
+        // with the fixtures, furniture and decor arriving after. A scene may be
+        // a floor plan or an elevation, which cut and restyle the whole model,
+        // and a 3D scene sets which layers show: both are for a model that is
+        // all there. Na__AppFlow__LoadingSequence holds this class on the body
+        // from the first look until the model is whole (a few seconds), and the
+        // carousel is hidden for as long, so only a key press reaches here.
+        if (document.body.classList.contains('na-model-streaming')) return;
+
         // WAKE THE CAROUSEL | Card clicks/taps already wake it via the
         // container's delegated pointerdown listener; this covers the paths
         // that skip that listener entirely - PageUp/PageDown and the

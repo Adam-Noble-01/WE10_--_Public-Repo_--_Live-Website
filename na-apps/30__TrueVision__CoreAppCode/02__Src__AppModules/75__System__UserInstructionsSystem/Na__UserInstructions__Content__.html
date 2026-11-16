@@ -19,6 +19,11 @@
        after injection via [data-na-accordion-toggle] attribute.
 
      DEVELOPMENT LOG:
+     15-Nov-2026 - Version 2.5.0 (v2.186.0)
+     - Added the Before and After section: the Before / After button, dragging
+       the line, looking around with it on, and that the storey tools apply to
+       both sides.
+
      27-Aug-2026 - Version 2.4.0
      - Added Full Screen section covering the Tools menu toggle, the Escape
        key, and the touchscreen route out of full screen.
@@ -422,6 +427,59 @@
                         <li class="na-instructions-item">
                             <span class="na-instructions-item__key">Show Entire Building</span>
                             <span class="na-instructions-item__desc">Resets visibility to the full building view when you are done isolating.</span>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <!-- ============================================================ -->
+
+
+    <!-- ============================================================ -->
+    <!-- SECTION | Before and After                                   -->
+    <!-- ============================================================ -->
+    <!-- The Existing and Proposed comparison (v2.186.0). The button is only on -->
+    <!-- a project with both an existing building and a proposal; the section   -->
+    <!-- says so, as the guide is the same on every project.                    -->
+    <!-- @delegate: ../26__System__ToggleModelElements/Na__UiFeature__PhaseCompare__.js -->
+    <div class="na-instructions-section">
+
+        <button class="na-instructions-section__toggle" aria-expanded="true" data-na-accordion-toggle>
+            <div class="na-instructions-section__title-group">
+                <svg class="na-instructions-section__mode-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <rect x="2.5" y="4.5" width="15" height="11" rx="1.5" stroke="currentColor" stroke-width="1.7"/>
+                    <line x1="10" y1="2" x2="10" y2="18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                    <polyline points="7.5,8 5.5,10 7.5,12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <polyline points="12.5,8 14.5,10 12.5,12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="na-instructions-section__title-text">Before and After</span>
+            </div>
+            <svg class="na-instructions-section__chevron" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <polyline points="4,7 10,13 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+
+        <div class="na-instructions-section__body" data-na-accordion-body>
+            <div class="na-instructions-section__body-inner">
+
+                <p class="na-instructions-section__intro">Where a project has both the existing building and a proposal, the Before / After button in the navigation toolbar puts a line down the model. The existing building is on its left and the proposal on its right, from the same viewpoint.</p>
+
+                <div class="na-instructions-group na-instructions-group--no-label">
+                    <ul class="na-instructions-list">
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">Drag the line</span>
+                            <span class="na-instructions-item__desc">Drag the round handle left or right, with a mouse or a finger, to show more of one or the other. The arrow keys move it once it has been selected.</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">Look around</span>
+                            <span class="na-instructions-item__desc">The model still turns, zooms, walks and flies with the line on, and both sides move together. Storey Toggle and Floor Isolate apply to both sides, so one floor can be compared on its own.</span>
+                        </li>
+                        <li class="na-instructions-item">
+                            <span class="na-instructions-item__key">Before / After</span>
+                            <span class="na-instructions-item__desc">Select the button again to take the line away. Design Phase in the Tools &amp; Settings menu still chooses which proposal is shown.</span>
                         </li>
                     </ul>
                 </div>

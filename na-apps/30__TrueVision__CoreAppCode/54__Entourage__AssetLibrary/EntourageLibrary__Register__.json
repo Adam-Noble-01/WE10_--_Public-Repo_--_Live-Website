@@ -1,0 +1,42 @@
+{
+    "EntourageLibrary__Register__Meta": {
+        "Meta__FileName"    : "EntourageLibrary__Register__.json",
+        "Meta__Description" : "The single source of truth for the entourage library's numbering: the namespace, the collection, its types and the blocks of numbers they own. The build util reads this, and gives the next free Id.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "05-Nov-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+
+        "Meta__WhyThisForm" : "The vegetation library's register, with the numbers Adam's SketchUp components already had: 60_0301 in the core component library is VVL_60_0301 here. The one exception is the Labrador, 60_0500, which is VVL_60_0501, because an Id ending in 0 is a family's base and never an asset."
+    },
+
+    "EntourageLibrary__Register__Numbering": {
+        "Numbering__Namespace"      : "VVL",
+        "Numbering__NamespaceNote"  : "ValeVision Linework, as the plants: an Id is unique across both libraries, and a project's sync tells them apart by its collection",
+        "Numbering__IdPattern"      : "^VVL_60_[0-9]{2}[0-9][1-9]$",
+        "Numbering__IdPatternNote"  : "VVL_60_TTFI. TT the type's block. F the family, 0 to 9. I the item, 1 to 9. An I of 0 is a family's base and is never an asset",
+        "Numbering__RetiredIds"     : [],
+        "Numbering__RetiredIdsNote" : "A retired Id is never reused: projects may hold a pinned copy of it for ever. List it here when its asset's Meta__Status becomes Retired"
+    },
+
+    "EntourageLibrary__Register__Naming": {
+        "Naming__AssetFile"           : "{AssetId}__{Type}__{Name}__{Variant}__.json",
+        "Naming__AssetFileNote"       : "One file per asset, in its collection's folder: VVL_60_0301__People__Man__Var-01__.json. No picture files: cards are drawn live from the outline, so nothing can go stale",
+        "Naming__Segment"             : "^[A-Z][A-Za-z0-9]*(-[A-Za-z0-9]+)*$",
+        "Naming__Variant"             : "^Var-[0-9]{2}$",
+        "Naming__MaxRelativePath"     : 170,
+        "Naming__MaxRelativePathNote" : "Characters from this library's root, as the plants': SketchUp's Ruby cannot open a path over 259, and Cloud Sync reads these"
+    },
+
+    "EntourageLibrary__Register__Collections": [
+        {
+            "Collection__Code"   : "60",
+            "Collection__Name"   : "SceneEntourage",
+            "Collection__Label"  : "Entourage",
+            "Collection__Folder" : "60__SceneEntourage",
+            "Collection__Types"  : [
+                { "Type__Name": "People",  "Type__Block": "03", "Type__Label": "People" },
+                { "Type__Name": "Animals", "Type__Block": "05", "Type__Label": "Animals" }
+            ]
+        }
+    ]
+}

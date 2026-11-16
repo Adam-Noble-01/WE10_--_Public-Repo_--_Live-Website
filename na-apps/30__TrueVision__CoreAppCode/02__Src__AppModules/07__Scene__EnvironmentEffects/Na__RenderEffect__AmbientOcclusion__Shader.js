@@ -21,6 +21,14 @@
 //   This is the same formula proven in the fog pass
 //   (Na__Scene__DefaultFogEffect.js).
 //
+// -----------------------------------------------------------------------------
+//
+// DEVELOPMENT LOG:
+// 15-Nov-2026 - Version 1.1.0 (v2.185.0, from ValeVision 3D v2.84.0)
+// - Alpha 0 in the scene colour means no occlusion on this pixel, for the linework
+//   plants' and people's fills. Nothing else writes it, so a project without them
+//   is unchanged.
+//
 // =============================================================================
 
 
@@ -106,6 +114,16 @@
                 vec4 texel = texture2D(tDiffuse, vUv);
 
                 if (uAoEnabled < 0.5) {
+                    gl_FragColor = vec4(texel.rgb, 1.0);
+                    return;
+                }
+
+                // A SURFACE THAT ASKS NOT TO BE SHADED says so with alpha 0, which the
+                // passes before this one carry through. Everything else in the scene
+                // leaves alpha at 1. Linework plants' flat fills are the first: they
+                // must be in the depth (they hide the walls' edges behind them), and
+                // shading their overlaps would turn a bush into a bunch of grapes.
+                if (texel.a < 0.5) {
                     gl_FragColor = vec4(texel.rgb, 1.0);
                     return;
                 }

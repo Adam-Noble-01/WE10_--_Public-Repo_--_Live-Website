@@ -1,0 +1,110 @@
+{
+    "Asset__Id"          : "VVL_07_1031",
+    "Asset__Name"        : "Mophead Hydrangea",
+    "Asset__Description" : "A soft ornamental shrub carrying big round flower heads over its leaves: a loose mound with bold circles in the outline and through the middle, for a border or a large planter.",
+
+    "Asset__Meta": {
+        "Meta__Version" : "1.0.0",
+        "Meta__Created" : "04-Nov-2026",
+        "Meta__Author"  : "Adam Noble - Noble Architecture",
+        "Meta__Status"  : "Active"
+    },
+
+    "Asset__Identity": {
+        "Identity__CollectionCode" : "07",
+        "Identity__Type"           : "Shrubs",
+        "Identity__Family"         : "103",
+        "Identity__Item"           : 1,
+        "Identity__Name"           : "MopheadHydrangea",
+        "Identity__Variant"        : "Var-01"
+    },
+
+    "Asset__Generator": {
+        "Generator__Name"    : "BallCluster",
+        "Generator__Version" : 1
+    },
+
+    "Asset__Proxy": {
+        "Proxy__Shape"       : "Dome",
+        "Proxy__RingCount"   : 5,
+        "Proxy__SectorCount" : 10
+    },
+
+    "Asset__Placement": {
+        "Placement__RotationVariationDeg"   : 180,
+        "Placement__ScaleVariationPercent"  : 12,
+        "Placement__HeightVariationPercent" : 8,
+        "Placement__AlignToPath"            : false,
+        "Placement__StretchAlongPath"       : false,
+        "Placement__MinSpacingMm"           : 1100,
+        "Placement__DefaultWeight"          : 15
+    },
+
+    "Asset__Catalogue": {
+        "Catalogue__Keywords"      : ["ornamental", "flowering", "hydrangea", "mound", "border", "planter"],
+        "Catalogue__Season"        : "Summer",
+        "Catalogue__BotanicalName" : null
+    },
+
+    "Asset__Size": {
+        "Size__WidthMm"     : 1300,
+        "Size__DepthMm"     : 1200,
+        "Size__HeightMm"    : 1050,
+        "Size__JitterShare" : 0.08
+    },
+
+    "Asset__Masses": {
+        "Masses__Layout"            : "Mound",
+        "Masses__CountMin"          : 4,
+        "Masses__CountMax"          : 6,
+        "Masses__ScallopChordMinMm" : 60,
+        "Masses__ScallopChordMaxMm" : 170,
+        "Masses__ScallopDepth"      : 0.42,
+        "Masses__ScallopSkew"       : 1.30,
+        "Masses__TipShare"          : 0.10
+    },
+
+    "Asset__Clumps": {
+        "Clumps__RadiusMinMm"  : 88,
+        "Clumps__RadiusMaxMm"  : 148,
+        "Clumps__Skew"         : 0.90,
+        "Clumps__Spacing"      : 1.02,
+        "Clumps__ReachMin"     : 0.94,
+        "Clumps__ReachMax"     : 1.08,
+        "Clumps__ScallopDepth" : 0.24,
+        "Clumps__TipShare"     : 0.00,
+        "Clumps__Ellipse"      : 0.06,
+        "Clumps__Wobble"       : 0.02
+    },
+
+    "Asset__Nubs": {
+        "Nubs__Share"       : 0.42,
+        "Nubs__RadiusMinMm" : 20,
+        "Nubs__RadiusMaxMm" : 42
+    },
+
+    "Asset__Line": {
+        "Line__InteriorChance"  : 0.62,
+        "Line__InteriorSpanDeg" : 150,
+        "Line__TailChance"      : 0.46,
+        "Line__TailMinRad"      : 0.20,
+        "Line__TailMaxRad"      : 0.90,
+        "Line__CurlChance"      : 0.34,
+        "Line__CurlAmount"      : 0.60,
+        "Line__BreakChance"     : 0.06,
+        "Line__CuspHookChance"  : 0.34,
+        "Line__CuspHookMinMm"   : 30,
+        "Line__CuspHookMaxMm"   : 95,
+        "Line__SpurShare"       : 0.10
+    },
+
+    "Asset__Tufts": {
+        "Tufts__CountMin"     : 0,
+        "Tufts__CountMax"     : 0,
+        "Tufts__HeightMinMm"  : 0,
+        "Tufts__HeightMaxMm"  : 0,
+        "Tufts__BladesMin"    : 0,
+        "Tufts__BladesMax"    : 0,
+        "Tufts__BladeWidthMm" : 0
+    }
+}

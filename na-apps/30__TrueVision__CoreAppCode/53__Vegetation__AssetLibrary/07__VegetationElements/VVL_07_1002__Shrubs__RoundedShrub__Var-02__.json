@@ -1,0 +1,110 @@
+{
+    "Asset__Id"          : "VVL_07_1002",
+    "Asset__Name"        : "Rounded Shrub (No Grass)",
+    "Asset__Description" : "A rounded evergreen mound with large billows, in the manner of the hand drawn shrubs, with no grass tufts at its foot. The everyday planter shrub where the bed should read clean.",
+
+    "Asset__Meta": {
+        "Meta__Version" : "1.0.0",
+        "Meta__Created" : "06-Nov-2026",
+        "Meta__Author"  : "Adam Noble - Noble Architecture",
+        "Meta__Status"  : "Active"
+    },
+
+    "Asset__Identity": {
+        "Identity__CollectionCode" : "07",
+        "Identity__Type"           : "Shrubs",
+        "Identity__Family"         : "100",
+        "Identity__Item"           : 2,
+        "Identity__Name"           : "RoundedShrub",
+        "Identity__Variant"        : "Var-02"
+    },
+
+    "Asset__Generator": {
+        "Generator__Name"    : "BallCluster",
+        "Generator__Version" : 1
+    },
+
+    "Asset__Proxy": {
+        "Proxy__Shape"       : "Dome",
+        "Proxy__RingCount"   : 5,
+        "Proxy__SectorCount" : 10
+    },
+
+    "Asset__Placement": {
+        "Placement__RotationVariationDeg"   : 180,
+        "Placement__ScaleVariationPercent"  : 10,
+        "Placement__HeightVariationPercent" : 8,
+        "Placement__AlignToPath"            : false,
+        "Placement__StretchAlongPath"       : false,
+        "Placement__MinSpacingMm"           : 900,
+        "Placement__DefaultWeight"          : 50
+    },
+
+    "Asset__Catalogue": {
+        "Catalogue__Keywords"      : ["shrub", "evergreen", "mound", "rounded", "planter"],
+        "Catalogue__Season"        : "AllYear",
+        "Catalogue__BotanicalName" : null
+    },
+
+    "Asset__Size": {
+        "Size__WidthMm"     : 1350,
+        "Size__DepthMm"     : 1150,
+        "Size__HeightMm"    : 1080,
+        "Size__JitterShare" : 0.10
+    },
+
+    "Asset__Masses": {
+        "Masses__Layout"            : "Mound",
+        "Masses__CountMin"          : 4,
+        "Masses__CountMax"          : 6,
+        "Masses__ScallopChordMinMm" : 70,
+        "Masses__ScallopChordMaxMm" : 250,
+        "Masses__ScallopDepth"      : 0.50,
+        "Masses__ScallopSkew"       : 1.35,
+        "Masses__TipShare"          : 0.00
+    },
+
+    "Asset__Clumps": {
+        "Clumps__RadiusMinMm"  : 75,
+        "Clumps__RadiusMaxMm"  : 155,
+        "Clumps__Skew"         : 1.25,
+        "Clumps__Spacing"      : 0.86,
+        "Clumps__ReachMin"     : 0.96,
+        "Clumps__ReachMax"     : 1.20,
+        "Clumps__ScallopDepth" : 0.20,
+        "Clumps__TipShare"     : 0.00,
+        "Clumps__Ellipse"      : 0.08,
+        "Clumps__Wobble"       : 0.015
+    },
+
+    "Asset__Nubs": {
+        "Nubs__Share"       : 0.30,
+        "Nubs__RadiusMinMm" : 26,
+        "Nubs__RadiusMaxMm" : 52
+    },
+
+    "Asset__Line": {
+        "Line__InteriorChance"  : 0.22,
+        "Line__InteriorSpanDeg" : 95,
+        "Line__TailChance"      : 0.55,
+        "Line__TailMinRad"      : 0.20,
+        "Line__TailMaxRad"      : 1.00,
+        "Line__CurlChance"      : 0.26,
+        "Line__CurlAmount"      : 0.58,
+        "Line__BreakChance"     : 0.05,
+        "Line__CuspHookChance"  : 0.42,
+        "Line__CuspHookMinMm"   : 45,
+        "Line__CuspHookMaxMm"   : 150,
+        "Line__SpurShare"       : 0.14
+    },
+
+    "Asset__Tufts": {
+        "Tufts__CountMin"     : 0,
+        "Tufts__CountMax"     : 0,
+        "Tufts__HeightMinMm"  : 300,
+        "Tufts__HeightMaxMm"  : 480,
+        "Tufts__BladesMin"    : 5,
+        "Tufts__BladesMax"    : 8,
+        "Tufts__BladeWidthMm" : 34
+    }
+}

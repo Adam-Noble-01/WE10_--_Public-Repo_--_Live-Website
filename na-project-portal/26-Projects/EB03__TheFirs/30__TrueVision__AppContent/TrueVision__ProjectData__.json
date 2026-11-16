@@ -155,5 +155,924 @@
         "OrbitHelperCube__Position__PosX": 12495,
         "OrbitHelperCube__Position__PosY": 1800,
         "OrbitHelperCube__Position__PosZ": -20327
+    },
+    "Navmode__FovOverrides": {
+        "Navmode__FovOverrides__Description": "Per-project default camera FOVs (vertical degrees) overriding the master app config defaults.",
+        "Navmode__FovOverrides__WalkDeg": 61.93,
+        "Navmode__FovOverrides__FlyDeg": 61.93
+    },
+    "PresentationMode__SavedCameraScenes": {
+        "PresentationMode__SavedCameraScenes__Description": "Optional per-project saved camera scenes for Presentation Mode. Camera position and orbit target values are integer millimetres; rotations and FOV use the same format as Camera__DefaultPosition. Scenes are split into named Groups; Scene Order restarts at 1 within each group. A scene with PresentationMode__Scene__LayoutEditorOnly set true is available to the Layout Editor and the Dev menu but is hidden from the viewer carousel; the key is omitted when false. A scene may carry PresentationMode__Scene__Lighting, its own sun and fill light, holding only the settings that differ from the app's default lighting; the key is omitted when the scene uses the default.",
+        "PresentationMode__SavedCameraScenes__Enabled": true,
+        "PresentationMode__SavedCameraScenes__Groups": [
+            {
+                "PresentationMode__Group__Id": "Group_001",
+                "PresentationMode__Group__Name": "Exterior 3D Views",
+                "PresentationMode__Group__Order": 1,
+                "PresentationMode__Group__Enabled": true
+            },
+            {
+                "PresentationMode__Group__Id": "Group_002",
+                "PresentationMode__Group__Name": "Interior 3D Views",
+                "PresentationMode__Group__Order": 2,
+                "PresentationMode__Group__Enabled": true
+            },
+            {
+                "PresentationMode__Group__Id": "Group_003",
+                "PresentationMode__Group__Name": "Dollhouse View",
+                "PresentationMode__Group__Order": 3,
+                "PresentationMode__Group__Enabled": false
+            },
+            {
+                "PresentationMode__Group__Id": "Group_004",
+                "PresentationMode__Group__Name": "Floor Plans",
+                "PresentationMode__Group__Order": 4,
+                "PresentationMode__Group__Enabled": false
+            },
+            {
+                "PresentationMode__Group__Id": "Group_005",
+                "PresentationMode__Group__Name": "Elevations",
+                "PresentationMode__Group__Order": 5,
+                "PresentationMode__Group__Enabled": false
+            }
+        ],
+        "PresentationMode__SavedCameraScenes__Scenes": [
+            {
+                "PresentationMode__Scene__Id": "Scene_001",
+                "PresentationMode__Scene__Name": "3D | Rear Garden",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_001.webp",
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__GroupId": "Group_001",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 21166,
+                        "Camera__DefaultPos__PosY": 1809,
+                        "Camera__DefaultPos__PosZ": -39467
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -3.1411,
+                        "Camera__DefaultRotation__RotY": 0.4254,
+                        "Camera__DefaultRotation__RotZ": 3.1414
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 44.96
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 12495,
+                    "OrbitHelperCube__Position__PosY": 1800,
+                    "OrbitHelperCube__Position__PosZ": -20327
+                },
+                "PresentationMode__Scene__LensMm": 29,
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__LandscapeEnvironment": true,
+                        "Storey__FirstFloor__ExistingDoors": true,
+                        "Storey__FirstFloor__ExistingFixtures": true,
+                        "Storey__FirstFloor__ExistingFloors": true,
+                        "Storey__FirstFloor__ExistingRoofs": true,
+                        "Storey__FirstFloor__ExistingWalls": true,
+                        "Storey__FirstFloor__ExistingWindows": true,
+                        "Storey__FirstFloor__ProposedDoors": true,
+                        "Storey__FirstFloor__ProposedFixtures": true,
+                        "Storey__FirstFloor__ProposedFloors": true,
+                        "Storey__FirstFloor__ProposedFurniture": true,
+                        "Storey__FirstFloor__ProposedRoofs": true,
+                        "Storey__FirstFloor__ProposedWalls": true,
+                        "Storey__FirstFloor__ProposedWindows": true,
+                        "Storey__GroundFloor__ExistingDoors": true,
+                        "Storey__GroundFloor__ExistingFixtures": true,
+                        "Storey__GroundFloor__ExistingFloors": true,
+                        "Storey__GroundFloor__ExistingFurniture": true,
+                        "Storey__GroundFloor__ExistingRoofs": true,
+                        "Storey__GroundFloor__ExistingStairs": true,
+                        "Storey__GroundFloor__ExistingWalls": true,
+                        "Storey__GroundFloor__ExistingWindows": true,
+                        "Storey__GroundFloor__ProposedDoors": true,
+                        "Storey__GroundFloor__ProposedFixtures": true,
+                        "Storey__GroundFloor__ProposedFloors": true,
+                        "Storey__GroundFloor__ProposedFurniture": true,
+                        "Storey__GroundFloor__ProposedInteriorDecor": true,
+                        "Storey__GroundFloor__ProposedRoofs": true,
+                        "Storey__GroundFloor__ProposedWalls": true,
+                        "Storey__GroundFloor__ProposedWindows": true,
+                        "Storey__SecondFloor__ExistingRoofs": true,
+                        "Storey__SecondFloor__ExistingWalls": true,
+                        "Storey__SecondFloor__ExistingWindows": true,
+                        "Storey__SecondFloor__ProposedFixtures": true,
+                        "Storey__SecondFloor__ProposedRoofs": true,
+                        "Storey__SecondFloor__ProposedWalls": true,
+                        "Storey__SecondFloor__ProposedWindows": true
+                    },
+                    "PresentationMode__Scene__Visibility__HasStoreys": true,
+                    "PresentationMode__Scene__Visibility__Storeys": {
+                        "GroundFloor": true,
+                        "FirstFloor": true,
+                        "SecondFloor": true
+                    },
+                    "PresentationMode__Scene__Visibility__RoofVisible": true
+                },
+                "PresentationMode__Scene__Order": 1
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_002",
+                "PresentationMode__Scene__Name": "3D | Rear Aerial",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_002.webp",
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__GroupId": "Group_001",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 22000,
+                        "Camera__DefaultPos__PosY": 12500,
+                        "Camera__DefaultPos__PosZ": -46000
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -2.6798,
+                        "Camera__DefaultRotation__RotY": 0.4122,
+                        "Camera__DefaultRotation__RotZ": 2.9448
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 39.97
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 11500,
+                    "OrbitHelperCube__Position__PosY": 1800,
+                    "OrbitHelperCube__Position__PosZ": -24500
+                },
+                "PresentationMode__Scene__LensMm": 33,
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__LandscapeEnvironment": true,
+                        "Storey__FirstFloor__ExistingDoors": true,
+                        "Storey__FirstFloor__ExistingFixtures": true,
+                        "Storey__FirstFloor__ExistingFloors": true,
+                        "Storey__FirstFloor__ExistingRoofs": true,
+                        "Storey__FirstFloor__ExistingWalls": true,
+                        "Storey__FirstFloor__ExistingWindows": true,
+                        "Storey__FirstFloor__ProposedDoors": true,
+                        "Storey__FirstFloor__ProposedFixtures": true,
+                        "Storey__FirstFloor__ProposedFloors": true,
+                        "Storey__FirstFloor__ProposedFurniture": true,
+                        "Storey__FirstFloor__ProposedRoofs": true,
+                        "Storey__FirstFloor__ProposedWalls": true,
+                        "Storey__FirstFloor__ProposedWindows": true,
+                        "Storey__GroundFloor__ExistingDoors": true,
+                        "Storey__GroundFloor__ExistingFixtures": true,
+                        "Storey__GroundFloor__ExistingFloors": true,
+                        "Storey__GroundFloor__ExistingFurniture": true,
+                        "Storey__GroundFloor__ExistingRoofs": true,
+                        "Storey__GroundFloor__ExistingStairs": true,
+                        "Storey__GroundFloor__ExistingWalls": true,
+                        "Storey__GroundFloor__ExistingWindows": true,
+                        "Storey__GroundFloor__ProposedDoors": true,
+                        "Storey__GroundFloor__ProposedFixtures": true,
+                        "Storey__GroundFloor__ProposedFloors": true,
+                        "Storey__GroundFloor__ProposedFurniture": true,
+                        "Storey__GroundFloor__ProposedInteriorDecor": true,
+                        "Storey__GroundFloor__ProposedRoofs": true,
+                        "Storey__GroundFloor__ProposedWalls": true,
+                        "Storey__GroundFloor__ProposedWindows": true,
+                        "Storey__SecondFloor__ExistingRoofs": true,
+                        "Storey__SecondFloor__ExistingWalls": true,
+                        "Storey__SecondFloor__ExistingWindows": true,
+                        "Storey__SecondFloor__ProposedFixtures": true,
+                        "Storey__SecondFloor__ProposedRoofs": true,
+                        "Storey__SecondFloor__ProposedWalls": true,
+                        "Storey__SecondFloor__ProposedWindows": true
+                    },
+                    "PresentationMode__Scene__Visibility__HasStoreys": true,
+                    "PresentationMode__Scene__Visibility__Storeys": {
+                        "GroundFloor": true,
+                        "FirstFloor": true,
+                        "SecondFloor": true
+                    },
+                    "PresentationMode__Scene__Visibility__RoofVisible": true
+                },
+                "PresentationMode__Scene__Order": 2
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_003",
+                "PresentationMode__Scene__Name": "3D | Drive View",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_003.webp",
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__GroupId": "Group_001",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 38000,
+                        "Camera__DefaultPos__PosY": 2200,
+                        "Camera__DefaultPos__PosZ": -29000
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": 3.1052,
+                        "Camera__DefaultRotation__RotY": 1.3622,
+                        "Camera__DefaultRotation__RotZ": -3.106
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 39.97
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 12000,
+                    "OrbitHelperCube__Position__PosY": 2400,
+                    "OrbitHelperCube__Position__PosZ": -23500
+                },
+                "PresentationMode__Scene__LensMm": 33,
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__LandscapeEnvironment": true,
+                        "Storey__FirstFloor__ExistingDoors": true,
+                        "Storey__FirstFloor__ExistingFixtures": true,
+                        "Storey__FirstFloor__ExistingFloors": true,
+                        "Storey__FirstFloor__ExistingRoofs": true,
+                        "Storey__FirstFloor__ExistingWalls": true,
+                        "Storey__FirstFloor__ExistingWindows": true,
+                        "Storey__FirstFloor__ProposedDoors": true,
+                        "Storey__FirstFloor__ProposedFixtures": true,
+                        "Storey__FirstFloor__ProposedFloors": true,
+                        "Storey__FirstFloor__ProposedFurniture": true,
+                        "Storey__FirstFloor__ProposedRoofs": true,
+                        "Storey__FirstFloor__ProposedWalls": true,
+                        "Storey__FirstFloor__ProposedWindows": true,
+                        "Storey__GroundFloor__ExistingDoors": true,
+                        "Storey__GroundFloor__ExistingFixtures": true,
+                        "Storey__GroundFloor__ExistingFloors": true,
+                        "Storey__GroundFloor__ExistingFurniture": true,
+                        "Storey__GroundFloor__ExistingRoofs": true,
+                        "Storey__GroundFloor__ExistingStairs": true,
+                        "Storey__GroundFloor__ExistingWalls": true,
+                        "Storey__GroundFloor__ExistingWindows": true,
+                        "Storey__GroundFloor__ProposedDoors": true,
+                        "Storey__GroundFloor__ProposedFixtures": true,
+                        "Storey__GroundFloor__ProposedFloors": true,
+                        "Storey__GroundFloor__ProposedFurniture": true,
+                        "Storey__GroundFloor__ProposedInteriorDecor": true,
+                        "Storey__GroundFloor__ProposedRoofs": true,
+                        "Storey__GroundFloor__ProposedWalls": true,
+                        "Storey__GroundFloor__ProposedWindows": true,
+                        "Storey__SecondFloor__ExistingRoofs": true,
+                        "Storey__SecondFloor__ExistingWalls": true,
+                        "Storey__SecondFloor__ExistingWindows": true,
+                        "Storey__SecondFloor__ProposedFixtures": true,
+                        "Storey__SecondFloor__ProposedRoofs": true,
+                        "Storey__SecondFloor__ProposedWalls": true,
+                        "Storey__SecondFloor__ProposedWindows": true
+                    },
+                    "PresentationMode__Scene__Visibility__HasStoreys": true,
+                    "PresentationMode__Scene__Visibility__Storeys": {
+                        "GroundFloor": true,
+                        "FirstFloor": true,
+                        "SecondFloor": true
+                    },
+                    "PresentationMode__Scene__Visibility__RoofVisible": true
+                },
+                "PresentationMode__Scene__Order": 3
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_004",
+                "PresentationMode__Scene__Name": "3D | Front",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_004.webp",
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__GroupId": "Group_001",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": -1500,
+                        "Camera__DefaultPos__PosY": 12000,
+                        "Camera__DefaultPos__PosZ": 7500
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -0.3961,
+                        "Camera__DefaultRotation__RotY": -0.5463,
+                        "Camera__DefaultRotation__RotZ": -0.2139
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 39.97
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 13000,
+                    "OrbitHelperCube__Position__PosY": 2800,
+                    "OrbitHelperCube__Position__PosZ": -14500
+                },
+                "PresentationMode__Scene__LensMm": 33,
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__LandscapeEnvironment": true,
+                        "Storey__FirstFloor__ExistingDoors": true,
+                        "Storey__FirstFloor__ExistingFixtures": true,
+                        "Storey__FirstFloor__ExistingFloors": true,
+                        "Storey__FirstFloor__ExistingRoofs": true,
+                        "Storey__FirstFloor__ExistingWalls": true,
+                        "Storey__FirstFloor__ExistingWindows": true,
+                        "Storey__FirstFloor__ProposedDoors": true,
+                        "Storey__FirstFloor__ProposedFixtures": true,
+                        "Storey__FirstFloor__ProposedFloors": true,
+                        "Storey__FirstFloor__ProposedFurniture": true,
+                        "Storey__FirstFloor__ProposedRoofs": true,
+                        "Storey__FirstFloor__ProposedWalls": true,
+                        "Storey__FirstFloor__ProposedWindows": true,
+                        "Storey__GroundFloor__ExistingDoors": true,
+                        "Storey__GroundFloor__ExistingFixtures": true,
+                        "Storey__GroundFloor__ExistingFloors": true,
+                        "Storey__GroundFloor__ExistingFurniture": true,
+                        "Storey__GroundFloor__ExistingRoofs": true,
+                        "Storey__GroundFloor__ExistingStairs": true,
+                        "Storey__GroundFloor__ExistingWalls": true,
+                        "Storey__GroundFloor__ExistingWindows": true,
+                        "Storey__GroundFloor__ProposedDoors": true,
+                        "Storey__GroundFloor__ProposedFixtures": true,
+                        "Storey__GroundFloor__ProposedFloors": true,
+                        "Storey__GroundFloor__ProposedFurniture": true,
+                        "Storey__GroundFloor__ProposedInteriorDecor": true,
+                        "Storey__GroundFloor__ProposedRoofs": true,
+                        "Storey__GroundFloor__ProposedWalls": true,
+                        "Storey__GroundFloor__ProposedWindows": true,
+                        "Storey__SecondFloor__ExistingRoofs": true,
+                        "Storey__SecondFloor__ExistingWalls": true,
+                        "Storey__SecondFloor__ExistingWindows": true,
+                        "Storey__SecondFloor__ProposedFixtures": true,
+                        "Storey__SecondFloor__ProposedRoofs": true,
+                        "Storey__SecondFloor__ProposedWalls": true,
+                        "Storey__SecondFloor__ProposedWindows": true
+                    },
+                    "PresentationMode__Scene__Visibility__HasStoreys": true,
+                    "PresentationMode__Scene__Visibility__Storeys": {
+                        "GroundFloor": true,
+                        "FirstFloor": true,
+                        "SecondFloor": true
+                    },
+                    "PresentationMode__Scene__Visibility__RoofVisible": true
+                },
+                "PresentationMode__Scene__Order": 4
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_005",
+                "PresentationMode__Scene__Name": "3D | Garage Wing",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_005.webp",
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__GroupId": "Group_001",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 2500,
+                        "Camera__DefaultPos__PosY": 1700,
+                        "Camera__DefaultPos__PosZ": 1500
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": 0.1208,
+                        "Camera__DefaultRotation__RotY": -0.4022,
+                        "Camera__DefaultRotation__RotZ": 0.0475
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 44.96
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 8500,
+                    "OrbitHelperCube__Position__PosY": 3400,
+                    "OrbitHelperCube__Position__PosZ": -12500
+                },
+                "PresentationMode__Scene__LensMm": 29,
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__LandscapeEnvironment": true,
+                        "Storey__FirstFloor__ExistingDoors": true,
+                        "Storey__FirstFloor__ExistingFixtures": true,
+                        "Storey__FirstFloor__ExistingFloors": true,
+                        "Storey__FirstFloor__ExistingRoofs": true,
+                        "Storey__FirstFloor__ExistingWalls": true,
+                        "Storey__FirstFloor__ExistingWindows": true,
+                        "Storey__FirstFloor__ProposedDoors": true,
+                        "Storey__FirstFloor__ProposedFixtures": true,
+                        "Storey__FirstFloor__ProposedFloors": true,
+                        "Storey__FirstFloor__ProposedFurniture": true,
+                        "Storey__FirstFloor__ProposedRoofs": true,
+                        "Storey__FirstFloor__ProposedWalls": true,
+                        "Storey__FirstFloor__ProposedWindows": true,
+                        "Storey__GroundFloor__ExistingDoors": true,
+                        "Storey__GroundFloor__ExistingFixtures": true,
+                        "Storey__GroundFloor__ExistingFloors": true,
+                        "Storey__GroundFloor__ExistingFurniture": true,
+                        "Storey__GroundFloor__ExistingRoofs": true,
+                        "Storey__GroundFloor__ExistingStairs": true,
+                        "Storey__GroundFloor__ExistingWalls": true,
+                        "Storey__GroundFloor__ExistingWindows": true,
+                        "Storey__GroundFloor__ProposedDoors": true,
+                        "Storey__GroundFloor__ProposedFixtures": true,
+                        "Storey__GroundFloor__ProposedFloors": true,
+                        "Storey__GroundFloor__ProposedFurniture": true,
+                        "Storey__GroundFloor__ProposedInteriorDecor": true,
+                        "Storey__GroundFloor__ProposedRoofs": true,
+                        "Storey__GroundFloor__ProposedWalls": true,
+                        "Storey__GroundFloor__ProposedWindows": true,
+                        "Storey__SecondFloor__ExistingRoofs": true,
+                        "Storey__SecondFloor__ExistingWalls": true,
+                        "Storey__SecondFloor__ExistingWindows": true,
+                        "Storey__SecondFloor__ProposedFixtures": true,
+                        "Storey__SecondFloor__ProposedRoofs": true,
+                        "Storey__SecondFloor__ProposedWalls": true,
+                        "Storey__SecondFloor__ProposedWindows": true
+                    },
+                    "PresentationMode__Scene__Visibility__HasStoreys": true,
+                    "PresentationMode__Scene__Visibility__Storeys": {
+                        "GroundFloor": true,
+                        "FirstFloor": true,
+                        "SecondFloor": true
+                    },
+                    "PresentationMode__Scene__Visibility__RoofVisible": true
+                },
+                "PresentationMode__Scene__Order": 5
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_006",
+                "PresentationMode__Scene__Name": "Kitchen Dining",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_006.webp",
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__GroupId": "Group_002",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 16500,
+                        "Camera__DefaultPos__PosY": 1600,
+                        "Camera__DefaultPos__PosZ": -21900
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -2.7611,
+                        "Camera__DefaultRotation__RotY": 1.3988,
+                        "Camera__DefaultRotation__RotZ": 2.7662
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 61.93
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 7200,
+                    "OrbitHelperCube__Position__PosY": 1000,
+                    "OrbitHelperCube__Position__PosZ": -20400
+                },
+                "PresentationMode__Scene__LensMm": 20,
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__LandscapeEnvironment": true,
+                        "Storey__FirstFloor__ExistingDoors": true,
+                        "Storey__FirstFloor__ExistingFixtures": true,
+                        "Storey__FirstFloor__ExistingFloors": true,
+                        "Storey__FirstFloor__ExistingRoofs": true,
+                        "Storey__FirstFloor__ExistingWalls": true,
+                        "Storey__FirstFloor__ExistingWindows": true,
+                        "Storey__FirstFloor__ProposedDoors": true,
+                        "Storey__FirstFloor__ProposedFixtures": true,
+                        "Storey__FirstFloor__ProposedFloors": true,
+                        "Storey__FirstFloor__ProposedFurniture": true,
+                        "Storey__FirstFloor__ProposedRoofs": true,
+                        "Storey__FirstFloor__ProposedWalls": true,
+                        "Storey__FirstFloor__ProposedWindows": true,
+                        "Storey__GroundFloor__ExistingDoors": true,
+                        "Storey__GroundFloor__ExistingFixtures": true,
+                        "Storey__GroundFloor__ExistingFloors": true,
+                        "Storey__GroundFloor__ExistingFurniture": true,
+                        "Storey__GroundFloor__ExistingRoofs": true,
+                        "Storey__GroundFloor__ExistingStairs": true,
+                        "Storey__GroundFloor__ExistingWalls": true,
+                        "Storey__GroundFloor__ExistingWindows": true,
+                        "Storey__GroundFloor__ProposedDoors": true,
+                        "Storey__GroundFloor__ProposedFixtures": true,
+                        "Storey__GroundFloor__ProposedFloors": true,
+                        "Storey__GroundFloor__ProposedFurniture": true,
+                        "Storey__GroundFloor__ProposedInteriorDecor": true,
+                        "Storey__GroundFloor__ProposedRoofs": true,
+                        "Storey__GroundFloor__ProposedWalls": true,
+                        "Storey__GroundFloor__ProposedWindows": true,
+                        "Storey__SecondFloor__ExistingRoofs": true,
+                        "Storey__SecondFloor__ExistingWalls": true,
+                        "Storey__SecondFloor__ExistingWindows": true,
+                        "Storey__SecondFloor__ProposedFixtures": true,
+                        "Storey__SecondFloor__ProposedRoofs": true,
+                        "Storey__SecondFloor__ProposedWalls": true,
+                        "Storey__SecondFloor__ProposedWindows": true
+                    },
+                    "PresentationMode__Scene__Visibility__HasStoreys": true,
+                    "PresentationMode__Scene__Visibility__Storeys": {
+                        "GroundFloor": true,
+                        "FirstFloor": true,
+                        "SecondFloor": true
+                    },
+                    "PresentationMode__Scene__Visibility__RoofVisible": true
+                },
+                "PresentationMode__Scene__NavigationMode": "fly",
+                "PresentationMode__Scene__Order": 1
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_007",
+                "PresentationMode__Scene__Name": "Garden Doors",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_007.webp",
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__GroupId": "Group_002",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 11500,
+                        "Camera__DefaultPos__PosY": 1600,
+                        "Camera__DefaultPos__PosZ": -19800
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -0.0588,
+                        "Camera__DefaultRotation__RotY": -0.1458,
+                        "Camera__DefaultRotation__RotZ": -0.0085
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 61.93
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 13000,
+                    "OrbitHelperCube__Position__PosY": 1000,
+                    "OrbitHelperCube__Position__PosZ": -30000
+                },
+                "PresentationMode__Scene__LensMm": 20,
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__LandscapeEnvironment": true,
+                        "Storey__FirstFloor__ExistingDoors": true,
+                        "Storey__FirstFloor__ExistingFixtures": true,
+                        "Storey__FirstFloor__ExistingFloors": true,
+                        "Storey__FirstFloor__ExistingRoofs": true,
+                        "Storey__FirstFloor__ExistingWalls": true,
+                        "Storey__FirstFloor__ExistingWindows": true,
+                        "Storey__FirstFloor__ProposedDoors": true,
+                        "Storey__FirstFloor__ProposedFixtures": true,
+                        "Storey__FirstFloor__ProposedFloors": true,
+                        "Storey__FirstFloor__ProposedFurniture": true,
+                        "Storey__FirstFloor__ProposedRoofs": true,
+                        "Storey__FirstFloor__ProposedWalls": true,
+                        "Storey__FirstFloor__ProposedWindows": true,
+                        "Storey__GroundFloor__ExistingDoors": true,
+                        "Storey__GroundFloor__ExistingFixtures": true,
+                        "Storey__GroundFloor__ExistingFloors": true,
+                        "Storey__GroundFloor__ExistingFurniture": true,
+                        "Storey__GroundFloor__ExistingRoofs": true,
+                        "Storey__GroundFloor__ExistingStairs": true,
+                        "Storey__GroundFloor__ExistingWalls": true,
+                        "Storey__GroundFloor__ExistingWindows": true,
+                        "Storey__GroundFloor__ProposedDoors": true,
+                        "Storey__GroundFloor__ProposedFixtures": true,
+                        "Storey__GroundFloor__ProposedFloors": true,
+                        "Storey__GroundFloor__ProposedFurniture": true,
+                        "Storey__GroundFloor__ProposedInteriorDecor": true,
+                        "Storey__GroundFloor__ProposedRoofs": true,
+                        "Storey__GroundFloor__ProposedWalls": true,
+                        "Storey__GroundFloor__ProposedWindows": true,
+                        "Storey__SecondFloor__ExistingRoofs": true,
+                        "Storey__SecondFloor__ExistingWalls": true,
+                        "Storey__SecondFloor__ExistingWindows": true,
+                        "Storey__SecondFloor__ProposedFixtures": true,
+                        "Storey__SecondFloor__ProposedRoofs": true,
+                        "Storey__SecondFloor__ProposedWalls": true,
+                        "Storey__SecondFloor__ProposedWindows": true
+                    },
+                    "PresentationMode__Scene__Visibility__HasStoreys": true,
+                    "PresentationMode__Scene__Visibility__Storeys": {
+                        "GroundFloor": true,
+                        "FirstFloor": true,
+                        "SecondFloor": true
+                    },
+                    "PresentationMode__Scene__Visibility__RoofVisible": true
+                },
+                "PresentationMode__Scene__NavigationMode": "fly",
+                "PresentationMode__Scene__Order": 2
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_008",
+                "PresentationMode__Scene__Name": "Casual Lounge",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_008.webp",
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__GroupId": "Group_002",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 8200,
+                        "Camera__DefaultPos__PosY": 1600,
+                        "Camera__DefaultPos__PosZ": -21500
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -2.9709,
+                        "Camera__DefaultRotation__RotY": -1.2643,
+                        "Camera__DefaultRotation__RotZ": -2.9787
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 61.93
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 17500,
+                    "OrbitHelperCube__Position__PosY": 1100,
+                    "OrbitHelperCube__Position__PosZ": -18600
+                },
+                "PresentationMode__Scene__LensMm": 20,
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__LandscapeEnvironment": true,
+                        "Storey__FirstFloor__ExistingDoors": true,
+                        "Storey__FirstFloor__ExistingFixtures": true,
+                        "Storey__FirstFloor__ExistingFloors": true,
+                        "Storey__FirstFloor__ExistingRoofs": true,
+                        "Storey__FirstFloor__ExistingWalls": true,
+                        "Storey__FirstFloor__ExistingWindows": true,
+                        "Storey__FirstFloor__ProposedDoors": true,
+                        "Storey__FirstFloor__ProposedFixtures": true,
+                        "Storey__FirstFloor__ProposedFloors": true,
+                        "Storey__FirstFloor__ProposedFurniture": true,
+                        "Storey__FirstFloor__ProposedRoofs": true,
+                        "Storey__FirstFloor__ProposedWalls": true,
+                        "Storey__FirstFloor__ProposedWindows": true,
+                        "Storey__GroundFloor__ExistingDoors": true,
+                        "Storey__GroundFloor__ExistingFixtures": true,
+                        "Storey__GroundFloor__ExistingFloors": true,
+                        "Storey__GroundFloor__ExistingFurniture": true,
+                        "Storey__GroundFloor__ExistingRoofs": true,
+                        "Storey__GroundFloor__ExistingStairs": true,
+                        "Storey__GroundFloor__ExistingWalls": true,
+                        "Storey__GroundFloor__ExistingWindows": true,
+                        "Storey__GroundFloor__ProposedDoors": true,
+                        "Storey__GroundFloor__ProposedFixtures": true,
+                        "Storey__GroundFloor__ProposedFloors": true,
+                        "Storey__GroundFloor__ProposedFurniture": true,
+                        "Storey__GroundFloor__ProposedInteriorDecor": true,
+                        "Storey__GroundFloor__ProposedRoofs": true,
+                        "Storey__GroundFloor__ProposedWalls": true,
+                        "Storey__GroundFloor__ProposedWindows": true,
+                        "Storey__SecondFloor__ExistingRoofs": true,
+                        "Storey__SecondFloor__ExistingWalls": true,
+                        "Storey__SecondFloor__ExistingWindows": true,
+                        "Storey__SecondFloor__ProposedFixtures": true,
+                        "Storey__SecondFloor__ProposedRoofs": true,
+                        "Storey__SecondFloor__ProposedWalls": true,
+                        "Storey__SecondFloor__ProposedWindows": true
+                    },
+                    "PresentationMode__Scene__Visibility__HasStoreys": true,
+                    "PresentationMode__Scene__Visibility__Storeys": {
+                        "GroundFloor": true,
+                        "FirstFloor": true,
+                        "SecondFloor": true
+                    },
+                    "PresentationMode__Scene__Visibility__RoofVisible": true
+                },
+                "PresentationMode__Scene__NavigationMode": "fly",
+                "PresentationMode__Scene__Order": 3
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_009",
+                "PresentationMode__Scene__Name": "Garden Room",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_009.webp",
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__GroupId": "Group_002",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 5300,
+                        "Camera__DefaultPos__PosY": 1275,
+                        "Camera__DefaultPos__PosZ": -34200
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -3.0619,
+                        "Camera__DefaultRotation__RotY": -0.3818,
+                        "Camera__DefaultRotation__RotZ": -3.1118
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 61.93
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 8200,
+                    "OrbitHelperCube__Position__PosY": 700,
+                    "OrbitHelperCube__Position__PosZ": -27000
+                },
+                "PresentationMode__Scene__LensMm": 20,
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__LandscapeEnvironment": true,
+                        "Storey__FirstFloor__ExistingDoors": true,
+                        "Storey__FirstFloor__ExistingFixtures": true,
+                        "Storey__FirstFloor__ExistingFloors": true,
+                        "Storey__FirstFloor__ExistingRoofs": true,
+                        "Storey__FirstFloor__ExistingWalls": true,
+                        "Storey__FirstFloor__ExistingWindows": true,
+                        "Storey__FirstFloor__ProposedDoors": true,
+                        "Storey__FirstFloor__ProposedFixtures": true,
+                        "Storey__FirstFloor__ProposedFloors": true,
+                        "Storey__FirstFloor__ProposedFurniture": true,
+                        "Storey__FirstFloor__ProposedRoofs": true,
+                        "Storey__FirstFloor__ProposedWalls": true,
+                        "Storey__FirstFloor__ProposedWindows": true,
+                        "Storey__GroundFloor__ExistingDoors": true,
+                        "Storey__GroundFloor__ExistingFixtures": true,
+                        "Storey__GroundFloor__ExistingFloors": true,
+                        "Storey__GroundFloor__ExistingFurniture": true,
+                        "Storey__GroundFloor__ExistingRoofs": true,
+                        "Storey__GroundFloor__ExistingStairs": true,
+                        "Storey__GroundFloor__ExistingWalls": true,
+                        "Storey__GroundFloor__ExistingWindows": true,
+                        "Storey__GroundFloor__ProposedDoors": true,
+                        "Storey__GroundFloor__ProposedFixtures": true,
+                        "Storey__GroundFloor__ProposedFloors": true,
+                        "Storey__GroundFloor__ProposedFurniture": true,
+                        "Storey__GroundFloor__ProposedInteriorDecor": true,
+                        "Storey__GroundFloor__ProposedRoofs": true,
+                        "Storey__GroundFloor__ProposedWalls": true,
+                        "Storey__GroundFloor__ProposedWindows": true,
+                        "Storey__SecondFloor__ExistingRoofs": true,
+                        "Storey__SecondFloor__ExistingWalls": true,
+                        "Storey__SecondFloor__ExistingWindows": true,
+                        "Storey__SecondFloor__ProposedFixtures": true,
+                        "Storey__SecondFloor__ProposedRoofs": true,
+                        "Storey__SecondFloor__ProposedWalls": true,
+                        "Storey__SecondFloor__ProposedWindows": true
+                    },
+                    "PresentationMode__Scene__Visibility__HasStoreys": true,
+                    "PresentationMode__Scene__Visibility__Storeys": {
+                        "GroundFloor": true,
+                        "FirstFloor": true,
+                        "SecondFloor": true
+                    },
+                    "PresentationMode__Scene__Visibility__RoofVisible": true
+                },
+                "PresentationMode__Scene__NavigationMode": "fly",
+                "PresentationMode__Scene__Order": 4
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_010",
+                "PresentationMode__Scene__Name": "Master En Suite",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_010.webp",
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__GroupId": "Group_002",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 9200,
+                        "Camera__DefaultPos__PosY": 4445,
+                        "Camera__DefaultPos__PosZ": -16300
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -0.7097,
+                        "Camera__DefaultRotation__RotY": 1.2383,
+                        "Camera__DefaultRotation__RotZ": 0.682
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 61.93
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 5000,
+                    "OrbitHelperCube__Position__PosY": 3500,
+                    "OrbitHelperCube__Position__PosZ": -17400
+                },
+                "PresentationMode__Scene__LensMm": 20,
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__LandscapeEnvironment": true,
+                        "Storey__FirstFloor__ExistingDoors": true,
+                        "Storey__FirstFloor__ExistingFixtures": true,
+                        "Storey__FirstFloor__ExistingFloors": true,
+                        "Storey__FirstFloor__ExistingRoofs": true,
+                        "Storey__FirstFloor__ExistingWalls": true,
+                        "Storey__FirstFloor__ExistingWindows": true,
+                        "Storey__FirstFloor__ProposedDoors": true,
+                        "Storey__FirstFloor__ProposedFixtures": true,
+                        "Storey__FirstFloor__ProposedFloors": true,
+                        "Storey__FirstFloor__ProposedFurniture": true,
+                        "Storey__FirstFloor__ProposedRoofs": true,
+                        "Storey__FirstFloor__ProposedWalls": true,
+                        "Storey__FirstFloor__ProposedWindows": true,
+                        "Storey__GroundFloor__ExistingDoors": true,
+                        "Storey__GroundFloor__ExistingFixtures": true,
+                        "Storey__GroundFloor__ExistingFloors": true,
+                        "Storey__GroundFloor__ExistingFurniture": true,
+                        "Storey__GroundFloor__ExistingRoofs": true,
+                        "Storey__GroundFloor__ExistingStairs": true,
+                        "Storey__GroundFloor__ExistingWalls": true,
+                        "Storey__GroundFloor__ExistingWindows": true,
+                        "Storey__GroundFloor__ProposedDoors": true,
+                        "Storey__GroundFloor__ProposedFixtures": true,
+                        "Storey__GroundFloor__ProposedFloors": true,
+                        "Storey__GroundFloor__ProposedFurniture": true,
+                        "Storey__GroundFloor__ProposedInteriorDecor": true,
+                        "Storey__GroundFloor__ProposedRoofs": true,
+                        "Storey__GroundFloor__ProposedWalls": true,
+                        "Storey__GroundFloor__ProposedWindows": true,
+                        "Storey__SecondFloor__ExistingRoofs": true,
+                        "Storey__SecondFloor__ExistingWalls": true,
+                        "Storey__SecondFloor__ExistingWindows": true,
+                        "Storey__SecondFloor__ProposedFixtures": true,
+                        "Storey__SecondFloor__ProposedRoofs": true,
+                        "Storey__SecondFloor__ProposedWalls": true,
+                        "Storey__SecondFloor__ProposedWindows": true
+                    },
+                    "PresentationMode__Scene__Visibility__HasStoreys": true,
+                    "PresentationMode__Scene__Visibility__Storeys": {
+                        "GroundFloor": true,
+                        "FirstFloor": true,
+                        "SecondFloor": true
+                    },
+                    "PresentationMode__Scene__Visibility__RoofVisible": true
+                },
+                "PresentationMode__Scene__NavigationMode": "fly",
+                "PresentationMode__Scene__Order": 5
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_011",
+                "PresentationMode__Scene__Name": "Dressing Room",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_011.webp",
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__GroupId": "Group_002",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 9000,
+                        "Camera__DefaultPos__PosY": 4445,
+                        "Camera__DefaultPos__PosZ": -14800
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -2.9619,
+                        "Camera__DefaultRotation__RotY": 0.9428,
+                        "Camera__DefaultRotation__RotZ": 2.9956
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 61.93
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 4800,
+                    "OrbitHelperCube__Position__PosY": 3900,
+                    "OrbitHelperCube__Position__PosZ": -11800
+                },
+                "PresentationMode__Scene__LensMm": 20,
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__LandscapeEnvironment": true,
+                        "Storey__FirstFloor__ExistingDoors": true,
+                        "Storey__FirstFloor__ExistingFixtures": true,
+                        "Storey__FirstFloor__ExistingFloors": true,
+                        "Storey__FirstFloor__ExistingRoofs": true,
+                        "Storey__FirstFloor__ExistingWalls": true,
+                        "Storey__FirstFloor__ExistingWindows": true,
+                        "Storey__FirstFloor__ProposedDoors": true,
+                        "Storey__FirstFloor__ProposedFixtures": true,
+                        "Storey__FirstFloor__ProposedFloors": true,
+                        "Storey__FirstFloor__ProposedFurniture": true,
+                        "Storey__FirstFloor__ProposedRoofs": true,
+                        "Storey__FirstFloor__ProposedWalls": true,
+                        "Storey__FirstFloor__ProposedWindows": true,
+                        "Storey__GroundFloor__ExistingDoors": true,
+                        "Storey__GroundFloor__ExistingFixtures": true,
+                        "Storey__GroundFloor__ExistingFloors": true,
+                        "Storey__GroundFloor__ExistingFurniture": true,
+                        "Storey__GroundFloor__ExistingRoofs": true,
+                        "Storey__GroundFloor__ExistingStairs": true,
+                        "Storey__GroundFloor__ExistingWalls": true,
+                        "Storey__GroundFloor__ExistingWindows": true,
+                        "Storey__GroundFloor__ProposedDoors": true,
+                        "Storey__GroundFloor__ProposedFixtures": true,
+                        "Storey__GroundFloor__ProposedFloors": true,
+                        "Storey__GroundFloor__ProposedFurniture": true,
+                        "Storey__GroundFloor__ProposedInteriorDecor": true,
+                        "Storey__GroundFloor__ProposedRoofs": true,
+                        "Storey__GroundFloor__ProposedWalls": true,
+                        "Storey__GroundFloor__ProposedWindows": true,
+                        "Storey__SecondFloor__ExistingRoofs": true,
+                        "Storey__SecondFloor__ExistingWalls": true,
+                        "Storey__SecondFloor__ExistingWindows": true,
+                        "Storey__SecondFloor__ProposedFixtures": true,
+                        "Storey__SecondFloor__ProposedRoofs": true,
+                        "Storey__SecondFloor__ProposedWalls": true,
+                        "Storey__SecondFloor__ProposedWindows": true
+                    },
+                    "PresentationMode__Scene__Visibility__HasStoreys": true,
+                    "PresentationMode__Scene__Visibility__Storeys": {
+                        "GroundFloor": true,
+                        "FirstFloor": true,
+                        "SecondFloor": true
+                    },
+                    "PresentationMode__Scene__Visibility__RoofVisible": true
+                },
+                "PresentationMode__Scene__NavigationMode": "fly",
+                "PresentationMode__Scene__Order": 6
+            }
+        ],
+        "PresentationMode__SavedCameraScenes__DefaultSceneId": "Scene_001"
     }
 }

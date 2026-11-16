@@ -1,0 +1,143 @@
+{
+    "Vegetation__AppConfig__Meta": {
+        "Meta__FileName"    : "Na__Vegetation__AppConfig__.json",
+        "Meta__Description" : "The vegetation system's defaults. A project's Vegetation__SceneData is born with a full copy of these, and from then on the project's own values win. Plants are never loaded on a project that is not enabled, so nor is this file.",
+        "Meta__Version"     : "1.4.1",
+        "Meta__Created"     : "04-Nov-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+
+        "Meta__WhySameKeys" : "The keys of Vegetation__LineRules__Config, Vegetation__LineRulesAdvanced__Config, Vegetation__LinearToolDefaults__Config and Vegetation__BrushDefaults__Config are exactly the keys in a project's record, so a default is one grep from where it is saved. Adam, 04-Nov-2026: \"save all parameters to a new json object with nested keys eetc in my style per file that we enable the vegeation on\".",
+        "Meta__Plan"        : "ValeVision__PLAN__VegetationSystem__.md at the app's root."
+    },
+
+    "Vegetation__SceneData__Config": {
+        "Vegetation__SceneData__Description"                : "What a project's object starts with. ShowByDefault and DefaultTransparencyPercent are where every viewer opens the project: staff set them by moving Show and Transparency and saving (v2.98.4).",
+        "Vegetation__SceneData__SchemaVersion"              : 1,
+        "Vegetation__SceneData__EnabledByDefault"           : true,
+        "Vegetation__SceneData__EnabledByDefaultNote"       : "On for every project unless an admin has unticked it in Dev Tools (Adam, 05-Nov-2026: 'make the admin ticked on boxes on by default now ... keep those gates so i can disable though'). Only a saved Enabled false turns a project off.",
+        "Vegetation__SceneData__ShowByDefault"              : true,
+        "Vegetation__SceneData__DefaultTransparencyPercent" : 0,
+        "Vegetation__SceneData__ShowOnLiveDrawings"         : false
+    },
+
+    "Vegetation__LineRules__Config": {
+        "Vegetation__LineRules__Description"       : "The Vegetation Linework panel's sliders. Weights are screen pixels, as RenderConfig__Linework__LineWidth is. Each Factor scales the asset's own number: 1.00 leaves the asset as written.",
+        "Vegetation__LineRules__LineWeightPx"      : 0.80,
+        "Vegetation__LineRules__InnerWeightShare"  : 0.80,
+        "Vegetation__LineRules__InnerArcsFactor"   : 1.00,
+        "Vegetation__LineRules__HooksFactor"       : 1.00,
+        "Vegetation__LineRules__CurlsFactor"       : 1.00,
+        "Vegetation__LineRules__PenLiftsFactor"    : 1.00,
+        "Vegetation__LineRules__ScallopSizeFactor" : 1.00,
+        "Vegetation__LineRules__SmallBumpsFactor"  : 1.00
+    },
+
+    "Vegetation__LineRulesAdvanced__Config": {
+        "Vegetation__LineRulesAdvanced__Description"       : "The panel's Advanced dropdown. The Lod values are the screen radius in pixels below which a ball stops drawing that detail, so a far bush is a clean outline and not a smudge.",
+        "Vegetation__LineRulesAdvanced__SegmentPx"         : 4.0,
+        "Vegetation__LineRulesAdvanced__LodSkipPx"         : 1.0,
+        "Vegetation__LineRulesAdvanced__LodInnerArcsPx"    : 6.0,
+        "Vegetation__LineRulesAdvanced__LodHooksPx"        : 3.0,
+        "Vegetation__LineRulesAdvanced__LodCurlsPx"        : 5.0,
+        "Vegetation__LineRulesAdvanced__LodBladesPx"       : 7.0,
+        "Vegetation__LineRulesAdvanced__FillWallShare"     : 1.00,
+        "Vegetation__LineRulesAdvanced__FillWallShareNote" : "A plant's fill against the model's walls: 1.00 is exactly the brightness of a wall facing the camera, worked out from the scene's lights for each view, so it changes as you move. Adam, 04-Nov-2026: \"It should be the same brightness as the building walls and change as you move\". Under 1 is darker than the walls.",
+        "Vegetation__LineRulesAdvanced__FillTone"          : 0.975,
+        "Vegetation__LineRulesAdvanced__FillToneNote"      : "The fill on a sheet, where a plant lies on paper and has no walls to match.",
+        "Vegetation__LineRulesAdvanced__DepthBias"         : 0.00003,
+        "Vegetation__LineRulesAdvanced__DepthBiasNote"     : "Log depth, as RenderConfig__Linework__DepthBias, but a fifth of it.The model's 0.00015 is about 15 cm at 150 m, which let one bush's lines show through the fill of the bush in front of it on a long lens."
+    },
+
+    "Vegetation__LinearToolDefaults__Config": {
+        "Vegetation__Path__Description"                     : "What a new path starts from in the Linear Tool. A path saves these rules and a seed, never its plants.",
+        "Vegetation__Path__PaletteUid"                      : "",
+        "Vegetation__Path__PlantScale"                      : 1,
+        "Vegetation__Path__PlantScaleNote"                  : "The whole plant, on top of each palette item's own: 0.5 is half the size in every way, with no plant redrawn differently. Adam, 04-Nov-2026: \"I would set a scale of 0.5\".",
+        "Vegetation__Path__SpacingMm"                       : 1150,
+        "Vegetation__Path__Curved"                          : false,
+        "Vegetation__PathAdvanced__RotationVariationDeg"    : 12,
+        "Vegetation__PathAdvanced__ScaleVariationPercent"   : 10,
+        "Vegetation__PathAdvanced__HeightVariationPercent"  : 8,
+        "Vegetation__PathAdvanced__SpacingVariationPercent" : 15,
+        "Vegetation__PathAdvanced__SideOffsetMm"            : 60,
+        "Vegetation__PathAdvanced__DepthAcrossMm"           : 0,
+        "Vegetation__PathAdvanced__DepthAcrossMmNote"       : "0 keeps each asset's own depth. Anything else fits every plant to a bed of that width, and keeps its long side along the path.",
+        "Vegetation__PathAdvanced__HeightFitMm"             : 0,
+        "Vegetation__PathAdvanced__HeightFitMmNote"         : "0 keeps each asset's own height. Anything else fits every plant to that height, and a clipped hedge to its exact line.",
+        "Vegetation__PathAdvanced__AlignToPath"             : true,
+        "Vegetation__PathAdvanced__FitLastPlant"            : true
+    },
+
+    "Vegetation__BrushDefaults__Config": {
+        "Vegetation__Brush__Description"           : "What the Bush Tool starts from. A brushed plant is saved as itself, because it depends on the surface under the pointer at that moment.",
+        "Vegetation__Brush__PaletteUid"            : "",
+        "Vegetation__Brush__PlantScale"            : 1,
+        "Vegetation__Brush__PlantScaleNote"        : "The whole plant, on top of each palette item's own. The panel moves Density and MinSpacingMm with it, so half size is the same bed, smaller.",
+        "Vegetation__Brush__RadiusMm"              : 900,
+        "Vegetation__Brush__DensityPerSquareM"     : 0.9,
+        "Vegetation__Brush__RotationVariationDeg"  : 180,
+        "Vegetation__Brush__ScaleVariationPercent" : 10,
+        "Vegetation__Brush__MaxSlopeDeg"           : 35,
+        "Vegetation__Brush__MinSpacingMm"          : 650,
+        "Vegetation__Brush__SameHeightOnly"        : true,
+        "Vegetation__Brush__SameHeightMm"          : 200,
+        "Vegetation__Brush__SameHeightMmNote"      : "With SameHeightOnly a stroke stays on the surface it started on, so brushing a planter leaves the ground beside it alone."
+    },
+
+    "Vegetation__PlaceDefaults__Config": {
+        "Vegetation__Place__Description" : "The asset browser, when a card drops a single plant.",
+        "Vegetation__Place__PlantScale"  : 1
+    },
+
+    "Vegetation__Transparency__Config": {
+        "Vegetation__Transparency__Description"               : "The Transparency slider. At 0 nothing changes: the same opaque route as if it did not exist.",
+        "Vegetation__Transparency__SeeThroughFromPercent"     : 50,
+        "Vegetation__Transparency__SeeThroughFromPercentNote" : "From here a plant stops masking the profile lines of what is behind it, so the wall's edges show through."
+    },
+
+    "Vegetation__FrameBudget__Config": {
+        "Vegetation__FrameBudget__Description"          : "What may be redrawn while the camera moves on a live frame. Every other render, and the frame after the camera stops, draws everything, whatever these say.",
+        "Vegetation__FrameBudget__MovingMs"             : 5,
+        "Vegetation__FrameBudget__MovingMsNote"         : "Time per moving frame for drawing plants' lines, in milliseconds. At least one plant is always drawn.",
+        "Vegetation__FrameBudget__SettlingMs"           : 12,
+        "Vegetation__FrameBudget__SettlingMsNote"       : "Time per frame for the exact drawing once the camera stops, so a pause in a slow drag never costs a long frame. The refiner waits for it to finish.",
+        "Vegetation__FrameBudget__StaleErrorPx"         : 0.6,
+        "Vegetation__FrameBudget__StaleErrorPxNote"     : "A plant less wrong than this, in pixels, waits while the camera moves.",
+        "Vegetation__FrameBudget__ZoomErrorPx"          : 8,
+        "Vegetation__FrameBudget__ZoomErrorPxNote"      : "How many pixels of error count against a plant that has doubled in size on screen since it was drawn: its lines are in the right place, but drawn too coarsely.",
+        "Vegetation__FrameBudget__MovingBallSkipPx"     : 3,
+        "Vegetation__FrameBudget__MovingBallSkipPxNote" : "While the camera moves, a clump or nub under this radius on screen is left out. Masses never are. The exact drawing comes back when it stops.",
+        "Vegetation__FrameBudget__MovingSegmentPx"      : 6,
+        "Vegetation__FrameBudget__MovingMinK"           : 10,
+        "Vegetation__FrameBudget__MovingBisectSteps"    : 2,
+        "Vegetation__FrameBudget__MovingSamplesNote"    : "Coarser line segments, fewer samples round a small ball, and T-junctions found less exactly, while the camera moves."
+    },
+
+    "Vegetation__DevTools__Config": {
+        "Vegetation__DevTools__Description"          : "The Dev section and the placing tools.",
+        "Vegetation__DevTools__WarnAbovePlops"       : 1000,
+        "Vegetation__DevTools__WarnAbovePlopsNote"   : "Every plop is in the project's file, and other apps read that file. Past this the Dev section says so.",
+        "Vegetation__DevTools__ClickThresholdPx"     : 5,
+        "Vegetation__DevTools__GripRadiusPx"         : 7,
+        "Vegetation__DevTools__SegmentHitPx"         : 7,
+        "Vegetation__DevTools__DoubleClickMs"        : 350,
+        "Vegetation__DevTools__MaxPlaceSlopeDeg"     : 55,
+        "Vegetation__DevTools__MaxPlaceSlopeDegNote" : "A single plant dropped from the browser lands only on what faces up at least this much, so a click on a wall says so instead of planting a bush sideways.",
+        "Vegetation__DevTools__PlantScaleMin"        : 0.10,
+        "Vegetation__DevTools__PlantScaleMax"        : 3.00,
+        "Vegetation__DevTools__PlantScaleStep"       : 0.05,
+        "Vegetation__DevTools__RightClickSlopPx"     : 4,
+        "Vegetation__DevTools__RightClickSlopPxNote" : "A right press that travelled further was a pan, so it opens no menu.",
+        "Vegetation__DevTools__MenuScaleStep"        : 1.10,
+        "Vegetation__DevTools__CopyOffsetMm"         : 900,
+        "Vegetation__DevTools__UndoDepth"            : 60
+    },
+
+    "Vegetation__Generators__Config": {
+        "Vegetation__Generators__Description" : "What can build a plant, by name and version. A saved seed must draw the same bush for ever, so a generator is never edited once a project can hold its plants: a new look is a new version, and the old one stays. The build util refuses an asset naming one not listed here.",
+        "Vegetation__Generators__List"        : [
+            { "Generator__Name": "BallCluster", "Generator__Versions": [1], "Generator__Note": "Masses, clumps and nubs, each a ball with a chain of arcs for an outline, and strap leaves. Na__Vegetation__BushBuilder__.js" },
+            { "Generator__Name": "ClippedForm", "Generator__Versions": [1], "Generator__Note": "Small even clumps on the faces of a box, a ball or a cone, for a managed plant: the same line language on a clipped outline. Asset__Form says which. Na__Vegetation__BushBuilder__.js" }
+        ]
+    }
+}

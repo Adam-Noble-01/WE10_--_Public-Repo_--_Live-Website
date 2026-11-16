@@ -26,6 +26,13 @@
 // - This is not a security boundary and is not pretending to be one. Writes are
 //   authorised by the Worker key; this decides whether the UI is offered at all.
 //
+// - STAFF AND CREATING (15-Nov-2026, the vegetation and entourage port). ValeVision
+//   asks two more questions: Na__DevGate__IsStaff() (an Employee or above, who places
+//   people and plants) and Na__DevGate__CanCreateAssets() (staff on anything but a
+//   phone). TrueVision has one kind of staff, its author, so IsStaff is
+//   IsAuthoringEnabled, and CanCreateAssets is that on a computer or a tablet,
+//   decided by what the device is (ValeVision's rule, its index.html boot script).
+//
 // INTEGRATION:
 // - Unlock:   Na__DevGate__Unlock()   or  ?authoring=on   in the URL
 // - Re-lock:  Na__DevGate__Lock()     or  ?authoring=off
@@ -44,6 +51,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 15-Nov-2026 - Version 1.2.0 (v2.185.0)
+// - Na__DevGate__IsStaff() and Na__DevGate__CanCreateAssets(), for the vegetation and
+//   entourage systems ported from ValeVision 3D: an author is staff, and an author on
+//   a phone only looks.
+//
 // 18-Sep-2026 - Version 1.1.0
 // - The stored flag is tri-state: unlocked, LOCKED, or nothing said. An
 //   explicit lock now closes authoring on localhost too, so ?authoring=off is
@@ -96,6 +108,11 @@
     // either answer on its own.
     // ------------------------------------------------------------
     let Na__DevGate__Resolved = null;
+    // ------------------------------------------------------------
+
+    // MODULE VARIABLES | What Kind of Device This Is, Once Asked
+    // ------------------------------------------------------------
+    let Na__DevGate__Device = null;                                              // <-- 'phone', 'tablet' or 'computer'
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -192,6 +209,58 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | What Kind of Device This Is: 'phone', 'tablet' or 'computer'
+    // ------------------------------------------------------------
+    // ValeVision's rule (its index.html, v2.81.4): decided by what the device is,
+    // never by its size, so a touchscreen PC or a laptop at 250% scaling is still a
+    // computer. A page that set <html data-na-device> has the last word.
+    // ------------------------------------------------------------
+    function Na__DevGate__DeviceKind() {
+        if (Na__DevGate__Device) return Na__DevGate__Device;
+        let kind = 'computer';
+        try {
+            const marked = document.documentElement.getAttribute('data-na-device');
+            if (marked === 'phone' || marked === 'tablet' || marked === 'computer') {
+                kind = marked;
+            } else {
+                const ua     = navigator.userAgent || '';
+                const uaData = navigator.userAgentData;
+                const ipadOs = /Macintosh/.test(ua) && (navigator.maxTouchPoints || 0) > 1;
+                if (/iPhone|iPod/.test(ua)) kind = 'phone';
+                else if (/iPad/.test(ua) || ipadOs) kind = 'tablet';
+                else if (/Android/i.test(ua)) kind = (/Mobile/i.test(ua) || (uaData && uaData.mobile === true)) ? 'phone' : 'tablet';
+                else if (uaData && uaData.mobile === true) kind = 'phone';
+                else if (/Windows|Macintosh|CrOS|X11|Linux/.test(ua)) kind = 'computer';
+                else if (/Mobi/i.test(ua)) kind = 'phone';
+            }
+        } catch (error) { kind = 'computer'; }                                    // <-- Unsure: a computer
+        Na__DevGate__Device = kind;
+        return kind;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Is This Member of Staff? (TrueVision: an Author)
+    // ------------------------------------------------------------
+    // ValeVision's Employee or above. TrueVision has one author, so it is the
+    // authoring gate itself.
+    // ------------------------------------------------------------
+    function Na__DevGate__IsStaff() {
+        return Na__DevGate__IsAuthoringEnabled();
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | May This Session Place People and Plants?
+    // ------------------------------------------------------------
+    // Staff, on anything but a phone: on a phone they only look.
+    // ------------------------------------------------------------
+    function Na__DevGate__CanCreateAssets() {
+        return Na__DevGate__IsStaff() && Na__DevGate__DeviceKind() !== 'phone';
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Unlock Authoring on This Device
     // ------------------------------------------------------------
     // Takes effect on the next load, deliberately: see the note on the resolved
@@ -239,6 +308,8 @@
     // ------------------------------------------------------------
     export {
         Na__DevGate__IsAuthoringEnabled,
+        Na__DevGate__IsStaff,
+        Na__DevGate__CanCreateAssets,
         Na__DevGate__Unlock,
         Na__DevGate__Lock,
         Na__DevGate__Initialize

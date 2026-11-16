@@ -1,0 +1,363 @@
+/* =============================================================================
+ * TRUEVISION3D - PLACED ASSETS - STYLES
+ * =============================================================================
+ *
+ * FILE       : Na__SceneAssets__Styles__.css
+ * NAMESPACE  : TrueVision3D
+ * MODULE     : System - Placed Assets
+ * AUTHOR     : Adam Noble - Noble Architecture
+ * PURPOSE    : What people's and plants' panels and menus share since staff can place them:
+ *              icons on rows, who did what, and the panel on the left as dropdown sections
+ * CREATED    : 05-Nov-2026
+ *
+ * DESCRIPTION:
+ * - Added to the page by Na__SceneAssets__ChangesPanel__.js for staff only. Sits beside the
+ *   plants' stylesheet, whose .na-veg- classes these panels share.
+ * - THE PANEL ON THE LEFT LOOKS LIKE TOOLS & SETTINGS (Adam, 06-Nov-2026): a row for each section
+ *   with its icon and arrow, and the open one in the menu's own grey inset.
+ *
+ * PORT NOTE:
+ * - Ported from   : ValeVision3D 22__System__SceneAssets/Na__SceneAssets__Styles__.css (ValeVision3D v2.98.6)
+ * - Ported on     : 15-Nov-2026 for TrueVision3D v2.185.0
+ * - Parity        : identical (header, console prefix and the Entourage folder's number apart)
+ * - Divergences   : none in behaviour. Entourage is 28__System__Entourage in TrueVision (its 23
+ *                   is Scene Sync); the vegetation and entourage READMEs list what differs around it.
+ * - Back-port     : n/a (this IS the port).
+ *
+ * -----------------------------------------------------------------------------
+ *
+ * DEVELOPMENT LOG:
+ * 06-Nov-2026 - Version 1.1.0 (ValeVision3D v2.91.0)
+ * - The panel on the left as dropdown sections (Na__SceneAssets__Hub__.js). The tab and Create New
+ *   Vegetation fold rules stay for now, though nothing draws them.
+ *
+ * 05-Nov-2026 - Version 1.0.0 (ValeVision3D v2.89.0)
+ * - Initial build.
+ *
+ * ============================================================================= */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Icons
+ * ----------------------------------------------------------------------------- */
+
+    .na-scene-icon {
+        flex                               : 0 0 auto;
+        width                              : 20px;
+        height                             : 20px;
+        object-fit                         : contain;
+    }
+
+    .na-scene-tab-icon {
+        flex                               : 0 0 auto;
+        width                              : 16px;
+        height                             : 16px;
+        object-fit                         : contain;
+        opacity                            : 0.55;
+    }
+
+    .na-veg-tabs__tab--active .na-scene-tab-icon {
+        opacity                            : 1;
+    }
+
+    .na-veg-tabs:has(.na-scene-tab) {
+        flex-wrap                          : wrap;
+        padding-right                      : 4px;
+        padding-left                       : 4px;
+    }
+
+    .na-veg-tabs__tab.na-scene-tab {
+        display                            : inline-flex;
+        align-items                        : center;
+        gap                                : 4px;
+        padding                            : 6px 5px;
+        font-size                          : 12px;
+        white-space                        : nowrap;
+    }
+
+    .na-scene-count {
+        display                            : inline-block;
+        min-width                          : 15px;
+        padding                            : 0 4px;
+        border-radius                      : 8px;
+        background                         : #172b3a;
+        color                              : #ffffff;
+        font-size                          : 10px;
+        font-weight                        : 600;
+        line-height                        : 15px;
+        text-align                         : center;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Rows in Tools & Settings
+ * ----------------------------------------------------------------------------- */
+
+    .na-dropdown-menu__action.na-scene-row {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 8px;
+        text-align                         : left;
+    }
+
+    .na-scene-row__label {
+        flex                               : 1 1 auto;
+    }
+
+    .na-scene-fold {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 6px;
+        width                              : 100%;
+        margin                             : 10px 0 2px;
+        padding                            : 4px 0;
+        border                             : 0;
+        background                         : none;
+        color                              : inherit;
+        font                               : inherit;
+        font-weight                        : 600;
+        text-align                         : left;
+        cursor                             : pointer;
+    }
+
+    .na-scene-fold__arrow {
+        display                            : inline-block;
+        transition                         : transform 0.15s ease;
+    }
+
+    .na-scene-fold[aria-expanded="false"] .na-scene-fold__arrow {
+        transform                          : rotate(-90deg);
+    }
+
+    .na-scene-fold__body[hidden] {
+        display                            : none;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Who Did What
+ * ----------------------------------------------------------------------------- */
+
+    .na-scene-who {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 6px;
+        color                              : var(--na-veg-muted, #5c6b78);
+        font-size                          : 10.5px;
+    }
+
+    .na-scene-waiting {
+        padding                            : 0 5px;
+        border                             : 1px solid #b0802a;
+        border-radius                      : 8px;
+        background                         : #fbf3e0;
+        color                              : #7a5714;
+        font-size                          : 10px;
+        font-weight                        : 600;
+        line-height                        : 14px;
+    }
+
+    .na-scene-list-row {
+        flex-wrap                          : wrap;
+    }
+
+    .na-scene-list-row .na-scene-who {
+        flex                               : 1 0 100%;
+        margin-top                         : 1px;
+    }
+
+    .na-scene-person {
+        margin                             : 0 0 12px;
+    }
+
+    .na-scene-item {
+        display                            : flex;
+        justify-content                    : space-between;
+        align-items                        : center;
+        gap                                : 8px;
+        width                              : 100%;
+        padding                            : 3px 4px;
+        border                             : 0;
+        border-radius                      : 5px;
+        background                         : none;
+        color                              : inherit;
+        font                               : inherit;
+        font-size                          : 12px;
+        text-align                         : left;
+    }
+
+    button.na-scene-item {
+        cursor                             : pointer;
+    }
+
+    button.na-scene-item:hover {
+        background                         : #e7eef4;
+    }
+
+    .na-scene-item__what {
+        flex                               : 1 1 auto;
+        min-width                          : 0;
+        overflow                           : hidden;
+        text-overflow                      : ellipsis;
+        white-space                        : nowrap;
+    }
+
+    .na-scene-item__end {
+        flex                               : 0 0 auto;
+        color                              : var(--na-veg-muted, #5c6b78);
+        font-size                          : 10.5px;
+        white-space                        : nowrap;
+    }
+
+    .na-scene-history summary {
+        display                            : list-item;                         /* <-- Keeps its arrow, which a section heading's style would take away */
+        cursor                             : pointer;
+    }
+
+    .na-scene-history__row {
+        display                            : flex;
+        justify-content                    : space-between;
+        gap                                : 8px;
+        padding                            : 2px 0;
+        font-size                          : 11px;
+    }
+
+    .na-scene-mine {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 6px;
+        margin                             : 0 0 8px;
+        font-size                          : 12px;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | The Panel on the Left: Dropdown Sections
+ * ----------------------------------------------------------------------------- */
+
+    /* THE PANEL | As tall as what is open, never past the bottom of the window */
+    .na-veg-panel.na-veg-panel--hub {
+        bottom                             : auto;
+        max-height                         : calc(100vh - var(--na-veg-top, 60px) - 126px);   /* <-- 66 px under the header, 60 px clear of the bottom */
+    }
+
+    .na-veg-panel--hub .na-veg-panel__head {
+        padding                            : 10px 10px 10px 12px;
+    }
+
+    .na-veg-panel--hub .na-veg-panel__title {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 10px;
+        font-size                          : 15px;
+    }
+
+    .na-veg-panel--hub .na-veg-panel__title::before {
+        content                            : none;
+    }
+
+    .na-veg-panel--hub .na-veg-panel__title::after {
+        content                            : '\25BE';                              /* <-- The arrow on the right, as Tools & Settings has it */
+        margin-left                        : auto;
+        font-size                          : 12px;
+        color                              : var(--na-veg-ink, #172b3a);
+    }
+
+    .na-veg-panel--hub.na-veg-panel--folded .na-veg-panel__title::after {
+        content                            : '\25B8';
+    }
+
+    .na-scene-hub__title-icon {
+        flex                               : 0 0 auto;
+        width                              : 26px;
+        height                             : 26px;
+        object-fit                         : contain;
+        filter                             : brightness(0.55) saturate(1.2) contrast(1.1);   /* <-- The Tools & Settings summary's icon */
+    }
+
+    /* THE SECTIONS | The rows stay in view, and the open one scrolls inside itself */
+    .na-veg-panel__scroll.na-scene-hub {
+        display                            : flex;
+        flex-direction                     : column;
+        padding                            : 6px 0 8px;
+    }
+
+    .na-scene-hub__head {
+        flex                               : 0 0 auto;
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 10px;
+        width                              : 100%;
+        margin                             : 0;
+        padding                            : 9px 14px;
+        border                             : 0;
+        background                         : transparent;
+        color                              : var(--na-veg-ink, #172b3a);
+        font                               : inherit;
+        font-size                          : 14px;
+        text-align                         : left;
+        cursor                             : pointer;
+    }
+
+    .na-scene-hub__head:hover {
+        background                         : rgba(23, 43, 58, 0.06);
+    }
+
+    .na-scene-hub__head:focus-visible {
+        outline                            : 2px solid var(--na-veg-ink, #172b3a);
+        outline-offset                     : -2px;
+    }
+
+    .na-scene-hub__head--open {
+        font-weight                        : 600;
+    }
+
+    .na-scene-hub__icon {
+        flex                               : 0 0 auto;
+        width                              : 24px;
+        height                             : 24px;
+        object-fit                         : contain;
+        opacity                            : 0.75;
+    }
+
+    .na-scene-hub__head--open .na-scene-hub__icon {
+        opacity                            : 1;
+    }
+
+    .na-scene-hub__label {
+        flex                               : 1 1 auto;
+    }
+
+    .na-scene-hub__arrow {
+        flex                               : 0 0 auto;
+        font-size                          : 11px;
+        transform                          : rotate(-90deg);
+        transition                         : transform 0.15s ease;
+    }
+
+    .na-scene-hub__head--open .na-scene-hub__arrow {
+        transform                          : none;
+    }
+
+    .na-scene-hub__body {
+        flex                               : 0 1 auto;
+        min-height                         : 0;
+        margin                             : 2px 8px 8px;
+        padding                            : 10px;
+        border-radius                      : 6px;
+        background                         : rgba(23, 43, 58, 0.05);              /* <-- The menu's own open panel */
+        overflow-y                         : auto;
+        scrollbar-width                    : thin;
+    }
+
+    .na-scene-hub__body[hidden] {
+        display                            : none;
+    }
+
+/* endregion ------------------------------------------------------------------- */

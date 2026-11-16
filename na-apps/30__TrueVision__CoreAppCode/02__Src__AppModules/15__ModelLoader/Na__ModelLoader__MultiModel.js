@@ -22,6 +22,26 @@
 // -----
 //
 // DEVELOPMENT LOG:
+// 15-Nov-2026 - Version 1.5.0 (v2.186.0)
+// - STAGED LOAD. A phase's files are fetched in tiers - the building (walls,
+//   roofs, landscape, doors, floors, windows, stairs), then fixtures, then
+//   furniture, then interior decor - and several at once within a tier, where
+//   they were fetched one after another in project order (which for the
+//   Storey__ categories was alphabetical: a 38 MB furniture file ahead of the
+//   walls). Na__ModelLoader__StartStagedLoad hands back every category group,
+//   empty, at once, and fills them stage by stage; a caller may show the model
+//   when the first stage is in. Na__ModelLoader__LoadAllModels is the same
+//   load awaited to the end, so every caller gets the new order.
+// - THE GROUPS SIT UNDER THE ROOT IN THE ORDER THEY ALWAYS DID, and the mesh
+//   root goes into its category before the linework root: the model
+//   fingerprint hashes both orders and every stored drawing and sheet picture
+//   is keyed by it (Na__ModelLoader__LoadPlan__ has the two orders apart).
+// - A category is prepared off-scene and handed to the caller's materials pass
+//   before it is attached, so nothing reaches the screen in the loader's plain
+//   materials. Nodes a file hides are marked (Na__LoadHidden), so a phase that
+//   leaves the 3D view can be put back exactly as it loaded
+//   (Na__ModelLoader__RestoreLoadedVisibility).
+//
 // 18-Sep-2026 - Version 1.4.0
 // - Content stamp. Each GLB's scene is hashed the moment it is parsed - node
 //   placements, every geometry attribute and index, material names and colours
@@ -103,6 +123,12 @@
         Na__ModelStamp__Stamp,
         Na__ModelStamp__Carry
     } from './Na__ModelLoader__ContentStamp__.js';
+
+    // @delegate: ./Na__ModelLoader__LoadPlan__.js
+    import {
+        Na__LoadPlan__ResolveSettings,
+        Na__LoadPlan__Build
+    } from './Na__ModelLoader__LoadPlan__.js';
 
 // endregion ----
 
@@ -731,142 +757,315 @@
 // REGION | Multi-Model Orchestration
 // -----
 
-    // FUNCTION | Load All Models in Priority Order
+    // MODULE CONSTANTS | Staged-Load Words
     // ------------------------------------------------------------
-    // Main entry point. Accepts an array of CDN URLs, classifies them by
-    // category and type, then loads each category pair (Mesh + Linework)
-    // sequentially in the priority order defined by Na__ModelCategories__LoadOrder.
-    // Returns a Map of category -> THREE.Group for future toggling support.
+    const Na__ModelLoader__LOAD_HIDDEN_KEY = 'Na__LoadHidden';                 // <-- userData flag: this node was hidden by its own file
     // ------------------------------------------------------------
-    async function Na__ModelLoader__LoadAllModels(modelUrls, modelGroupRoot, config, lineResolution, statusCallback) {
-        const loader        = new GLTFLoader();
-        const categoryMap   = Na__ModelLoader__ClassifyUrls(modelUrls);
-        const loadedGroups  = new Map();
 
-        const discoveredCategories = Object.keys(categoryMap);
-        console.log(`[TrueVision3D] Discovered ${discoveredCategories.length} model categories:`);
-        discoveredCategories.forEach((cat) => {
-            const entry = categoryMap[cat];
-            console.log(` - ${cat}: Mesh=${entry.meshUrl ? 'YES' : 'NO'}, Linework=${entry.lineworkUrl ? 'YES' : 'NO'}`);
+
+    // HELPER FUNCTION | Free a Tree That Will Never Be Shown
+    // ------------------------------------------------------------
+    function Na__ModelLoader__DisposeTree(root) {
+        if (!root) return;
+        if (root.parent) root.parent.remove(root);
+        root.traverse((node) => {
+            if (node.geometry) node.geometry.dispose();
+            if (!node.material) return;
+            (Array.isArray(node.material) ? node.material : [ node.material ]).forEach((material) => { if (material) material.dispose(); });
+        });
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Let a Frame Through Between Two Files
+    // ------------------------------------------------------------
+    // The model may already be on screen while the heavier tiers arrive, and a
+    // file is parsed on the main thread: without this the orbit would stall
+    // from one file to the next.
+    // ------------------------------------------------------------
+    function Na__ModelLoader__YieldToFrame() {
+        return new Promise((resolve) => { setTimeout(resolve, 0); });
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Mark the Nodes a File Hides
+    // ------------------------------------------------------------
+    // Read as the category goes into its group, before a storey toggle, the
+    // distance cull or the context menu can have hidden anything of their own.
+    // ------------------------------------------------------------
+    function Na__ModelLoader__MarkLoadHidden(root) {
+        if (!root) return;
+        root.traverse((node) => {
+            if (node.visible === false) node.userData[Na__ModelLoader__LOAD_HIDDEN_KEY] = true;
+        });
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Put a Model Tree's Visibility Back to How It Loaded
+    // ------------------------------------------------------------
+    // For a design phase leaving the 3D view for the phase library: storeys the
+    // reader switched off, furniture the distance cull hid and objects the
+    // context menu isolated all come back, and only what its own files hid
+    // stays hidden. Materials are not touched (a drawings-only linetype stays
+    // out of every 3D render through its material).
+    // ------------------------------------------------------------
+    function Na__ModelLoader__RestoreLoadedVisibility(root) {
+        if (!root) return;
+        root.traverse((node) => {
+            node.visible = !(node.userData && node.userData[Na__ModelLoader__LOAD_HIDDEN_KEY] === true);
+        });
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Fetch and Prepare One Category, Off-Scene
+    // ------------------------------------------------------------
+    // The mesh and the linework are fetched together and finished exactly as
+    // they always were. They are returned under a holder group of the
+    // category's own name rather than in the category group, so the caller's
+    // materials pass runs before anything can be drawn. A file that fails is
+    // reported and the other half carries on.
+    //
+    // Returns { meshRoot, lineworkRoot, holder }.
+    // ------------------------------------------------------------
+    async function Na__ModelLoader__BuildCategory(category, entry, categoryGroup, config, loader, lineResolution) {
+        const shortName = category.replace('TrueVision__', '');
+
+        const meshLoad = entry.meshUrl
+            ? Na__ModelLoader__LoadSingleMesh(entry.meshUrl, config.BaseMesh__DefaultMaterial, loader).catch((error) => {
+                console.error(`[TrueVision3D] Failed to load Mesh for ${shortName}:`, error);
+                return null;
+            })
+            : Promise.resolve(null);
+        const lineworkLoad = entry.lineworkUrl
+            ? Na__ModelLoader__LoadSingleLinework(entry.lineworkUrl, config.RenderConfig__Linework, loader, lineResolution).catch((error) => {
+                console.error(`[TrueVision3D] Failed to load Linework for ${shortName}:`, error);
+                return null;
+            })
+            : Promise.resolve(null);
+
+        const [ meshRoot, lineworkRoot ] = await Promise.all([ meshLoad, lineworkLoad ]);
+
+        const holder = new THREE.Group();
+        holder.name  = category;
+
+        if (meshRoot) {
+            meshRoot.name                   = Na__ModelLoader__BuildLoadedRootName(category, 'Mesh');
+            meshRoot.userData.Na__ModelType = 'mesh';                      // <-- Tag for downstream identification
+            holder.add(meshRoot);
+            Na__ModelLoader__ConsolidateInstances(meshRoot, config.RenderConfig__InstanceConsolidation); // <-- Collapse repeated meshes (e.g. leaves) into InstancedMesh
+            console.log(`[TrueVision3D] Loaded Mesh: ${shortName}`);
+        }
+
+        if (lineworkRoot) {
+            lineworkRoot.name                   = Na__ModelLoader__BuildLoadedRootName(category, 'Linework');
+            lineworkRoot.userData.Na__ModelType = 'linework';              // <-- Tag for downstream identification
+            holder.add(lineworkRoot);
+            Na__ModelLoader__ApplyProfileLineColoursToMeshRoot(meshRoot, lineworkRoot); // <-- Propagate edge colours to mesh nodes
+            if (Na__ModelLoader__IsProjectionOnlyCategory(category, config.RenderConfig__Linework)) {
+                Na__ModelLoader__HideLineworkFromRender(categoryGroup, lineworkRoot);
+                console.log(`[TrueVision3D] Loaded Linework (drawings only, not rendered in 3D): ${shortName}`);
+            } else {
+                console.log(`[TrueVision3D] Loaded Linework: ${shortName}`);
+            }
+        }
+
+        return { meshRoot : meshRoot, lineworkRoot : lineworkRoot, holder : holder };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Start Loading a Phase's Models in Stages
+    // ------------------------------------------------------------
+    // Classifies the URLs, puts an empty group for EVERY category under
+    // modelGroupRoot at once - in the order they have always sat there - and
+    // fills them stage by stage: the building first, then each heavier tier
+    // (Na__ModelLoader__LoadPlan__), several files in flight within a stage.
+    // So the storey controls, the toggles and the phase library can be handed
+    // the whole Map straight away, and a category the reader has switched off
+    // arrives switched off.
+    //
+    // options (all optional):
+    //   statusCallback(message)                     words for a loading screen
+    //   onCategoryBuilt(category, holder, stage)    may be async: the materials pass,
+    //                                               run while the category is off-scene
+    //   onCategoryAttached(category, group, stage)  the category is in its group
+    //   onStageLoaded(stage, groups)                may be async: a whole stage is in
+    //
+    // Returns {
+    //   groups          Map(category -> THREE.Group), complete from the start
+    //   stages          [ { index, name, label, keys } ]
+    //   whenStage(i)    resolves when stage i is in (at once when there is no such stage)
+    //   whenDone()      resolves with groups when every stage is in
+    //   cancel()        no further file is started; what is in flight is disposed
+    //   getProgress()   { stage, stageName, categoriesDone, categoriesTotal, stageSeconds, cancelled, done }
+    // }
+    // ------------------------------------------------------------
+    function Na__ModelLoader__StartStagedLoad(modelUrls, modelGroupRoot, config, lineResolution, options) {
+        const hooks       = options || {};
+        const status      = (typeof hooks.statusCallback === 'function') ? hooks.statusCallback : null;
+        const settings    = Na__LoadPlan__ResolveSettings(config);
+        const loader      = new GLTFLoader();
+        const categoryMap = Na__ModelLoader__ClassifyUrls(modelUrls);
+        const plan        = Na__LoadPlan__Build(Object.keys(categoryMap), Na__ModelCategories__LoadOrder, settings.tiers);
+        const groups      = new Map();
+
+        // STAGED LOADING SWITCHED OFF | One stage, one category at a time, in the order they attach
+        const stages = settings.enabled
+            ? plan.stages
+            : (plan.attachOrder.length > 0 ? [ { index : 0, name : 'Model', label : 'the model', keys : plan.attachOrder.slice() } ] : []);
+        const pairsInFlight = settings.enabled ? Math.max(1, Math.ceil(settings.filesInFlight / 2)) : 1;   // <-- A category is a pair of files
+
+        console.log(`[TrueVision3D] Discovered ${plan.attachOrder.length} model categories in ${stages.length} loading stage(s):`);
+        stages.forEach((stage) => console.log(` - ${stage.name}: ${stage.keys.map((key) => key.replace('TrueVision__', '')).join(', ')}`));
+
+        // EVERY CATEGORY GROUP, EMPTY, IN THE ORDER THEY HAVE ALWAYS SAT UNDER THE ROOT
+        plan.attachOrder.forEach((category) => {
+            const categoryGroup = new THREE.Group();
+            categoryGroup.name  = category;
+            modelGroupRoot.add(categoryGroup);
+            groups.set(category, categoryGroup);
         });
 
-        // LOAD IN PRIORITY ORDER
-        for (const category of Na__ModelCategories__LoadOrder) {
-            const entry = categoryMap[category];
-            if (!entry) continue;
+        const state = {
+            cancelled       : false,
+            done            : false,
+            stage           : -1,
+            stageName       : '',
+            categoriesDone  : 0,
+            categoriesTotal : plan.attachOrder.length,
+            stageSeconds    : [],
+            startedAt       : performance.now()
+        };
+        const gates = stages.map(() => {
+            let open = null;
+            const promise = new Promise((resolve) => { open = resolve; });
+            return { promise : promise, open : open };
+        });
 
-            const categoryGroup = new THREE.Group();
-            categoryGroup.name  = category;
-            const shortName     = category.replace('TrueVision__', '');
+        // SUB FUNCTION | One Category: Fetched, Prepared Off-Scene, Then Into Its Group
+        // ---------------------------------------------------------------
+        const loadCategory = async (category, stage) => {
+            if (state.cancelled) return;
+            const categoryGroup = groups.get(category);
+            const built = await Na__ModelLoader__BuildCategory(category, categoryMap[category], categoryGroup, config, loader, lineResolution);
 
-            let meshRoot     = null;
-            let lineworkRoot = null;
-
-            if (entry.meshUrl) {
-                if (statusCallback) statusCallback(`Loading ${shortName} Mesh...`);
+            if (!state.cancelled && typeof hooks.onCategoryBuilt === 'function') {
                 try {
-                    meshRoot = await Na__ModelLoader__LoadSingleMesh(
-                        entry.meshUrl,
-                        config.BaseMesh__DefaultMaterial,
-                        loader
-                    );
-                    meshRoot.name                   = Na__ModelLoader__BuildLoadedRootName(category, 'Mesh');
-                    meshRoot.userData.Na__ModelType = 'mesh';      // <-- Tag for downstream identification
-                    categoryGroup.add(meshRoot);
-                    Na__ModelLoader__ConsolidateInstances(meshRoot, config.RenderConfig__InstanceConsolidation); // <-- Collapse repeated meshes (e.g. leaves) into InstancedMesh
-                    console.log(`[TrueVision3D] Loaded Mesh: ${shortName}`);
+                    await hooks.onCategoryBuilt(category, built.holder, stage);       // <-- The materials pass, before anything is on screen
                 } catch (error) {
-                    console.error(`[TrueVision3D] Failed to load Mesh for ${shortName}:`, error);
+                    console.error(`[TrueVision3D] Materials pass failed for ${category}:`, error);
                 }
             }
-
-            if (entry.lineworkUrl) {
-                if (statusCallback) statusCallback(`Loading ${shortName} Linework...`);
-                try {
-                    lineworkRoot = await Na__ModelLoader__LoadSingleLinework(
-                        entry.lineworkUrl,
-                        config.RenderConfig__Linework,
-                        loader,
-                        lineResolution
-                    );
-                    lineworkRoot.name                   = Na__ModelLoader__BuildLoadedRootName(category, 'Linework');
-                    lineworkRoot.userData.Na__ModelType = 'linework'; // <-- Tag for downstream identification
-                    categoryGroup.add(lineworkRoot);
-                    Na__ModelLoader__ApplyProfileLineColoursToMeshRoot(meshRoot, lineworkRoot); // <-- Propagate edge colours to mesh nodes
-                    if (Na__ModelLoader__IsProjectionOnlyCategory(category, config.RenderConfig__Linework)) {
-                        Na__ModelLoader__HideLineworkFromRender(categoryGroup, lineworkRoot);
-                        console.log(`[TrueVision3D] Loaded Linework (drawings only, not rendered in 3D): ${shortName}`);
-                    } else {
-                        console.log(`[TrueVision3D] Loaded Linework: ${shortName}`);
-                    }
-                } catch (error) {
-                    console.error(`[TrueVision3D] Failed to load Linework for ${shortName}:`, error);
-                }
+            if (state.cancelled) {
+                Na__ModelLoader__DisposeTree(built.holder);
+                return;
             }
 
-            modelGroupRoot.add(categoryGroup);
-            loadedGroups.set(category, categoryGroup);
-        }
+            if (built.meshRoot)     categoryGroup.add(built.meshRoot);               // <-- Mesh first, then linework: the order the content stamp reads them in
+            if (built.lineworkRoot) categoryGroup.add(built.lineworkRoot);
+            Na__ModelLoader__MarkLoadHidden(categoryGroup);
 
-        // HANDLE UNCATEGORIZED URLS (not in load order but still valid)
-        for (const [category, entry] of Object.entries(categoryMap)) {
-            if (loadedGroups.has(category)) continue;
-
-            const categoryGroup = new THREE.Group();
-            categoryGroup.name  = category;
-            const shortName     = category.replace('TrueVision__', '');
-
-            let meshRoot     = null;
-            let lineworkRoot = null;
-
-            if (entry.meshUrl) {
-                if (statusCallback) statusCallback(`Loading ${shortName} Mesh...`);
+            state.categoriesDone++;
+            if (status) status(`Loading ${stage.label} (${state.categoriesDone} of ${state.categoriesTotal})...`);
+            if (typeof hooks.onCategoryAttached === 'function') {
                 try {
-                    meshRoot = await Na__ModelLoader__LoadSingleMesh(
-                        entry.meshUrl,
-                        config.BaseMesh__DefaultMaterial,
-                        loader
-                    );
-                    meshRoot.name                   = Na__ModelLoader__BuildLoadedRootName(category, 'Mesh');
-                    meshRoot.userData.Na__ModelType = 'mesh';
-                    categoryGroup.add(meshRoot);
-                    Na__ModelLoader__ConsolidateInstances(meshRoot, config.RenderConfig__InstanceConsolidation); // <-- Collapse repeated meshes (e.g. leaves) into InstancedMesh
-                    console.log(`[TrueVision3D] Loaded Mesh (unordered): ${shortName}`);
+                    hooks.onCategoryAttached(category, categoryGroup, stage);
                 } catch (error) {
-                    console.error(`[TrueVision3D] Failed to load Mesh for ${shortName}:`, error);
+                    console.error(`[TrueVision3D] A model-bound system failed on ${category}:`, error);
                 }
             }
+        };
+        // ---------------------------------------------------------------
 
-            if (entry.lineworkUrl) {
-                if (statusCallback) statusCallback(`Loading ${shortName} Linework...`);
+        // SUB FUNCTION | One Stage: Its Categories, a Few at a Time
+        // ---------------------------------------------------------------
+        const loadStage = async (stage) => {
+            const stageStart = performance.now();
+            state.stage     = stage.index;
+            state.stageName = stage.name;
+            if (status) status(`Loading ${stage.label}...`);
+
+            const queue   = stage.keys.slice();
+            const workers = Math.min(queue.length, pairsInFlight);
+            const work    = async () => {
+                while (queue.length > 0 && !state.cancelled) {
+                    await loadCategory(queue.shift(), stage);
+                    await Na__ModelLoader__YieldToFrame();
+                }
+            };
+            await Promise.all(Array.from({ length : workers }, work));
+
+            state.stageSeconds[stage.index] = Math.round(performance.now() - stageStart) / 1000;
+            if (state.cancelled) return;
+            console.log(`[TrueVision3D] Loading stage in: ${stage.name} (${stage.keys.length} categories, ${state.stageSeconds[stage.index]} s)`);
+            gates[stage.index].open();
+            if (typeof hooks.onStageLoaded === 'function') {
                 try {
-                    lineworkRoot = await Na__ModelLoader__LoadSingleLinework(
-                        entry.lineworkUrl,
-                        config.RenderConfig__Linework,
-                        loader,
-                        lineResolution
-                    );
-                    lineworkRoot.name                   = Na__ModelLoader__BuildLoadedRootName(category, 'Linework');
-                    lineworkRoot.userData.Na__ModelType = 'linework';
-                    categoryGroup.add(lineworkRoot);
-                    Na__ModelLoader__ApplyProfileLineColoursToMeshRoot(meshRoot, lineworkRoot); // <-- Propagate edge colours to mesh nodes
-                    if (Na__ModelLoader__IsProjectionOnlyCategory(category, config.RenderConfig__Linework)) {
-                        Na__ModelLoader__HideLineworkFromRender(categoryGroup, lineworkRoot);
-                        console.log(`[TrueVision3D] Loaded Linework (unordered, drawings only, not rendered in 3D): ${shortName}`);
-                    } else {
-                        console.log(`[TrueVision3D] Loaded Linework (unordered): ${shortName}`);
-                    }
+                    await hooks.onStageLoaded(stage, groups);
                 } catch (error) {
-                    console.error(`[TrueVision3D] Failed to load Linework for ${shortName}:`, error);
+                    console.error(`[TrueVision3D] A model-bound system failed after stage ${stage.name}:`, error);
                 }
             }
+        };
+        // ---------------------------------------------------------------
 
-            modelGroupRoot.add(categoryGroup);
-            loadedGroups.set(category, categoryGroup);
-        }
+        const done = (async () => {
+            try {
+                for (let i = 0; i < stages.length; i++) {
+                    if (state.cancelled) break;
+                    await loadStage(stages[i]);
+                }
+            } finally {
+                state.done = true;
+                gates.forEach((gate) => gate.open());                               // <-- Cancelled or failed: nobody waits for a stage for ever
+            }
+            if (!state.cancelled) {
+                console.log(`[TrueVision3D] Multi-model loading complete. ${groups.size} categories loaded in ${Math.round(performance.now() - state.startedAt) / 1000} s.`);
+            }
+            return groups;
+        })();
 
-        console.log(`[TrueVision3D] Multi-model loading complete. ${loadedGroups.size} categories loaded.`);
-        return loadedGroups;
+        return {
+            groups   : groups,
+            stages   : stages.map((stage) => ({ index : stage.index, name : stage.name, label : stage.label, keys : stage.keys.slice() })),
+            settings : settings,
+            whenStage(index) { return gates[index] ? gates[index].promise : Promise.resolve(); },
+            whenDone()       { return done; },
+            cancel()         { state.cancelled = true; },
+            getProgress()    {
+                return {
+                    stage           : state.stage,
+                    stageName       : state.stageName,
+                    categoriesDone  : state.categoriesDone,
+                    categoriesTotal : state.categoriesTotal,
+                    stageSeconds    : state.stageSeconds.slice(),
+                    cancelled       : state.cancelled,
+                    done            : state.done
+                };
+            }
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Load All Models, Awaited to the End
+    // ------------------------------------------------------------
+    // The staged load above, for a caller that wants nothing until the whole
+    // phase is in: a design phase loaded off-scene, a phase the Design Phase
+    // menu fetches. Returns the Map of category -> THREE.Group.
+    // ------------------------------------------------------------
+    async function Na__ModelLoader__LoadAllModels(modelUrls, modelGroupRoot, config, lineResolution, statusCallback, options) {
+        const run = Na__ModelLoader__StartStagedLoad(
+            modelUrls,
+            modelGroupRoot,
+            config,
+            lineResolution,
+            Object.assign({}, options || {}, { statusCallback : statusCallback })
+        );
+        return run.whenDone();
     }
     // ------------------------------------------------------------
 
@@ -881,6 +1080,8 @@
     // ------------------------------------------------------------
     export {
         Na__ModelLoader__LoadAllModels,
+        Na__ModelLoader__StartStagedLoad,
+        Na__ModelLoader__RestoreLoadedVisibility,
         Na__ModelLoader__UpgradeLineworkRoot,
         Na__ModelLoader__ApplyProfileLineColoursToMeshRoot,
         Na__ModelLoader__ClassifyUrls,

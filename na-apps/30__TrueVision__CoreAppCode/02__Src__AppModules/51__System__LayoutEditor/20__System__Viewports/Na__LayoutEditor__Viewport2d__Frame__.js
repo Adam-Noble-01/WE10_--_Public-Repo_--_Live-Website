@@ -53,6 +53,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 15-Nov-2026 - Version 1.5.0 (TrueVision v2.185.0, from ValeVision 3D v2.85.0)
+// - The frame's plants image, over the vectors as the depth fog is: PlacePlants, ClearPlants, RenderPlants and
+//   SchedulePlants. Plants and people share it. A change to them redraws this layer and leaves the picture alone.
+//
 // 21-Sep-2026 - Version 1.4.0 (TrueVision)
 // - Hide swings. The debounced underlay and fog renders draw with
 //   Na__LeDoors__RasterLayers(viewport): the viewport's own model layers,
@@ -253,9 +257,11 @@
         state = {
             body : body, underlay : make('img', 'na-le-frame__underlay'), linework : make('div', 'na-le-frame__linework'),
             fog : make('img', 'na-le-frame__fog'),
+            plants : make('img', 'na-le-frame__fog na-le-frame__plants'),        // <-- Placed and printed as the fog is, so it takes the fog's rules: over the vectors, under the labels, out in Draft
             markup : make('div', 'na-le-frame__markup'), empty : make('div', 'na-le-frame__empty'), progress : make('div', 'na-le-frame__progress'),
             renderedKey : null, renderedWindow : null, wantedKey : null, timer : null, inFlight : false,
             fogRenderedKey : null, fogRenderedWindow : null, fogWantedKey : null, fogTimer : null, fogInFlight : false,
+            plantsRenderedKey : null, plantsRenderedWindow : null, plantsWantedKey : null, plantsTimer : null, plantsInFlight : false,
             lineworkKey : null, lineworkSvg : null, markupKey : null, lastArgs : null, classes : null, classesKey : null, progressTimer : null
         };
         state.progress.hidden = true;
@@ -264,6 +270,9 @@
         state.fog.draggable = false;
         state.fog.alt = '';
         state.fog.hidden = true;                                                  // <-- Most viewports never have one
+        state.plants.draggable = false;
+        state.plants.alt = '';
+        state.plants.hidden = true;                                               // <-- Nor this
         Na__LeVp2d__States.set(viewportId, state);
         return state;
     }
@@ -441,6 +450,90 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Place the Last Rendered Plants Over the Current Window
+    // ------------------------------------------------------------
+    // The linework plants' layer: PlaceFog's twin, for the same reason. A bush must
+    // stop a wall's vectors, so it goes over them, and it slides with the picture.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__PlacePlants(state, win, ppm) {
+        const rw = state.plantsRenderedWindow;
+        if (!rw) { state.plants.hidden = true; return; }
+        const D = win.Denominator;
+        state.plants.hidden = false;
+        state.plants.style.left   = (((rw.OriginX - win.OriginX) / D) * ppm) + 'px';
+        state.plants.style.top    = (((rw.OriginY - win.OriginY) / D) * ppm) + 'px';
+        state.plants.style.width  = ((rw.WidthMm  / D) * ppm) + 'px';
+        state.plants.style.height = ((rw.HeightMm / D) * ppm) + 'px';
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | This Viewport Shows No Plants: Take Them Down and Forget Them
+    // ------------------------------------------------------------
+    function Na__LeVp2d__ClearPlants(state) {
+        if (state.plantsTimer) { window.clearTimeout(state.plantsTimer); state.plantsTimer = null; }
+        if (!state.plants) return;
+        state.plants.hidden = true;
+        if (state.plantsRenderedKey !== null) state.plants.removeAttribute('src');
+        state.plantsRenderedKey = null; state.plantsRenderedWindow = null; state.plantsWantedKey = null; state.plantsRenderedFp = null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Render One Viewport's Plants Image and Put It in the Frame
+    // ------------------------------------------------------------
+    // RenderFog's twin: the same window, raster fit and sample count as the picture,
+    // so the plants register on it pixel for pixel.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__RenderPlants(state, viewportId, viewport, described, key, level, stillWanted) {
+        const phaseId        = described.modelSource.renderId;
+        const phaseFp        = Na__LeSnap__GetPipelineFingerprint(phaseId);
+        const frame          = viewport.Viewport__FrameMm;
+        const px             = Na__LeRaster__Fit(frame.WidthMm, frame.HeightMm, level);
+        const windowSnapshot = described.window;
+
+        state.plantsInFlight = true;
+        return Na__LeSnap__Render2d(described.definition, windowSnapshot, viewport.Viewport__Styles, px.w, px.h, Na__LeDoors__RasterLayers(viewport), px.samples, Na__LeVp2d__RasterWeights(viewport), phaseId, stillWanted, null, true).then((result) => {
+            state.plantsInFlight = false;
+            if (!state.parked && Na__LeVp2d__States.get(viewportId) !== state) return false;   // <-- Released
+            if (!result) return false;
+            state.plants.src           = result.dataUrl;
+            state.plantsRenderedKey    = key;
+            state.plantsRenderedFp     = phaseFp;
+            state.plantsRenderedWindow = { OriginX : windowSnapshot.OriginX, OriginY : windowSnapshot.OriginY, WidthMm : windowSnapshot.WidthMm, HeightMm : windowSnapshot.HeightMm };
+            if (state.lastArgs) Na__LeVp2d__PlacePlants(state, Na__LeVp2d__Window(state.lastArgs.viewport), state.lastArgs.ppm);
+            return true;
+        }, () => { state.plantsInFlight = false; return false; });
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Render the Plants for the Wanted Window (debounced)
+    // ------------------------------------------------------------
+    // ScheduleFog's twin: not now means later, not never.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__SchedulePlants(state, viewportId) {
+        if (state.plantsTimer) window.clearTimeout(state.plantsTimer);
+        state.plantsTimer = null;
+        if (state.parked) return;
+        state.plantsTimer = window.setTimeout(() => {
+            state.plantsTimer = null;
+            if (!state.lastArgs) return;
+            if (Na__LeDraft__IsOn()) return;
+            if (Na__LeVp2d__Interacting || state.plantsInFlight) { Na__LeVp2d__SchedulePlants(state, viewportId); return; }
+            const args      = state.lastArgs;
+            const described = Na__LeVp2d__Describe(args.viewport);
+            if (!described.definition) return;
+            if (Na__LeSnap__GetPipelineFingerprint(described.modelSource.renderId) === null) return;
+            const key = state.plantsWantedKey;
+            Na__LeVp2d__RenderPlants(state, viewportId, args.viewport, described, key, Na__LeRaster__Working(), () => !state.parked && !Na__LeDraft__IsOn()).then(() => {
+                if (state.plantsWantedKey !== null && state.plantsWantedKey !== key) Na__LeVp2d__SchedulePlants(state, viewportId);
+            });
+        }, Na__LeVp2d__RENDER_DELAY_MS);
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | A Badge in the Frame While the Linework Is Computed
     // ------------------------------------------------------------
     function Na__LeVp2d__ShowProgress(state, phase) {
@@ -478,6 +571,7 @@
         if (!state || (body && state.body !== body)) return null;
         if (state.timer) { window.clearTimeout(state.timer); state.timer = null; }
         if (state.fogTimer) { window.clearTimeout(state.fogTimer); state.fogTimer = null; }   // <-- The fog's own debounce, with the picture's
+        if (state.plantsTimer) { window.clearTimeout(state.plantsTimer); state.plantsTimer = null; }
         Na__LeVp2d__HideProgress(state);                                          // <-- The badge's one-second tick stops; Fill shows it again if the linework is still coming
         state.parked = true;
         Na__LeVp2d__States.delete(viewportId);
@@ -499,6 +593,7 @@
         Na__LeVp2d__States.forEach((state, viewportId) => {
             if (state.wantedKey !== state.renderedKey) Na__LeVp2d__ScheduleUnderlay(state, viewportId);
             if (state.fogWantedKey !== null && state.fogWantedKey !== state.fogRenderedKey) Na__LeVp2d__ScheduleFog(state, viewportId);
+            if (state.plantsWantedKey !== null && state.plantsWantedKey !== state.plantsRenderedKey) Na__LeVp2d__SchedulePlants(state, viewportId);
         });
     }
     // ------------------------------------------------------------
@@ -527,6 +622,10 @@
         Na__LeVp2d__ClearFog,
         Na__LeVp2d__RenderFog,
         Na__LeVp2d__ScheduleFog,
+        Na__LeVp2d__PlacePlants,
+        Na__LeVp2d__ClearPlants,
+        Na__LeVp2d__RenderPlants,
+        Na__LeVp2d__SchedulePlants,
         Na__LeVp2d__ShowProgress,
         Na__LeVp2d__HideProgress,
         Na__LeVp2d__Park,

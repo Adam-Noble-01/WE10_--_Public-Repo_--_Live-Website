@@ -78,6 +78,12 @@
 @import url('Na__UiFeature__Styles__NavigationToolbar__.css');
 
 
+/* Existing and Proposed Comparison - the Line, Its Handle and Labels; the Model Stream Status */
+/* ----------------------------------------------------------------- */
+/* After the toolbar sheet: the comparison's button is a toolbar button. */
+@import url('Na__UiFeature__Styles__PhaseCompare__.css');
+
+
 /* Presentation Mode - Scene Carousel + Dev Editor + Adaptive Layout */
 /* ----------------------------------------------------------------- */
 @import url('Na__PresentationMode__Styles__SceneCarousel__.css');

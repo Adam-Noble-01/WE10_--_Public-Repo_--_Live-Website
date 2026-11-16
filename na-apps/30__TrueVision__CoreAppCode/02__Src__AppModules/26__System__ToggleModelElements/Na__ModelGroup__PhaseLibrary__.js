@@ -31,16 +31,37 @@
 //   phase drawn off-scene looks like the same phase loaded live.
 // - Beyond the cache limit the least recently used phase is disposed. A phase
 //   a render has pinned is never disposed.
+// - A LOADED PHASE CAN TAKE THE 3D VIEW WITHOUT A DOWNLOAD (SwapLive): its
+//   categories move under Na__ModelGroup__Root and the phase it replaces moves
+//   into the cache, put back as it loaded. The Design Phase menu goes through
+//   it, so a phase seen once comes back at once.
+// - EXISTING AND PROPOSED (GetComparePair): the newest group whose label says
+//   "existing" and the phase it is compared with - the phase in the 3D view,
+//   or the project default when the 3D view holds the existing building. A
+//   project without both answers null.
 //
 // INTEGRATION:
 // - Na__AppFlow__LoadingSequence initialises it and reports the groups and the
 //   live phase; Na__UiFeature__ModelGroupSelector reports every switch.
 // - Na__LayoutEditor__ModelSource__ resolves a viewport's phase through here;
 //   Na__LayoutEditor__SnapshotRenderer__ borrows and pins phase roots.
+// - Na__UiFeature__PhaseCompare__ reads the pair, loads the other half and pins
+//   it while the comparison is on screen.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 15-Nov-2026 - Version 1.1.0 (v2.186.0)
+// - SwapLive: a cached phase goes into the 3D view and the live one into the
+//   cache, with no file fetched. SetLive keeps the live phase's category Map,
+//   which is what makes the phase leaving the view a cache entry.
+// - GetExistingId, GetComparePair and GetShortLabel, for the Existing and
+//   Proposed comparison.
+// - SetCacheFloor: the comparison needs its other half kept whatever limit the
+//   Layout Editor's config sets.
+// - An off-scene phase runs its materials pass a category at a time, as each
+//   is built, where it ran once over the whole phase at the end.
+//
 // 13-Sep-2026 - Version 1.0.0
 // - Initial implementation, for the Layout Editor's per-viewport Model Source.
 //
@@ -55,9 +76,10 @@
     // ------------------------------------------------------------
     import * as THREE from 'three';
     import {
-        Na__ModelLoader__LoadAllModels,
+        Na__ModelLoader__StartStagedLoad,
         Na__ModelLoader__SeparateOrbitCubeUrl,
         Na__ModelLoader__ClassifyUrls,
+        Na__ModelLoader__RestoreLoadedVisibility,
         Na__ModelCategories__LoadOrder
     } from '../15__ModelLoader/Na__ModelLoader__MultiModel.js';
     // ------------------------------------------------------------
@@ -107,12 +129,15 @@
     let   Na__PhaseLib__DefaultId = null;
     let   Na__PhaseLib__LiveId    = null;
     let   Na__PhaseLib__LiveKeys  = [];
+    let   Na__PhaseLib__LiveGroups = null;           // <-- The live phase's category Map: what lets it leave the 3D view for the cache
     let   Na__PhaseLib__LiveReady = false;
     let   Na__PhaseLib__LiveGate  = null;            // <-- The promise callers hold while the live model loads
     let   Na__PhaseLib__LiveOpen  = null;
     const Na__PhaseLib__Entries   = new Map();       // <-- groupId -> entry, for phases other than the live one
     let   Na__PhaseLib__LoadChain = Promise.resolve();
     let   Na__PhaseLib__CacheSize = Na__PhaseLib__DEFAULT_CACHE_SIZE;
+    let   Na__PhaseLib__CacheFloor = 1;              // <-- Never fewer than this, whatever limit is set (the comparison's other half)
+    const Na__PhaseLib__LoadReports = new Map();     // <-- groupId -> how its last load went: stages, seconds, when it was shown
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -209,13 +234,14 @@
     function Na__PhaseLib__Evict() {
         const ready = [];
         Na__PhaseLib__Entries.forEach((entry) => { if (entry.status === Na__PhaseLib__STATUS_READY) ready.push(entry); });
-        let excess = ready.length - Na__PhaseLib__CacheSize;
+        const limit = Math.max(Na__PhaseLib__CacheSize, Na__PhaseLib__CacheFloor);
+        let excess = ready.length - limit;
         if (excess <= 0) return;
 
         ready.sort((a, b) => a.lastUsed - b.lastUsed);
         for (let i = 0; i < ready.length && excess > 0; i++) {
             if (ready[i].pins > 0) continue;
-            console.log('[TrueVision3D] Design phase let go (cache holds ' + Na__PhaseLib__CacheSize + '): ' + ready[i].label);
+            console.log('[TrueVision3D] Design phase let go (cache holds ' + limit + '): ' + ready[i].label);
             Na__PhaseLib__Dispose(ready[i]);
             excess--;
         }
@@ -261,9 +287,23 @@
                 entry.message = String(message || '');
                 Na__PhaseLib__Dispatch('progress', entry.groupId);
             };
-            const urls   = Na__ModelLoader__SeparateOrbitCubeUrl(group.modelUrls).filteredUrls;   // <-- The orbit cube is the 3D view's, not part of a drawing
-            const groups = await Na__ModelLoader__LoadAllModels(urls, root, Na__PhaseLib__ModelsConfig, Na__PhaseLib__LineResolution, onStatus);
-            if (typeof Na__PhaseLib__AfterLoad === 'function') await Na__PhaseLib__AfterLoad(groups);
+            const urls      = Na__ModelLoader__SeparateOrbitCubeUrl(group.modelUrls).filteredUrls;   // <-- The orbit cube is the 3D view's, not part of a drawing
+            const afterLoad = Na__PhaseLib__AfterLoad;
+            const startedAt = performance.now();
+            const run       = Na__ModelLoader__StartStagedLoad(urls, root, Na__PhaseLib__ModelsConfig, Na__PhaseLib__LineResolution, {
+                statusCallback  : onStatus,
+                onCategoryBuilt : (typeof afterLoad === 'function')
+                    ? (category, holder) => afterLoad(new Map([ [ category, holder ] ]))             // <-- The materials pass, a category at a time as each is built
+                    : null
+            });
+            const groups    = await run.whenDone();
+            Na__PhaseLib__NoteLoadReport(entry.groupId, {
+                live       : false,
+                stages     : run.stages.map((stage) => ({ name : stage.name, categories : stage.keys.length })),
+                progress   : run.getProgress(),
+                startedAt  : Math.round(startedAt),
+                completeAt : Math.round(performance.now())
+            });
 
             // THE LOADER SWALLOWS A FAILED FILE and carries on, which is right for
             // the 3D view and wrong here: a phase with nothing in it would draw a
@@ -377,6 +417,7 @@
         const list = Array.isArray(modelGroups) ? modelGroups : [];
         const seen = new Set();
         Na__PhaseLib__RawIds = new WeakMap();
+        Na__PhaseLib__LoadReports.clear();
         Na__PhaseLib__Groups = list.map((raw, index) => {
             const source = (raw && typeof raw === 'object') ? raw : {};
             let groupId  = String(source.groupId || source.label || ('ModelGroup_' + (index + 1)));
@@ -402,8 +443,9 @@
     // ------------------------------------------------------------
     function Na__PhaseLib__SetLiveLoading(groupId) {
         if (groupId !== undefined) Na__PhaseLib__LiveId = groupId || null;
-        Na__PhaseLib__LiveKeys  = [];
-        Na__PhaseLib__LiveReady = false;
+        Na__PhaseLib__LiveKeys   = [];
+        Na__PhaseLib__LiveGroups = null;
+        Na__PhaseLib__LiveReady  = false;
         Na__PhaseLib__Dispatch('live-loading', Na__PhaseLib__LiveId);
     }
     // ------------------------------------------------------------
@@ -416,7 +458,8 @@
     // ------------------------------------------------------------
     function Na__PhaseLib__SetLive(groupId, loadedGroups) {
         if (groupId !== undefined) Na__PhaseLib__LiveId = groupId || null;
-        Na__PhaseLib__LiveKeys = (loadedGroups && typeof loadedGroups.keys === 'function') ? Array.from(loadedGroups.keys()) : [];
+        Na__PhaseLib__LiveKeys   = (loadedGroups && typeof loadedGroups.keys === 'function') ? Array.from(loadedGroups.keys()) : [];
+        Na__PhaseLib__LiveGroups = (loadedGroups && typeof loadedGroups.keys === 'function') ? loadedGroups : null;
 
         const duplicate = Na__PhaseLib__LiveId ? Na__PhaseLib__Entries.get(Na__PhaseLib__LiveId) : null;
         if (duplicate && duplicate.pins === 0 && duplicate.status !== Na__PhaseLib__STATUS_LOADING) {
@@ -425,6 +468,141 @@
 
         Na__PhaseLib__OpenLiveGate();
         Na__PhaseLib__Dispatch('live', Na__PhaseLib__LiveId);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Put a Loaded Phase Into the 3D View and Keep the One It Replaces
+    // ------------------------------------------------------------
+    // No file is fetched: the cached phase's categories move under the model
+    // root in their own order, and the phase that was there moves into a root
+    // of its own and stays in the cache, its visibility put back to how it
+    // loaded (storeys switched off, culled furniture and isolated objects all
+    // return). The caller rebinds the model-bound systems to the Map this
+    // returns and then calls SetLive, exactly as after a load.
+    //
+    // Returns the category Map of the phase now in the 3D view, or null when
+    // nothing was swapped: the phase is not loaded, a render has it pinned, it
+    // is already live, or the live model is still loading. On null the caller
+    // loads the phase as it always did.
+    // ------------------------------------------------------------
+    function Na__PhaseLib__SwapLive(groupId) {
+        const modelRoot = Na__PhaseLib__ModelRoot;
+        if (!modelRoot || !Na__PhaseLib__LiveReady) return null;
+        if (!groupId || Na__PhaseLib__IsLive(groupId)) return null;
+        const entry = Na__PhaseLib__GetReadyEntry(groupId);
+        if (!entry || entry.pins > 0 || !entry.root || !entry.groups) return null;
+
+        const outgoingId     = Na__PhaseLib__LiveId;
+        const outgoingGroup  = Na__PhaseLib__FindGroup(outgoingId);
+        const outgoingGroups = Na__PhaseLib__LiveGroups;
+
+        // THE PHASE LEAVING | Into a root of its own, as it loaded
+        let stash = null;
+        if (outgoingGroup && outgoingGroups && outgoingGroups.size > 0) {
+            const root = new THREE.Group();
+            root.name = 'Na__ModelPhase__' + outgoingId;
+            root.userData.Na__ModelPhaseId = outgoingId;
+            root.position.copy(modelRoot.position);
+            root.quaternion.copy(modelRoot.quaternion);
+            root.scale.copy(modelRoot.scale);
+            while (modelRoot.children.length > 0) root.add(modelRoot.children[0]);      // <-- In order: the fingerprint reads the categories in it
+            Na__ModelLoader__RestoreLoadedVisibility(root);
+            root.updateMatrixWorld(true);
+            stash = {
+                groupId : outgoingId, label : outgoingGroup.label, status : Na__PhaseLib__STATUS_READY,
+                root : root, groups : outgoingGroups, promise : null, message : '',
+                pins : 0, failedAt : 0, lastUsed : performance.now()
+            };
+        } else {
+            while (modelRoot.children.length > 0) Na__PhaseLib__DisposeTree(modelRoot.children[0]);   // <-- Nothing known about it to keep: let it go as the menu always did
+        }
+
+        // THE PHASE ARRIVING | Its categories under the model root, in their own order
+        const arriving = entry.groups;
+        Na__PhaseLib__Entries.delete(groupId);
+        while (entry.root.children.length > 0) modelRoot.add(entry.root.children[0]);
+        modelRoot.updateMatrixWorld(true);
+        entry.root   = null;
+        entry.groups = null;
+        entry.status = Na__PhaseLib__STATUS_UNLOADED;
+
+        Na__PhaseLib__LiveId     = groupId;
+        Na__PhaseLib__LiveGroups = arriving;
+        Na__PhaseLib__LiveKeys   = Array.from(arriving.keys());
+
+        if (stash) {
+            const earlier = Na__PhaseLib__Entries.get(outgoingId);
+            if (earlier && earlier !== stash && earlier.status !== Na__PhaseLib__STATUS_LOADING) Na__PhaseLib__Dispose(earlier);
+            Na__PhaseLib__Entries.set(outgoingId, stash);
+            console.log('[TrueVision3D] Design phase kept loaded off-scene: ' + stash.label);
+            Na__PhaseLib__Dispatch('ready', outgoingId);                                 // <-- Its fingerprints are read while nothing has it
+            Na__PhaseLib__Evict();
+        }
+        return arriving;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Existing Building's Phase (null when the project has none)
+    // ------------------------------------------------------------
+    // The newest group whose label says "existing": the same word the default
+    // phase rule reads, so the two can never disagree about which group it is.
+    // ------------------------------------------------------------
+    function Na__PhaseLib__GetExistingId() {
+        for (let i = Na__PhaseLib__Groups.length - 1; i >= 0; i--) {
+            const group = Na__PhaseLib__Groups[i];
+            if (String(group.label || group.groupId || '').toLowerCase().includes('existing')) return group.groupId;
+        }
+        return null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | A Phase's Short Name, for a Label on the Model
+    // ------------------------------------------------------------
+    // "Concept Design - Scheme-02" reads "Scheme-02": the part after the last
+    // " - ", else the whole label.
+    // ------------------------------------------------------------
+    function Na__PhaseLib__GetShortLabel(groupId) {
+        const label = Na__PhaseLib__GetLabel(groupId);
+        const parts = label.split(' - ').map((part) => part.trim()).filter((part) => part.length > 0);
+        return parts.length > 0 ? parts[parts.length - 1] : label;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Existing and Proposed Pair (null when the project has not both)
+    // ------------------------------------------------------------
+    // before is the existing building. after is the phase in the 3D view, or
+    // the project's default phase when the 3D view holds the existing building.
+    // otherId is whichever of the two the 3D view does NOT hold: the one to
+    // load off-scene. schemes counts the phases that are not the existing
+    // building, so a label can name the scheme only when there is a choice.
+    // ------------------------------------------------------------
+    function Na__PhaseLib__GetComparePair() {
+        const beforeId = Na__PhaseLib__GetExistingId();
+        if (!beforeId) return null;
+
+        const liveId  = Na__PhaseLib__LiveId;
+        const afterId = (liveId && liveId !== beforeId && Na__PhaseLib__HasGroup(liveId)) ? liveId : Na__PhaseLib__DefaultId;
+        if (!afterId || afterId === beforeId) return null;                               // <-- A project whose only phase is the existing building
+
+        let schemes = 0;
+        Na__PhaseLib__Groups.forEach((group) => {
+            if (!String(group.label || group.groupId || '').toLowerCase().includes('existing')) schemes++;
+        });
+
+        return {
+            beforeId    : beforeId,
+            afterId     : afterId,
+            otherId     : (liveId === beforeId) ? afterId : beforeId,
+            liveIsAfter : liveId !== beforeId,
+            beforeLabel : Na__PhaseLib__GetLabel(beforeId),
+            afterLabel  : Na__PhaseLib__GetLabel(afterId),
+            afterShort  : Na__PhaseLib__GetShortLabel(afterId),
+            schemes     : schemes
+        };
     }
     // ------------------------------------------------------------
 
@@ -541,6 +719,39 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | Record and Read How a Phase's Load Went
+    // ------------------------------------------------------------
+    // report: { live, stages : [ { name, categories } ], progress (the staged
+    // load's own), startedAt, firstLookAt (the live phase only), completeAt },
+    // times in milliseconds since the page opened. The loading sequence
+    // records the 3D view's model; an off-scene phase records its own. Read
+    // by anything that wants to say what loaded when - the TrueVision MCP's
+    // tv3d_load_report among them.
+    // ------------------------------------------------------------
+    function Na__PhaseLib__NoteLoadReport(groupId, report) {
+        const key = String(groupId || '');
+        Na__PhaseLib__LoadReports.set(key, Object.assign({ groupId : groupId || null, label : Na__PhaseLib__GetLabel(groupId) }, report || {}));
+    }
+    function Na__PhaseLib__GetLoadReports() {
+        return Array.from(Na__PhaseLib__LoadReports.values());
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Fewest Off-Scene Phases That Must Be Allowed to Stay
+    // ------------------------------------------------------------
+    // The Existing and Proposed comparison needs its other half kept, and a
+    // phase the Design Phase menu has shown should come back at once. A limit
+    // set below this is raised to it; one set above it stands.
+    // ------------------------------------------------------------
+    function Na__PhaseLib__SetCacheFloor(floor) {
+        if (!Number.isFinite(floor) || floor < 1) return false;
+        Na__PhaseLib__CacheFloor = Math.floor(floor);
+        return true;
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -595,7 +806,14 @@
         Na__PhaseLib__Ensure,
         Na__PhaseLib__Pin,
         Na__PhaseLib__Unpin,
-        Na__PhaseLib__SetCacheLimit
+        Na__PhaseLib__SetCacheLimit,
+        Na__PhaseLib__SetCacheFloor,
+        Na__PhaseLib__NoteLoadReport,
+        Na__PhaseLib__GetLoadReports,
+        Na__PhaseLib__SwapLive,
+        Na__PhaseLib__GetExistingId,
+        Na__PhaseLib__GetShortLabel,
+        Na__PhaseLib__GetComparePair
     };
     // ------------------------------------------------------------
 

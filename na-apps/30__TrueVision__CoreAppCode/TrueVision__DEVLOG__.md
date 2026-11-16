@@ -2,6 +2,406 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.186.2  -  15-Nov-2026
+### Plants and People Only on the Proposed Side of the Existing and Proposed Line
+
+**What Adam asked for**
+- Asked whether plants and people should show on the existing side of the line: "For now, we will just do proposed, but
+  in the future, we will probably have to add handling so that plants and people can be marked for either existing or
+  proposed. Just for now, keep them only on the proposed models and make notes."
+
+**Now**
+- Each runtime (`24__System__Vegetation/03__System__SceneLayer/Na__Vegetation__Runtime__.js`,
+  `28__System__Entourage/03__System__SceneLayer/Na__Entourage__Runtime__.js`) joins the line once its layer is made,
+  through v2.186.0's `Na__PhaseCompare__AddSideHook`. As the line is about to draw the existing building (`before`) the
+  layer's root goes off; as it draws the proposal (`after`), or when the frame is done (null), the root goes back to
+  exactly what it was. All of it happens inside one frame, so every other render (a sheet's picture, a still, a
+  thumbnail) finds the scene as it was. Show, the content stamp and the saved objects are not touched, nothing is
+  rebuilt and nothing is saved. A plant's proxy domes hang under the root, so they follow it.
+- The comparison module is asked for when the layer is made, not imported, so an app without v2.186.0 has no line to
+  join and nothing fails.
+
+**Tested** (the MCP's sandbox, NP03 Ashness Close: the existing building and two schemes, Scheme-02 in the 3D view; two
+plants and two people placed in the page's memory either side of the view, never saved; no write of any kind)
+- The line at the middle: the existing building's half has neither plant nor person, the proposal's half keeps its own.
+  At 0.15 both plants and both people show; at 0.85 none. Between frames both roots are visible.
+- Plants hidden on the device (Show off) stayed hidden through 46 frames of the line and came back with Show; with the
+  line off, everything is as it was.
+- `tv3d_check`: the changed files clean, `Na__Verify__Exports__` PASS (613 files), the module graph nothing new failing;
+  `Na__Test__ModelLoadPlan__` and `Na__Test__ModelGate__` pass.
+
+**Not yet (notes for the marking Adam described)**
+- The existing building chosen on its own in the Design Phase menu still shows plants and people, and sheets draw them
+  whatever phase a viewport shows (a 2D viewport when ticked, a 3D one always). Hiding them for good while the existing
+  building is in the 3D view would also take them off sheets, whose 3D pictures and ticked layers come from the same
+  scene, and cached pictures would keep their fingerprints; so it waits for the marking.
+- Marking each plant and person existing or proposed needs: a field on each plop, path and figure record (the same name
+  in ValeVision, so the records stay identical); a way to set it in the panels; every render knowing which phase it
+  draws (the line's side, the phase in the 3D view, a sheet viewport's phase); and the sheets' fingerprints carrying
+  the mark. Unmarked staying proposed would keep every project as it is now. The side hook here is the first place
+  that would read it.
+
+**Files**
+- Changed: the two runtimes above (a TrueVision region of their own, the PORT NOTE and the log); the vegetation and
+  entourage READMEs (In TrueVision: loads last, and the proposal's for now).
+- Service worker: no new token. `2026-11-15-02` (v2.186.0) is not live yet and covers this; if v2.186.0 goes live
+  first, this needs one of its own.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.186.1  -  15-Nov-2026
+### Plants and People Load Last, and an Open Sheet Draws Them When They Arrive
+
+**What Adam asked for**
+- Of vegetation and entourage, through the session that built v2.186.0: "They will be the last things to be loaded."
+
+**Now**
+- Each door (`24__System__Vegetation/Na__Vegetation__.js`, `28__System__Entourage/Na__Entourage__.js`) keeps the project's
+  record when the loading sequence announces it, but opens and fetches nothing until the model is whole: v2.186.0's
+  `na-app-model-complete`, or at once if `Na__PhaseLib__IsLiveReady()` is already true. An author's rows in Dev Tools'
+  Assets section wait for it too. The event comes on every path where the model load ends, a failed file and a thrown
+  load included (v2.186.0's loading sequence 1.7.0), so neither door can wait for ever. A reader held at the model gate
+  (sent straight to a published document) starts neither until they open the 3D model; the published document already
+  carries the layer. Without that signal (an app older than v2.186.0) each starts at once, as before, so v2.185.0 and
+  v2.186.0 can be committed in either order.
+- A sheet can now fill its viewports before the plants and people are built, and the Layout Editor reads their content
+  stamp only when it fills. So each door announces a changed stamp as `na-placed-assets-changed`, and the sheet surface
+  (`Na__LayoutEditor__SheetSurface__.js` 1.14.0) fills the open sheet's frames again on it. A 2D underlay does not
+  include them and does not redraw; only a ticked viewport's layer and a 3D picture do. With no sheet open it does nothing.
+- Service worker log: the 1.18.0 entry for v2.185.0's token, which v2.186.0's 1.19.0 had left room for.
+
+**Tested** (the MCP's sandbox, JW02, writes guarded)
+- A reader on the web build, its requests logged in order by a headless Edge probe: the last model file asked for at
+  2,313 ms, the model complete at 2,516 ms, the first vegetation and entourage modules beyond the doors at 2,516 ms;
+  both drawn by the end, no script error, no write.
+- An author straight onto a sheet with a ticked viewport: the plants and people layer appeared by itself once they were
+  built. Scaling the plant through its runtime, with nothing done on the sheet, raised one announcement and the open
+  sheet redrew the layer.
+- `tv3d_check`: 29 changed files clean, `Na__Verify__Exports__` PASS (613 files), the module graph nothing new failing
+  (706 modules); `Na__Test__ModelLoadPlan__`, `Na__Test__ProjectLighting__` and `Na__Test__SceneSync__` pass.
+
+**Open**
+- Existing and Proposed (v2.186.0) draws plants and people on both sides of the line, as they stand in the scene and
+  not in a design phase. Whether the existing side should show them is Adam's call; the hook to hide them there is ready
+  (`Na__PhaseCompare__AddSideHook`). Decided in v2.186.2: the proposed side only, for now.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.186.0  -  15-Nov-2026
+### Existing and Proposed: Drag a Line Across the Model, and a Model That Loads the Building First
+
+**What Adam asked for**
+- "I currently don't like the before-and-after system ... you have to go into a menu and then you have to physically
+  press the different model. I want that system to remain so that you can load different concepts ... but what I want is
+  a faster way to be able to see before and after, almost like a drag bar. If we made a new icon somewhere that appears
+  only if it is a job that does have an existing and a proposed, the client can literally bring up a line in the centre
+  of the screen. They can drag it left and right." It "works with a touchscreen or a PC".
+- "It should load all of the main architectural elements: the walls, the roof, the landscape, the internal doors. It
+  should then move on to ... fixtures, only then furniture, and only then interior decor, because the assets become
+  progressively heavier." "Is there a way to lazily load in the existing in the background so it is just there
+  instantly"; "if somebody tries to use this before and after tool before the existing assets are loaded in, then simply
+  just show the loading animation until it's done"; "a more robust caching strategy is required, and the same hierarchy
+  of loading applies to the existing conditions as well."
+
+**What was wrong** (measured on EB03 The Firs before any change, a reader on the web build)
+- A design phase's files were fetched ONE AFTER ANOTHER, and the `Storey__` categories (nearly every file) were not on the
+  loader's priority list, so they loaded in project order, which is alphabetical: a 38 MB furniture file ahead of the
+  walls. Nothing was shown until all 78 MB were in: about 29 seconds from opening the page to the first look.
+- The Design Phase menu threw away the model on screen and fetched the other one, both ways: 11.5 seconds of overlay to
+  reach the existing building, 15 seconds to come back to the proposal that had been on screen a moment before.
+
+**Now**
+- **Before / After.** A project with an existing building and a proposal has a Before / After button in the navigation
+  toolbar. It puts a line down the 3D view: the existing building to its left, the proposal to its right, through the one
+  camera, with Existing and Proposed either side of a round handle. Drag it with a mouse, a finger or a pen; the arrow
+  keys move it (Shift for bigger steps, Home and End for the edges, Escape takes it off). The line comes in from the left
+  edge to the middle, which shows what it does. The model still orbits, walks and flies under it. Storey Toggle and
+  Floor Isolate carry across the line, so one floor can be compared on its own. "Proposed" names its scheme where a
+  project has more than one ("Proposed: Scheme-02"). A project without both phases never shows the button (West Farm
+  has no existing building; Ascott Gardens has only one).
+- The comparison is always the existing building against the phase in the 3D view, and the Design Phase menu still
+  chooses that phase. With the existing building in the 3D view it is compared with the project's default proposal.
+- **The other phase is loaded ahead.** Once the 3D view's model is whole, the phase it is compared with loads in the
+  background into the design phase library, so the line is usually there at once. Pressed sooner, the button shows a
+  loading card ("Loading the existing building...") over a model that stays usable, and the line comes on when the load
+  ends. A phone, a device reporting under 4 GB of memory and a reader with Save Data on load it only when the button is
+  pressed.
+- **The building first.** Files are fetched in tiers, six at once: walls, roofs, landscape, doors, floors, windows and
+  stairs; then fixtures; then furniture; then interior decor; then planting and context; then drawing linework. A reader
+  is shown the model when the first tier is in, and the rest arrives around them with a small "Loading furniture..."
+  in the corner. The existing building loads in the same order. The tiers and the switches are in the app config
+  (`models.ModelLoading`).
+- **An author still waits for the whole model**, by default (`ModelLoading__Staged__RevealEarlyWhenAuthoring`): the
+  Layout Editor, baking and publishing key what they make by a fingerprint of every category, and a picture made of
+  half a model would be stored under a key nothing asks for again. It arrives faster all the same. `?authoring=off` on
+  localhost shows what a reader gets.
+- **The Design Phase menu keeps what it has shown.** A phase already loaded is swapped into the 3D view with no overlay
+  and no download, and the phase it replaces stays loaded; one not yet loaded is loaded beside the model on screen,
+  once. The phase library keeps at least two beside the one in the 3D view.
+- **While the model is still arriving**, the scene carousel is hidden and scenes do not answer (a scene may be a plan or
+  an elevation, which cut and restyle the whole model), and going to a sheet holds "Loading the rest of the model..." up
+  until it is whole.
+- The AO performance monitor is not fed while a model loads or a comparison is on: neither says anything about the
+  device, and it would have switched ambient occlusion off for the session.
+
+**How it is drawn**
+- Each side is a whole frame. The effect chain (profile lines, fog, ambient occlusion, FXAA) runs once with only one
+  phase visible and once with only the other, each into a held picture, and the two are joined at the line. Nothing in
+  the chain knows about the split, so neither side's edges or occlusion can see the other's geometry.
+- Dragging the line runs no part of the chain: while the camera and the scene stand still the two held pictures are
+  joined again, one quad a frame. Any render request that is not the line's own, a camera that moved or a frame with
+  something moving draws both sides again. Progressive refinement averages the joined picture as it averages any frame.
+
+**Kept exactly**
+- The category groups sit under the model root in the order they always did, and a category's mesh goes in before its
+  linework: the model fingerprint hashes both orders and every stored drawing and sheet picture is keyed by it. Only the
+  order the files are FETCHED in changed. `Na__ModelLoader__LoadPlan__` holds the two orders apart.
+- `na-app-scene-ready` is still the moment the model is on screen. `na-app-model-complete` is new: every category is in
+  (sent with `detail.failed` when the load fails, so nothing waits on it for ever). The design phase library is told the
+  model is live only then, so a sheet's off-scene phase waits as it did. Plants and people start on it from v2.186.1,
+  which makes them the last things loaded.
+
+**Files**
+- New: `15__ModelLoader/Na__ModelLoader__LoadPlan__.js` 1.0.0; `05__RenderPipeline/Na__RenderEffect__SplitCompare__.js`
+  1.0.0; `26__System__ToggleModelElements/Na__UiFeature__PhaseCompare__.js` 1.0.0;
+  `01__AppCore/Na__AppFlow__ModelStreamStatus__.js` 1.0.0; `03__Style__AppStylesheets/Na__UiFeature__Styles__PhaseCompare__.css`;
+  `01__AppAssets__TrueVision/UiIcons__MenuIcons__NavigationMenu/Icon__NavigationMenu__CompareExistingProposed__.svg`;
+  `80__Testing__PrototypeEnvironment/Na__Test__ModelLoadPlan__.test.mjs` 1.0.0.
+- Changed: `15__ModelLoader/Na__ModelLoader__MultiModel.js` 1.5.0 (`StartStagedLoad`, `RestoreLoadedVisibility`;
+  `LoadAllModels` is the staged load awaited to the end); `26__System__ToggleModelElements/Na__ModelGroup__PhaseLibrary__.js`
+  1.1.0 (`SwapLive`, `GetComparePair`, `GetExistingId`, `GetShortLabel`, `SetCacheFloor`, `NoteLoadReport`,
+  `GetLoadReports`); `Na__UiFeature__ModelGroupSelector.js` 1.2.0; `01__AppCore/Na__AppFlow__LoadingSequence.js` 1.7.0;
+  `21__System__PresentationMode/Na__PresentationMode__UI__SceneCarousel.js` 1.3.1;
+  `02__AppData/Na__AppConfig__Main.json` (`models.ModelLoading`); `03__Style__AppStylesheets/Na__CoreUi__Styles__Index__.css`
+  (the new sheet's import); `75__System__UserInstructionsSystem/Na__UserInstructions__Content__.html` 2.5.0 (a Before and
+  After section in the User Guide). `Index.html` is not changed: the button, the line and the loading card are built by
+  the module.
+- Service worker token `2026-11-15-02` (`TrueVision__Pwa__ServiceWorker__Logic__.js` 1.19.0): the loader and the phase
+  library gained exports that changed modules import, and there are four new modules. `PWA_SW_MODELS_MAX_ENTRIES` 80 to
+  400: one project's existing building and proposal are over a hundred files, more than the bucket could hold.
+
+**Tested** (the TrueVision MCP's sandbox on the real GPU, writes guarded, nothing real written; the web build unless said)
+- EB03 The Firs, timed from opening the page: first look at 5.7 seconds and the whole model at 9.1 (about 29 before,
+  for either); that is 2.1 and 6.2 seconds after the model files are first asked for. The existing building was loaded
+  behind it by 12 seconds. The model files come from the live CDN on this PC's connection.
+- EB03, Before / After: the line on at once, the entrance sweep, a drag by the real mouse at a steady 60 frames a second
+  (137 frames, none over 17 ms) with one frame drawing both sides and 59 only joining them. Design Phase to the existing
+  building 0.03 seconds with no overlay (11.5 before), back 0.05 (15 before). Floor Isolate with the line on shows the
+  ground floor alone on both sides; an orbit under the line turns both.
+- EB03 with each fixture, furniture, decor and existing-building file answering 2.5 seconds late: the building alone 2
+  seconds after its files are asked for, with "Loading fixtures..."; the button pressed then shows the loading card, and
+  the line comes on when the existing building is in.
+- NP03 Ashness Close (an existing building and two schemes): from opening the page, first look at 3.6 to 5.7 seconds and
+  the whole model at 4.8 to 7.4 (1 to 2 and 2.5 to 4.5 after the files are first asked for); the line against Scheme-02
+  at once; Scheme-01 loaded once from the menu (2.6 seconds, under the overlay) and compared ("Proposed: Scheme-01");
+  every switch after that 0.03 seconds, all three phases kept; with the existing building in the 3D view the comparison
+  is against Scheme-02.
+- A phone-sized page (390 x 800, touch): the button is the toolbar's icon; a drag by the browser's own touch input moved
+  the line to where the finger went, the line meeting a touch pointer, at 60 frames a second; a label hides when its
+  side is too narrow for it.
+- RB05 West Farm (no existing building): no button. Its model fingerprints are the same under this loader as on the live
+  site's (pipeline `2271937b-75b`, model `ce6a2a08-698`), also after a staged load with late files; the carousel is
+  hidden and key 2 does nothing until the model is whole, then both return. From opening the page, first look at 4.9
+  seconds and the whole model at 6.1; the live site's v2.184.2 took 19.5.
+- PS01 Musters Road (tab strip, carousel, both phases): the line starts under the tab strip and the carousel, toolbar
+  and Tools menu keep their clicks where it crosses them; Drawings > D03 opened while furniture was still arriving shows
+  "Loading the rest of the model..." and then the sheet with all six 3D pictures, as it shows them when opened after.
+- BH03 Boundary Road (an existing building and three schemes): all four phases stay loaded. SK02 Ascott Gardens (an
+  existing building only): no button.
+- EB03 as an author (the sandbox as localhost): the model is shown only when whole (3.7 seconds after its files are
+  first asked for, from this PC's disk), and the comparison comes on at once.
+- `Na__Test__ModelLoadPlan__.test.mjs`: 31 checks, all pass: the tiers, and all 16 design phases in the portal attach in
+  the order the old loader used. `Na__Test__ModelGate__`, `__ProjectLighting__`, `__PerSceneLighting__` and
+  `__SceneSync__` pass. `tv3d_check`: 28 changed files clean; `Na__Verify__Exports__` PASS (613 files);
+  `Na__Verify__ModuleGraph__` nothing new failing.
+
+**Not tested**
+- A real phone or tablet, Safari, and a device short of memory (the rule that keeps the second phase off a phone was not
+  seen to run: the test browser reports a desktop's memory). The service worker: agents' pages block it, so the new
+  bucket size and the token are unproved. The live site, Adam's localhost on 8090, the other PC.
+- Walking or flying about with the line on (walk mode was entered and left with it on, both sides drawing, without
+  moving); a section cut with the line on (the cut's fills are confined to the 3D view's own side); a still image
+  exported with the line on (it should show the 3D view's model alone).
+- The Design Phase menu's old path (fetch straight into the model root), kept for a phase the library cannot hand over:
+  nothing made the library refuse.
+- With plants and people placed (v2.185.0): they stand in the scene, not in a model, so they show on both sides of the
+  line. `Na__PhaseCompare__AddSideHook` is there for them to stand down while the existing building is drawn.
+
+**Limits**
+- Objects hidden one at a time from the context menu, and doors opened, are the 3D view's model's own: the other side
+  does not follow. Camera-facing billboards in the phase that is not in the 3D view do not turn while it is compared.
+- A design phase is still downloaded in full the first time it is needed in a visit; the browser's own cache and the
+  service worker decide what a later visit fetches, as before.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.185.0  -  15-Nov-2026
+### Vegetation and Entourage: Linework Plants and Camera-Facing People, Ported from ValeVision 3D
+
+**What Adam asked for**
+- "We recently added an entourage system for adding 2D billboard follow camera assets and also a vegetation set of tools
+  to ValeVision 3D. I want you to port these same tools to TrueVision 3D", after an analysis of how the two apps' modules
+  fit together, and validated in both: "that the saving systems actually save assets to TrueVision models".
+
+**Now**
+- **Vegetation** (ValeVision 3D v2.83.0 to v2.98.6): clean CAD shrubs drawn from rules and a seed at the whitecard's own
+  line weight, their fill at the walls' brightness. Tools & Settings > Vegetation has Show Vegetation and Transparency for
+  everyone, readers and phones included, and for an author Line Rules (the Vegetation Linework panel), Show on live plans
+  and elevations, and the Vegetation panel on the left: Line Tool (paths that set plants out along a line, from a palette,
+  with Advanced variation), Brush Tool (paint and erase from a palette with shares), Assets (live-drawn cards: click a
+  card, then the model), In This Project, Undo, Redo and Save Vegetation. Right-click a plant to move, size, copy, swap or
+  delete it. 11 plants and two standard palettes in `53__Vegetation__AssetLibrary`.
+- **Entourage** (ValeVision 3D v2.88.0 to v2.98.6): flat people that turn to the camera, line and face fading together
+  (60% to start). Tools & Settings > Entourage has Show Entourage and Transparency for everyone, and for an author Line
+  Rules, Show on live elevations and the Entourage panel: Assets (drag a card onto the model, or click a card then the
+  model), In This Project with Scale and Jamesification, Undo, Redo and Save Entourage. A ring shows under a person while
+  it is handled; M moves, Ctrl+D copies, Delete deletes, right-click scales, copies, swaps (with pictures) or deletes.
+  12 people and a Labrador in `54__Entourage__AssetLibrary`.
+- **Dev Tools > Assets** holds Entourage, Vegetation and a greyed Furnishings (to come), each with its own switch, where a
+  viewer starts and Remove All. Both systems are on by default for an author; a reader sees them only once something is
+  placed, and costs one module and one test otherwise.
+- **Sheets.** A 2D viewport's Vegetation and Entourage ticks (Styles, off unless ticked, so no sheet moves) lay the
+  plants and people over its vectors, a wall's lines stopping where a bush or a person stands in front: on screen, in the
+  PDF, and in published documents, where the layer joins the picture and a vector mask takes the drawing's lines out
+  behind them, as the depth fog does. A 3D viewport shows them as the 3D view does, and its fingerprint (a design
+  phase's too) takes their stamps, so a change to them redraws it.
+- **Saved into the project data.** `Vegetation__SceneData` and `Entourage__SceneData`, top-level keys of
+  `TrueVision__ProjectData__.json`, written whole by Save Vegetation and Save Entourage: R2 first through the Worker,
+  then the local copy through the ProjectVision local server, each refused, writing nothing, if R2 changed since the
+  window read it. Remove All deletes the key from both. The two keys are on the app's `Na__DevSavedKeys`, the build's
+  `TRUEVISION_DEV_OWNED_KEYS`, the sync's `DEV_OWNED_PROJECT_DATA_KEYS`, `Na__DevKeysAbsentAtDefault` and
+  `DEV_OWNED_KEYS_ABSENT_AT_DEFAULT`, so a push from SketchUp keeps them and a Remove All holds.
+
+**Different from ValeVision** (each file's PORT NOTE says how)
+- Saving: ValeVision saves through its own server, which keeps who did what and holds an Employee's work for an admin.
+  `22__System__SceneAssets/Na__SceneAssets__Api__.js` is TrueVision's version of those routes, saving straight into the
+  project data as above. So there is no Change Log (Changes) section and no who-added-it line on a right-click.
+- Staff is the author: `Na__DevGate__IsStaff` is `IsAuthoringEnabled`, and `CanCreateAssets` keeps an author on a phone
+  to looking (ValeVision's device rule, now in the gate).
+- Entourage is `28__System__Entourage`: TrueVision's 23 is Scene Sync. Asset ids keep ValeVision's `VVL_` numbers, so a
+  record means the same in both apps.
+- `05__RenderPipeline/Na__RenderEffect__LineworkSettings__State.js` is a stand-in: TrueVision has no user line weight and
+  no export line scale, and answers as ValeVision does at its defaults.
+- Found in the browser and fixed: TrueVision's AO is on by default and its drawings and sheet layers render flat, outside
+  the composer, with the AO pass still flagged on, so the fills' AO mark left them transparent on sheets. Each layer now
+  hands `isAoRunning` its camera, and TrueVision answers false for an orthographic one (every one is a drawing's).
+- Found in the browser and fixed: TrueVision's model context menu opened over a plant's or a person's menu. Their
+  right-click now listens in the capture phase and keeps that menu shut, only when a plant or person is under the pointer.
+- TrueVision only: published documents carry the layer; the live drawings' own profile cache is refreshed when the plants'
+  and people's roots arrive (`Na__DrawProfile__InvalidateSceneCache`).
+- Not ported: Cloud Sync's Sync Vegetation and Sync Entourage tabs (SketchUp both ways: the GLB Builder has no
+  counterpart), ValeVision's `vv3d_` MCP tools, the prototype test bench, the fog planes' own layers and Video Studio
+  (TrueVision has neither), the activity ledger, and the Drawing Editor page's save (TrueVision has none: unsaved plants
+  and people are saved when the Layout Editor opens, as in ValeVision).
+
+**Files**
+- New: `02__Src__AppModules/22__System__SceneAssets`, `24__System__Vegetation`, `28__System__Entourage` (50 files),
+  `05__RenderPipeline/Na__RenderLoop__SceneRenderHooks__.js`, `05__RenderPipeline/Na__RenderEffect__LineworkSettings__State.js`,
+  `70__System__DevTools/Na__UiFeature__AssetsSection__DevControls__.js`, `53__Vegetation__AssetLibrary`,
+  `54__Entourage__AssetLibrary`, ten icons in `01__AppAssets__TrueVision/UiIcons__MenuIcons__ToolsMenu`.
+- Changed: `Index.html` (the two menu sections, Dev Tools > Assets, the two doors' imports and start calls, with
+  TrueVision's wall colour key `BaseMesh__DefaultMaterial__WhitecardColor`); `Na__AppFlow__LoadingSequence.js` 1.6.0;
+  `Na__AppUtils__DevGate__.js` 1.2.0; `Na__AppUtils__LocalProjectMirror__.js` 1.4.0 (`DeleteKeys`);
+  `Na__RenderLoop__InteractiveOverlays__.js` 1.1.0 (`GetLiveFrameNumber`); `3dObjectIInteraction__Animation__ClickToOpenDoors__.js`
+  1.10.0 (`SetClickHold`); `Na__RenderEffect__AmbientOcclusion__Shader.js` 1.1.0; Layout Editor `Na__LayoutEditor__Viewport2d__.js`
+  1.21.0, `__Viewport2d__Frame__.js` 1.5.0, `__SnapshotRenderer__.js` 1.14.0, `__RenderComposites__.js` 1.5.0 and its config,
+  `__SheetRecords__.js` 1.42.0, `__ConfigState__SheetSetup__.js` 1.10.0, `__PdfExporter__.js` 1.15.0,
+  `__Publish__Viewports__.js` 1.4.0, `__Publish__Raster__.js` 1.1.0 (`CombineMasks`); `Na__Hotkeys__3dModelTab__.json`
+  (a reference of the tools' own keys, not in the dispatch list, which would take Enter, Escape and Delete from everything
+  else); `Na__UiFeature__Styles__DevToolsMenu__.css` and `Na__UiFeature__Styles__DropdownAndToast__.css`.
+- Service worker token `2026-11-15-01`: three new folders, and the panels' three stylesheets join the shell precache.
+- Outside the app: `na-apps/05__ProjectVision__CoreAppCode/ProjectVision__BuildScript__.py` and
+  `CloudflareR2__ModelSync__Main__.py`, the keep-lists above.
+
+**Tested** (the TrueVision MCP's sandbox, JW02, every write guarded; nothing real written)
+- An author places a Rounded Shrub by card and click, a person by card and click, a two-plant path with the Line Tool and
+  six plants with the Brush Tool; each Save wrote R2, then the local copy, with identical records (21 KB of vegetation);
+  a fresh load brought every one back. Remove All took both keys out of R2 and the local copy, which then matched the
+  repository again.
+- A reader on the web build, computer and phone: Tools & Settings shows Vegetation and Entourage with Show and Transparency
+  only, no Dev Tools; only the drawing engines load, no panels, tools or Dev code; no failed request, script error or write.
+- Sheets: every elevation viewport's plants and people layer has its opaque fill and lines (36,000 to 40,000 fill pixels
+  each), and the elevation facing away has nothing; zoomed on the sheet, the plinth and door lines stop behind the bush
+  and the person. A published bake with the ticks makes the layer and a vector mask; without them it is unchanged.
+- The build's and the sync's own functions on scratch copies: a build keeps both keys, a sync keeps R2's values, a key
+  removed on R2 stays removed ("reset on R2, dropped"), and the old lists would have lost both.
+- `tv3d_check`: 19 changed files clean; `Na__Verify__Exports__` PASS (609 files); `Na__Verify__ModuleGraph__` 702 modules,
+  nothing new failing (one title string in the plant panel is in backticks, or the verifier reads "from '" as an import);
+  `Na__Test__ProjectLighting__` and `Na__Test__SceneSync__` pass. JW02 without plants looks as it did before.
+
+**Not tested**
+- MaxEngine's look on a real GPU, a 100-plant frame rate on an iPad, a real PDF download and a real publish to R2, Adam's
+  own localhost, the other PC.
+
+**Note**
+- The first save of any key after this release writes `vegetation: false` and `entourage: false` into every sheet
+  viewport's styles on R2: the Layout Editor fills new style defaults in as it loads, and every save writes the document
+  the window loaded. Both are the defaults, so no drawing changes.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.184.3  -  14-Nov-2026
+### A Dev Tools Reset Holds, and the Register and Section Cuts Come From R2
+
+**What Adam asked for**
+- "Keep TrueVision's saved keys through a push", then "Yes Fix" to the two things that work found and left alone: a
+  reset to the default in Dev Tools could come back, and on localhost the app read the drawing register and the section
+  cuts from the local copy.
+
+**What was wrong**
+- A reset (Orbit Max Zoom Radius, Asset Cull Distance, Default View FOVs, Project Lighting back to the app default)
+  deletes its key on R2 (`Na__CfApi__DeleteProjectKeys`), and nothing tells the local copy. The R2 sync laid R2's values
+  over the local copy only for keys R2 held, so the local copy's older value went back up with the next push. On
+  localhost the loader did the same, showed the older value, and the next save of any key sent it back to R2 (every save
+  writes the whole loaded document with its change).
+- `LayoutEditor__DrawingRegister` and `CrossSection__SceneData` are saved to R2 with the drawings, but `Na__DevSavedKeys`
+  did not lay them over the local copy on localhost, and neither ProjectVision list kept them: a build rewrote the local
+  copy without them, and the next push would have taken them off R2. PS01's and RB05's local copies have no register for
+  this reason; R2 still holds both (RB05's from a save on 19-Oct-2026). `SceneLighting__ProjectOverrides` (v2.184.0) was
+  missing from both ProjectVision lists in the same way.
+
+**Now**
+- `Na__DevSavedKeys` gains `LayoutEditor__DrawingRegister` and `CrossSection__SceneData`: on localhost both come from R2,
+  as the drawings do. PS01 and RB05 load the registers R2 holds, where they loaded none.
+- `Na__DevKeysAbsentAtDefault` (new, the same module) lists the four keys a reset deletes. When the R2 copy lacks one,
+  the loader drops it from the local copy's data, so the default shows and no save sends the old value back. Only when R2
+  answered with a document: a failed R2 read changes nothing.
+- ProjectVision: the build's `TRUEVISION_DEV_OWNED_KEYS` and the R2 sync's `DEV_OWNED_PROJECT_DATA_KEYS` gain
+  `SceneLighting__ProjectOverrides`, `LayoutEditor__DrawingRegister` and `CrossSection__SceneData`, so all three lists
+  hold the same eleven keys. The sync's new `DEV_OWNED_KEYS_ABSENT_AT_DEFAULT` (the same four keys) leaves a key R2 lacks
+  out of what it pushes, and the copy it mirrors back to disk carries the reset down to the local copy. Its UPDATE line
+  says `[reset on R2, dropped: ...]` when it does.
+- A reset still deletes its key; no saved document changes shape.
+
+**Files**
+- Changed: `02__Src__AppModules/01__AppCore/Na__AppFlow__LoadingSequence.js` 1.5.3.
+- Outside the app: `na-apps/05__ProjectVision__CoreAppCode/ProjectVision__BuildScript__.py` (`TRUEVISION_DEV_OWNED_KEYS`)
+  and `CloudflareR2__ModelSync__Main__.py` (`DEV_OWNED_PROJECT_DATA_KEYS`, `DEV_OWNED_KEYS_ABSENT_AT_DEFAULT`,
+  `build_project_data_operation`).
+- `TrueVision__PLAN__SitePlanDrawings__.md` 7.1: the open `CrossSection__SceneData` item is marked closed.
+- Service worker token: not bumped. One module changed, with no new import or export, so a warm cache's mix of old and
+  new modules still loads; only localhost runs the changed lines.
+
+**Tested**
+- The build's and the sync's own functions on scratch copies of the real project data (no build, sync or push was run):
+  with the old lists, the next build and push would have taken the registers of JW02, PS01 and RB05, and a test project
+  lighting on JW02, off R2; with the new lists they keep them, and nothing else in any project changes. A reset on JW02
+  (the orbit limit deleted on R2, an older value in the local copy): before the fix the push carried the old value back
+  up; now it does not, and the local copy loses it too.
+- `CloudflareR2__ModelSync__Main__.py --dry-run-only --tv-only` over every TrueVision project (reads R2, writes
+  nothing): every project's data is SKIP (R2 current) but PS02's, an UPDATE carrying R2's own dev keys. A read-only
+  survey of all ten projects, local copy against R2: no local copy holds a value R2 has reset, so the reset rule changes
+  nothing today; PS01 and RB05 are the only projects whose register differs (absent locally).
+- The real app on the TrueVision MCP's sandbox (JW02, its own copies, writes guarded), with the R2 copy holding no
+  orbit limit and a marked register and the local copy holding the old orbit value and another marker: loaded on
+  localhost, the project data had no orbit limit (the default) and R2's register. No write left the page.
+- `Na__Test__ProjectLighting__.test.mjs` (it reads `Na__DevSavedKeys` from the source), `Na__Test__SceneSync__`,
+  `Na__Test__PointCloudViewports__`, `Na__Test__SitePlanStore__`, `Na__Test__SitePlanFaces__`,
+  `Na__Test__SitePlanComposites__`: all pass. The changed module's syntax (node, ES modules): clean.
+  `Na__Verify__Exports__`: PASS (564 files). `Na__Verify__ModuleGraph__`: nothing new failing (the Presentation Scenes
+  editor string, already listed).
+
+**Not tested**
+- A real build, R2 sync or push from SketchUp; a reset in Dev Tools on Adam's localhost; PS01's and RB05's registers on
+  screen; the other PC.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.184.2  -  13-Nov-2026
 ### The Sun Casts No Shadows Unless a Project or a Scene Ticks Them On
 

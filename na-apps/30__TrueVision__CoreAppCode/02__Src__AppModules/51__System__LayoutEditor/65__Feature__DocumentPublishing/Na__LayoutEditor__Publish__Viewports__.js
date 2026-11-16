@@ -52,6 +52,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 15-Nov-2026 - Version 1.4.0 (v2.185.0)
+// - Plants and people, where a 2D viewport ticks Vegetation or Entourage: their layer is laid over the
+//   picture after the fog, and its alpha joins the vector mask, so the drawing's lines stop where a bush
+//   or a person stands in front, as on screen and in the PDF. Nothing changes for any other viewport.
+//   A point cloud's second picture is baked without them.
+//
 // 19-Oct-2026 - Version 1.3.0
 // - A 3D viewport's point cloud (a 3D View scene seen from the same camera,
 //   TrueVision3D v2.178.0) is published the same way: its second picture is
@@ -91,7 +97,7 @@
     import { Na__LeRings__FacesFromRings } from '../15__Core__Markup/Na__LayoutEditor__ShapeRings__.js';
     import {
         Na__LeVp2d__Describe, Na__LeVp2d__EnsureLinework, Na__LeVp2d__RenderForExport,
-        Na__LeVp2d__RenderFogForExport, Na__LeVp2d__StyleBands, Na__LeVp2d__SitePlanDrawing,
+        Na__LeVp2d__RenderFogForExport, Na__LeVp2d__RenderPlantsForExport, Na__LeVp2d__StyleBands, Na__LeVp2d__SitePlanDrawing,
         Na__LeVp2d__PointCloudForPublish
     } from '../20__System__Viewports/Na__LayoutEditor__Viewport2d__.js';
     import { Na__LeVp3d__RenderForExport, Na__LeVp3d__ExportRectMm, Na__LeVp3d__PointCloudForPublish } from '../20__System__Viewports/Na__LayoutEditor__Viewport3d__.js';
@@ -104,7 +110,7 @@
     import {
         Na__LePubRas__Canvas, Na__LePubRas__Load, Na__LePubRas__Free,
         Na__LePubRas__Sha, Na__LePubRas__ApplyFog, Na__LePubRas__FromSvg,
-        Na__LePubRas__Ladder
+        Na__LePubRas__Ladder, Na__LePubRas__CombineMasks
     } from './Na__LayoutEditor__Publish__Raster__.js';
     import { Na__LePubSheet__Portable } from './Na__LayoutEditor__Publish__Sheet__.js';
 
@@ -405,8 +411,10 @@
                 const underlay = await Na__LeVp2d__RenderForExport(viewport);   // <-- null for a vector-only viewport
                 say('fog');
                 const fog      = await Na__LeVp2d__RenderFogForExport(viewport);   // <-- null unless the drawing has depth fog
+                const plants   = await Na__LeVp2d__RenderPlantsForExport(viewport);   // <-- null unless this viewport ticks Vegetation or Entourage and the project has some
                 const image    = (underlay && underlay.dataUrl) ? await Na__LePubRas__Load(underlay.dataUrl) : null;
                 const fogImage = (fog && fog.dataUrl) ? await Na__LePubRas__Load(fog.dataUrl) : null;
+                const plantsImage = (plants && plants.dataUrl) ? await Na__LePubRas__Load(plants.dataUrl) : null;
 
                 if (image) {
                     picture = Na__LePubRas__Canvas(image.naturalWidth, image.naturalHeight, true);
@@ -422,6 +430,16 @@
                     }
                     const applied = Na__LePubRas__ApplyFog(picture, fogImage);
                     maskPair = applied.Mask;
+                }
+                if (plantsImage) {                                                // <-- Plants and people: over the picture, and out of the vectors behind them
+                    say('plants and people');
+                    if (!picture) {
+                        picture = Na__LePubRas__Canvas(plantsImage.naturalWidth, plantsImage.naturalHeight, true);
+                        picture.context.fillStyle = Na__LePubVp__PAPER;
+                        picture.context.fillRect(0, 0, picture.canvas.width, picture.canvas.height);
+                    }
+                    const laid = Na__LePubRas__ApplyFog(picture, plantsImage);   // <-- The same two steps as the fog: laid over, and one minus its alpha as the mask
+                    maskPair = Na__LePubRas__CombineMasks(maskPair, laid.Mask);
                 }
 
                 if (!viewport.Viewport__Styles || viewport.Viewport__Styles.projectedLinework !== false) {

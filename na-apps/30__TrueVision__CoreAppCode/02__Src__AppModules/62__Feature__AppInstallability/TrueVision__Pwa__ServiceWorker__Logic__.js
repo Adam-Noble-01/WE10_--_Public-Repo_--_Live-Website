@@ -34,6 +34,34 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 15-Nov-2026 - Version 1.19.0
+// - Token BUMPED to 2026-11-15-02 for v2.186.0 (the staged model load and the
+//   Existing and Proposed comparison). The model loader gained exports
+//   (StartStagedLoad, RestoreLoadedVisibility) that the loading sequence and
+//   the design phase library import; the design phase library gained exports
+//   (SwapLive, GetComparePair, NoteLoadReport and others) that the Design
+//   Phase menu, the loading sequence and a new module import; and there are
+//   four new modules (the load plan, the split compare, the phase compare and
+//   the model stream status). A warm client pairing an old loader with the new
+//   loading sequence would not link. 2026-11-15-01 is v2.185.0's (vegetation
+//   and entourage), unpushed as this was written: this bump covers both should
+//   they go live together.
+// - PWA_SW_MODELS_MAX_ENTRIES 80 -> 400. The bucket is capped by entry and a
+//   design phase is 40 to 75 files: one project's existing building and its
+//   proposal are over a hundred, so at 80 the bucket could not hold even the
+//   pair the comparison now loads, and trimmed itself on every visit. 400
+//   holds a project's phases with room for a second project.
+//
+// 15-Nov-2026 - Version 1.18.0
+// - Token BUMPED to 2026-11-15-01 for v2.185.0 (vegetation and entourage,
+//   ported from ValeVision 3D v2.98.6). Three new module folders (22, 24, 28)
+//   that the page, the loading sequence and the Layout Editor import; new
+//   exports in the authoring gate (IsStaff, CanCreateAssets), the local mirror
+//   (DeleteKeys), the interactive overlays (GetLiveFrameNumber) and the door
+//   animation (SetClickHold); and the panels' three stylesheets, which they
+//   link on first use, join PWA_SW_SHELL_PRECACHE_RELATIVE so the token
+//   governs them. 1.19.0's bump carries this one too.
+//
 // 12-Nov-2026 - Version 1.17.0
 // - Token BUMPED to 2026-11-12-01 for v2.184.0 (Project Lighting, ported
 //   from ValeVision 3D v2.98.0). Na__Scene__PerSceneLighting__ gained exports
@@ -760,7 +788,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-11-12-01';                                                          // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-11-15-02';                                                          // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id
@@ -769,7 +797,7 @@
     const PWA_SW_CACHE_NAME_PUBLISHED       = `tv-published-${PWA_SW_VERSION_TOKEN}`;                                                // <-- Published drawings: baked pictures, linework and fog masks
     const PWA_SW_CACHE_NAME_POINTCLOUD      = `tv-pointcloud-${PWA_SW_VERSION_TOKEN}`;                                               // <-- Point cloud viewport tiles from SketchUp (content addressed)
     const PWA_SW_CACHE_PREFIXES_OWNED       = ['tv-shell-', 'tv-data-', 'tv-models-', 'tv-vendor-', 'tv-images-', 'tv-published-', 'tv-pointcloud-'];  // <-- Owned prefixes, used for cleanup
-    const PWA_SW_MODELS_MAX_ENTRIES         = 80;                                                                                    // <-- LRU cap on the model bucket
+    const PWA_SW_MODELS_MAX_ENTRIES         = 400;                                                                                   // <-- LRU cap on the model bucket: a design phase is 40 to 75 files, and the comparison loads two
     const PWA_SW_IMAGES_MAX_ENTRIES         = 160;                                                                                   // <-- LRU cap on the sheet pictures bucket
     const PWA_SW_PUBLISHED_MAX_ENTRIES      = 240;                                                                                   // <-- LRU cap on the published drawings bucket
     const PWA_SW_POINTCLOUD_MAX_ENTRIES     = 96;                                                                                    // <-- LRU cap on the point cloud tiles bucket (2048 px WebP tiles, about 1 MB each)
@@ -851,7 +879,12 @@
         '02__Src__AppModules/51__System__LayoutEditor/37__System__VectorTools/Na__LayoutEditor__Styles__VectorTools__.css',
         // So does the drawing's Specification tab - and its sheet now draws the
         // row editor and the located row's halo.
-        '02__Src__AppModules/51__System__LayoutEditor/58__Feature__ScrapbookSpecification/Na__LayoutEditor__Styles__ScrapbookSpecification__.css'
+        '02__Src__AppModules/51__System__LayoutEditor/58__Feature__ScrapbookSpecification/Na__LayoutEditor__Styles__ScrapbookSpecification__.css',
+        // The vegetation and entourage panels inject theirs on first use (v2.185.0):
+        // precached, the token governs them too.
+        '02__Src__AppModules/24__System__Vegetation/10__Ui__Panels/Na__Vegetation__Styles__Panels__.css',
+        '02__Src__AppModules/28__System__Entourage/10__Ui__Panels/Na__Entourage__Styles__Panels__.css',
+        '02__Src__AppModules/22__System__SceneAssets/Na__SceneAssets__Styles__.css'
     ];
     // ------------------------------------------------------------
 

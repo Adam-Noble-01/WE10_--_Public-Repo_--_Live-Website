@@ -33,6 +33,9 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 15-Nov-2026 - Version 1.42.0 (v2.185.0, from ValeVision 3D v2.85.0 and v2.88.0)
+// - A viewport's styles keep the Vegetation and Entourage ticks.
+//
 // 19-Oct-2026 - Version 1.41.0 (TrueVision)
 // - A 3D viewport keeps Viewport__PointCloud: a 3D View point cloud scene laid
 //   over its picture from the same camera (TrueVision3D v2.178.0). It keeps
@@ -440,7 +443,7 @@
     const Na__LeRec__KIND_2D     = '2d';
     const Na__LeRec__KIND_3D     = '3d';
     const Na__LeRec__LAYER_TYPES = [ 'viewport', 'annotation', 'dimension', 'vector', 'area', 'image', 'mixed' ];   // <-- 'area' is the Floor Areas layer: measured rooms, which are vectors carrying Shape__Area; 'image' the Images layer: pictures, vectors carrying Shape__Image
-    const Na__LeRec__STYLE_KEYS  = [ 'baseImage', 'projectedLinework', 'profileLinework', 'glassOpaque', 'whitecard', 'hiddenLines', 'enhanceWhitecard', 'contextLayer', 'depthFog' ];
+    const Na__LeRec__STYLE_KEYS  = [ 'baseImage', 'projectedLinework', 'profileLinework', 'glassOpaque', 'whitecard', 'hiddenLines', 'enhanceWhitecard', 'contextLayer', 'depthFog', 'vegetation', 'entourage' ];
     const Na__LeRec__ID_PAD      = 3;
     const Na__LeRec__LEADER_TYPES       = [ 'text', 'bubble' ];             // <-- A note with a leader, or a specification bubble
     const Na__LeRec__LEADER_LINE_STYLES = [ 'solid', 'dashed' ];
@@ -1093,7 +1096,9 @@
             hiddenLines       : pick('hiddenLines'),
             enhanceWhitecard  : pick('enhanceWhitecard'),
             contextLayer      : pick('contextLayer'),
-            depthFog          : pick('depthFog')                                 // <-- "Show the drawing's own depth fog, if it has one". The fog itself is the DRAWING's (Elevation__DepthFog); this only lets one viewport show it bare
+            depthFog          : pick('depthFog'),                                // <-- "Show the drawing's own depth fog, if it has one". The fog itself is the DRAWING's (Elevation__DepthFog); this only lets one viewport show it bare
+            vegetation        : pick('vegetation'),                              // <-- The project's linework plants on this plan or elevation. Off unless ticked
+            entourage         : pick('entourage')                                // <-- The project's figures on this elevation. Off unless ticked
         };
         // PROJECTED EDGE STYLES and COMPOSITE WEIGHTS | Curation, stored only
         // where it happened. Both are null on a viewport nobody has curated,

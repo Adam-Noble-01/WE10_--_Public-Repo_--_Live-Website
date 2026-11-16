@@ -1,0 +1,760 @@
+/* =============================================================================
+ * TRUEVISION3D - VEGETATION - THE DEV PANELS' STYLES
+ * =============================================================================
+ *
+ * FILE       : Na__Vegetation__Styles__Panels__.css
+ * NAMESPACE  : TrueVision3D
+ * MODULE     : System - Vegetation
+ * AUTHOR     : Adam Noble - Noble Architecture
+ * PURPOSE    : The vegetation dev panels and cards: white floating panels and Vale navy
+ *              over the model, the look agreed in the prototype
+ * CREATED    : 04-Nov-2026
+ *
+ * DESCRIPTION:
+ * - Added to the page by Na__Vegetation__PanelShell__.js the first time an author opens
+ *   something, so nobody else fetches it. The two rows everyone gets are the app's own
+ *   dropdown rows and need nothing from here.
+ * - Panels sit under the app's dropdown menus (z-index 1000 and up), so a menu opened
+ *   while a panel is up still comes in front.
+ *
+ * PORT NOTE:
+ * - Ported from   : ValeVision3D 24__System__Vegetation/10__Ui__Panels/Na__Vegetation__Styles__Panels__.css (ValeVision3D v2.98.6)
+ * - Ported on     : 15-Nov-2026 for TrueVision3D v2.185.0
+ * - Parity        : identical (header, console prefix and the Entourage folder's number apart)
+ * - Divergences   : none in behaviour. Entourage is 28__System__Entourage in TrueVision (its 23
+ *                   is Scene Sync); the vegetation and entourage READMEs list what differs around it.
+ * - Back-port     : n/a (this IS the port).
+ *
+ * -----------------------------------------------------------------------------
+ *
+ * DEVELOPMENT LOG:
+ * 12-Nov-2026 - Version 1.2.0 (ValeVision3D v2.97.0)
+ * - Plant pictures in a palette (na-veg-palette-pic) and Add a Plant's picture tiles.
+ *
+ * 11-Nov-2026 - Version 1.1.0 (ValeVision3D v2.94.2)
+ * - Graphics on Undo, Redo and Save Vegetation (na-veg-glyph).
+ *
+ * 04-Nov-2026 - Version 1.0.0 (ValeVision3D v2.85.0)
+ * - Initial build: Stages 3 to 6 of ValeVision__PLAN__VegetationSystem__.md.
+ *
+ * ============================================================================= */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Tokens
+ * ----------------------------------------------------------------------------- */
+
+    :root {
+        --na-veg-ink                       : #172b3a;
+        --na-veg-muted                     : #5c6b78;
+        --na-veg-rule                      : rgba(23, 43, 58, 0.12);
+        --na-veg-active                    : #e7eef4;
+        --na-veg-shadow                    : 0 4px 16px rgba(0, 0, 0, 0.14);
+        --na-veg-top                       : calc(var(--Vale_HeaderHeight, 60px) + var(--Vale_LayoutTabStripHeight, 0px));
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Panels
+ * ----------------------------------------------------------------------------- */
+
+    .na-veg-panel {
+        position                           : fixed;
+        top                                : calc(var(--na-veg-top) + 12px);
+        bottom                             : 12px;
+        display                            : flex;
+        flex-direction                     : column;
+        background                         : #ffffff;
+        border                             : 1px solid rgba(23, 43, 58, 0.08);
+        border-radius                      : 12px;
+        box-shadow                         : var(--na-veg-shadow);
+        color                              : var(--na-veg-ink);
+        font-family                        : 'Open Sans', 'Segoe UI', sans-serif;
+        font-size                          : 13px;
+        z-index                            : 950;
+        overflow                           : hidden;
+        box-sizing                         : border-box;
+    }
+
+    .na-veg-panel *,
+    .na-veg-panel *::before {
+        box-sizing                         : border-box;
+    }
+
+    .na-veg-panel--left {
+        top                                : calc(var(--na-veg-top) + 66px);       /* <-- Clear of the panel handle under the logo */
+        left                               : 12px;
+        bottom                             : 60px;                                 /* <-- Clear of the corner badge on the testing server */
+        width                              : 296px;
+    }
+
+    .na-veg-panel--right {
+        top                                : calc(var(--na-veg-top) + 66px);       /* <-- Clear of the Tools & Settings button */
+        right                              : 12px;
+        width                              : 272px;
+    }
+
+    .na-veg-panel__head {
+        display                            : flex;
+        align-items                        : center;
+        justify-content                    : space-between;
+        gap                                : 6px;
+        padding                            : 10px 12px;
+        border-bottom                      : 1px solid var(--na-veg-rule);
+    }
+
+    .na-veg-panel__title {
+        flex                               : 1 1 auto;
+        margin                             : 0;
+        padding                            : 0;
+        border                             : none;
+        background                         : none;
+        color                              : inherit;
+        font                               : inherit;
+        font-size                          : 14px;
+        font-weight                        : 600;
+        text-align                         : left;
+        cursor                             : pointer;
+    }
+
+    .na-veg-panel__title::before {
+        content                            : '\25BE';                              /* <-- A small arrow: the title folds the panel */
+        display                            : inline-block;
+        width                              : 14px;
+        color                              : var(--na-veg-muted);
+    }
+
+    .na-veg-panel--folded {
+        bottom                             : auto;
+    }
+
+    .na-veg-panel--folded .na-veg-panel__title::before {
+        content                            : '\25B8';
+    }
+
+    .na-veg-panel--folded .na-veg-panel__scroll,
+    .na-veg-panel--folded .na-veg-panel__foot {
+        display                            : none;
+    }
+
+    .na-veg-panel--folded .na-veg-panel__head {
+        border-bottom                      : none;
+    }
+
+    .na-veg-panel__scroll {
+        flex                               : 1 1 auto;
+        min-height                         : 0;
+        padding                            : 10px 12px 12px;
+        overflow-y                         : auto;
+        scrollbar-width                    : thin;
+    }
+
+    .na-veg-panel__foot {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 4px;
+        padding                            : 8px 12px;
+        border-top                         : 1px solid var(--na-veg-rule);
+    }
+
+    .na-veg-panel__section {
+        margin                             : 12px 0 6px;
+        color                              : var(--na-veg-muted);
+        font-size                          : 11px;
+        letter-spacing                     : 0.05em;
+        text-transform                     : uppercase;
+    }
+
+    .na-veg-panel__section:first-child {
+        margin-top                         : 0;
+    }
+
+    .na-veg-panel__hint {
+        margin                             : 2px 0 10px;
+        color                              : var(--na-veg-muted);
+        font-size                          : 12px;
+        line-height                        : 1.4;
+    }
+
+    .na-veg-panel__hint--strong {
+        color                              : var(--na-veg-ink);
+        font-weight                        : 600;
+    }
+
+    .na-veg-row {
+        display                            : flex;
+        align-items                        : center;
+        flex-wrap                          : wrap;
+        gap                                : 6px;
+        margin                             : 0 0 8px;
+    }
+
+    .na-veg-row--between {
+        justify-content                    : space-between;
+    }
+
+    /* The panels are for a computer. The two rows everyone gets work anywhere */
+    @media (max-width: 768px) {
+        .na-veg-panel {
+            display                        : none;
+        }
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Buttons and Fields
+ * ----------------------------------------------------------------------------- */
+
+    .na-veg-btn {
+        padding                            : 4px 10px;
+        border                             : 1px solid var(--na-veg-rule);
+        border-radius                      : 6px;
+        background                         : #ffffff;
+        color                              : var(--na-veg-ink);
+        font                               : inherit;
+        font-size                          : 12px;
+        cursor                             : pointer;
+    }
+
+    .na-veg-btn:hover:not(:disabled) {
+        background                         : #f2f5f8;
+    }
+
+    .na-veg-btn:disabled {
+        opacity                            : 0.45;
+        cursor                             : default;
+    }
+
+    .na-veg-btn--plain {
+        border-color                       : transparent;
+        color                              : var(--na-veg-muted);
+    }
+
+    .na-veg-btn--strong,
+    .na-veg-btn--strong:hover:not(:disabled) {
+        background                         : var(--na-veg-ink);
+        border-color                       : var(--na-veg-ink);
+        color                              : #ffffff;
+    }
+
+    .na-veg-btn--danger:hover:not(:disabled) {
+        background                         : #fff4f2;
+        color                              : #8a2b1c;
+    }
+
+    .na-veg-btn--wide {
+        width                              : 100%;
+    }
+
+    /* A GRAPHIC BEFORE THE WORDS (Adam, 11-Nov-2026) | The Tools menu's icon as a mask over the
+       words' own colour, so it is white on the red Save and as faint as the words when disabled */
+    .na-veg-btn--glyph {
+        display                            : inline-flex;
+        align-items                        : center;
+        gap                                : 5px;
+        padding                            : 4px 7px 4px 6px;              /* <-- Undo, Redo and Save Vegetation with their graphics still fit the 296 px panel on one line */
+        white-space                        : nowrap;
+    }
+
+    .na-veg-glyph {
+        flex                               : 0 0 auto;
+        width                              : 13px;
+        height                             : 13px;
+        background-color                   : currentColor;
+        -webkit-mask-position              : center;
+        mask-position                      : center;
+        -webkit-mask-size                  : contain;
+        mask-size                          : contain;
+        -webkit-mask-repeat                : no-repeat;
+        mask-repeat                        : no-repeat;
+    }
+
+    .na-veg-glyph--undo {
+        -webkit-mask-image                 : url('../../../01__AppAssets__TrueVision/UiIcons__MenuIcons__ToolsMenu/Icon__ToolsMenu__Undo__.svg');
+        mask-image                         : url('../../../01__AppAssets__TrueVision/UiIcons__MenuIcons__ToolsMenu/Icon__ToolsMenu__Undo__.svg');
+    }
+
+    .na-veg-glyph--redo {
+        -webkit-mask-image                 : url('../../../01__AppAssets__TrueVision/UiIcons__MenuIcons__ToolsMenu/Icon__ToolsMenu__Redo__.svg');
+        mask-image                         : url('../../../01__AppAssets__TrueVision/UiIcons__MenuIcons__ToolsMenu/Icon__ToolsMenu__Redo__.svg');
+    }
+
+    .na-veg-glyph--save {
+        -webkit-mask-image                 : url('../../../01__AppAssets__TrueVision/UiIcons__MenuIcons__ToolsMenu/Icon__ToolsMenu__Save__.svg');
+        mask-image                         : url('../../../01__AppAssets__TrueVision/UiIcons__MenuIcons__ToolsMenu/Icon__ToolsMenu__Save__.svg');
+    }
+
+    /* SAVE VEGETATION | As Save Drawing: red when changed, syncing, green */
+    .na-veg-save {
+        margin-left                        : auto;
+        font-weight                        : 600;
+    }
+
+    .na-veg-save--dirty,
+    .na-veg-save--dirty:hover:not(:disabled) {
+        background                         : #a3322a;
+        border-color                       : #a3322a;
+        color                              : #ffffff;
+    }
+
+    .na-veg-save--saving {
+        background                         : var(--na-veg-ink);
+        border-color                       : var(--na-veg-ink);
+        color                              : #ffffff;
+        opacity                            : 0.8;
+    }
+
+    .na-veg-save--saved,
+    .na-veg-save--saved:disabled {
+        background                         : #2f7d4f;
+        border-color                       : #2f7d4f;
+        color                              : #ffffff;
+        opacity                            : 1;
+    }
+
+    .na-veg-save--menu {
+        display                            : block;
+        width                              : 100%;
+        margin                             : 12px 0 0;
+        padding                            : 6px 10px;
+        border-radius                      : 6px;
+        font-family                        : inherit;
+        font-size                          : 0.78rem;
+    }
+
+    .na-veg-field {
+        width                              : 100%;
+        padding                            : 5px 8px;
+        border                             : 1px solid var(--na-veg-rule);
+        border-radius                      : 6px;
+        background                         : #ffffff;
+        color                              : var(--na-veg-ink);
+        font                               : inherit;
+        font-size                          : 12px;
+    }
+
+    .na-veg-field--number {
+        width                              : 74px;
+        text-align                         : right;
+        font-variant-numeric               : tabular-nums;
+    }
+
+    .na-veg-toggle {
+        display                            : inline-flex;
+        padding                            : 2px;
+        border-radius                      : 7px;
+        background                         : #f1f4f7;
+    }
+
+    .na-veg-toggle__btn {
+        padding                            : 3px 9px;
+        border                             : none;
+        border-radius                      : 5px;
+        background                         : transparent;
+        color                              : var(--na-veg-muted);
+        font                               : inherit;
+        font-size                          : 12px;
+        cursor                             : pointer;
+    }
+
+    .na-veg-toggle__btn--active {
+        background                         : #ffffff;
+        color                              : var(--na-veg-ink);
+        font-weight                        : 600;
+        box-shadow                         : 0 1px 2px rgba(0, 0, 0, 0.12);
+    }
+
+    .na-veg-tick {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 7px;
+        margin                             : 0 0 8px;
+        cursor                             : pointer;
+    }
+
+    .na-veg-tick__input {
+        width                              : 15px;
+        height                             : 15px;
+        margin                             : 0;
+        accent-color                       : var(--na-veg-ink);
+    }
+
+    .na-veg-tabs {
+        display                            : flex;
+        gap                                : 2px;
+        padding                            : 6px 10px 0;
+        border-bottom                      : 1px solid var(--na-veg-rule);
+    }
+
+    .na-veg-tabs__tab {
+        padding                            : 6px 10px;
+        border                             : none;
+        border-bottom                      : 2px solid transparent;
+        background                         : none;
+        color                              : var(--na-veg-muted);
+        font                               : inherit;
+        cursor                             : pointer;
+    }
+
+    .na-veg-tabs__tab--active {
+        border-bottom-color                : var(--na-veg-ink);
+        color                              : var(--na-veg-ink);
+        font-weight                        : 600;
+    }
+
+    .na-veg-chips {
+        display                            : flex;
+        flex-wrap                          : wrap;
+        gap                                : 4px;
+        margin                             : 0 0 10px;
+    }
+
+    .na-veg-chip {
+        padding                            : 2px 8px;
+        border                             : 1px solid var(--na-veg-rule);
+        border-radius                      : 10px;
+        background                         : #ffffff;
+        color                              : var(--na-veg-muted);
+        font                               : inherit;
+        font-size                          : 11px;
+        cursor                             : pointer;
+    }
+
+    .na-veg-chip--on {
+        background                         : var(--na-veg-ink);
+        border-color                       : var(--na-veg-ink);
+        color                              : #ffffff;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Asset Cards
+ * ----------------------------------------------------------------------------- */
+
+    .na-veg-card {
+        position                           : relative;
+        display                            : block;
+        width                              : 100%;
+        margin                             : 0 0 10px;
+        padding                            : 4px 4px 8px;
+        border                             : 1px solid var(--na-veg-rule);
+        border-radius                      : 9px;
+        background                         : #ffffff;
+        color                              : inherit;
+        font                               : inherit;
+        text-align                         : left;
+        cursor                             : pointer;
+    }
+
+    .na-veg-card:hover {
+        border-color                       : rgba(23, 43, 58, 0.35);
+    }
+
+    .na-veg-card--armed,
+    .na-veg-card--armed:hover {
+        border-color                       : var(--na-veg-ink);
+        box-shadow                         : inset 0 0 0 1px var(--na-veg-ink);
+    }
+
+    .na-veg-card__picture {
+        display                            : block;
+        width                              : 100%;
+    }
+
+    .na-veg-card__name {
+        margin                             : 4px 6px 0;
+        font-weight                        : 600;
+    }
+
+    .na-veg-card__meta {
+        margin                             : 1px 6px 0;
+        color                              : var(--na-veg-muted);
+        font-size                          : 11px;
+    }
+
+    .na-veg-card__add {
+        position                           : absolute;
+        top                                : 6px;
+        right                              : 6px;
+        width                              : 24px;
+        height                             : 24px;
+        padding                            : 0;
+        border                             : 1px solid var(--na-veg-rule);
+        border-radius                      : 6px;
+        background                         : #ffffff;
+        color                              : var(--na-veg-ink);
+        font                               : inherit;
+        font-size                          : 15px;
+        line-height                        : 1;
+        cursor                             : pointer;
+    }
+
+    .na-veg-card__add:hover {
+        background                         : var(--na-veg-active);
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Lists: Palette Rows and What Is in This Project
+ * ----------------------------------------------------------------------------- */
+
+    .na-veg-palette-item {
+        padding                            : 6px 0;
+        border-top                         : 1px solid var(--na-veg-rule);
+    }
+
+    .na-veg-palette-item__top {
+        display                            : flex;
+        align-items                        : center;
+        justify-content                    : space-between;
+        gap                                : 6px;
+        margin-bottom                      : 2px;
+    }
+
+    .na-veg-palette-item__name {
+        flex                               : 1 1 auto;
+        min-width                          : 0;
+        overflow                           : hidden;
+        text-overflow                      : ellipsis;
+        white-space                        : nowrap;
+    }
+
+    .na-veg-palette-item {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 8px;
+    }
+
+    .na-veg-palette-item__side {
+        flex                               : 1 1 auto;
+        min-width                          : 0;
+    }
+
+    .na-veg-palette-item .na-veg-palette-item__name {
+        display                            : -webkit-box;
+        -webkit-line-clamp                 : 2;
+        -webkit-box-orient                 : vertical;
+        white-space                        : normal;
+        line-height                        : 1.2;
+    }
+
+    .na-veg-palette-pic {
+        flex                               : 0 0 auto;
+        display                            : block;
+        border                             : 1px solid var(--na-veg-rule);
+        border-radius                      : 4px;
+        background                         : #ffffff;
+    }
+
+    .na-veg-palette-add {
+        margin-top                         : 6px;
+        padding-top                        : 6px;
+        border-top                         : 1px solid var(--na-veg-rule);
+    }
+
+    .na-veg-palette-add__title {
+        cursor                             : pointer;
+        font-weight                        : 600;
+    }
+
+    .na-veg-palette-add__grid {
+        display                            : grid;
+        grid-template-columns              : repeat(3, minmax(0, 1fr));
+        gap                                : 6px;
+        margin-top                         : 6px;
+    }
+
+    .na-veg-palette-tile {
+        display                            : flex;
+        flex-direction                     : column;
+        align-items                        : center;
+        gap                                : 3px;
+        min-width                          : 0;
+        padding                            : 4px 3px;
+        border                             : 1px solid var(--na-veg-rule);
+        border-radius                      : 6px;
+        background                         : #ffffff;
+        color                              : var(--na-veg-ink);
+        font                               : inherit;
+        font-size                          : 11px;
+        line-height                        : 1.2;
+        cursor                             : pointer;
+    }
+
+    .na-veg-palette-tile:hover {
+        background                         : var(--na-veg-active);
+    }
+
+    .na-veg-palette-tile .na-veg-palette-pic {
+        max-width                          : 100%;
+        border                             : none;
+    }
+
+    .na-veg-palette-tile__name {
+        display                            : -webkit-box;
+        -webkit-line-clamp                 : 2;
+        -webkit-box-orient                 : vertical;
+        overflow                           : hidden;
+        text-align                         : center;
+    }
+
+    .na-veg-palette-item__share {
+        color                              : var(--na-veg-muted);
+        font-variant-numeric               : tabular-nums;
+    }
+
+    .na-veg-palette-item__scale {
+        width                              : 58px;
+        padding                            : 1px 4px;
+    }
+
+    .na-veg-size-field {
+        display                            : flex;
+        flex-direction                     : column;
+        gap                                : 2px;
+        font-size                          : 11px;
+        color                              : var(--na-veg-muted);
+    }
+
+    .na-veg-card__draw {
+        position                           : absolute;
+        top                                : 6px;
+        right                              : 36px;
+        padding                            : 2px 7px;
+        border                             : 1px solid var(--na-veg-rule);
+        border-radius                      : 4px;
+        background                         : #ffffff;
+        color                              : inherit;
+        font-size                          : 11px;
+        cursor                             : pointer;
+    }
+
+    .na-veg-palette-item__remove {
+        padding                            : 0 4px;
+        border                             : none;
+        background                         : none;
+        color                              : var(--na-veg-muted);
+        font                               : inherit;
+        cursor                             : pointer;
+    }
+
+    .na-veg-list-row {
+        display                            : flex;
+        align-items                        : center;
+        justify-content                    : space-between;
+        gap                                : 6px;
+        width                              : 100%;
+        padding                            : 5px 7px;
+        border                             : 1px solid transparent;
+        border-radius                      : 6px;
+        background                         : none;
+        color                              : inherit;
+        font                               : inherit;
+        font-size                          : 12px;
+        text-align                         : left;
+        cursor                             : pointer;
+    }
+
+    .na-veg-list-row:hover {
+        background                         : #f2f5f8;
+    }
+
+    .na-veg-list-row--selected,
+    .na-veg-list-row--selected:hover {
+        background                         : var(--na-veg-active);
+        border-color                       : rgba(23, 43, 58, 0.2);
+        font-weight                        : 600;
+    }
+
+    .na-veg-list-row__meta {
+        flex                               : 0 0 auto;
+        color                              : var(--na-veg-muted);
+        font-weight                        : 400;
+    }
+
+    .na-veg-record__json {
+        margin                             : 8px 0;
+        padding                            : 8px;
+        border-radius                      : 7px;
+        background                         : #f5f7f9;
+        font-family                        : Consolas, 'Courier New', monospace;
+        font-size                          : 10.5px;
+        white-space                        : pre-wrap;
+        word-break                         : break-word;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Sliders, Numbers and the Advanced Dropdowns
+ * ----------------------------------------------------------------------------- */
+
+    .na-veg-slider {
+        display                            : block;
+        margin                             : 0 0 10px;
+    }
+
+    .na-veg-slider__top {
+        display                            : flex;
+        justify-content                    : space-between;
+        margin-bottom                      : 2px;
+    }
+
+    .na-veg-slider__value {
+        color                              : var(--na-veg-muted);
+        font-variant-numeric               : tabular-nums;
+    }
+
+    .na-veg-slider__input {
+        display                            : block;
+        width                              : 100%;
+        margin                             : 0;
+        accent-color                       : var(--na-veg-ink);
+    }
+
+    .na-veg-advanced {
+        margin                             : 6px 0 10px;
+        border-top                         : 1px solid var(--na-veg-rule);
+        padding-top                        : 8px;
+    }
+
+    .na-veg-advanced__title {
+        margin-bottom                      : 8px;
+        font-weight                        : 600;
+        cursor                             : pointer;
+    }
+
+    .na-veg-stats__row {
+        display                            : flex;
+        justify-content                    : space-between;
+        margin-bottom                      : 3px;
+        font-size                          : 12px;
+    }
+
+    .na-veg-stats__value {
+        font-weight                        : 600;
+        font-variant-numeric               : tabular-nums;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | The Tools' Drawing Layer
+ * ----------------------------------------------------------------------------- */
+
+    .na-veg-overlay {
+        position                           : absolute;
+        pointer-events                     : none;                                 /* <-- Every press goes through to the model */
+    }
+
+/* endregion ------------------------------------------------------------------- */

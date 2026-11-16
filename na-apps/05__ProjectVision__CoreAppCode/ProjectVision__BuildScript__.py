@@ -84,10 +84,13 @@ SKIP_FOLDER_PREFIXES = ('.', '00__')
 
 # TrueVision Dev-menu-owned keys. These are written live to R2 by the
 # TrueVision Dev menu (Save Camera, Orbit Max, Navigation Modes, Presentation
-# Scenes). When this build script regenerates the local project data JSON it
-# must preserve any existing values for these keys so a build does not wipe
-# dev-authored settings. Keep in sync with DEV_OWNED_PROJECT_DATA_KEYS in
-# CloudflareR2__ModelSync__Main__.py and Na__DevSavedKeys in the TrueVision app.
+# Scenes, Project Lighting), by the drawings save (the drawings, the drawing
+# register, section cuts) and by Save Vegetation and Save Entourage (the placed
+# plants and people). When this build script regenerates the local project
+# data JSON it must preserve any existing values for these keys so a build does
+# not wipe dev-authored settings: every other key is dropped. Keep in sync with
+# DEV_OWNED_PROJECT_DATA_KEYS in CloudflareR2__ModelSync__Main__.py and
+# Na__DevSavedKeys in the TrueVision app.
 TRUEVISION_DEV_OWNED_KEYS = (
     'PresentationMode__SavedCameraScenes',
     'Navmode__EnabledModes',
@@ -97,6 +100,11 @@ TRUEVISION_DEV_OWNED_KEYS = (
     'Camera__DefaultPosition',
     'OrbitHelperCube__Position',
     'LayoutEditor__DrawingsData',
+    'SceneLighting__ProjectOverrides',
+    'LayoutEditor__DrawingRegister',
+    'CrossSection__SceneData',
+    'Vegetation__SceneData',
+    'Entourage__SceneData',
 )
 
 

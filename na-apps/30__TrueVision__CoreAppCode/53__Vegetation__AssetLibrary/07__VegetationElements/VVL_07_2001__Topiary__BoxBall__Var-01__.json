@@ -1,0 +1,119 @@
+{
+    "Asset__Id"          : "VVL_07_2001",
+    "Asset__Name"        : "Box Ball",
+    "Asset__Description" : "A clipped ball, the formal accent for a planter or either side of a door. Its fine scalloped outline holds a true round from every side.",
+
+    "Asset__Meta": {
+        "Meta__Version" : "1.0.0",
+        "Meta__Created" : "04-Nov-2026",
+        "Meta__Author"  : "Adam Noble - Noble Architecture",
+        "Meta__Status"  : "Active"
+    },
+
+    "Asset__Identity": {
+        "Identity__CollectionCode" : "07",
+        "Identity__Type"           : "Topiary",
+        "Identity__Family"         : "200",
+        "Identity__Item"           : 1,
+        "Identity__Name"           : "BoxBall",
+        "Identity__Variant"        : "Var-01"
+    },
+
+    "Asset__Generator": {
+        "Generator__Name"    : "ClippedForm",
+        "Generator__Version" : 1
+    },
+
+    "Asset__Proxy": {
+        "Proxy__Shape"       : "Dome",
+        "Proxy__RingCount"   : 5,
+        "Proxy__SectorCount" : 10
+    },
+
+    "Asset__Placement": {
+        "Placement__RotationVariationDeg"   : 0,
+        "Placement__ScaleVariationPercent"  : 0,
+        "Placement__HeightVariationPercent" : 0,
+        "Placement__AlignToPath"            : false,
+        "Placement__StretchAlongPath"       : false,
+        "Placement__Clipped"                : true,
+        "Placement__MinSpacingMm"           : 900,
+        "Placement__DefaultWeight"          : 0
+    },
+
+    "Asset__Catalogue": {
+        "Catalogue__Keywords"      : ["ornamental", "topiary", "ball", "clipped", "formal", "accent"],
+        "Catalogue__Season"        : "AllYear",
+        "Catalogue__BotanicalName" : null
+    },
+
+    "Asset__Form": {
+        "Form__Shape"     : "Ball",
+        "Form__Inset"     : 0.55,
+        "Form__Waver"     : 0.14,
+        "Form__EdgeShare" : 0.00,
+        "Form__MarkShare" : 0.20
+    },
+
+    "Asset__Size": {
+        "Size__WidthMm"     : 800,
+        "Size__DepthMm"     : 800,
+        "Size__HeightMm"    : 800,
+        "Size__JitterShare" : 0.00
+    },
+
+    "Asset__Masses": {
+        "Masses__Layout"            : "Mound",
+        "Masses__CountMin"          : 1,
+        "Masses__CountMax"          : 1,
+        "Masses__ScallopChordMinMm" : 40,
+        "Masses__ScallopChordMaxMm" : 90,
+        "Masses__ScallopDepth"      : 0.25,
+        "Masses__ScallopSkew"       : 1.20,
+        "Masses__TipShare"          : 0.00
+    },
+
+    "Asset__Clumps": {
+        "Clumps__RadiusMinMm"  : 40,
+        "Clumps__RadiusMaxMm"  : 70,
+        "Clumps__Skew"         : 1.10,
+        "Clumps__Spacing"      : 0.90,
+        "Clumps__ReachMin"     : 1.00,
+        "Clumps__ReachMax"     : 1.00,
+        "Clumps__ScallopDepth" : 0.14,
+        "Clumps__TipShare"     : 0.00,
+        "Clumps__Ellipse"      : 0.05,
+        "Clumps__Wobble"       : 0.01
+    },
+
+    "Asset__Nubs": {
+        "Nubs__Share"       : 0.14,
+        "Nubs__RadiusMinMm" : 12,
+        "Nubs__RadiusMaxMm" : 22
+    },
+
+    "Asset__Line": {
+        "Line__InteriorChance"  : 0.26,
+        "Line__InteriorSpanDeg" : 90,
+        "Line__TailChance"      : 0.36,
+        "Line__TailMinRad"      : 0.16,
+        "Line__TailMaxRad"      : 0.70,
+        "Line__CurlChance"      : 0.16,
+        "Line__CurlAmount"      : 0.45,
+        "Line__BreakChance"     : 0.04,
+        "Line__CuspHookChance"  : 0.22,
+        "Line__CuspHookMinMm"   : 16,
+        "Line__CuspHookMaxMm"   : 44,
+        "Line__SpurShare"       : 0.06
+    },
+
+    "Asset__Tufts": {
+        "Tufts__CountMin"     : 0,
+        "Tufts__CountMax"     : 0,
+        "Tufts__HeightMinMm"  : 0,
+        "Tufts__HeightMaxMm"  : 0,
+        "Tufts__BladesMin"    : 0,
+        "Tufts__BladesMax"    : 0,
+        "Tufts__BladeWidthMm" : 0
+    }
+}

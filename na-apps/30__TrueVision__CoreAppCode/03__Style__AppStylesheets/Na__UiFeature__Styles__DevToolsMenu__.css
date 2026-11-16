@@ -174,3 +174,67 @@
     }
 
 /* endregion ------------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+ * REGION | Assets: Entourage, Vegetation and Furnishings, Nested, Each with a Switch
+ * ----------------------------------------------------------------------------- */
+
+    .na-assets-dev__section {
+        border-top                         : 1px solid rgba(23, 43, 58, 0.1);
+    }
+
+    .na-assets-dev__section:first-child {
+        border-top                         : 0;
+    }
+
+    .na-assets-dev__section--later {
+        opacity                            : 0.55;
+    }
+
+    .na-assets-dev__head {
+        display                            : flex;
+        align-items                        : center;
+        justify-content                    : space-between;
+        gap                                : 8px;
+        padding                            : 5px 2px;
+    }
+
+    .na-assets-dev__open {
+        display                            : flex;
+        flex                               : 1 1 auto;
+        align-items                        : center;
+        gap                                : 6px;
+        padding                            : 2px 0;
+        border                             : 0;
+        background                         : none;
+        color                              : inherit;
+        font                               : inherit;
+        font-weight                        : 600;
+        text-align                         : left;
+        cursor                             : pointer;
+    }
+
+    .na-assets-dev__section--later .na-assets-dev__open {
+        cursor                             : default;
+    }
+
+    .na-assets-dev__icon {
+        width                              : 17px;
+        height                             : 17px;
+        margin-right                       : 2px;
+        vertical-align                     : -3px;
+        object-fit                         : contain;
+    }
+
+    .na-assets-dev__later {
+        font-size                          : 11px;
+        font-weight                        : 400;
+    }
+
+    .na-assets-dev__body {
+        margin                             : 0 0 6px 4px;
+        padding-left                       : 8px;
+        border-left                        : 2px solid rgba(23, 43, 58, 0.1);
+    }
+
+/* endregion ------------------------------------------------------------------- */

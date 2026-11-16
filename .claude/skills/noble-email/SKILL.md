@@ -76,7 +76,7 @@ states a wrong dimension is worse.
 
 | What | Where |
 |---|---|
-| This skill | `D:\08__Cloud__Repo__AgentSkills__Private\21-na-admin-system-skills\noble-email\` |
+| This skill | `D:\08__Cloud__Repo__AgentSkills__Private\20-na-admin-system-skills\noble-email\` |
 | Job folders (2026) | `D:\02__NobleArchitecture__MasterLibrary\02__Projects\NA_Projects__2026\{CODE}__{Site}__{Client}\` |
 | Where an email lives | the job's `06__Correspodance\` folder (the folder's own spelling) |
 | Attachments to check against | the job's `10__ContentDelivered\{NN}__{Pack}__Rev-X__{date}\` folder |
