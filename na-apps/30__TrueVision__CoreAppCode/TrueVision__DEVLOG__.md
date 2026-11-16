@@ -2,6 +2,90 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.187.0  -  16-Nov-2026
+### A Turned Phone Redraws the 3D View to Its New Shape, and Phones Get ValeVision's Phone Layout
+
+**What Adam asked for** (three NP03 screenshots from a phone: upright, upright, then on its side)
+- "There is no handling for when a phone or tablet is rotated, so you end up with this ridiculous-looking skewed thing
+  going on ... we need to correct that."
+- "Look at the user interface on ValeVision 3D and how it reacts with smaller screens. It has a much better carousel
+  that shrinks. On a phone in portrait, etc., and on small screens, copy that same behaviour from ValeVision because it
+  frees up screen space."
+- "See the top bar as well. Use a similar style from ValeVision when on small screens: the more compact form ... it
+  makes it impossible to see the menu and the navigation bar because they are crossing over each other."
+
+**What was wrong**
+- **The skew was a regression from v2.186.0.** `Na__ViewportSize__Watch` (v2.184.1) allowed one caller per page and
+  silently refused the rest. v2.186.0's Existing and Proposed line called it first (it starts before the model loads),
+  so the loading sequence's own handler, the one that sizes the renderer and sets the camera's aspect, was never
+  attached. From then on no window change reached the renderer: a phone turned on its side stretched the upright
+  picture across the wide box, and turned back squashed it. Shown on the sandbox before the fix: the canvas box
+  narrowed to 500 px, the drawing buffer stayed 915 px.
+- **The crossing bars:** the narrow-window swap (the Tools & Settings button folding into the bar's Menu) switched on
+  only below 768 px or on an upright window. A phone on its side is wider than that, and so is a landscape tablet or a
+  small laptop window, so the bar ran under Tools & Settings anywhere from 769 to about 1,280 px wide on a job with
+  Walk, Fly and Before / After.
+- **A drawing read on its side and then turned upright** kept the zoom and scroll chosen for the wide screen, leaving
+  the sheet mostly off the bottom left.
+
+**Now**
+- **Every caller of the viewport watcher is kept** (`01__AppCore/Na__AppCore__ViewportSize__.js` 1.1.0): one
+  ResizeObserver, a list of callbacks; a new caller hears the size at once even when it has not changed, and a caller
+  that throws is reported without stopping the others. A turned phone is asked again 250 ms after `orientationchange`.
+  Turned both ways on the sandbox, the drawing buffer and the camera's aspect match the box every time.
+- **The phone layout** (new `65__Feature__PhoneUi/`, ported from ValeVision 3D v2.81.0 to v2.98.5): only on a phone,
+  decided by what the device is (Index.html's new head script sets `<html data-na-device="phone|tablet|computer">`,
+  and `na-phone-ui` on a phone), never by screen size, so a touchscreen PC keeps its bar.
+  - Upright: a 48 px bar with the logo alone, the canvas under it.
+  - On its side: a 54 px bar that folds away 2 s after the model shows, with a pull tab to bring it back (tap or drag);
+    the canvas runs the full screen and the bar lies over it.
+  - The navigation is one round icon top left (the mode in use); the first press opens the row (Orbit, Walk, Fly,
+    Before / After, Reset View, Help), a press in the row acts and closes it.
+  - Tools & Settings is one round icon top right that unfolds into the menu.
+  - The view carousel shrinks and fades when left alone (50% on its side, 60% upright) and grows when touched (75%,
+    85% upright) for 3 s after the last touch; the first tap on an idle carousel only wakes it.
+  - TrueVision's own: the drawing tab strip rides under the bar, so on its side, folded, the tabs are the top row; a
+    drawing tab keeps the bar away whichever way the phone is held.
+- **On a computer or tablet the bar and the menu are measured** (`Na__NavToolbar__CheckRoom` in the toolbar controls
+  1.3.0): when they would touch, the menu folds into the bar's Menu button exactly as below 768 px
+  (`<html class="na-nav-crowded">`); a bar still wider than the window drops its labels (`na-nav-icons-only`).
+  Checked again whenever the window, the bar's buttons or the page's mode change.
+- **The narrow-window title:** at 600 px and under the "TrueVision 3D" title is hidden and the logo stands alone, as in
+  ValeVision (it was 18 px).
+- **A turned phone or tablet refits the open sheet** (Layout Editor mode controller 1.35.0); a window dragged to a new
+  size keeps its zoom, as before.
+
+**Files**
+- New: `02__Src__AppModules/65__Feature__PhoneUi/Na__Feature__PhoneUi__.js` 1.0.0,
+  `02__Src__AppModules/65__Feature__PhoneUi/Na__Feature__PhoneUi__Stylesheet__.css`.
+- Changed: `01__AppCore/Na__AppCore__ViewportSize__.js` 1.1.0;
+  `10__NavigationAndCameras/Na__UiFeature__NavigationToolbar__Controls.js` 1.3.0;
+  `51__System__LayoutEditor/05__Core__ModeController/Na__LayoutEditor__ModeController__.js` 1.35.0;
+  `62__Feature__AppInstallability/TrueVision__Pwa__ServiceWorker__Logic__.js` 1.20.0; `Index.html` (the device head
+  script, the phone layout's import and start-up); `03__Style__AppStylesheets/Na__CoreUi__Styles__Index__.css` (the
+  phone sheet imported last), `Na__UiFeature__Styles__AppHeader__.css`, `Na__UiFeature__Styles__NavigationToolbar__.css`,
+  `Na__UiFeature__Styles__DropdownAndToast__.css`.
+- Service worker token: `2026-11-16-01`.
+
+**Tested** (the MCP's sandbox, headless Edge on the graphics card, as a reader; NP03 Ashness Close and PS01 Musters
+Road; no write of any kind)
+- Before the fix (the page loaded from the old code): canvas box 500 px, drawing buffer 915 px. After: 500 and 500.
+- A phone (an iPhone's identity) upright at 390 x 800, turned to 800 x 390 and back: buffer and camera aspect 0.5186,
+  2.0513, 0.5186, the box's each time. PS01 at 844 x 390 turned upright: 2.1641 then 0.4899.
+- Phone layout: upright bar 48 px with the logo alone and both corner icons; on its side the bar folded, the pull tab,
+  the navigation row opening with all six buttons, Tools & Settings unfolding, the carousel at 50% idle and 75% awake.
+  PS01 on its side: the tab strip at the top (0 to 36 px) under the folded bar, the corners under the strip; a drawing
+  tab with the bar away and no pull tab, upright and on its side; the sheet refitted on each turn.
+- Computer 1600 x 900: unchanged (no new class, labels shown, Tools & Settings on its own). 1024 x 768 and 915 x 412:
+  the menu folded into the bar's Menu, which opened it in the same row and brought the bar back when it folded.
+- `tv3d_check`: syntax clean, `Na__Verify__Exports__` PASS (614 files), the module graph nothing new failing.
+
+**Not tested**
+- A real phone or tablet (the turn was driven by resizing the headless window and sending `orientationchange`); the
+  pull tab's drag; a real iPad (a tablet gets the measured swap, not the phone layout).
+- The Existing and Proposed line dragged on a phone.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.186.2  -  15-Nov-2026
 ### Plants and People Only on the Proposed Side of the Existing and Proposed Line
 

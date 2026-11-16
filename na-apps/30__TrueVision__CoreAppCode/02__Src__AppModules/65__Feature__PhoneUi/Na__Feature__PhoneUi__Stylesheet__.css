@@ -1,0 +1,444 @@
+/* =============================================================================
+ * TRUEVISION3D - FEATURE - PHONE UI - STYLESHEET
+ * =============================================================================
+ *
+ * FILE       : Na__Feature__PhoneUi__Stylesheet__.css
+ * NAMESPACE  : TrueVision3D
+ * MODULE     : Feature - Phone UI
+ * AUTHOR     : Adam Noble - Noble Architecture
+ * PURPOSE    : The phone layout: a top bar that folds away and pulls back
+ *              down, the navigation and Tools & Settings as two corner icons
+ *              that open on a press, and a view carousel that shrinks and
+ *              fades when it is left alone
+ * CREATED    : 16-Nov-2026
+ *
+ * DESCRIPTION:
+ * - EVERY RULE HANGS OFF <html class="na-phone-ui">, set by Index.html's head
+ *   script on a phone (decided by what the device is, never by its size)
+ *   before anything draws. Tablets and computers, touchscreen PCs included,
+ *   never see any of this: their top bar never folds.
+ * - ONE NUMBER MOVES THE TOP: --na-phone-header-shown, how much of the bar is
+ *   on screen (the bar's height when down, 0 when folded, anything between
+ *   while a finger drags it). The bar, the drawing tab strip, the pull tab and
+ *   both corner icons all sit from it, so they travel together.
+ *   Na__Feature__PhoneUi__.js sets it.
+ * - THE FOLD is the drawing tabs' own (Na__UiFeature__Styles__AppHeader__.css):
+ *   1000ms on cubic-bezier(0.40, 0, 0.20, 1), on top, never transform (the Dev
+ *   Tools flyout is a fixed child of the bar). A drag lets go on a shorter
+ *   380ms snap.
+ * - On its side the canvas starts at the top of the screen: the bar lies over
+ *   it while it is down, so folding it never moves or resizes the 3D view.
+ * - HELD UPRIGHT THE BAR NEVER FOLDS: there is room for the logo, and a
+ *   browser tab is assumed to be used upright. The canvas starts under it.
+ * - THE DRAWING TAB STRIP (a project with drawings) rides directly under the
+ *   bar, so on its side, folded, the tabs are the top row and stay in reach.
+ *   A drawing tab folds the bar away whichever way the phone is held, as it
+ *   does on a computer.
+ * - Sticky :hover is switched off here: a phone keeps :hover on the last thing
+ *   tapped, which is why the carousel and menus would never fade. The JS
+ *   wakes them.
+ * - Loaded last in Na__CoreUi__Styles__Index__.css so it wins over the desktop
+ *   and narrow-window rules it replaces.
+ *
+ * -----------------------------------------------------------------------------
+ *
+ * PORT NOTE:
+ * - Ported from   : ValeVision3D 02__Src__AppModules/65__Feature__PhoneUi/Na__Feature__PhoneUi__Stylesheet__.css
+ *                   (ValeVision3D v2.81.0 to v2.98.5)
+ * - Ported on     : 16-Nov-2026 for TrueVision3D v2.187.0
+ * - Parity        : adapted
+ * - Divergences   : the drawing tab strip region and the drawing tab region are
+ *                   TrueVision's (ValeVision's strip is for staff only); the
+ *                   sixth navigation button (Before / After) has its own
+ *                   arrival delay.
+ * - Back-port     : none pending.
+ *
+ * =============================================================================
+ */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | The Numbers
+ * ----------------------------------------------------------------------------- */
+
+    html.na-phone-ui {
+        --Vale_HeaderHeight                : 54px;                         /* <-- 90% of the 60px bar */
+        --na-phone-header-shown            : var(--Vale_HeaderHeight);     /* <-- The bar is down on landing */
+        --na-phone-top                     : calc(var(--na-phone-header-shown) + var(--Vale_LayoutTabStripHeight, 0px));   /* <-- The underside of the bar and the drawing tabs */
+        --na-phone-fold-duration           : var(--Vale_HeaderFoldDuration, 1000ms);
+        --na-phone-fold-ease               : var(--Vale_HeaderFoldEase, cubic-bezier(0.40, 0.00, 0.20, 1));
+        --na-phone-gap                     : 10px;                         /* <-- Corner icons from the bar and the screen's edge */
+        --na-phone-icon                    : 44px;                         /* <-- A thumb-sized round icon */
+        --na-phone-pop                     : cubic-bezier(0.34, 1.30, 0.52, 1);   /* <-- The open and grow: a slight overshoot */
+    }
+
+    html.na-phone-ui.na-phone-ui--folded {
+        --na-phone-header-shown            : 0px;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | The Top Bar: 90% Height, Folds Away, Pulls Back Down
+ * ----------------------------------------------------------------------------- */
+
+    html.na-phone-ui .app-header {
+        top                                : calc(var(--na-phone-header-shown) - var(--Vale_HeaderHeight) - 3px);   /* <-- 3px: the shadow and border leave too */
+        padding                            : 0 max(16px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left));
+        transition                         : top var(--na-phone-fold-duration) var(--na-phone-fold-ease),
+                                             box-shadow var(--na-phone-fold-duration) var(--na-phone-fold-ease);
+    }
+
+    html.na-phone-ui .app-header__logo-left {
+        height                             : 37.8px;                       /* <-- 42px at 90% */
+    }
+
+    html.na-phone-ui .app-header__title {
+        font-size                          : 21.6px;                       /* <-- 24px at 90% (hidden upright: Na__UiFeature__Styles__AppHeader__.css) */
+    }
+
+    html.na-phone-ui.na-phone-ui--folded .app-header {
+        box-shadow                         : 0 0 0 rgba(0, 0, 0, 0);
+    }
+
+    /* THE CANVAS | From the top of the screen: the bar lies over it */
+    html.na-phone-ui #renderCanvas {
+        top                                : 0;
+        height                             : 100vh;
+        height                             : 100dvh;                       /* <-- The visible height: the renderer follows this box */
+    }
+
+    /* THE PULL TAB | Hangs under the bar: tap or drag it down to bring the bar back */
+    .na-phone-ui__pull {
+        display                            : none;
+    }
+
+    html.na-phone-ui .na-phone-ui__pull {
+        position                           : fixed;
+        top                                : var(--na-phone-top);
+        left                               : 50%;
+        z-index                            : 1001;
+        display                            : flex;
+        align-items                        : center;
+        justify-content                    : center;
+        width                              : 72px;
+        height                             : 26px;
+        margin                             : 0;
+        padding                            : 0;
+        border                             : none;
+        border-radius                      : 0 0 14px 14px;
+        background                         : rgba(255, 255, 255, 0.92);
+        box-shadow                         : 0 3px 10px rgba(23, 43, 58, 0.16);
+        transform                          : translateX(-50%);
+        opacity                            : 0.85;
+        touch-action                       : none;                         /* <-- The drag is ours, not a page scroll */
+        cursor                             : grab;
+        -webkit-tap-highlight-color        : transparent;
+        transition                         : top var(--na-phone-fold-duration) var(--na-phone-fold-ease), opacity 0.3s ease;
+    }
+
+    html.na-phone-ui .na-phone-ui__pull::before {
+        content                            : '';
+        width                              : 30px;
+        height                             : 4px;
+        border-radius                      : 2px;
+        background                         : #172b3a;
+        opacity                            : 0.55;
+    }
+
+    html.na-phone-ui:not(.na-phone-ui--folded) .na-phone-ui__pull {
+        opacity                            : 0.6;                          /* <-- Down: the tab is only a handle to push it back up */
+    }
+
+    /* A FINGER ON IT | Everything follows the finger exactly, then snaps */
+    html.na-phone-ui.na-phone-ui--dragging .app-header,
+    html.na-phone-ui.na-phone-ui--dragging .na-le-tabs,
+    html.na-phone-ui.na-phone-ui--dragging .na-phone-ui__pull,
+    html.na-phone-ui.na-phone-ui--dragging .na-nav-toolbar,
+    html.na-phone-ui.na-phone-ui--dragging .na-dropdown-menu:not(.na-dropdown-menu--dev-localhost) {
+        transition                         : none;
+    }
+
+    html.na-phone-ui.na-phone-ui--snapping {
+        --na-phone-fold-duration           : 380ms;
+    }
+
+    /* UPRIGHT | The bar stays: held upright there is room for the logo, and a
+       browser tab is assumed to be used upright. It folds only on its side.
+       The canvas starts under it, as on a computer. */
+    @media (orientation: portrait) {
+        html.na-phone-ui,
+        html.na-phone-ui.na-phone-ui--folded {
+            --Vale_HeaderHeight            : 48px;                         /* <-- Upright: a little smaller */
+            --na-phone-header-shown        : var(--Vale_HeaderHeight) !important;   /* <-- Beats the fold and any drag */
+        }
+
+        html.na-phone-ui .app-header__logo-left {
+            height                         : 33px;
+        }
+
+        html.na-phone-ui .app-header,
+        html.na-phone-ui.na-phone-ui--folded .app-header {
+            top                            : 0;                            /* <-- Not the fold's 3px shadow allowance */
+            box-shadow                     : 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        html.na-phone-ui .na-phone-ui__pull {
+            display                        : none;
+        }
+
+        html.na-phone-ui #renderCanvas {
+            top                            : var(--Vale_HeaderHeight);
+            height                         : calc(100vh - var(--Vale_HeaderHeight));    /* <-- Under the bar to the bottom of the screen, */
+            height                         : calc(100dvh - var(--Vale_HeaderHeight));   /*     not a screen tall and off the bottom */
+        }
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | The Drawing Tab Strip: Rides Under the Bar
+ * -----------------------------------------------------------------------------
+ * Shown only on a project with drawings (Na__LayoutEditor__TabStrip__.js).
+ * On the 3D tab it sits on the bar's underside wherever the bar is, so folded
+ * it is the top row. A drawing tab takes the bar away whichever way the phone
+ * is held and puts the strip at the top, as on a computer; these rules are
+ * written stronger than the upright rule above so they win over it.
+ * ----------------------------------------------------------------------------- */
+
+    html.na-phone-ui .na-le-tabs {
+        top                                : var(--na-phone-header-shown);
+        transition                         : top var(--na-phone-fold-duration) var(--na-phone-fold-ease);
+    }
+
+    html.na-phone-ui body.na-layout-editor--active .app-header {
+        top                                : calc(-1 * var(--Vale_HeaderHeight) - 3px);
+        box-shadow                         : 0 0 0 rgba(0, 0, 0, 0);
+    }
+
+    html.na-phone-ui body.na-layout-editor--active .na-le-tabs {
+        top                                : 0;
+    }
+
+    html.na-phone-ui body.na-layout-editor--active .na-phone-ui__pull {
+        display                            : none;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | The Navigation: One Icon, Top Left, Grows into a Row
+ * ----------------------------------------------------------------------------- */
+
+    html.na-phone-ui .na-nav-toolbar {
+        top                                : calc(var(--na-phone-top) + var(--na-phone-gap));
+        bottom                             : auto;
+        left                               : max(var(--na-phone-gap), env(safe-area-inset-left));
+        transform                          : none;
+        max-width                          : calc(var(--na-phone-icon) + 10px);   /* <-- Closed: the active mode's icon alone */
+        padding                            : 5px;
+        gap                                : 2px;
+        overflow                           : hidden;
+        border-radius                      : 27px;
+        opacity                            : 0.6;
+        transform-origin                   : top left;
+        transition                         : top var(--na-phone-fold-duration) var(--na-phone-fold-ease),
+                                             max-width 420ms var(--na-phone-pop),
+                                             border-radius 420ms ease,
+                                             opacity 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    html.na-phone-ui .na-nav-toolbar:hover,
+    html.na-phone-ui .na-nav-toolbar:focus-within {
+        opacity                            : 0.6;                          /* <-- No sticky hover or focus on a phone */
+        box-shadow                         : 0 4px 16px rgba(0, 0, 0, 0);
+    }
+
+    html.na-phone-ui .na-nav-toolbar.na-nav-toolbar--wake {
+        opacity                            : 1;                            /* <-- A key changed the mode: flash, as on a computer */
+    }
+
+    html.na-phone-ui .na-nav-toolbar.na-phone-nav--open,
+    html.na-phone-ui .na-nav-toolbar.na-phone-nav--open:hover,
+    html.na-phone-ui .na-nav-toolbar.na-phone-nav--open:focus-within {
+        max-width                          : calc(100vw - 2 * var(--na-phone-gap) - 70px);   /* <-- Open: the whole row, clear of the Tools icon */
+        border-radius                      : 14px;
+        opacity                            : 1;
+        box-shadow                         : 0 4px 16px rgba(0, 0, 0, 0.18);
+    }
+
+    html.na-phone-ui .na-nav-toolbar .na-nav-toolbar__btn {
+        min-width                          : var(--na-phone-icon);
+        min-height                         : var(--na-phone-icon);
+        justify-content                    : center;
+        padding                            : 6px 12px;
+        border-radius                      : 22px;
+    }
+
+    html.na-phone-ui .na-nav-toolbar .na-nav-toolbar__btn:hover {
+        background-color                   : transparent;
+    }
+
+    html.na-phone-ui .na-nav-toolbar .na-nav-toolbar__btn--active,
+    html.na-phone-ui .na-nav-toolbar .na-nav-toolbar__btn--active:hover {
+        order                              : -1;                           /* <-- The mode in use is the icon shown when closed */
+    }
+
+    html.na-phone-ui .na-nav-toolbar:not(.na-phone-nav--open) .na-nav-toolbar__btn {
+        padding                            : 6px;
+    }
+
+    html.na-phone-ui .na-nav-toolbar:not(.na-phone-nav--open) .na-nav-toolbar__label {
+        display                            : none;
+    }
+
+    html.na-phone-ui .na-nav-toolbar .na-nav-toolbar__divider,
+    html.na-phone-ui .na-nav-toolbar .na-nav-toolbar__btn--menu {
+        display                            : none !important;              /* <-- Tools & Settings has its own corner */
+    }
+
+    /* THE ROW ARRIVES | Each button fades up in turn as the pill grows */
+    html.na-phone-ui .na-nav-toolbar.na-phone-nav--open .na-nav-toolbar__btn:not(.na-nav-toolbar__btn--active) {
+        animation                          : na-phone-ui-arrive 320ms var(--na-phone-pop) both;
+    }
+
+    html.na-phone-ui .na-nav-toolbar.na-phone-nav--open .na-nav-toolbar__btn:nth-child(2) { animation-delay : 40ms; }
+    html.na-phone-ui .na-nav-toolbar.na-phone-nav--open .na-nav-toolbar__btn:nth-child(3) { animation-delay : 80ms; }
+    html.na-phone-ui .na-nav-toolbar.na-phone-nav--open .na-nav-toolbar__btn:nth-child(4) { animation-delay : 120ms; }
+    html.na-phone-ui .na-nav-toolbar.na-phone-nav--open .na-nav-toolbar__btn:nth-child(5) { animation-delay : 160ms; }
+    html.na-phone-ui .na-nav-toolbar.na-phone-nav--open .na-nav-toolbar__btn:nth-child(6) { animation-delay : 200ms; }   /* <-- Before / After on a job with both phases */
+
+    @keyframes na-phone-ui-arrive {
+        from { opacity : 0; transform : translateX(-10px) scale(0.85); }
+        to   { opacity : 1; transform : none; }
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Tools & Settings: One Icon, Top Right, Opens into the Menu
+ * ----------------------------------------------------------------------------- */
+
+    html.na-phone-ui .na-dropdown-menu:not(.na-dropdown-menu--dev-localhost) {
+        display                            : block;                        /* <-- Never swapped behind the toolbar's hamburger on a phone */
+        top                                : calc(var(--na-phone-top) + var(--na-phone-gap));
+        right                              : max(var(--na-phone-gap), env(safe-area-inset-right));
+        transform                          : none;                         /* <-- Not the desktop's 1.2 scale */
+        opacity                            : 0.6;
+        transition                         : top var(--na-phone-fold-duration) var(--na-phone-fold-ease), opacity 0.3s ease;
+    }
+
+    html.na-phone-ui .na-dropdown-menu:not(.na-dropdown-menu--dev-localhost):hover,
+    html.na-phone-ui .na-dropdown-menu:not(.na-dropdown-menu--dev-localhost):focus-within {
+        opacity                            : 0.6;                          /* <-- No sticky hover on a phone */
+    }
+
+    html.na-phone-ui .na-dropdown-menu:not(.na-dropdown-menu--dev-localhost):has(.na-dropdown-menu__details[open]) {
+        opacity                            : 1;
+    }
+
+    /* CLOSED | A round icon */
+    html.na-phone-ui #naToolsMenu:not([open]) {
+        min-width                          : 0;
+        border-radius                      : 27px;
+    }
+
+    html.na-phone-ui #naToolsMenu:not([open]) > .na-dropdown-menu__summary {
+        width                              : var(--na-phone-icon);
+        height                             : var(--na-phone-icon);
+        padding                            : 5px;
+        justify-content                    : center;
+        box-sizing                         : content-box;
+    }
+
+    html.na-phone-ui #naToolsMenu > .na-dropdown-menu__summary .na-dropdown-menu__btn-icon {
+        width                              : 26px;
+        height                             : 26px;
+    }
+
+    html.na-phone-ui #naToolsMenu:not([open]) > .na-dropdown-menu__summary .na-dropdown-menu__btn-label,
+    html.na-phone-ui #naToolsMenu:not([open]) > .na-dropdown-menu__summary .na-dropdown-menu__arrow {
+        display                            : none;
+    }
+
+    /* OPEN | The card unfolds from the icon's corner, the name slides in beside it */
+    html.na-phone-ui #naToolsMenu[open] {
+        max-height                         : calc(100vh - var(--na-phone-top) - 2 * var(--na-phone-gap));
+        max-height                         : calc(100dvh - var(--na-phone-top) - 2 * var(--na-phone-gap));
+        overflow-y                         : auto;
+        transform-origin                   : top right;
+        animation                          : na-phone-ui-unfold 360ms var(--na-phone-pop) both;
+    }
+
+    html.na-phone-ui #naToolsMenu[open] > .na-dropdown-menu__summary .na-dropdown-menu__btn-label {
+        animation                          : na-phone-ui-name 300ms ease 80ms both;
+    }
+
+    html.na-phone-ui #naToolsMenu[open] > .na-dropdown-menu__list {
+        animation                          : na-phone-ui-arrive-down 300ms ease 120ms both;
+    }
+
+    @keyframes na-phone-ui-unfold {
+        from { opacity : 0.4; transform : scale(0.35); border-radius : 27px; }
+        to   { opacity : 1;   transform : none;        border-radius : 12px; }
+    }
+
+    @keyframes na-phone-ui-name {
+        from { opacity : 0; transform : translateX(12px); }
+        to   { opacity : 1; transform : none; }
+    }
+
+    @keyframes na-phone-ui-arrive-down {
+        from { opacity : 0; transform : translateY(-8px); }
+        to   { opacity : 1; transform : none; }
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | The View Carousel: 75% in Use, 50% and Faded When Left Alone
+ * ----------------------------------------------------------------------------- */
+
+    html.na-phone-ui .na-pm-carousel {
+        bottom                             : max(8px, env(safe-area-inset-bottom));
+        transform                          : translateX(-50%) scale(0.5);
+        transform-origin                   : bottom center;
+        opacity                            : 0.45;
+        box-shadow                         : 0 4px 24px rgba(0, 0, 0, 0);
+        transition                         : transform 420ms var(--na-phone-pop), opacity 0.35s ease, box-shadow 0.35s ease;
+    }
+
+    html.na-phone-ui .na-pm-carousel:hover,
+    html.na-phone-ui .na-pm-carousel:has(:focus-visible) {
+        transform                          : translateX(-50%) scale(0.5);  /* <-- No sticky hover on a phone */
+        opacity                            : 0.45;
+        box-shadow                         : 0 4px 24px rgba(0, 0, 0, 0);
+    }
+
+    html.na-phone-ui .na-pm-carousel.na-phone-ui--awake,
+    html.na-phone-ui .na-pm-carousel.na-pm-carousel--wake {
+        transform                          : translateX(-50%) scale(0.75); /* <-- In use: 75% of the computer's size */
+        opacity                            : 1;
+        box-shadow                         : 0 4px 24px rgba(0, 0, 0, 0.14);
+    }
+
+    /* UPRIGHT | A touch bigger: 60% idle, 85% in use. After the rules above, so it wins. */
+    @media (orientation: portrait) {
+        html.na-phone-ui .na-pm-carousel,
+        html.na-phone-ui .na-pm-carousel:hover,
+        html.na-phone-ui .na-pm-carousel:has(:focus-visible) {
+            transform                      : translateX(-50%) scale(0.6);
+        }
+
+        html.na-phone-ui .na-pm-carousel.na-phone-ui--awake,
+        html.na-phone-ui .na-pm-carousel.na-pm-carousel--wake {
+            transform                      : translateX(-50%) scale(0.85);
+        }
+    }
+
+/* endregion ------------------------------------------------------------------- */

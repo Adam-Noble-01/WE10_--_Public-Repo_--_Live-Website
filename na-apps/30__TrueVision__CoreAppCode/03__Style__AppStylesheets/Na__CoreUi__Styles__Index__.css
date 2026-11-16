@@ -198,3 +198,13 @@
 /* can be a spell-checked one, so it belongs to no one system's region. */
 @import url('../02__Src__AppModules/55__Feature__SpellCheck/Na__SpellCheck__Styles__.css');
 /* endregion -------------------------------------------------------- */
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Phone UI - LAST, So It Wins on a Phone                  */
+/* ----------------------------------------------------------------- */
+/* Every rule hangs off <html class="na-phone-ui"> (Index.html's head   */
+/* script, phones only), and replaces the computer's and the narrow    */
+/* window's rules for the bar, the corners and the carousel, so it is  */
+/* imported after all of them. Ported from ValeVision 3D (v2.187.0).   */
+@import url('../02__Src__AppModules/65__Feature__PhoneUi/Na__Feature__PhoneUi__Stylesheet__.css');
+/* endregion -------------------------------------------------------- */

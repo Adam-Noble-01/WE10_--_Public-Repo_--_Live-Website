@@ -109,6 +109,26 @@
     }
 }
 
+/* The same swap whenever the navigation bar would run under this button   */
+/* on a wider window (html.na-nav-crowded, set by                           */
+/* Na__NavToolbar__CheckRoom in Na__UiFeature__NavigationToolbar__Controls  */
+/* from the two measured; v2.187.0). Kept equal to the block above.         */
+html.na-nav-crowded .na-dropdown-menu:not(.na-dropdown-menu--dev-localhost) {
+    display                            : none;                        /* <-- Hidden until the hamburger summons it */
+    top                                : calc(var(--Vale_HeaderHeight) + var(--Vale_LayoutTabStripHeight, 0px) + 14px);
+    right                              : 12px;
+}
+
+html.na-nav-crowded body.na-mobile-tools-open .na-dropdown-menu:not(.na-dropdown-menu--dev-localhost) {
+    display                            : block;                       /* <-- Swapped in while the menu is open */
+    opacity                            : 1;
+}
+
+html.na-nav-crowded .na-dropdown-menu:not(.na-dropdown-menu--dev-localhost) .na-dropdown-menu__details {
+    max-height                         : calc((100vh - var(--Vale_HeaderHeight) - 28px) / 1.2);
+    overflow-y                         : auto;
+}
+
 .na-dropdown-menu__details--camera-open {
     min-width                           : 440px;
 }

@@ -17,10 +17,17 @@
 //   right-hand Tools & Settings menu (which stays focused on technical and
 //   configuration tools).
 // - Button order: Orbit | Walk | Fly | Reset View | Help | [Menu].
-// - The Menu (hamburger) button is mobile-only (<=768px, CSS-gated): it swaps
-//   the toolbar out for the Tools & Settings dropdown; folding that menu back
-//   up swaps the toolbar back in. The saved-scene carousel needs no toggle -
-//   it always shows whenever a project has valid saved scenes.
+// - The Menu (hamburger) button swaps the toolbar out for the Tools & Settings
+//   dropdown; folding that menu back up swaps the toolbar back in. It shows
+//   on a narrow or upright window (<=768px, CSS-gated) AND whenever the
+//   toolbar would otherwise run under the Tools & Settings button
+//   (Na__NavToolbar__CheckRoom, v2.187.0): a landscape tablet, a small laptop
+//   window, a job whose bar carries Walk, Fly and Before / After. If the bar
+//   is still wider than the window its labels drop, leaving the icons. The
+//   saved-scene carousel needs no toggle - it always shows whenever a project
+//   has valid saved scenes.
+// - A phone has its own layout (65__Feature__PhoneUi): none of the above
+//   applies there.
 // - Idle fade: the toolbar rests at 50% opacity and wakes to full opacity on
 //   hover/focus (pure CSS) or via a short JS wake flash for hotkey-driven
 //   mode changes CSS cannot see. Recipe ported verbatim from ValeVision3D.
@@ -48,6 +55,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 16-Nov-2026 - Version 1.3.0 (TrueVision3D v2.187.0)
+// - Room on the top row: the bar and the Tools & Settings button are measured
+//   whenever the window, the bar's buttons or the page's mode change, and when
+//   they would touch the menu folds into the bar's hamburger (<html> class
+//   na-nav-crowded), as below 768px; a bar still wider than the window drops
+//   its labels (na-nav-icons-only). Before, a phone on its side (Adam's NP03
+//   shot) or any window from 769 to about 1,280px wide drew the bar's Reset
+//   View and Help under Tools & Settings.
+//
 // 07-Sep-2026 - Version 1.2.0
 // - Elevations hide the toolbar exactly as floor plans already did. The two
 //   sources are tracked separately and OR-ed, because handing over from a plan
@@ -109,6 +125,15 @@
     const Na__NavToolbar__WakeFlashMs = 1000;                                // <-- How long a hotkey wake stays opaque before fading back
     // ------------------------------------------------------------
 
+    // MODULE CONSTANTS | Room on the Top Row
+    // ------------------------------------------------------------
+    const Na__NavToolbar__CrowdedClass   = 'na-nav-crowded';                 // <-- <html>: no room beside Tools & Settings, so the menu folds into the bar's hamburger
+    const Na__NavToolbar__IconsOnlyClass = 'na-nav-icons-only';              // <-- <html>: no room for the labels across the window
+    const Na__NavToolbar__PhoneClass     = 'na-phone-ui';                    // <-- <html>: the phone layout owns the bar (65__Feature__PhoneUi)
+    const Na__NavToolbar__RoomGapPx      = 16;                               // <-- Clear space kept between the bar and the menu, and from the window's edges
+    const Na__NavToolbar__ToolsSelector  = '.na-dropdown-menu:not(.na-dropdown-menu--dev-localhost) .na-dropdown-menu__summary';   // <-- The Tools & Settings button
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -127,6 +152,7 @@
     let Na__NavToolbar__ElevationEngaged = false;  // <-- An elevation holds the view (including its transitions)
     let Na__NavToolbar__ShowPending      = false;  // <-- A deferred re-check is queued; see ApplyDrawingHidden
     let Na__NavToolbar__WakeEnabled     = false;   // <-- False during boot so init does not flash the toolbar
+    let Na__NavToolbar__RoomQueued      = false;   // <-- A room check is waiting for the next frame
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -330,8 +356,9 @@
 
     // SUB FUNCTION | Swap the Toolbar Out for the Tools & Settings Menu (Mobile)
     // ------------------------------------------------------------
-    // Mobile-only (<=768px): CSS hides the standalone Tools & Settings
-    // trigger there and reveals this hamburger instead. Adding the body
+    // Narrow windows (<=768px) and a crowded row (na-nav-crowded): CSS hides
+    // the standalone Tools & Settings trigger there and reveals this
+    // hamburger instead. Adding the body
     // class hides the toolbar and displays the dropdown in the same row;
     // opening the <details> AFTER a forced reflow lets the menu list play
     // its normal drop-down animation from the freshly displayed state.
@@ -347,6 +374,81 @@
 
         void toolsMenu.offsetWidth;                                          // <-- Commit display change so the open animation runs
         toolsMenu.setAttribute('open', 'open');                              // <-- Drop the regular menu down
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Room on the Top Row (Computers and Tablets)
+// -----------------------------------------------------------------------------
+
+    // FUNCTION | Fold the Menu into the Bar, and Drop the Labels, When There Is No Room
+    // ------------------------------------------------------------
+    // Measured, not guessed from the window's width: the bar's width depends
+    // on the job (Walk, Fly and Before / After come and go), and whether it is
+    // on the menu's row at all depends on the page (it rises beside the menu
+    // once a project's scenes load). The two classes come off first so the
+    // bar and the menu are measured as they would stand; nothing is painted
+    // between that and the answer.
+    // ------------------------------------------------------------
+    function Na__NavToolbar__CheckRoom() {
+        Na__NavToolbar__RoomQueued = false;
+        const html    = document.documentElement;
+        const toolbar = document.getElementById(Na__NavToolbar__ContainerId);
+        if (!toolbar || html.classList.contains(Na__NavToolbar__PhoneClass)) return;
+        if (toolbar.getClientRects().length === 0) return;                   // <-- Withdrawn (a drawing, a sheet, the swapped-in menu): checked again when it is back
+
+        html.classList.remove(Na__NavToolbar__CrowdedClass, Na__NavToolbar__IconsOnlyClass);
+        const gap     = Na__NavToolbar__RoomGapPx;
+        let bar       = toolbar.getBoundingClientRect();
+        const summary = document.querySelector(Na__NavToolbar__ToolsSelector);
+        const tools   = (summary && summary.getClientRects().length > 0) ? summary.getBoundingClientRect() : null;
+        const crowded = !!tools && tools.width > 0
+            && bar.top < tools.bottom && tools.top < bar.bottom              // <-- On the same row
+            && bar.right + gap > tools.left && bar.left < tools.right + gap; // <-- And touching, or nearly
+        if (crowded) {
+            html.classList.add(Na__NavToolbar__CrowdedClass);                // <-- The menu folds into the hamburger, as below 768px
+            bar = toolbar.getBoundingClientRect();                           // <-- Measured again with its hamburger
+        }
+        if (bar.width > window.innerWidth - 2 * gap) {
+            html.classList.add(Na__NavToolbar__IconsOnlyClass);              // <-- Still wider than the window: the icons alone
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Check on the Next Frame (many triggers, one measurement)
+    // ------------------------------------------------------------
+    function Na__NavToolbar__QueueRoomCheck() {
+        if (Na__NavToolbar__RoomQueued) return;
+        Na__NavToolbar__RoomQueued = true;
+        requestAnimationFrame(Na__NavToolbar__CheckRoom);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Check Again Whenever the Row Can Change
+    // ------------------------------------------------------------
+    // The window or the 3D view changing size; a button shown, hidden or
+    // added (Walk and Fly once the modes load, Before / After on a job with
+    // both phases); the body's mode classes (presentation mode lifts the bar
+    // to the menu's row, a sheet or the swapped-in menu withdraws it); the
+    // fonts arriving (the labels' widths). The classes this writes are on
+    // <html>, which is not watched, so a check never sets off another.
+    // ------------------------------------------------------------
+    function Na__NavToolbar__WatchRoom(toolbar) {
+        if (!toolbar || document.documentElement.classList.contains(Na__NavToolbar__PhoneClass)) return;
+        window.addEventListener('resize', Na__NavToolbar__QueueRoomCheck);
+        window.addEventListener('na-viewport-size-changed', Na__NavToolbar__QueueRoomCheck);
+        if (typeof MutationObserver === 'function') {
+            const watcher = new MutationObserver(Na__NavToolbar__QueueRoomCheck);
+            watcher.observe(toolbar, { childList : true, subtree : true, attributes : true, attributeFilter : ['style', 'class', 'hidden'] });
+            watcher.observe(document.body, { attributes : true, attributeFilter : ['class'] });
+        }
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(Na__NavToolbar__QueueRoomCheck);
+        Na__NavToolbar__QueueRoomCheck();
     }
     // ------------------------------------------------------------
 
@@ -437,6 +539,9 @@
             Na__NavToolbar__ElevationEngaged = Na__NavToolbar__ReadDrawingEngaged(event, 'isDrawing');
             Na__NavToolbar__ApplyDrawingHidden();
         });
+
+        // ROOM ON THE TOP ROW | The menu folds into the bar when the two would touch
+        Na__NavToolbar__WatchRoom(document.getElementById(Na__NavToolbar__ContainerId));
 
         // Pointer hover / keyboard focus wake is pure CSS - no listeners needed.
         // WakeEnabled stays false until after this call so boot never flashes.

@@ -47,6 +47,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 16-Nov-2026 - Version 1.35.0 (TrueVision3D v2.187.0)
+// - A phone or tablet turned round (upright to sideways or back) fits the
+//   open sheet to the new screen; a window dragged to a new size still keeps
+//   its zoom.
+//
 // 19-Oct-2026 - Version 1.34.0
 // - Registers SketchUp Scenes (Na__LayoutEditor__Panel__SceneSync__, Scene
 //   Sync) just above Point Cloud Tools, which stays last as Adam asked. It
@@ -1266,6 +1271,18 @@
                 if (!event.detail || event.detail.kind !== 'progress') Na__LePanels__Refresh();
             });
             window.addEventListener('resize', () => { if (Na__LeMode__Active) Na__LeSurface__SetZoom(Na__LeSurface__GetZoom()); });
+            // A PHONE OR TABLET TURNED ROUND: the paper is fitted to the new
+            // screen. A window dragged to a new size keeps its zoom (above); a
+            // turn swaps the stage's long and short sides, and the zoom and
+            // scroll chosen for one left the sheet mostly off the other (PS01
+            // read on a phone on its side, then turned upright, 16-Nov-2026).
+            let Na__LeMode__WasUpright = window.innerHeight > window.innerWidth;
+            window.addEventListener('resize', () => {
+                const upright = window.innerHeight > window.innerWidth;
+                if (upright === Na__LeMode__WasUpright) return;
+                Na__LeMode__WasUpright = upright;
+                if (Na__LeMode__Active) requestAnimationFrame(() => Na__LeNav__Fit());   // <-- After the stage has its new size
+            });
             window.addEventListener(Na__LeRaster__CHANGED_EVENT, () => { if (Na__LeMode__Active) Na__LeSurface__Refresh('frames'); });   // <-- A new working level re-renders the pictures
             console.log('[TrueVision3D] Layout Editor ready (' + (Na__LeMode__IsEditable() ? 'editable' : (Na__LeVw__IsViewerMode() ? 'web document viewer, read-only' : Na__LeCfg__GetLabel('ReadOnlyNote', 'read-only'))) + ').');
             return true;

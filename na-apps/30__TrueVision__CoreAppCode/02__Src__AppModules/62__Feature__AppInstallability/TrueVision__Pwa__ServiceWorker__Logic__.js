@@ -34,6 +34,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 16-Nov-2026 - Version 1.20.0
+// - Token BUMPED to 2026-11-16-01 for v2.187.0 (a turned phone redraws the 3D
+//   view to its new shape; the phone layout). The viewport watcher's fix must
+//   reach every phone at once, and the page now imports a new module and the
+//   stylesheet index a new sheet (65__Feature__PhoneUi): a warm client pairing
+//   the old Index.html with the new stylesheets would draw the phone rules
+//   with nothing to fold the bar.
+//
 // 15-Nov-2026 - Version 1.19.0
 // - Token BUMPED to 2026-11-15-02 for v2.186.0 (the staged model load and the
 //   Existing and Proposed comparison). The model loader gained exports
@@ -788,7 +796,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-11-15-02';                                                          // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-11-16-01';                                                         // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

@@ -106,6 +106,45 @@
     
     
     <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  The Device: Phone, Tablet or Computer                  -->
+    <!-- ----------------------------------------------------------------- -->
+    <!-- <html data-na-device="phone|tablet|computer"> before anything      -->
+    <!-- draws, and on a phone <html class="na-phone-ui">, which switches   -->
+    <!-- on the phone layout (65__Feature__PhoneUi). Ported from ValeVision -->
+    <!-- 3D v2.81.4 (v2.187.0).                                             -->
+
+    <script>
+        // Decided by WHAT the device is, never by its size (Adam, for ValeVision 3D: "dont rely on
+        // just pixel by pixel ratios"): a touchscreen PC, a pen display or a laptop at 250% scaling is
+        // still a computer, and keeps its top bar.
+        //   phone     an iPhone or iPod; an Android whose browser says Mobile; any browser whose
+        //             userAgentData says mobile; an unknown system that calls itself Mobi
+        //   tablet    an iPad (iPadOS asks for desktop sites: a Mac with a touchscreen is an iPad);
+        //             an Android without Mobile
+        //   computer  Windows, macOS, ChromeOS, Linux desktops, and anything unknown
+        (function Na__Boot__MarkDevice() {
+            var html = document.documentElement;
+            var kind = 'computer';
+            try {
+                var ua = navigator.userAgent || '';
+                var uaData = navigator.userAgentData;
+                var ipadOs = /Macintosh/.test(ua) && (navigator.maxTouchPoints || 0) > 1;
+                if (/iPhone|iPod/.test(ua)) kind = 'phone';
+                else if (/iPad/.test(ua) || ipadOs) kind = 'tablet';
+                else if (/Android/i.test(ua)) kind = (/Mobile/i.test(ua) || (uaData && uaData.mobile === true)) ? 'phone' : 'tablet';
+                else if (uaData && uaData.mobile === true) kind = 'phone';
+                else if (/Windows|Macintosh|CrOS|X11|Linux/.test(ua)) kind = 'computer';
+                else if (/Mobi/i.test(ua)) kind = 'phone';
+            } catch (error) { kind = 'computer'; }                           // <-- Unsure: the computer layout, top bar and all
+            html.setAttribute('data-na-device', kind);
+            if (kind === 'phone') html.classList.add('na-phone-ui');
+        })();
+    </script>
+
+    <!-- endregion -------------------------------------------------------- -->
+
+
+    <!-- ----------------------------------------------------------------- -->
     <!-- REGION  |  Font Loading Detection Script                          -->
     <!-- ----------------------------------------------------------------- -->
     
@@ -1028,6 +1067,7 @@
     import { Na__UiFeature__InitializeViewModeFovDevControls } from './02__Src__AppModules/11__CameraUtils/Na__UiFeature__ViewModeFov__DevControls.js';
     import { Na__PresentationMode__UI__InitializeSceneCarousel, Na__PresentationMode__UI__GoToNextScene, Na__PresentationMode__UI__GoToPreviousScene, Na__PresentationMode__UI__IsCarouselVisible, Na__PresentationMode__UI__GoToSceneAtIndex } from './02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__UI__SceneCarousel.js';
     import { Na__PresentationMode__UI__InitializeSceneGroupSelector } from './02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__UI__SceneGroupSelector__.js';
+    import { Na__Feature__PhoneUi__Initialize } from './02__Src__AppModules/65__Feature__PhoneUi/Na__Feature__PhoneUi__.js';
     import { Na__PresentationMode__Thumbnail__SetRenderContext } from './02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__Thumbnail__Renderer.js';
     import { Na__PresentationMode__DevMenu__InitializeSceneEditor } from './02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__DevMenu__SceneEditor.js';
     import { Na__CfApi__Initialize } from './02__Src__AppModules/80__CloudflareIntegration/Na__CloudflareIntegration__ApiClient__.js';
@@ -1794,6 +1834,7 @@
     // ------------------------------------------------------------
     // @delegate: ./02__Src__AppModules/21__System__PresentationMode/
     Na__PresentationMode__UI__InitializeSceneCarousel(Na__Camera__Main, Na__Controls__Orbit);
+    Na__Feature__PhoneUi__Initialize();                                     // <-- Phones only: the folding bar, the corner icons, the shrinking carousel (65__Feature__PhoneUi)
     Na__PresentationMode__UI__InitializeSceneGroupSelector();               // <-- Loads its own config, then mounts inside the carousel
     Na__PresentationMode__Thumbnail__SetRenderContext(
         Na__Renderer__Main,

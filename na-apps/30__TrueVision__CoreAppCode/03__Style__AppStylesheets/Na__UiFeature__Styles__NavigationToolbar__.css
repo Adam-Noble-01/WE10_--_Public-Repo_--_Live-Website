@@ -179,6 +179,38 @@
     }
     /* ------------------------------------------------------------ */
 
+
+    /* RESPONSIVE | The Same Swap Whenever the Row Is Crowded (v2.187.0) */
+    /* ------------------------------------------------------------ */
+    /* The window's width alone cannot say when the centred bar reaches the
+       Tools & Settings button: the bar is wider on a job with Walk, Fly and
+       Before / After, and a landscape tablet or a small laptop window is
+       well over 768px. Na__NavToolbar__CheckRoom measures the two and sets
+       html.na-nav-crowded when they would touch, which takes exactly the
+       narrow-window swap above. html.na-nav-icons-only drops the labels when
+       the bar is still wider than the window. A phone never gets either: it
+       has its own layout (65__Feature__PhoneUi). */
+    html.na-nav-crowded .na-nav-toolbar__divider {
+        display                            : block;                 /* <-- Reveal the separator */
+    }
+
+    html.na-nav-crowded .na-nav-toolbar__btn--menu {
+        display                            : flex;                  /* <-- Reveal the hamburger */
+    }
+
+    html.na-nav-crowded body.na-mobile-tools-open .na-nav-toolbar {
+        display                            : none;                  /* <-- Toolbar yields its space to the menu */
+    }
+
+    html.na-nav-icons-only .na-nav-toolbar__label {
+        display                            : none;                  /* <-- Icons only, as below 560px */
+    }
+
+    html.na-nav-icons-only .na-nav-toolbar__btn {
+        padding                            : 11px 13px;
+    }
+    /* ------------------------------------------------------------ */
+
 /* endregion ------------------------------------------------------------------- */
 
 

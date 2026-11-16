@@ -128,8 +128,9 @@
  * REGION | Responsive | Narrow Mobile Screens (<=600px)
  * -----------------------------------------------------------------------------
  * Targets narrow viewports only (<=600px). iPad portrait, landscape phones,
- * and desktop are unaffected. Scales the top bar + logo down 20% and reduces
- * the "TrueVision 3D" title so it no longer dominates a phone-width header.
+ * and desktop are unaffected. Scales the top bar + logo down 20% and hides
+ * the "TrueVision 3D" title so the Noble Architecture logo stands alone, as
+ * ValeVision 3D does (v2.187.0; it was 18px before).
  * Redefining --Vale_HeaderHeight at :root cascades to the canvas, image
  * export overlays, dropdowns, and toolbar top offsets, so all header-
  * relative positioning follows the smaller header automatically.
@@ -156,7 +157,7 @@
         }
 
         .app-header__title {
-            font-size                      : 18px;                         /* <-- Reduced from 24px; full size felt oversized on phones */
+            display                        : none;                         /* <-- The logo carries the brand on a phone-width bar (as ValeVision 3D) */
         }
         /* ------------------------------------------------------------ */
     }
