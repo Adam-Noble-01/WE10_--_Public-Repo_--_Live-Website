@@ -31,7 +31,7 @@ grass and THI[s])
     small whorls on a slender stem, tallest in the middle and leaning out and lower to the edge.
   - `VVL_07_1061` Multi-Stem Shrub, 2000 x 1800 x 2500: four to six stems from one foot, some forking, leaning out
     into an open, lobed canopy from about a third of the height.
-  - `VVL_07_3001` Arching Grass, 750 x 750 x 650: 40 to 55 fine blades from a tight crown, upright in the middle,
+  - `VVL_07_3001` Arching Grass, 750 x 750 x 650: 32 to 44 fine blades from a tight crown, upright in the middle,
     arching out and over at the edge. The library's first grass (`Grasses`, block 30).
 - **Four generators** beside BallCluster and ClippedForm, version 1 each, listed in the config (1.5.0):
   `FloweringMound`, `SpikedClump`, `GrassFountain`, `MultiStem`, reading the new optional blocks `Asset__Heads`,
