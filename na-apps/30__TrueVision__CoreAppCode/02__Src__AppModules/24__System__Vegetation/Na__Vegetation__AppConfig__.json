@@ -2,7 +2,7 @@
     "Vegetation__AppConfig__Meta": {
         "Meta__FileName"    : "Na__Vegetation__AppConfig__.json",
         "Meta__Description" : "The vegetation system's defaults. A project's Vegetation__SceneData is born with a full copy of these, and from then on the project's own values win. Plants are never loaded on a project that is not enabled, so nor is this file.",
-        "Meta__Version"     : "1.4.1",
+        "Meta__Version"     : "1.5.0",
         "Meta__Created"     : "04-Nov-2026",
         "Meta__Author"      : "Adam Noble - Noble Architecture",
 
@@ -137,7 +137,11 @@
         "Vegetation__Generators__Description" : "What can build a plant, by name and version. A saved seed must draw the same bush for ever, so a generator is never edited once a project can hold its plants: a new look is a new version, and the old one stays. The build util refuses an asset naming one not listed here.",
         "Vegetation__Generators__List"        : [
             { "Generator__Name": "BallCluster", "Generator__Versions": [1], "Generator__Note": "Masses, clumps and nubs, each a ball with a chain of arcs for an outline, and strap leaves. Na__Vegetation__BushBuilder__.js" },
-            { "Generator__Name": "ClippedForm", "Generator__Versions": [1], "Generator__Note": "Small even clumps on the faces of a box, a ball or a cone, for a managed plant: the same line language on a clipped outline. Asset__Form says which. Na__Vegetation__BushBuilder__.js" }
+            { "Generator__Name": "ClippedForm", "Generator__Versions": [1], "Generator__Note": "Small even clumps on the faces of a box, a ball or a cone, for a managed plant: the same line language on a clipped outline. Asset__Form says which. Na__Vegetation__BushBuilder__.js" },
+            { "Generator__Name": "FloweringMound", "Generator__Versions": [1], "Generator__Note": "BallCluster's leafy mound carrying flower heads, each drawn whole against the leaves: a hydrangea, a rose. Asset__Heads says how. Na__Vegetation__BushBuilder__.js" },
+            { "Generator__Name": "SpikedClump", "Generator__Versions": [1], "Generator__Note": "A cushion of foliage with flower spikes on stems above it: lavender, salvia, catmint. Asset__Spikes says how. Na__Vegetation__BushBuilder__.js" },
+            { "Generator__Name": "GrassFountain", "Generator__Versions": [1], "Generator__Note": "Blades only, arching out of a tight crown: an ornamental grass. Asset__Fountain says how. Na__Vegetation__BushBuilder__.js" },
+            { "Generator__Name": "MultiStem", "Generator__Versions": [1], "Generator__Note": "Clear stems from one foot into an open canopy laid out as a vase (Masses__Layout Vase): an amelanchier, a dogwood. Asset__Stems says how. Na__Vegetation__BushBuilder__.js" }
         ]
     }
 }

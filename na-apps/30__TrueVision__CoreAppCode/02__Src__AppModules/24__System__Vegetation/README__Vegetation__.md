@@ -50,8 +50,8 @@ was; each file's PORT NOTE says what differs. Around it, in TrueVision:
 | `Na__Vegetation__.js` | `Na__Vegetation` | The one door in, and the only module on the start-up path |
 | `Na__Vegetation__AppConfig__.json` | | Defaults, whose keys are the keys a project saves; the list of generators |
 | `01__Core__Engine/Na__Vegetation__Random__.js` | `Na__VegRand` | A seeded generator: one seed, one bush, on every machine |
-| `01__Core__Engine/Na__Vegetation__BushBuilder__.js` | `Na__VegBuild` | Recipe + seed + size = balls in 3D, in world metres. The generators: `BallCluster` and `ClippedForm` |
-| `01__Core__Engine/Na__Vegetation__Contour__.js` | `Na__VegContour` | Balls + camera = outline, T-junctions, hooks and a few arcs, as vector lines |
+| `01__Core__Engine/Na__Vegetation__BushBuilder__.js` | `Na__VegBuild` | Recipe + seed + size = balls in 3D, in world metres. The generators: `BallCluster`, `ClippedForm`, and from TrueVision v2.189.0 (ValeVision v2.99.0) `FloweringMound` (a hydrangea), `SpikedClump` (lavender), `GrassFountain` (a grass) and `MultiStem` (a multi-stem shrub) |
+| `01__Core__Engine/Na__Vegetation__Contour__.js` | `Na__VegContour` | Balls + camera = outline, T-junctions, hooks and a few arcs, as vector lines. Inked balls (a flower head, a lavender whorl) keep their whole outline inside the plant |
 | `02__Core__Data/Na__Vegetation__SceneData__.js` | `Na__VegData` | The project's object: defaults, reading, saving |
 | `01__Core__Engine/Na__Vegetation__PathModel__.js` | `Na__VegPath` | A path's rules and seed = its plants. Cloud Sync has a Python port: change one, change both |
 | `01__Core__Engine/Na__Vegetation__BrushModel__.js` | `Na__VegBrush` | Palette draws, keeping plants apart, one brushed plant |
@@ -74,7 +74,7 @@ was; each file's PORT NOTE says what differs. Around it, in TrueVision:
 | `20__System__Tools/Na__Vegetation__LinearTool__.js` | `Na__VegLinear` | Draw and edit paths, Advanced, Bake. Its rows are the panel's Line Tool section (v2.91.0) |
 | `20__System__Tools/Na__Vegetation__BushTool__.js` | `Na__VegBushTool` | Paint and erase from a palette. Its rows are the panel's Brush Tool section, and Escape folds it (v2.91.0) |
 
-The library itself is `53__Vegetation__AssetLibrary` at the app's root. Its `VegetationLibrary__StandardPalettes__.json` holds the standard palettes, kept by hand (v2.97.0).
+The library itself is `53__Vegetation__AssetLibrary` at the app's root. Its `VegetationLibrary__StandardPalettes__.json` holds the standard palettes, kept by hand (v2.97.0). A standard palette may carry the brush it was proven at (`Palette__BrushDensityPerSquareM`, `Palette__BrushMinSpacingMm`): chosen in the Brush Tool, it sets both. `VVP_0003` Flowering Wall Border has one (17-Nov-2026).
 
 ## Rules That Bite
 
@@ -87,6 +87,8 @@ The library itself is `53__Vegetation__AssetLibrary` at the app's root. Its `Veg
 - **The fill's colour is set for each render,** from the scene's lights, in `toneFillForCamera`. A material change to the walls' sums needs the same change there. `FillTone` is the sheet's.
 - **A flat shell behaves differently.** Every ball's outline lies under its neighbours, so inner arcs never show: a clipped form has marks. Gaps between its discs let lines through: a box has a core. A step beyond an outline must land on some ball, or it draws as a hole: hence the body behind the shell.
 - **A clipped run's ends are behind and ahead along its path,** so it is never flipped, and `Plop__Ends` is in its key.
+- **Ink is for a part the eye must see whole.** A ball carrying `ink` (a flower head, a spike's whorl) draws every inner run of its outline, at the inner weight, and so does a leaf where the first thing past its edge is an inked ball. Inking ordinary clumps brings back the bunch of grapes the thinning exists to avoid. An inked ball under `Na__VegContour__INK_MIN_PX` on screen, by its `lodR`, drops out whole, fill and all.
+- **A stem that meets a ball is fitted with the balls** (`Na__VegBuild__FitAhead`), or a narrowed or stretched plant leaves its spikes and canopy beside their stems. A tuft at the foot is not, as before.
 - **Fit moves centres, never radii,** so a stretched proxy never stretches a scallop. It also means a narrow bed can bury clumps inside a mass, which is why a mass never hides what grows on it (`Na__VegContour__IsHidden`).
 - **Saved values are integer mm, Y up.** The builder converts to metres once, on the way in.
 - **The scene layer imports nothing of the app's.** It takes a small host object from `Na__Vegetation__Runtime__.js`, so the test bench can draw through it. Without a host every draw is a full one.

@@ -30,6 +30,11 @@
 # -----------------------------------------------------------------------------
 #
 # DEVELOPMENT LOG:
+# 17-Nov-2026 - Version 1.1.0 (ValeVision3D v2.99.0, TrueVision3D v2.189.0)
+# - The four habits' own blocks: an asset naming FloweringMound, SpikedClump, GrassFountain or
+#   MultiStem must carry the block it reads, and their ranges are checked. A MultiStem asset
+#   whose Masses__Layout is not Vase is warned of.
+#
 # 04-Nov-2026 - Version 1.0.0 (ValeVision3D v2.83.0)
 # - Initial build.
 #
@@ -52,6 +57,28 @@ NA__VEGLIB__INDEX    = "VegetationLibrary__Index__.json"
 NA__VEGLIB__SCHEMA   = "VegetationLibrary__Schema__AssetData__1.0.0__.json"
 NA__VEGLIB__CONFIG   = os.path.join(os.path.dirname(NA__VEGLIB__ROOT), "02__Src__AppModules", "24__System__Vegetation", "Na__Vegetation__AppConfig__.json")
 NA__VEGLIB__FILE     = re.compile(r"^(VVL_\d{2}_\d{4})__(.+)__\.json$")
+
+# The block each habit added at ValeVision3D v2.99.0 / TrueVision3D v2.189.0 reads, and its ranges
+NA__VEGLIB__GENERATOR_BLOCKS = {
+    "FloweringMound": "Asset__Heads",
+    "SpikedClump": "Asset__Spikes",
+    "GrassFountain": "Asset__Fountain",
+    "MultiStem": "Asset__Stems",
+}
+NA__VEGLIB__OPTIONAL_PAIRS = [
+    ("Asset__Heads", "Heads__CountMin", "Heads__CountMax"),
+    ("Asset__Heads", "Heads__RadiusMinMm", "Heads__RadiusMaxMm"),
+    ("Asset__Heads", "Heads__ReachMin", "Heads__ReachMax"),
+    ("Asset__Heads", "Heads__ScallopChordMinMm", "Heads__ScallopChordMaxMm"),
+    ("Asset__Spikes", "Spikes__CountMin", "Spikes__CountMax"),
+    ("Asset__Spikes", "Spikes__LengthMinMm", "Spikes__LengthMaxMm"),
+    ("Asset__Spikes", "Spikes__WhorlRadiusMinMm", "Spikes__WhorlRadiusMaxMm"),
+    ("Asset__Fountain", "Fountain__BladesMin", "Fountain__BladesMax"),
+    ("Asset__Fountain", "Fountain__ReachMinShare", "Fountain__ReachMaxShare"),
+    ("Asset__Fountain", "Fountain__DroopMinShare", "Fountain__DroopMaxShare"),
+    ("Asset__Stems", "Stems__CountMin", "Stems__CountMax"),
+    ("Asset__Stems", "Stems__WidthMinMm", "Stems__WidthMaxMm"),
+]
 
 # endregion -------------------------------------------------------------------
 
@@ -247,6 +274,16 @@ def Na__VegLibTool__Validate():
         for section, low, high in pairs:
             if asset[section][low] > asset[section][high]:
                 errors.append("%s: %s is over %s" % (where, low, high))
+
+        # A HABIT'S OWN BLOCK | The generator reads it, so an asset naming the generator must have it
+        own = NA__VEGLIB__GENERATOR_BLOCKS.get(generator["Generator__Name"])
+        if own and own not in asset:
+            errors.append("%s: %s reads %s, and the asset has none" % (where, generator["Generator__Name"], own))
+        for section, low, high in NA__VEGLIB__OPTIONAL_PAIRS:
+            if section in asset and asset[section][low] > asset[section][high]:
+                errors.append("%s: %s is over %s" % (where, low, high))
+        if generator["Generator__Name"] == "MultiStem" and asset["Asset__Masses"]["Masses__Layout"] != "Vase":
+            warnings.append("%s: MultiStem lays its canopy out as a vase whatever Masses__Layout says: say Vase" % where)
 
     # THE INDEX | Stale is a warning: `index` puts it right
     if os.path.isfile(os.path.join(NA__VEGLIB__ROOT, NA__VEGLIB__INDEX)):

@@ -1,18 +1,19 @@
 {
     "VegetationLibrary__StandardPalettes__Meta": {
-        "Meta__Version"                     : "1.0.0",
+        "Meta__Version"                     : "1.1.0",
         "Meta__Created"                     : "12-Nov-2026",
         "Meta__Author"                      : "Adam Noble - Noble Architecture",
         "Meta__Description"                 : "Standard palettes: mixes of plants every project can start from. Chosen in a tool's palette list, one is copied into the project as its own palette (Vegetation__Palette__StandardId says which), so a later change here alters no project. Kept by hand.",
-        "Meta__LayoutNote"                  : "Palette__PlantScale and Palette__SpacingMm are the path layout the mix was proven at. Choosing the palette in the Line Tool sets both on the path; the Brush Tool takes the scale, its density and spacing following."
+        "Meta__LayoutNote"                  : "Palette__PlantScale and Palette__SpacingMm are the path layout the mix was proven at. Choosing the palette in the Line Tool sets both on the path; the Brush Tool takes the scale, its density and spacing following.",
+        "Meta__BrushNote"                   : "Optional, from 17-Nov-2026: Palette__BrushDensityPerSquareM and Palette__BrushMinSpacingMm are the brush the mix was proven at. Where a palette has them, choosing it in the Brush Tool sets both, at its plant scale, in place of scaling the brush's own."
     },
     "VegetationLibrary__StandardPalettes__Palettes": [
         {
-            "Palette__Id"                   : "VVP_0001",
-            "Palette__Name"                 : "Small Planting Bed Shrubs",
-            "Palette__Description"          : "A low, full run of small shrubs for a raised planter: mostly rounded mounds, some upright, the odd yew cone. From the arched planter at 64610 Corrett (Path 2), 12-Nov-2026.",
-            "Palette__PlantScale"           : 0.45,
-            "Palette__SpacingMm"            : 348,
+            "Palette__Id"                     : "VVP_0001",
+            "Palette__Name"                   : "Small Planting Bed Shrubs",
+            "Palette__Description"            : "A low, full run of small shrubs for a raised planter: mostly rounded mounds, some upright, the odd yew cone. From the arched planter at 64610 Corrett (Path 2), 12-Nov-2026.",
+            "Palette__PlantScale"             : 0.45,
+            "Palette__SpacingMm"              : 348,
             "Palette__Items": [
                 { "Item__AssetId" : "VVL_07_1012", "Item__Weight" : 29 },
                 { "Item__AssetId" : "VVL_07_2021", "Item__Weight" : 5  },
@@ -20,15 +21,30 @@
             ]
         },
         {
-            "Palette__Id"                   : "VVP_0002",
-            "Palette__Name"                 : "Medium Planting Bed Shrubs",
-            "Palette__Description"          : "The Small Planting Bed Shrubs mix grown on: the same plants and shares at 0.70, spaced in step (348 x 0.70 / 0.45), for a deeper bed or a planter seen from further off.",
-            "Palette__PlantScale"           : 0.70,
-            "Palette__SpacingMm"            : 540,
+            "Palette__Id"                     : "VVP_0002",
+            "Palette__Name"                   : "Medium Planting Bed Shrubs",
+            "Palette__Description"            : "The Small Planting Bed Shrubs mix grown on: the same plants and shares at 0.70, spaced in step (348 x 0.70 / 0.45), for a deeper bed or a planter seen from further off.",
+            "Palette__PlantScale"             : 0.70,
+            "Palette__SpacingMm"              : 540,
             "Palette__Items": [
                 { "Item__AssetId" : "VVL_07_1012", "Item__Weight" : 29 },
                 { "Item__AssetId" : "VVL_07_2021", "Item__Weight" : 5  },
                 { "Item__AssetId" : "VVL_07_1001", "Item__Weight" : 64 }
+            ]
+        },
+        {
+            "Palette__Id"                     : "VVP_0003",
+            "Palette__Name"                   : "Flowering Wall Border",
+            "Palette__Description"            : "A full border at the foot of a wall: Annabelle hydrangeas and lavender in the main, arching grass between them, and now and then a multi-stem shrub rising over the rest. From Adam's reference photos of a border against a rendered gable, 17-Nov-2026.",
+            "Palette__PlantScale"             : 1.00,
+            "Palette__SpacingMm"              : 650,
+            "Palette__BrushDensityPerSquareM" : 2.4,
+            "Palette__BrushMinSpacingMm"      : 450,
+            "Palette__Items": [
+                { "Item__AssetId" : "VVL_07_1041", "Item__Weight" : 34 },
+                { "Item__AssetId" : "VVL_07_1051", "Item__Weight" : 34 },
+                { "Item__AssetId" : "VVL_07_3001", "Item__Weight" : 24 },
+                { "Item__AssetId" : "VVL_07_1061", "Item__Weight" : 8  }
             ]
         }
     ]

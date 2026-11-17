@@ -66,6 +66,24 @@
 //   neighbours, so no inner arc could ever show. So a share of the clumps carry a mark, an arc
 //   drawn inside the outline on the ball's own near surface (bush.marks: how far in), and every
 //   clump along a box's edge does, so the top of a hedge reads as a top.
+// - FOUR MORE HABITS (v1.2.0, Adam's reference photos of a border, 17-Nov-2026), each a
+//   generator of its own beside BallCluster, which is left alone:
+//     FloweringMound  a leafy mound carrying flower heads (a hydrangea): Asset__Heads.
+//     SpikedClump     a cushion of foliage, flower spikes on stems above it (lavender): Asset__Spikes.
+//     GrassFountain   blades only, arching out of a tight crown (a grass): Asset__Fountain.
+//     MultiStem       clear stems from one foot into an open canopy (an amelanchier): Asset__Stems.
+// - WHAT A BALL MAY CARRY FOR THEM (v1.2.0). polar: its own chain of arcs, so a flower head's
+//   edge is fine florets where a leaf clump's is scallops. noCusps: no hooks from its cusps. ink:
+//   its outline is drawn whole inside the plant, at the inner weight, where an ordinary clump's
+//   inner lines are thinned to a few arcs: a flower head shows its round against the leaves, a
+//   lavender spike shows in front of its cushion. lodR: the radius an inked ball's screen size is
+//   judged by, so a spike's whorls leave the drawing together. All four are read by Assemble only
+//   when present, so BallCluster's and ClippedForm's plants are unchanged, by the engine hash.
+// - STEMS MOVE WITH WHAT THEY CARRY. Assemble fits ball centres to the plop's size and leaves
+//   blades as they are, right for a tuft at the foot. A stem ending in a spike or a mass is fitted
+//   by the same sums first (FitAhead), so it still meets it in a stretched or narrowed plant.
+// - bush.bladesUnder says a flat picture with no depth test (a card) must paint the blades first
+//   and the balls' fill over them: stems and a grass's blades grow from inside the plant.
 //
 // FRAMES:
 // - Everything here is three.js world: metres, +Y up. Recipes and plops are integer
@@ -89,6 +107,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 17-Nov-2026 - Version 1.2.0 (ValeVision3D v2.99.0, TrueVision3D v2.189.0)
+// - FloweringMound, SpikedClump, GrassFountain and MultiStem, version 1 each, and what a ball
+//   may carry for them (polar, noCusps, ink, lodR), a head's mark (parts.marked) and
+//   bladesUnder: see the header. Assemble reads the new fields only when present: the engine
+//   hash of the eleven assets before them is unchanged (39fd60a48826a363a509bfa9158494a0).
+//
 // 04-Nov-2026 - Version 1.1.0 (ValeVision3D v2.86.0)
 // - A plop's scale, and the ClippedForm generator. Assemble is what the two share, moved
 //   out of Bush with every draw in the same order: BallCluster's plants are unchanged, by
@@ -526,10 +550,13 @@
 
     // FUNCTION | Fit a Plant's Balls to Its Size, and Set Them in the World
     // ------------------------------------------------------------
-    // parts: { masses, clumps, nubs, blades, a, b, h, widthM, depthM, highM, faces, core }. What
-    // every generator ends with, and from here on it draws random numbers for each ball in turn,
-    // so nothing may be added above a draw. A ball may carry nx, ny, nz, the way its face
-    // looks, and mark and markAt, how far in its mark is and where round the ball.
+    // parts: { masses, clumps, nubs, blades, a, b, h, widthM, depthM, highM, faces, core, bladesUnder }.
+    // What every generator ends with, and from here on it draws random numbers for each ball in
+    // turn, so nothing may be added above a draw. A ball may carry nx, ny, nz, the way its face
+    // looks, and mark and markAt, how far in its mark is and where round the ball. From v1.2.0 a
+    // clump or nub may also carry polar (its own chain of arcs, as FillPolar's rules, in place
+    // of its tier's), noCusps (no hooks from its cusps) and ink (its outline is drawn inside the
+    // plant too): see the header. BallCluster and ClippedForm set none of them.
     // ------------------------------------------------------------
     function Na__VegBuild__Assemble(rng, recipe, plop, factors, parts) {
         const { masses, clumps, nubs, blades, a, b, h, widthM, depthM, highM } = parts;
@@ -542,8 +569,9 @@
         let maxX = 0.001, maxZ = 0.001, maxY = 0.001;
         const all = [];
         masses.forEach((m) => all.push({ tier : Na__VegBuild__TIER_MASS, x : m.x, y : m.y, z : m.z, r : m.r }));
-        clumps.forEach((m) => all.push({ tier : Na__VegBuild__TIER_CLUMP, x : m.x, y : m.y, z : m.z, r : m.r, nx : m.nx, ny : m.ny, nz : m.nz, mark : m.mark, markAt : m.markAt }));
-        nubs.forEach((m) => all.push({ tier : Na__VegBuild__TIER_NUB, x : m.x, y : m.y, z : m.z, r : m.r, nx : m.nx, ny : m.ny, nz : m.nz }));
+        clumps.forEach((m) => all.push({ tier : Na__VegBuild__TIER_CLUMP, x : m.x, y : m.y, z : m.z, r : m.r, nx : m.nx, ny : m.ny, nz : m.nz, mark : m.mark, markAt : m.markAt, polar : m.polar, noCusps : m.noCusps, ink : m.ink, lodR : m.lodR }));
+        nubs.forEach((m) => all.push({ tier : Na__VegBuild__TIER_NUB, x : m.x, y : m.y, z : m.z, r : m.r, nx : m.nx, ny : m.ny, nz : m.nz, polar : m.polar, ink : m.ink, lodR : m.lodR }));
+        const anyInk = all.some((m) => m.ink === true);
         all.forEach((m) => {
             maxX = Math.max(maxX, Math.abs(m.x) + m.r);
             maxZ = Math.max(maxZ, Math.abs(m.z) + m.r);
@@ -577,7 +605,10 @@
             style    : new Float32Array(n * Na__VegBuild__STYLE_N),
             blades   : [],
             facing   : parts.faces ? new Float32Array(n * 3) : null,
-            marks    : parts.faces ? new Float32Array(n) : null,
+            marks    : (parts.faces || parts.marked) ? new Float32Array(n) : null,   // <-- v1.2.0: marked, a flower head's mark without a clipped face
+            ink      : anyInk ? new Uint8Array(n) : null,                      // <-- v1.2.0: see the header. Null on every plant before it
+            inkLodR  : anyInk ? new Float32Array(n) : null,                    // <-- v1.2.0: the radius an inked ball's screen size is judged by: a spike's whorls go together
+            bladesUnder : parts.bladesUnder === true,                          // <-- v1.2.0: a flat picture paints the blades first, then the balls over them
             line     : (zoom === 1) ? recipe.Asset__Line : Object.assign({}, recipe.Asset__Line, {
                 Line__CuspHookMinMm : recipe.Asset__Line.Line__CuspHookMinMm * zoom,
                 Line__CuspHookMaxMm : recipe.Asset__Line.Line__CuspHookMaxMm * zoom
@@ -626,17 +657,22 @@
             bush.r[i]    = m.r * zoom;
             bush.tier[i] = m.tier;
 
-            // A CLUMP'S CHAIN IS SHORT AND SHALLOW; A NUB IS PLAIN | Sizes are per ball, not per bush
-            const rules = (m.tier === Na__VegBuild__TIER_MASS) ? massRules : (m.tier === Na__VegBuild__TIER_CLUMP
+            // A CLUMP'S CHAIN IS SHORT AND SHALLOW; A NUB IS PLAIN | Sizes are per ball, not per bush.
+            // A ball carrying its own chain (v1.2.0) takes that instead
+            const rules = m.polar ? m.polar : ((m.tier === Na__VegBuild__TIER_MASS) ? massRules : (m.tier === Na__VegBuild__TIER_CLUMP
                 ? { chordMinM : m.r * 0.85, chordMaxM : m.r * 1.9, depth : clumpDepth, skew : 1.0, tipShare : clumpTips, ellipse : clumpEll, wobble : clumpWob }
-                : { chordMinM : m.r * 2.4, chordMaxM : m.r * 4.0, depth : 0.02, skew : 1.0, tipShare : 0, ellipse : clumpEll, wobble : clumpWob });
+                : { chordMinM : m.r * 2.4, chordMaxM : m.r * 4.0, depth : 0.02, skew : 1.0, tipShare : 0, ellipse : clumpEll, wobble : clumpWob }));
             const span = Na__VegBuild__FillPolar(rng, bush.polar, bush.polStart[i], bush.polN[i], m.r, rules);
             bush.rMax[i] = m.r * zoom * span.max;
             bush.rMin[i] = m.r * zoom * span.min;
 
             bush.cuspFrom[i] = cuspList.length;
-            if (m.tier !== Na__VegBuild__TIER_NUB) {
+            if (m.tier !== Na__VegBuild__TIER_NUB && m.noCusps !== true) {
                 span.cusps.forEach((angle) => cuspList.push(angle));
+            }
+            if (m.ink === true) {
+                bush.ink[i]     = 1;
+                bush.inkLodR[i] = (m.lodR > 0 ? m.lodR : m.r) * zoom;
             }
 
             for (let u = 0; u < Na__VegBuild__STYLE_N; u++) {
@@ -1010,6 +1046,413 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Flowering Mounds, Spiked Clumps, Grass Fountains and Multi-Stems (v1.2.0)
+// -----------------------------------------------------------------------------
+
+    // MODULE CONSTANTS | The Four Habits Added at v1.2.0
+    // ------------------------------------------------------------
+    const Na__VegBuild__HEAD_TRIES    = 30;                                    // <-- A head gives up after this many spots on a crowded mound
+    const Na__VegBuild__HEAD_CLEAR    = 0.35;                                  // <-- Of a leaf clump's radius: one reaching further into a head would lie across it, and goes
+    const Na__VegBuild__HEAD_MARK     = 0.38;                                  // <-- How far in from a head's outline its mark lies, as a share of its radius
+    const Na__VegBuild__WHORL_TIP     = 0.62;                                  // <-- A spike's top whorl, as a share of its bottom one
+    const Na__VegBuild__WHORL_WANDER  = 0.12;                                  // <-- Of a whorl's radius: a spike is never ruled
+    const Na__VegBuild__STEM_INTO     = 0.8;                                   // <-- Of the bottom whorl's radius: a stem ends up inside its spike
+    const Na__VegBuild__BRANCH_WIDTH  = 0.55;                                  // <-- A side branch, as a share of its stem
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Plop's Size in Metres, as Bush Works It Out
+    // ------------------------------------------------------------
+    // One jitter draw, as BallCluster's opening, so every habit starts the same way.
+    // ------------------------------------------------------------
+    function Na__VegBuild__SizeOf(rng, recipe, plop) {
+        const size   = recipe.Asset__Size;
+        const jitter = 1 + rng.range(-size.Size__JitterShare, size.Size__JitterShare);
+        const widthM = ((plop.sizeMm ? plop.sizeMm[0] : size.Size__WidthMm) / 1000) * (plop.sizeMm ? 1 : jitter);
+        const depthM = ((plop.sizeMm ? plop.sizeMm[1] : size.Size__DepthMm) / 1000) * (plop.sizeMm ? 1 : jitter);
+        const highM  = ((plop.sizeMm ? plop.sizeMm[2] : size.Size__HeightMm) / 1000) * (plop.sizeMm ? 1 : jitter);
+        return { widthM, depthM, highM, a : widthM / 2, b : depthM / 2, h : highM };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Fit Assemble Will Make, Worked Out Ahead
+    // ------------------------------------------------------------
+    // Assemble pulls ball centres in to the plop's size and leaves blades as they are, which is
+    // right for a tuft at the foot. A stem that ends in a spike or a mass must move with it, so
+    // these generators fit their stems by the same sums first. Draws nothing.
+    // ------------------------------------------------------------
+    function Na__VegBuild__FitAhead(lists, a, b, h) {
+        let maxX = 0.001, maxZ = 0.001, maxY = 0.001;
+        lists.forEach((list) => list.forEach((m) => {
+            maxX = Math.max(maxX, Math.abs(m.x) + m.r);
+            maxZ = Math.max(maxZ, Math.abs(m.z) + m.r);
+            maxY = Math.max(maxY, m.y + m.r);
+        }));
+        return { x : a / maxX, y : h / maxY, z : b / maxZ };
+    }
+    function Na__VegBuild__FitBlades(blades, fit) {
+        blades.forEach((blade) => {
+            for (let k = 0; k < 4; k++) {
+                blade.p[k * 3]     *= fit.x;
+                blade.p[k * 3 + 1] *= fit.y;
+                blade.p[k * 3 + 2] *= fit.z;
+            }
+        });
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Point on a Blade's Centre Line (cubic, t from 0 at the foot to 1)
+    // ------------------------------------------------------------
+    function Na__VegBuild__BladeAt(p, t) {
+        const m = 1 - t;
+        const c0 = m * m * m, c1 = 3 * m * m * t, c2 = 3 * m * t * t, c3 = t * t * t;
+        return {
+            x : c0 * p[0] + c1 * p[3] + c2 * p[6] + c3 * p[9],
+            y : c0 * p[1] + c1 * p[4] + c2 * p[7] + c3 * p[10],
+            z : c0 * p[2] + c1 * p[5] + c2 * p[8] + c3 * p[11]
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // SUB FUNCTION | Flower Heads Over a Mound's Masses, Kept Apart
+    // ------------------------------------------------------------
+    // A head is a clump with its own fine chain (florets, not leaves), no hooks, and inked: its
+    // whole round shows against the leaves behind it, as a drawn flower head does. Thrown before
+    // the leaves, so the leaves fill round the heads.
+    // ------------------------------------------------------------
+    function Na__VegBuild__ScatterHeads(rng, masses, recipe, factors, h) {
+        const rules = recipe.Asset__Heads;
+        const count = rng.int(rules.Heads__CountMin, rules.Heads__CountMax);
+        const lowY  = h * rules.Heads__LowShare;                               // <-- Flowers are carried high: none under this
+        const polar = {
+            chordMinM : (rules.Heads__ScallopChordMinMm / 1000) * factors.scallop,
+            chordMaxM : (rules.Heads__ScallopChordMaxMm / 1000) * factors.scallop,
+            depth     : rules.Heads__ScallopDepth,
+            skew      : 1.0,
+            tipShare  : 0,
+            ellipse   : rules.Heads__Ellipse,
+            wobble    : 0.02
+        };
+        const heads = [];
+
+        for (let k = 0; k < count; k++) {
+            const rh = rng.range(rules.Heads__RadiusMinMm, rules.Heads__RadiusMaxMm) / 1000;
+            for (let tries = 0; tries < Na__VegBuild__HEAD_TRIES; tries++) {
+                const m     = masses[Math.floor(rng.next() * masses.length)];
+                const up    = rng.range(rules.Heads__UpMin, 1.0);              // <-- Heads face out and up, never down into the plant
+                const az    = rng.angle();
+                const s     = Math.sqrt(Math.max(0, 1 - up * up));
+                const reach = m.r * rng.range(rules.Heads__ReachMin, rules.Heads__ReachMax);
+                const cx = m.x + Math.cos(az) * s * reach;
+                const cy = m.y + up * reach;
+                const cz = m.z + Math.sin(az) * s * reach;
+                if (cy < Math.max(rh * 0.8, lowY)) continue;                   // <-- A head is carried, never on the ground
+
+                let clear = true;
+                for (let j = 0; j < masses.length && clear; j++) {             // <-- Buried in another mass: never seen
+                    const o = masses[j];
+                    if (o === m) continue;
+                    const dx = cx - o.x, dy = cy - o.y, dz = cz - o.z;
+                    if (dx * dx + dy * dy + dz * dz < (o.r * 0.84) * (o.r * 0.84)) clear = false;
+                }
+                for (let j = 0; j < heads.length && clear; j++) {              // <-- Heads touch, but never sit on one another
+                    const o = heads[j];
+                    const gap = (rh + o.r) * rules.Heads__Spacing;
+                    const dx = cx - o.x, dy = cy - o.y, dz = cz - o.z;
+                    if (dx * dx + dy * dy + dz * dz < gap * gap) clear = false;
+                }
+                if (!clear) continue;
+
+                const mark = rng.chance(rules.Heads__MarkShare) ? Na__VegBuild__HEAD_MARK : 0;   // <-- An arc inside the head: the dome of its florets
+                heads.push({ x : cx, y : cy, z : cz, r : rh, mx : m.x, my : m.y, mz : m.z, polar, noCusps : true, ink : true, mark, markAt : rng.next() });
+                break;
+            }
+        }
+        return heads;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Build a Flowering Mound: Leaves, and Flower Heads Carried Over Them
+    // ------------------------------------------------------------
+    // FloweringMound version 1 (v1.2.0). BallCluster's masses and leaf clumps, with
+    // Asset__Heads: a hydrangea, a rose, a peony. Its leaves' clumps take Asset__Clumps, so tips
+    // there read as pointed leaves.
+    // ------------------------------------------------------------
+    function Na__VegBuild__FloweringMound(recipe, plop, factors) {
+        const rng = Na__VegRand__Create(plop.seed);
+        const { a, b, h, widthM, depthM, highM } = Na__VegBuild__SizeOf(rng, recipe, plop);
+
+        const masses = recipe.Asset__Masses.Masses__Layout === 'Upright'
+            ? Na__VegBuild__MassesUpright(rng, a, b, h, recipe.Asset__Masses)
+            : Na__VegBuild__MassesMound(rng, a, b, h, recipe.Asset__Masses);
+        const heads  = Na__VegBuild__ScatterHeads(rng, masses, recipe, factors, h);
+        const clear  = Na__VegBuild__HEAD_CLEAR;
+        const leaves = Na__VegBuild__ScatterClumps(rng, masses, recipe, factors).filter((c) => !heads.some((hd) => {
+            const dx = c.x - hd.x, dy = c.y - hd.y, dz = c.z - hd.z, reach = hd.r + c.r * clear;
+            return dx * dx + dy * dy + dz * dz < reach * reach;
+        }));
+        const nubs   = Na__VegBuild__ScatterNubs(rng, leaves, recipe, factors);
+        const blades = Na__VegBuild__BuildTufts(rng, recipe, a, b);
+
+        return Na__VegBuild__Assemble(rng, recipe, plop, factors, { masses, clumps : leaves.concat(heads), nubs, blades, a, b, h, widthM, depthM, highM, marked : true });
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Build a Spiked Clump: a Cushion of Foliage, Flower Spikes on Stems Above It
+    // ------------------------------------------------------------
+    // SpikedClump version 1 (v1.2.0): lavender, and salvia, catmint or veronica by their own
+    // numbers. The cushion is BallCluster's mound at Spikes__CushionWidthShare and
+    // __CushionHeightShare of the plant. Each spike is a stem from inside the cushion and a
+    // column of whorls at its top: small inked clumps, so a spike shows in front of the leaves.
+    // The spikes stand tallest in the middle and lean out and lower to the edge, so together
+    // they make the dome a lavender's flowers make. The stems are fitted with the balls.
+    // ------------------------------------------------------------
+    function Na__VegBuild__SpikedClump(recipe, plop, factors) {
+        const rng   = Na__VegRand__Create(plop.seed);
+        const { a, b, h, widthM, depthM, highM } = Na__VegBuild__SizeOf(rng, recipe, plop);
+        const rules = recipe.Asset__Spikes;
+
+        // THE CUSHION
+        const ca = a * rules.Spikes__CushionWidthShare;
+        const cb = b * rules.Spikes__CushionWidthShare;
+        const ch = h * rules.Spikes__CushionHeightShare;
+        const masses = Na__VegBuild__MassesMound(rng, ca, cb, ch, recipe.Asset__Masses);
+        const clumps = Na__VegBuild__ScatterClumps(rng, masses, recipe, factors);
+        const nubs   = Na__VegBuild__ScatterNubs(rng, clumps, recipe, factors);
+        const tufts  = Na__VegBuild__BuildTufts(rng, recipe, a, b);
+
+        // THE SPIKES
+        const whorls = [], stems = [];
+        const count  = rng.int(rules.Spikes__CountMin, rules.Spikes__CountMax);
+        const depth  = rules.Spikes__WhorlScallopDepth;
+        for (let k = 0; k < count; k++) {
+            const az   = rng.angle();
+            const out  = Math.sqrt(rng.next());                                // <-- 0 in the middle to 1 at the edge, even over the clump
+            const turn = az + rng.range(-0.30, 0.30);
+
+            // THE FOOT | Just under the cushion's top, so only what stands above it shows, and
+            // spread over it, or the stems meet in one dark knot on a far plant
+            const footR = out * 0.70;
+            const fx = Math.cos(az) * ca * footR, fz = Math.sin(az) * cb * footR;
+            const fy = ch * 0.88 * Math.sqrt(1 - footR * footR);
+
+            // THE TIP | Further out and lower the further out it is
+            const tipR = out * rules.Spikes__Splay * rng.range(0.85, 1.05);
+            const tx = Math.cos(turn) * a * tipR, tz = Math.sin(turn) * b * tipR;
+            const ty = h * (1 - (1 - rules.Spikes__TopMinShare) * Math.pow(out, 1.6) * rng.range(0.7, 1.0));
+
+            // THE SPIKE'S AXIS | More upright than the line from the foot: a flower stands up
+            let ax = (tx - fx) * 0.55, ay = ty - fy, az3 = (tz - fz) * 0.55;
+            const al = Math.hypot(ax, ay, az3) || 1;
+            ax /= al; ay /= al; az3 /= al;
+            const length = rng.range(rules.Spikes__LengthMinMm, rules.Spikes__LengthMaxMm) / 1000;
+            const rBase  = rng.range(rules.Spikes__WhorlRadiusMinMm, rules.Spikes__WhorlRadiusMaxMm) / 1000;
+            const n      = Math.max(3, Math.ceil(length / (rBase * rules.Spikes__WhorlStepShare)));
+            const bx = tx - ax * length, by = ty - ay * length, bz = tz - az3 * length;
+
+            for (let j = 0; j < n; j++) {
+                const t  = (j + 0.5) / n;
+                const rj = rBase * (1 - (1 - Na__VegBuild__WHORL_TIP) * (j / Math.max(1, n - 1)));
+                whorls.push({
+                    x : bx + ax * length * t + rng.range(-Na__VegBuild__WHORL_WANDER, Na__VegBuild__WHORL_WANDER) * rj,
+                    y : by + ay * length * t,
+                    z : bz + az3 * length * t + rng.range(-Na__VegBuild__WHORL_WANDER, Na__VegBuild__WHORL_WANDER) * rj,
+                    r : rj,
+                    mx : fx, my : fy, mz : fz,
+                    polar : { chordMinM : rj * 0.9, chordMaxM : rj * 1.7, depth, skew : 1.0, tipShare : 0.25, ellipse : 0.08, wobble : 0.02 },
+                    noCusps : true,
+                    ink : true,
+                    lodR : rBase                                               // <-- The spike leaves the drawing whole, never tip first
+                });
+            }
+
+            // THE STEM | Up out of the cushion, then along the spike's axis into its bottom whorl
+            const ex = bx + ax * rBase * Na__VegBuild__STEM_INTO, ey = by + ay * rBase * Na__VegBuild__STEM_INTO, ez = bz + az3 * rBase * Na__VegBuild__STEM_INTO;
+            const reach = Math.hypot(ex - fx, ey - fy, ez - fz);
+            stems.push({
+                p : [
+                    fx, fy, fz,
+                    fx, fy + reach * 0.40, fz,
+                    ex - ax * reach * 0.30, ey - ay * reach * 0.30, ez - az3 * reach * 0.30,
+                    ex, ey, ez
+                ],
+                w : (rules.Spikes__StemWidthMm / 1000) * rng.range(0.85, 1.15),
+                stem : true
+            });
+        }
+
+        const balls = clumps.concat(whorls);
+        Na__VegBuild__FitBlades(stems, Na__VegBuild__FitAhead([masses, balls, nubs], a, b, h));
+        return Na__VegBuild__Assemble(rng, recipe, plop, factors, { masses, clumps : balls, nubs, blades : tufts.concat(stems), a, b, h, widthM, depthM, highM, bladesUnder : true });
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Build a Grass Fountain: Blades Arching Out of a Tight Crown
+    // ------------------------------------------------------------
+    // GrassFountain version 1 (v1.2.0). No balls at all: Asset__Fountain's blades, each a true
+    // 3D curve, the ones in the middle near upright and tallest, the ones at the edge arching
+    // out and over, their tips falling. The masses, clumps and nubs blocks are not read.
+    // ------------------------------------------------------------
+    function Na__VegBuild__GrassFountain(recipe, plop, factors) {
+        const rng   = Na__VegRand__Create(plop.seed);
+        const { a, b, h, widthM, depthM, highM } = Na__VegBuild__SizeOf(rng, recipe, plop);
+        const rules = recipe.Asset__Fountain;
+        const crown = rules.Fountain__CrownShare;
+        const count = rng.int(rules.Fountain__BladesMin, rules.Fountain__BladesMax);
+        const blades = [];
+
+        for (let k = 0; k < count; k++) {
+            const az    = rng.angle();
+            const rho   = Math.sqrt(rng.next());
+            const fx    = Math.cos(az) * a * crown * rho, fz = Math.sin(az) * b * crown * rho;
+            const arch  = Math.min(1, Math.pow(rng.next(), 1.1) * 0.85 + rho * 0.30);    // <-- 0 upright, 1 arching right over: more of it at the crown's edge
+            const tall  = h * rng.range(rules.Fountain__HeightMinShare, 1.0) * (1 - 0.22 * arch);
+            const head  = az + rng.range(-0.55, 0.55);                         // <-- Out, more or less, from where it grows
+            const reach = rules.Fountain__ReachMinShare + (rules.Fountain__ReachMaxShare - rules.Fountain__ReachMinShare) * arch;
+            const rx    = Math.cos(head) * a * (1 - crown) * reach;
+            const rz    = Math.sin(head) * b * (1 - crown) * reach;
+            const droop = rules.Fountain__DroopMaxShare - (rules.Fountain__DroopMaxShare - rules.Fountain__DroopMinShare) * arch;
+            const knee  = rng.range(0.25, 0.45);                               // <-- Where along it the blade tops out: nearer the crown, so the rest hangs
+            blades.push({
+                p : [
+                    fx, 0, fz,
+                    fx + rx * 0.02, tall * 0.60, fz + rz * 0.02,
+                    fx + rx * knee, tall * 1.04, fz + rz * knee,
+                    fx + rx, tall * droop, fz + rz
+                ],
+                w : (rules.Fountain__BladeWidthMm / 1000) * rng.range(0.8, 1.2)
+            });
+        }
+        return Na__VegBuild__Assemble(rng, recipe, plop, factors, { masses : [], clumps : [], nubs : [], blades, a, b, h, widthM, depthM, highM, bladesUnder : true });
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Masses of a Multi-Stem's Canopy (a vase: wider the higher it goes)
+    // ------------------------------------------------------------
+    function Na__VegBuild__MassesVase(rng, a, b, h, base, rules) {
+        const masses = [];
+        const count  = rng.int(rules.Masses__CountMin, rules.Masses__CountMax);
+        const span   = h - base;
+        const big    = Math.min(span * 0.42, Math.max(a, b) * 0.55);
+
+        // A CROWN OFF CENTRE | Or the top is a dome on a stick
+        const crownR = big * rng.range(0.55, 0.70);
+        masses.push({ x : rng.range(-0.25, 0.25) * a, y : h - crownR * rng.range(0.98, 1.04), z : rng.range(-0.20, 0.20) * b, r : crownR });
+
+        // A HEART | Near the middle and below the crown, so no seed leaves a hole through the canopy
+        const heartR = big * rng.range(0.50, 0.60);
+        masses.push({ x : rng.range(-0.12, 0.12) * a, y : base + span * rng.range(0.40, 0.50), z : rng.range(-0.12, 0.12) * b, r : heartR });
+
+        // THE REST | Round them, in two loose tiers, further out the higher they are: an open
+        // canopy with gaps the stems show through, never one ball
+        const start = rng.angle();
+        for (let k = 2; k < count; k++) {
+            const az  = start + (Na__VegBuild__TAU * (k - 1) * 1.618) + rng.range(-0.35, 0.35);   // <-- A golden turn: no two tiers line up
+            const up  = (k % 2 === 1) ? rng.range(0.45, 0.95) : rng.range(0.0, 0.45);
+            const r   = big * rng.range(0.34, 0.50) * (0.85 + 0.25 * up);
+            const out = (0.30 + 0.65 * up) * rng.range(0.85, 1.05);            // <-- Narrow low, wide high: a vase, with no hole in its middle
+            masses.push({
+                x : Math.cos(az) * Math.max(0, a - r) * out,
+                y : base + r * 0.7 + Math.max(0, span - r * 1.7) * up,
+                z : Math.sin(az) * Math.max(0, b - r) * out,
+                r
+            });
+        }
+        return masses;
+    }
+    // ------------------------------------------------------------
+
+
+    // SUB FUNCTION | The Stems of a Multi-Stem, from a Tight Foot into the Canopy
+    // ------------------------------------------------------------
+    // The first goes up the middle into the heart, the rest fan out to the masses round it in
+    // turn, each rising steeply and then leaning out to its mass, and some fork a side branch into
+    // another. A stem ends in the lower half of its mass, where the leaves cover it.
+    // ------------------------------------------------------------
+    function Na__VegBuild__BuildStems(rng, masses, rules, a, b) {
+        const stems  = [];
+        const count  = rng.int(rules.Stems__CountMin, rules.Stems__CountMax);
+        const heart  = masses.length > 1 ? masses[1] : masses[0];
+        const around = masses.slice(2).sort((p, q) => Math.atan2(p.z, p.x) - Math.atan2(q.z, q.x));
+        if (around.length === 0) around.push(heart);
+        const first  = rng.int(0, around.length - 1);
+
+        for (let k = 0; k < count; k++) {
+            const m     = k === 0 ? heart : around[(first + Math.floor(((k - 1) * around.length) / Math.max(1, count - 1))) % around.length];
+            const az    = Math.atan2(m.z, m.x) + rng.range(-0.5, 0.5);
+            const footR = rng.range(0.15, 1.0) * rules.Stems__FootSpreadShare;
+            const fx    = Math.cos(az) * a * footR, fz = Math.sin(az) * b * footR;
+            const tx    = m.x + rng.range(-0.3, 0.3) * m.r;
+            const ty    = m.y - m.r * rng.range(0.20, 0.45);
+            const tz    = m.z + rng.range(-0.3, 0.3) * m.r;
+            const width = rng.range(rules.Stems__WidthMinMm, rules.Stems__WidthMaxMm) / 1000;
+            const sway  = rng.range(-0.18, 0.18);
+            const dx = tx - fx, dz = tz - fz;
+            const p = [
+                fx, 0, fz,
+                fx + dx * 0.10, ty * 0.38, fz + dz * 0.10,
+                fx + dx * 0.55 - dz * sway, ty * 0.72, fz + dz * 0.55 + dx * sway,
+                tx, ty, tz
+            ];
+            stems.push({ p, w : width, stem : true });
+
+            // A SIDE BRANCH | From part way up, into the next mass round
+            if (rng.chance(rules.Stems__BranchShare) && masses.length > 1) {
+                const from = Na__VegBuild__BladeAt(p, rng.range(0.45, 0.70));
+                const o    = around[(around.indexOf(m) + (rng.chance(0.5) ? 1 : around.length - 1)) % around.length] || masses[0];
+                const ox   = o.x + rng.range(-0.3, 0.3) * o.r, oy = o.y - o.r * rng.range(0.0, 0.3), oz = o.z + rng.range(-0.3, 0.3) * o.r;
+                stems.push({
+                    p : [
+                        from.x, from.y, from.z,
+                        from.x + (ox - from.x) * 0.30, from.y + (oy - from.y) * 0.45, from.z + (oz - from.z) * 0.30,
+                        from.x + (ox - from.x) * 0.70, from.y + (oy - from.y) * 0.85, from.z + (oz - from.z) * 0.70,
+                        ox, oy, oz
+                    ],
+                    w : width * Na__VegBuild__BRANCH_WIDTH,
+                    stem : true
+                });
+            }
+        }
+        return stems;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Build a Multi-Stem: Clear Stems from the Ground into an Open Canopy
+    // ------------------------------------------------------------
+    // MultiStem version 1 (v1.2.0): an amelanchier, a dogwood, a birch grown as a multi-stem.
+    // The canopy is BallCluster's clumps on masses laid out as a vase from
+    // Stems__CanopyBaseShare of the height (Masses__Layout 'Vase'), and Asset__Stems' stems
+    // run up into it, fitted with the balls.
+    // ------------------------------------------------------------
+    function Na__VegBuild__MultiStem(recipe, plop, factors) {
+        const rng   = Na__VegRand__Create(plop.seed);
+        const { a, b, h, widthM, depthM, highM } = Na__VegBuild__SizeOf(rng, recipe, plop);
+        const rules = recipe.Asset__Stems;
+        const base  = h * rules.Stems__CanopyBaseShare;
+
+        const masses = Na__VegBuild__MassesVase(rng, a, b, h, base, recipe.Asset__Masses);
+        const clumps = Na__VegBuild__ScatterClumps(rng, masses, recipe, factors);
+        const nubs   = Na__VegBuild__ScatterNubs(rng, clumps, recipe, factors);
+        const tufts  = Na__VegBuild__BuildTufts(rng, recipe, a, b);
+        const stems  = Na__VegBuild__BuildStems(rng, masses, rules, a, b);
+
+        Na__VegBuild__FitBlades(stems, Na__VegBuild__FitAhead([masses, clumps, nubs], a, b, h));
+        return Na__VegBuild__Assemble(rng, recipe, plop, factors, { masses, clumps, nubs, blades : tufts.concat(stems), a, b, h, widthM, depthM, highM, bladesUnder : true });
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Which Generator
 // -----------------------------------------------------------------------------
 
@@ -1019,8 +1462,12 @@
     // which is what the library's build util checks an asset against.
     // ------------------------------------------------------------
     const Na__VegBuild__GENERATORS = {
-        BallCluster : { 1 : Na__VegBuild__Bush },
-        ClippedForm : { 1 : Na__VegBuild__ClippedForm }
+        BallCluster    : { 1 : Na__VegBuild__Bush },
+        ClippedForm    : { 1 : Na__VegBuild__ClippedForm },
+        FloweringMound : { 1 : Na__VegBuild__FloweringMound },
+        SpikedClump    : { 1 : Na__VegBuild__SpikedClump },
+        GrassFountain  : { 1 : Na__VegBuild__GrassFountain },
+        MultiStem      : { 1 : Na__VegBuild__MultiStem }
     };
     // ------------------------------------------------------------
 

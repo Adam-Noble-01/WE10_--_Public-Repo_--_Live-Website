@@ -55,6 +55,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 17-Nov-2026 - Version 1.5.0 (ValeVision3D v2.99.0, TrueVision3D v2.189.0)
+// - A standard palette with a brush of its own sets the brush's density and minimum spacing to
+//   it, at its plant scale, in place of scaling the brush's own.
+//
 // 12-Nov-2026 - Version 1.4.0 (ValeVision3D v2.97.0)
 // - A standard palette chosen sets the brush's plant scale, with density and spacing following.
 //
@@ -528,6 +532,10 @@
                     brush.Vegetation__Brush__PlantScale        = layout.plantScale;
                     brush.Vegetation__Brush__DensityPerSquareM = Math.min(Na__VegBushTool__DENSITY_MAX, Math.round((brush.Vegetation__Brush__DensityPerSquareM / (ratio * ratio)) * 10) / 10);
                     brush.Vegetation__Brush__MinSpacingMm      = Math.max(Na__VegBushTool__SPACING_MIN, Math.round(brush.Vegetation__Brush__MinSpacingMm * ratio));
+
+                    // ITS OWN BRUSH, WHERE IT HAS ONE (v1.5.0) | Proven at that plant scale, so taken as it is
+                    if (layout.brushDensity > 0)   brush.Vegetation__Brush__DensityPerSquareM = Math.min(Na__VegBushTool__DENSITY_MAX, Math.round(layout.brushDensity * 10) / 10);
+                    if (layout.brushSpacingMm > 0) brush.Vegetation__Brush__MinSpacingMm      = Math.max(Na__VegBushTool__SPACING_MIN, Math.round(layout.brushSpacingMm));
                 }
                 Na__VegShell__MarkChanged();
                 await Na__VegBushTool__ReadPaletteRecipes();

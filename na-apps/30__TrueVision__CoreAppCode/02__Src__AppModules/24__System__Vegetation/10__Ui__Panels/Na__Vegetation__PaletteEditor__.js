@@ -48,6 +48,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 17-Nov-2026 - Version 1.3.0 (ValeVision3D v2.99.0, TrueVision3D v2.189.0)
+// - A standard palette's own brush (Palette__BrushDensityPerSquareM, __BrushMinSpacingMm) goes
+//   to the tool with its layout, and the toast and the hint say it.
+//
 // 12-Nov-2026 - Version 1.2.0 (ValeVision3D v2.97.0)
 // - Standard palettes in the palette list, copied in on choice with their plant scale and spacing.
 //   A picture beside each plant, and Add a Plant as picture tiles in place of a list of names.
@@ -188,6 +192,24 @@
         Na__VegPalUi__RefreshAll();
         Na__VegShell__Toast((assetName || assetId) + ' added to ' + palette.Vegetation__Palette__Name + '.', false);
         return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | What a Standard Palette Was Proven At, for a Tool's onPick
+    // ------------------------------------------------------------
+    // { plantScale, spacingMm }, and from v1.3.0 brushDensity and brushSpacingMm where the palette
+    // has its own brush (Palette__BrushDensityPerSquareM, Palette__BrushMinSpacingMm).
+    // ------------------------------------------------------------
+    function Na__VegPalUi__LayoutOf(standard) {
+        const layout = { plantScale : standard.Palette__PlantScale, spacingMm : standard.Palette__SpacingMm };
+        if (standard.Palette__BrushDensityPerSquareM > 0) layout.brushDensity   = standard.Palette__BrushDensityPerSquareM;
+        if (standard.Palette__BrushMinSpacingMm > 0)      layout.brushSpacingMm = standard.Palette__BrushMinSpacingMm;
+        return layout;
+    }
+    function Na__VegPalUi__BrushWords(standard) {
+        if (!(standard.Palette__BrushDensityPerSquareM > 0) || !(standard.Palette__BrushMinSpacingMm > 0)) return '';
+        return ', brushed at ' + Number(standard.Palette__BrushDensityPerSquareM).toFixed(1) + ' per sq m, ' + Math.round(standard.Palette__BrushMinSpacingMm) + ' mm apart';
     }
     // ------------------------------------------------------------
 
@@ -366,8 +388,8 @@
                 if (picker.value.startsWith(Na__VegPalUi__STD_PREFIX)) {
                     const standard = standards.find((row) => Na__VegPalUi__STD_PREFIX + row.Palette__Id === picker.value);
                     const uid = await Na__VegPalUi__TakeStandard(standard);
-                    if (options.onPick) options.onPick(uid, { plantScale : standard.Palette__PlantScale, spacingMm : standard.Palette__SpacingMm });
-                    Na__VegShell__Toast(standard.Palette__Name + ' added to this project, at plant scale ' + Number(standard.Palette__PlantScale).toFixed(2) + ' and ' + Math.round(standard.Palette__SpacingMm) + ' mm spacing.', false);
+                    if (options.onPick) options.onPick(uid, Na__VegPalUi__LayoutOf(standard));
+                    Na__VegShell__Toast(standard.Palette__Name + ' added to this project, at plant scale ' + Number(standard.Palette__PlantScale).toFixed(2) + ' and ' + Math.round(standard.Palette__SpacingMm) + ' mm spacing' + Na__VegPalUi__BrushWords(standard) + '.', false);
                 } else {
                     Na__VegPalUi__State.currentUid = picker.value;
                     if (options.onPick) options.onPick(picker.value);
@@ -379,7 +401,7 @@
             // WHERE IT CAME FROM | A standard palette's copy says so, with its proven layout
             const standard = standards.find((row) => row.Palette__Id === palette.Vegetation__Palette__StandardId);
             if (standard) {
-                const from = Na__VegShell__El('p', 'na-veg-panel__hint', 'From the standard palette ' + standard.Palette__Name + ', made for plant scale ' + Number(standard.Palette__PlantScale).toFixed(2) + ' at ' + Math.round(standard.Palette__SpacingMm) + ' mm spacing. Changes here stay in this project.');
+                const from = Na__VegShell__El('p', 'na-veg-panel__hint', 'From the standard palette ' + standard.Palette__Name + ', made for plant scale ' + Number(standard.Palette__PlantScale).toFixed(2) + ' at ' + Math.round(standard.Palette__SpacingMm) + ' mm spacing' + Na__VegPalUi__BrushWords(standard) + '. Changes here stay in this project.');
                 from.style.marginTop = '4px';
                 holder.appendChild(from);
             }

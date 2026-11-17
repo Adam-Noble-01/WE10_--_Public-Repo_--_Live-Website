@@ -1,0 +1,122 @@
+{
+    "Asset__Id"          : "VVL_07_3001",
+    "Asset__Name"        : "Arching Grass",
+    "Asset__Description" : "An ornamental grass: fine blades from a tight crown, the middle ones near upright and tallest, the outer ones arching out and over to the ground. For the front of a border or a planter's edge. From Adam's reference photos, 17-Nov-2026. Only Asset__Fountain draws it: its masses, clumps and nubs are not read.",
+
+    "Asset__Meta": {
+        "Meta__Version" : "1.0.0",
+        "Meta__Created" : "17-Nov-2026",
+        "Meta__Author"  : "Adam Noble - Noble Architecture",
+        "Meta__Status"  : "Active"
+    },
+
+    "Asset__Identity": {
+        "Identity__CollectionCode" : "07",
+        "Identity__Type"           : "Grasses",
+        "Identity__Family"         : "300",
+        "Identity__Item"           : 1,
+        "Identity__Name"           : "ArchingGrass",
+        "Identity__Variant"        : "Var-01"
+    },
+
+    "Asset__Generator": {
+        "Generator__Name"    : "GrassFountain",
+        "Generator__Version" : 1
+    },
+
+    "Asset__Proxy": {
+        "Proxy__Shape"       : "Dome",
+        "Proxy__RingCount"   : 4,
+        "Proxy__SectorCount" : 10
+    },
+
+    "Asset__Placement": {
+        "Placement__RotationVariationDeg"   : 180,
+        "Placement__ScaleVariationPercent"  : 12,
+        "Placement__HeightVariationPercent" : 12,
+        "Placement__AlignToPath"            : false,
+        "Placement__StretchAlongPath"       : false,
+        "Placement__MinSpacingMm"           : 450,
+        "Placement__DefaultWeight"          : 15
+    },
+
+    "Asset__Catalogue": {
+        "Catalogue__Keywords"      : ["grass", "ornamental", "arching", "fountain", "soft", "edging", "border", "planter"],
+        "Catalogue__Season"        : "AllYear",
+        "Catalogue__BotanicalName" : null
+    },
+
+    "Asset__Size": {
+        "Size__WidthMm"     : 750,
+        "Size__DepthMm"     : 750,
+        "Size__HeightMm"    : 650,
+        "Size__JitterShare" : 0.10
+    },
+
+    "Asset__Masses": {
+        "Masses__Layout"            : "Mound",
+        "Masses__CountMin"          : 1,
+        "Masses__CountMax"          : 1,
+        "Masses__ScallopChordMinMm" : 40,
+        "Masses__ScallopChordMaxMm" : 80,
+        "Masses__ScallopDepth"      : 0.30,
+        "Masses__ScallopSkew"       : 1.00,
+        "Masses__TipShare"          : 0.50
+    },
+
+    "Asset__Clumps": {
+        "Clumps__RadiusMinMm"  : 30,
+        "Clumps__RadiusMaxMm"  : 50,
+        "Clumps__Skew"         : 1.00,
+        "Clumps__Spacing"      : 1.00,
+        "Clumps__ReachMin"     : 0.95,
+        "Clumps__ReachMax"     : 1.05,
+        "Clumps__ScallopDepth" : 0.30,
+        "Clumps__TipShare"     : 0.50,
+        "Clumps__Ellipse"      : 0.10,
+        "Clumps__Wobble"       : 0.02
+    },
+
+    "Asset__Nubs": {
+        "Nubs__Share"       : 0,
+        "Nubs__RadiusMinMm" : 10,
+        "Nubs__RadiusMaxMm" : 20
+    },
+
+    "Asset__Fountain": {
+        "Fountain__BladesMin"      : 32,
+        "Fountain__BladesMax"      : 44,
+        "Fountain__CrownShare"     : 0.28,
+        "Fountain__HeightMinShare" : 0.55,
+        "Fountain__ReachMinShare"  : 0.20,
+        "Fountain__ReachMaxShare"  : 1.00,
+        "Fountain__DroopMinShare"  : 0.25,
+        "Fountain__DroopMaxShare"  : 0.90,
+        "Fountain__BladeWidthMm"   : 8
+    },
+
+    "Asset__Line": {
+        "Line__InteriorChance"  : 0.10,
+        "Line__InteriorSpanDeg" : 80,
+        "Line__TailChance"      : 0.30,
+        "Line__TailMinRad"      : 0.25,
+        "Line__TailMaxRad"      : 0.80,
+        "Line__CurlChance"      : 0.20,
+        "Line__CurlAmount"      : 0.50,
+        "Line__BreakChance"     : 0.05,
+        "Line__CuspHookChance"  : 0.30,
+        "Line__CuspHookMinMm"   : 15,
+        "Line__CuspHookMaxMm"   : 40,
+        "Line__SpurShare"       : 0.20
+    },
+
+    "Asset__Tufts": {
+        "Tufts__CountMin"     : 0,
+        "Tufts__CountMax"     : 0,
+        "Tufts__HeightMinMm"  : 0,
+        "Tufts__HeightMaxMm"  : 0,
+        "Tufts__BladesMin"    : 0,
+        "Tufts__BladesMax"    : 0,
+        "Tufts__BladeWidthMm" : 0
+    }
+}

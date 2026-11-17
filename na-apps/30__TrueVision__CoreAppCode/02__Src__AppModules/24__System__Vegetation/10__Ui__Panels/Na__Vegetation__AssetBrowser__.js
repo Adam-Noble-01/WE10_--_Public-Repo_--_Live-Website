@@ -70,6 +70,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 17-Nov-2026 - Version 1.5.0-tv.1 (TrueVision3D v2.189.0, with ValeVision3D v2.99.0's 1.5.0)
+// - A card for a plant whose blades grow from inside it (bush.bladesUnder: stems, a grass) paints
+//   every blade first, the furthest first, each its fill then its lines, then the balls' fill
+//   and lines over them. Every other card is drawn as before.
+//
 // 15-Nov-2026 - Version 1.4.0-tv.1 (TrueVision3D v2.185.0)
 // - Ported from ValeVision 3D without the Change Log section (PORT NOTE).
 //
@@ -311,6 +316,7 @@
             const bush = Na__VegBuild__BuildPlant(recipe, {
                 seed : Na__VegCards__CardSeed(recipe.Asset__Id), positionMm : [0, 0, 0], yawDeg : 0, sizeMm : null
             }, layer.factors);
+            const allBlades   = bush.blades;
             const frontBlades = bush.blades.filter((blade) => blade.p[2] >= 0);
             bush.blades = [];
             bush.core   = null;                                                // <-- A card draws lines only, so a box's core would only cover them
@@ -331,32 +337,65 @@
                 ctx.stroke();
             };
 
-            Na__VegContour__ResetOut(out);
-            Na__VegContour__DrawBush(bush, view, layer.style, out);
-            ctx.strokeStyle = '#141414';
-            ctx.lineWidth = 0.9;
-            stroke(out.outer, out.outerCount);
-            ctx.lineWidth = 0.75;
-            stroke(out.inner, out.innerCount);
+            const fill = () => {
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                for (let v = 0; v + 2 < out.fillCount; v += 3) {
+                    ctx.moveTo(ox + out.fill[v * 3] * px, oy - out.fill[v * 3 + 1] * px);
+                    ctx.lineTo(ox + out.fill[v * 3 + 3] * px, oy - out.fill[v * 3 + 4] * px);
+                    ctx.lineTo(ox + out.fill[v * 3 + 6] * px, oy - out.fill[v * 3 + 7] * px);
+                    ctx.closePath();
+                }
+                ctx.fill();
+            };
 
-            // THE FRONT BLADES | Their own fill first, then their lines
-            bush.count  = 0;
-            bush.blades = frontBlades;
-            Na__VegContour__ResetOut(out);
-            Na__VegContour__DrawBush(bush, view, layer.style, out);
-            ctx.fillStyle = '#ffffff';
-            ctx.beginPath();
-            for (let v = 0; v + 2 < out.fillCount; v += 3) {
-                ctx.moveTo(ox + out.fill[v * 3] * px, oy - out.fill[v * 3 + 1] * px);
-                ctx.lineTo(ox + out.fill[v * 3 + 3] * px, oy - out.fill[v * 3 + 4] * px);
-                ctx.lineTo(ox + out.fill[v * 3 + 6] * px, oy - out.fill[v * 3 + 7] * px);
-                ctx.closePath();
+            if (bush.bladesUnder) {
+                // BLADES THAT GROW FROM INSIDE THE PLANT (v1.5.0) | Stems and a grass's blades:
+                // every blade first, the furthest first, each its own fill then its lines; then the
+                // balls' fill over their feet, then the balls' lines
+                const blades = allBlades.slice().sort((p, q) => (p.p[2] + p.p[5] + p.p[8] + p.p[11]) - (q.p[2] + q.p[5] + q.p[8] + q.p[11]));
+                const balls  = bush.count;
+                bush.count = 0;
+                ctx.strokeStyle = '#141414';
+                blades.forEach((blade) => {
+                    bush.blades = [blade];
+                    Na__VegContour__ResetOut(out);
+                    Na__VegContour__DrawBush(bush, view, layer.style, out);
+                    fill();
+                    ctx.lineWidth = 0.9;
+                    stroke(out.outer, out.outerCount);
+                    ctx.lineWidth = 0.75;
+                    stroke(out.inner, out.innerCount);
+                });
+                bush.count  = balls;
+                bush.blades = [];
+                Na__VegContour__ResetOut(out);
+                Na__VegContour__DrawBush(bush, view, layer.style, out);
+                fill();
+                ctx.lineWidth = 0.9;
+                stroke(out.outer, out.outerCount);
+                ctx.lineWidth = 0.75;
+                stroke(out.inner, out.innerCount);
+            } else {
+                Na__VegContour__ResetOut(out);
+                Na__VegContour__DrawBush(bush, view, layer.style, out);
+                ctx.strokeStyle = '#141414';
+                ctx.lineWidth = 0.9;
+                stroke(out.outer, out.outerCount);
+                ctx.lineWidth = 0.75;
+                stroke(out.inner, out.innerCount);
+
+                // THE FRONT BLADES | Their own fill first, then their lines
+                bush.count  = 0;
+                bush.blades = frontBlades;
+                Na__VegContour__ResetOut(out);
+                Na__VegContour__DrawBush(bush, view, layer.style, out);
+                fill();
+                ctx.lineWidth = 0.9;
+                stroke(out.outer, out.outerCount);
+                ctx.lineWidth = 0.75;
+                stroke(out.inner, out.innerCount);
             }
-            ctx.fill();
-            ctx.lineWidth = 0.9;
-            stroke(out.outer, out.outerCount);
-            ctx.lineWidth = 0.75;
-            stroke(out.inner, out.innerCount);
         }
 
         ctx.strokeStyle = '#141414';

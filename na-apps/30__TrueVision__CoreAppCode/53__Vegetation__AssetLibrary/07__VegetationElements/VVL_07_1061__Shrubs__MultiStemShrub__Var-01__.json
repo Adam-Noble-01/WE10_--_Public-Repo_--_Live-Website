@@ -1,0 +1,120 @@
+{
+    "Asset__Id"          : "VVL_07_1061",
+    "Asset__Name"        : "Multi-Stem Shrub",
+    "Asset__Description" : "A tall shrub on three to five clear stems that lean out from one foot into a light, open canopy: the stems show below and through it. For the back of a border, a corner against a wall, or a feature in a planter. From Adam's reference photos, 17-Nov-2026.",
+
+    "Asset__Meta": {
+        "Meta__Version" : "1.0.0",
+        "Meta__Created" : "17-Nov-2026",
+        "Meta__Author"  : "Adam Noble - Noble Architecture",
+        "Meta__Status"  : "Active"
+    },
+
+    "Asset__Identity": {
+        "Identity__CollectionCode" : "07",
+        "Identity__Type"           : "Shrubs",
+        "Identity__Family"         : "106",
+        "Identity__Item"           : 1,
+        "Identity__Name"           : "MultiStemShrub",
+        "Identity__Variant"        : "Var-01"
+    },
+
+    "Asset__Generator": {
+        "Generator__Name"    : "MultiStem",
+        "Generator__Version" : 1
+    },
+
+    "Asset__Proxy": {
+        "Proxy__Shape"       : "Dome",
+        "Proxy__RingCount"   : 6,
+        "Proxy__SectorCount" : 12
+    },
+
+    "Asset__Placement": {
+        "Placement__RotationVariationDeg"   : 180,
+        "Placement__ScaleVariationPercent"  : 10,
+        "Placement__HeightVariationPercent" : 10,
+        "Placement__AlignToPath"            : false,
+        "Placement__StretchAlongPath"       : false,
+        "Placement__MinSpacingMm"           : 1600,
+        "Placement__DefaultWeight"          : 6
+    },
+
+    "Asset__Catalogue": {
+        "Catalogue__Keywords"      : ["shrub", "multi-stem", "small tree", "open", "feature", "border", "screening"],
+        "Catalogue__Season"        : "Summer",
+        "Catalogue__BotanicalName" : null
+    },
+
+    "Asset__Size": {
+        "Size__WidthMm"     : 2000,
+        "Size__DepthMm"     : 1800,
+        "Size__HeightMm"    : 2500,
+        "Size__JitterShare" : 0.08
+    },
+
+    "Asset__Masses": {
+        "Masses__Layout"            : "Vase",
+        "Masses__CountMin"          : 10,
+        "Masses__CountMax"          : 13,
+        "Masses__ScallopChordMinMm" : 60,
+        "Masses__ScallopChordMaxMm" : 180,
+        "Masses__ScallopDepth"      : 0.50,
+        "Masses__ScallopSkew"       : 1.35,
+        "Masses__TipShare"          : 0.35
+    },
+
+    "Asset__Clumps": {
+        "Clumps__RadiusMinMm"  : 40,
+        "Clumps__RadiusMaxMm"  : 80,
+        "Clumps__Skew"         : 1.25,
+        "Clumps__Spacing"      : 0.95,
+        "Clumps__ReachMin"     : 0.95,
+        "Clumps__ReachMax"     : 1.12,
+        "Clumps__ScallopDepth" : 0.28,
+        "Clumps__TipShare"     : 0.45,
+        "Clumps__Ellipse"      : 0.12,
+        "Clumps__Wobble"       : 0.02
+    },
+
+    "Asset__Nubs": {
+        "Nubs__Share"       : 0.35,
+        "Nubs__RadiusMinMm" : 18,
+        "Nubs__RadiusMaxMm" : 36
+    },
+
+    "Asset__Stems": {
+        "Stems__CountMin"          : 4,
+        "Stems__CountMax"          : 6,
+        "Stems__WidthMinMm"        : 30,
+        "Stems__WidthMaxMm"        : 50,
+        "Stems__FootSpreadShare"   : 0.10,
+        "Stems__CanopyBaseShare"   : 0.32,
+        "Stems__BranchShare"       : 0.80
+    },
+
+    "Asset__Line": {
+        "Line__InteriorChance"  : 0.30,
+        "Line__InteriorSpanDeg" : 85,
+        "Line__TailChance"      : 0.60,
+        "Line__TailMinRad"      : 0.30,
+        "Line__TailMaxRad"      : 1.20,
+        "Line__CurlChance"      : 0.30,
+        "Line__CurlAmount"      : 0.60,
+        "Line__BreakChance"     : 0.12,
+        "Line__CuspHookChance"  : 0.45,
+        "Line__CuspHookMinMm"   : 40,
+        "Line__CuspHookMaxMm"   : 130,
+        "Line__SpurShare"       : 0.30
+    },
+
+    "Asset__Tufts": {
+        "Tufts__CountMin"     : 0,
+        "Tufts__CountMax"     : 0,
+        "Tufts__HeightMinMm"  : 0,
+        "Tufts__HeightMaxMm"  : 0,
+        "Tufts__BladesMin"    : 0,
+        "Tufts__BladesMax"    : 0,
+        "Tufts__BladeWidthMm" : 0
+    }
+}

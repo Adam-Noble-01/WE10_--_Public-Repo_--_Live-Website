@@ -1,0 +1,127 @@
+{
+    "Asset__Id"          : "VVL_07_1041",
+    "Asset__Name"        : "Annabelle Hydrangea",
+    "Asset__Description" : "A rounded mound of broad pointed leaves carrying big round white flower heads over its top and front, each head drawn whole against the leaves behind it. Drawn from Adam's reference photos of a border against a rendered wall, 17-Nov-2026.",
+
+    "Asset__Meta": {
+        "Meta__Version" : "1.0.0",
+        "Meta__Created" : "17-Nov-2026",
+        "Meta__Author"  : "Adam Noble - Noble Architecture",
+        "Meta__Status"  : "Active"
+    },
+
+    "Asset__Identity": {
+        "Identity__CollectionCode" : "07",
+        "Identity__Type"           : "Shrubs",
+        "Identity__Family"         : "104",
+        "Identity__Item"           : 1,
+        "Identity__Name"           : "AnnabelleHydrangea",
+        "Identity__Variant"        : "Var-01"
+    },
+
+    "Asset__Generator": {
+        "Generator__Name"    : "FloweringMound",
+        "Generator__Version" : 1
+    },
+
+    "Asset__Proxy": {
+        "Proxy__Shape"       : "Dome",
+        "Proxy__RingCount"   : 5,
+        "Proxy__SectorCount" : 10
+    },
+
+    "Asset__Placement": {
+        "Placement__RotationVariationDeg"   : 180,
+        "Placement__ScaleVariationPercent"  : 12,
+        "Placement__HeightVariationPercent" : 8,
+        "Placement__AlignToPath"            : false,
+        "Placement__StretchAlongPath"       : false,
+        "Placement__MinSpacingMm"           : 900,
+        "Placement__DefaultWeight"          : 15
+    },
+
+    "Asset__Catalogue": {
+        "Catalogue__Keywords"      : ["ornamental", "flowering", "hydrangea", "annabelle", "white", "mound", "border", "planter"],
+        "Catalogue__Season"        : "Summer",
+        "Catalogue__BotanicalName" : "Hydrangea arborescens 'Annabelle'"
+    },
+
+    "Asset__Size": {
+        "Size__WidthMm"     : 1200,
+        "Size__DepthMm"     : 1100,
+        "Size__HeightMm"    : 1050,
+        "Size__JitterShare" : 0.08
+    },
+
+    "Asset__Masses": {
+        "Masses__Layout"            : "Mound",
+        "Masses__CountMin"          : 4,
+        "Masses__CountMax"          : 6,
+        "Masses__ScallopChordMinMm" : 50,
+        "Masses__ScallopChordMaxMm" : 150,
+        "Masses__ScallopDepth"      : 0.40,
+        "Masses__ScallopSkew"       : 1.30,
+        "Masses__TipShare"          : 0.25
+    },
+
+    "Asset__Clumps": {
+        "Clumps__RadiusMinMm"  : 55,
+        "Clumps__RadiusMaxMm"  : 100,
+        "Clumps__Skew"         : 1.10,
+        "Clumps__Spacing"      : 0.95,
+        "Clumps__ReachMin"     : 0.94,
+        "Clumps__ReachMax"     : 1.06,
+        "Clumps__ScallopDepth" : 0.35,
+        "Clumps__TipShare"     : 0.70,
+        "Clumps__Ellipse"      : 0.10,
+        "Clumps__Wobble"       : 0.02
+    },
+
+    "Asset__Nubs": {
+        "Nubs__Share"       : 0.25,
+        "Nubs__RadiusMinMm" : 20,
+        "Nubs__RadiusMaxMm" : 38
+    },
+
+    "Asset__Heads": {
+        "Heads__CountMin"           : 16,
+        "Heads__CountMax"           : 22,
+        "Heads__RadiusMinMm"        : 85,
+        "Heads__RadiusMaxMm"        : 130,
+        "Heads__ReachMin"           : 1.00,
+        "Heads__ReachMax"           : 1.15,
+        "Heads__UpMin"              : 0.00,
+        "Heads__LowShare"           : 0.40,
+        "Heads__Spacing"            : 0.85,
+        "Heads__ScallopChordMinMm"  : 20,
+        "Heads__ScallopChordMaxMm"  : 34,
+        "Heads__ScallopDepth"       : 0.30,
+        "Heads__Ellipse"            : 0.05,
+        "Heads__MarkShare"          : 0.65
+    },
+
+    "Asset__Line": {
+        "Line__InteriorChance"  : 0.20,
+        "Line__InteriorSpanDeg" : 60,
+        "Line__TailChance"      : 0.50,
+        "Line__TailMinRad"      : 0.25,
+        "Line__TailMaxRad"      : 1.00,
+        "Line__CurlChance"      : 0.30,
+        "Line__CurlAmount"      : 0.60,
+        "Line__BreakChance"     : 0.06,
+        "Line__CuspHookChance"  : 0.40,
+        "Line__CuspHookMinMm"   : 30,
+        "Line__CuspHookMaxMm"   : 100,
+        "Line__SpurShare"       : 0.25
+    },
+
+    "Asset__Tufts": {
+        "Tufts__CountMin"     : 0,
+        "Tufts__CountMax"     : 0,
+        "Tufts__HeightMinMm"  : 0,
+        "Tufts__HeightMaxMm"  : 0,
+        "Tufts__BladesMin"    : 0,
+        "Tufts__BladesMax"    : 0,
+        "Tufts__BladeWidthMm" : 0
+    }
+}

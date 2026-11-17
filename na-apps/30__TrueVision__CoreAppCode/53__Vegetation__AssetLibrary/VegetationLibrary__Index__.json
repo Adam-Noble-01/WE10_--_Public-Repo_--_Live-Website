@@ -133,6 +133,67 @@
             ]
         },
         {
+            "Asset__Id": "VVL_07_1041",
+            "Asset__Name": "Annabelle Hydrangea",
+            "Asset__File": "07__VegetationElements/VVL_07_1041__Shrubs__AnnabelleHydrangea__Var-01__.json",
+            "Asset__CollectionLabel": "Vegetation",
+            "Asset__TypeLabel": "Shrubs",
+            "Asset__Status": "Active",
+            "Asset__Version": "1.0.0",
+            "Asset__WidthMm": 1200,
+            "Asset__HeightMm": 1050,
+            "Asset__Keywords": [
+                "ornamental",
+                "flowering",
+                "hydrangea",
+                "annabelle",
+                "white",
+                "mound",
+                "border",
+                "planter"
+            ]
+        },
+        {
+            "Asset__Id": "VVL_07_1051",
+            "Asset__Name": "Lavender",
+            "Asset__File": "07__VegetationElements/VVL_07_1051__Shrubs__Lavender__Var-01__.json",
+            "Asset__CollectionLabel": "Vegetation",
+            "Asset__TypeLabel": "Shrubs",
+            "Asset__Status": "Active",
+            "Asset__Version": "1.0.0",
+            "Asset__WidthMm": 700,
+            "Asset__HeightMm": 600,
+            "Asset__Keywords": [
+                "lavender",
+                "flowering",
+                "spikes",
+                "aromatic",
+                "edging",
+                "border",
+                "planter"
+            ]
+        },
+        {
+            "Asset__Id": "VVL_07_1061",
+            "Asset__Name": "Multi-Stem Shrub",
+            "Asset__File": "07__VegetationElements/VVL_07_1061__Shrubs__MultiStemShrub__Var-01__.json",
+            "Asset__CollectionLabel": "Vegetation",
+            "Asset__TypeLabel": "Shrubs",
+            "Asset__Status": "Active",
+            "Asset__Version": "1.0.0",
+            "Asset__WidthMm": 2000,
+            "Asset__HeightMm": 2500,
+            "Asset__Keywords": [
+                "shrub",
+                "multi-stem",
+                "small tree",
+                "open",
+                "feature",
+                "border",
+                "screening"
+            ]
+        },
+        {
             "Asset__Id": "VVL_07_1501",
             "Asset__Name": "Clipped Hedge",
             "Asset__File": "07__VegetationElements/VVL_07_1501__Hedges__ClippedHedge__Var-01__.json",
@@ -206,6 +267,27 @@
                 "clipped",
                 "formal",
                 "accent"
+            ]
+        },
+        {
+            "Asset__Id": "VVL_07_3001",
+            "Asset__Name": "Arching Grass",
+            "Asset__File": "07__VegetationElements/VVL_07_3001__Grasses__ArchingGrass__Var-01__.json",
+            "Asset__CollectionLabel": "Vegetation",
+            "Asset__TypeLabel": "Grasses",
+            "Asset__Status": "Active",
+            "Asset__Version": "1.0.0",
+            "Asset__WidthMm": 750,
+            "Asset__HeightMm": 650,
+            "Asset__Keywords": [
+                "grass",
+                "ornamental",
+                "arching",
+                "fountain",
+                "soft",
+                "edging",
+                "border",
+                "planter"
             ]
         }
     ]

@@ -2,6 +2,97 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.189.0  -  17-Nov-2026
+### Four New Plants from Adam's Border Photos, and the Flowering Wall Border Palette
+
+**What Adam asked for** (two reference photos of a border against a rendered gable, the second labelled Bush, Lavenda,
+grass and THI[s])
+- "You're going to make some new vegetation assets for TrueVision and ValeVision at the same time. The first one is
+  this small flowery bush. Is this a hydrangea? I don't know."
+- "We need to create lavender, a bush like this, and a grass like this. I'm effectively trying to recreate this, so
+  once you've made it, recreate this as a brush palette as well."
+- "Once the assets are made, we'll also need the corresponding proxies for the Sketchup 2D link."
+
+**What was missing**
+- The library's two generators could not draw any of the four. BallCluster draws mounds of scalloped balls and short
+  tufts at the foot; nothing in it carries a flower head that reads apart from the leaves, a spike on a stem, a grass
+  without a body, or clear stems under a raised canopy. Its inner lines are thinned to a few arcs on purpose, so a
+  flower head inside the plant's outline was invisible.
+- A card (the panel's plant picture) has no depth test and drew only the front half of a plant's blades, over its
+  balls: wrong for stems that grow from inside a plant and for a grass that is all blades.
+- A standard palette could set the Line Tool's spacing but not the Bush Tool's density, so a palette made for a full
+  border brushed at the default 0.9 plants a square metre.
+
+**Now**
+- **Four assets** (`53__Vegetation__AssetLibrary`, the same files in ValeVision 3D):
+  - `VVL_07_1041` Annabelle Hydrangea, 1200 x 1100 x 1050: a leafy mound with pointed leaf clumps, carrying 16 to 22
+    round flower heads high on it, each with a fine floret edge and, on most, an arc inside.
+  - `VVL_07_1051` Lavender, 700 x 650 x 600: a cushion of fine narrow leaves and 24 to 32 flower spikes, a column of
+    small whorls on a slender stem, tallest in the middle and leaning out and lower to the edge.
+  - `VVL_07_1061` Multi-Stem Shrub, 2000 x 1800 x 2500: four to six stems from one foot, some forking, leaning out
+    into an open, lobed canopy from about a third of the height.
+  - `VVL_07_3001` Arching Grass, 750 x 750 x 650: 40 to 55 fine blades from a tight crown, upright in the middle,
+    arching out and over at the edge. The library's first grass (`Grasses`, block 30).
+- **Four generators** beside BallCluster and ClippedForm, version 1 each, listed in the config (1.5.0):
+  `FloweringMound`, `SpikedClump`, `GrassFountain`, `MultiStem`, reading the new optional blocks `Asset__Heads`,
+  `Asset__Spikes`, `Asset__Fountain` and `Asset__Stems` (schema, and a `Vase` canopy layout). The build util (1.1.0)
+  refuses an asset naming one without its block and checks their ranges.
+- **Inked balls** (the bush builder 1.2.0, the contour drawer 1.3.0): a flower head or a whorl carries `ink`, and its
+  outline is drawn whole inside the plant at the inner weight; a leaf crossing in front of one shows its edge there.
+  A whorl's spike leaves the drawing whole once its bottom whorl is under 1.6 px on screen, so a far lavender is its
+  cushion with a fringe of strokes, never dark beads. A stem that meets a spike or a mass is fitted with the balls, so
+  a narrowed or stretched plant keeps its spikes on their stems.
+- **Cards** (the asset browser 1.5.0-tv.1): a plant whose blades grow from inside it paints every blade first, the
+  furthest first, each its fill then its lines, then the balls over them. Every other card is drawn as before.
+- **The Flowering Wall Border palette** (`VVP_0003`, standard palettes 1.1.0): hydrangea 34, lavender 34, grass 24,
+  multi-stem 8, at plant scale 1.00 and 650 mm on a path, and the first palette with a brush of its own:
+  `Palette__BrushDensityPerSquareM` 2.4 and `Palette__BrushMinSpacingMm` 450. Chosen in the Bush Tool (1.5.0) it sets
+  both; the palette editor (1.3.0) hands them on and its toast and hint say them. Palettes without them behave as
+  before.
+- **SketchUp proxies.** The four take the house proxy, a dome at the plant's own size, which ValeVision Cloud Sync's
+  Sync Vegetation tab builds from each asset's `Asset__Proxy` and `Asset__Size` (lavender and grass 4 rings, the
+  multi-stem 6 rings and 12 sectors). Nothing changed in the plugin. TrueVision itself has no SketchUp link for plants:
+  Cloud Sync's Sync tabs were not ported (the vegetation README).
+
+**Files**
+- New: `53__Vegetation__AssetLibrary/07__VegetationElements/VVL_07_1041__Shrubs__AnnabelleHydrangea__Var-01__.json`,
+  `VVL_07_1051__Shrubs__Lavender__Var-01__.json`, `VVL_07_1061__Shrubs__MultiStemShrub__Var-01__.json`,
+  `VVL_07_3001__Grasses__ArchingGrass__Var-01__.json`.
+- Changed: `24__System__Vegetation/01__Core__Engine/Na__Vegetation__BushBuilder__.js` 1.2.0,
+  `Na__Vegetation__Contour__.js` 1.3.0, `10__Ui__Panels/Na__Vegetation__AssetBrowser__.js` 1.5.0-tv.1,
+  `Na__Vegetation__PaletteEditor__.js` 1.3.0, `20__System__Tools/Na__Vegetation__BushTool__.js` 1.5.0,
+  `Na__Vegetation__AppConfig__.json` 1.5.0, `README__Vegetation__.md`; the library's index (regenerated), schema,
+  standard palettes and build util.
+- ValeVision 3D v2.99.0 has the same change; the two apps' files differ only as before (headers and port notes).
+- Service worker token: none of its own. No module gains an import, so a warm client pairing a fresh library with a
+  cached engine only leaves the new plants out for that visit ("No generator for ..."). v2.188.0's `2026-11-17-01`
+  is not live yet and covers this; if v2.188.0 goes live first, this needs one of its own.
+
+**Tested**
+- Engine hash, every ball, table, blade and drawn line of the eleven assets before this over 6 seeds, 4 plop variants
+  and 4 views, in Node: `39fd60a48826a363a509bfa9158494a0` before and after, in both apps. All fifteen:
+  `7cd2e83037ee8d69bf7977ffff7c0a47` in both apps.
+- The library's `validate` and `index --check`: 15 assets, no error, current, in both apps; the two libraries are
+  byte-identical.
+- `tv3d_check`: the changed files clean, `Na__Verify__Exports__` PASS (614 files), the module graph nothing new failing.
+- The look, through the app's own scene layer in a test page and then on the MCP's sandbox (NP03 Ashness Close, plants
+  placed in the page's memory, nothing saved, no write): three seeds of each from the front and in perspective; three
+  distances; a border laid out as the photo against the right-hand front wall; a real brush stroke of the palette
+  (the app's own brush model at its density and spacing) in front of the bay; the Vegetation panel listing all fifteen,
+  the four new cards and two existing ones looked at.
+  Card seeds found a multi-stem canopy with a hole through it, fixed (a heart mass) before anything holds the plant.
+- The proxies: the four, beside a Rounded Shrub and a Standard Bay, built in a scratch SketchUp 2026 window by Cloud
+  Sync's own `na_definition` from ValeVision's library files: each on `05__ValeVision__VegetationProxies`, stamped
+  with its asset, at its own size, and all six found by the plugin's own proxy reader.
+
+**Not tested**
+- The panels driven by hand: choosing the palette in the Bush Tool and painting, Save Vegetation, the Line Tool with
+  the palette.
+- A real phone or tablet; a sheet's 3D picture and a drawing with the new plants ticked on.
+- A Sync Vegetation round trip on a real project: the proxy builder was run, not a sync (this PC has no Server Manager
+  mirror at the path its sync map names, so the tab's own asset list is empty here).
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.187.0  -  16-Nov-2026
 ### A Turned Phone Redraws the 3D View to Its New Shape, and Phones Get ValeVision's Phone Layout
 

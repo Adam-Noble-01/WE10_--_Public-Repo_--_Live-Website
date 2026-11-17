@@ -111,7 +111,7 @@
             "type": "object", "additionalProperties": false,
             "required": ["Masses__Layout", "Masses__CountMin", "Masses__CountMax", "Masses__ScallopChordMinMm", "Masses__ScallopChordMaxMm", "Masses__ScallopDepth", "Masses__ScallopSkew", "Masses__TipShare"],
             "properties": {
-                "Masses__Layout"            : { "enum": ["Mound", "Upright", "Run"] },
+                "Masses__Layout"            : { "enum": ["Mound", "Upright", "Run", "Vase"], "description": "Vase is a multi-stem's canopy, read by MultiStem only" },
                 "Masses__CountMin"          : { "type": "integer", "minimum": 1 },
                 "Masses__CountMax"          : { "type": "integer", "minimum": 1 },
                 "Masses__ScallopChordMinMm" : { "type": "number", "exclusiveMinimum": 0 },
@@ -165,6 +165,81 @@
                 "Line__CuspHookMinMm"   : { "type": "number", "minimum": 0 },
                 "Line__CuspHookMaxMm"   : { "type": "number", "minimum": 0 },
                 "Line__SpurShare"       : { "type": "number", "minimum": 0, "maximum": 1 }
+            }
+        },
+
+        "Asset__Heads": {
+            "type": "object", "additionalProperties": false,
+            "description": "Optional, read by the FloweringMound generator: flower heads carried over the leaves, each drawn whole",
+            "required": ["Heads__CountMin", "Heads__CountMax", "Heads__RadiusMinMm", "Heads__RadiusMaxMm", "Heads__ReachMin", "Heads__ReachMax", "Heads__UpMin", "Heads__LowShare", "Heads__Spacing", "Heads__ScallopChordMinMm", "Heads__ScallopChordMaxMm", "Heads__ScallopDepth", "Heads__Ellipse", "Heads__MarkShare"],
+            "properties": {
+                "Heads__CountMin"          : { "type": "integer", "minimum": 0 },
+                "Heads__CountMax"          : { "type": "integer", "minimum": 0 },
+                "Heads__RadiusMinMm"       : { "type": "number", "exclusiveMinimum": 0 },
+                "Heads__RadiusMaxMm"       : { "type": "number", "exclusiveMinimum": 0 },
+                "Heads__ReachMin"          : { "type": "number", "exclusiveMinimum": 0, "description": "How far out from its mass's centre a head sits, as a share of the mass's radius: over 1 stands proud of the leaves" },
+                "Heads__ReachMax"          : { "type": "number", "exclusiveMinimum": 0 },
+                "Heads__UpMin"             : { "type": "number", "minimum": -1, "maximum": 1, "description": "The lowest a head looks: 0 is level, so heads stay on the top and the sides" },
+                "Heads__LowShare"          : { "type": "number", "minimum": 0, "maximum": 1, "description": "No head's centre is lower than this share of the height: flowers carried high, leaves below" },
+                "Heads__Spacing"           : { "type": "number", "exclusiveMinimum": 0, "description": "Two heads come no closer than this times their radii added" },
+                "Heads__ScallopChordMinMm" : { "type": "number", "exclusiveMinimum": 0, "description": "The florets round a head's edge: much finer than a leaf clump's scallops" },
+                "Heads__ScallopChordMaxMm" : { "type": "number", "exclusiveMinimum": 0 },
+                "Heads__ScallopDepth"      : { "type": "number", "minimum": 0 },
+                "Heads__Ellipse"           : { "type": "number", "minimum": 0 },
+                "Heads__MarkShare"         : { "type": "number", "minimum": 0, "maximum": 1, "description": "The share of heads with an arc inside, the dome of their florets; its length follows Line__InteriorSpanDeg" }
+            }
+        },
+
+        "Asset__Spikes": {
+            "type": "object", "additionalProperties": false,
+            "description": "Optional, read by the SpikedClump generator: a cushion of foliage and flower spikes on stems above it",
+            "required": ["Spikes__CountMin", "Spikes__CountMax", "Spikes__CushionWidthShare", "Spikes__CushionHeightShare", "Spikes__Splay", "Spikes__TopMinShare", "Spikes__LengthMinMm", "Spikes__LengthMaxMm", "Spikes__WhorlRadiusMinMm", "Spikes__WhorlRadiusMaxMm", "Spikes__WhorlStepShare", "Spikes__WhorlScallopDepth", "Spikes__StemWidthMm"],
+            "properties": {
+                "Spikes__CountMin"           : { "type": "integer", "minimum": 0 },
+                "Spikes__CountMax"           : { "type": "integer", "minimum": 0 },
+                "Spikes__CushionWidthShare"  : { "type": "number", "exclusiveMinimum": 0, "maximum": 1, "description": "The foliage's width, as a share of the plant's: the spikes fan out wider" },
+                "Spikes__CushionHeightShare" : { "type": "number", "exclusiveMinimum": 0, "maximum": 1, "description": "The foliage's height, as a share of the plant's, flowers included" },
+                "Spikes__Splay"              : { "type": "number", "exclusiveMinimum": 0, "maximum": 1, "description": "How far out the outermost spike's tip reaches, as a share of the half width" },
+                "Spikes__TopMinShare"        : { "type": "number", "exclusiveMinimum": 0, "maximum": 1, "description": "The lowest an outer spike's tip comes, as a share of the height: the middle ones reach the top" },
+                "Spikes__LengthMinMm"        : { "type": "number", "exclusiveMinimum": 0 },
+                "Spikes__LengthMaxMm"        : { "type": "number", "exclusiveMinimum": 0 },
+                "Spikes__WhorlRadiusMinMm"   : { "type": "number", "exclusiveMinimum": 0, "description": "A spike's bottom whorl; the top one is smaller" },
+                "Spikes__WhorlRadiusMaxMm"   : { "type": "number", "exclusiveMinimum": 0 },
+                "Spikes__WhorlStepShare"     : { "type": "number", "exclusiveMinimum": 0, "description": "Whorls along a spike, one each this many of their radii: under 2 they overlap" },
+                "Spikes__WhorlScallopDepth"  : { "type": "number", "minimum": 0 },
+                "Spikes__StemWidthMm"        : { "type": "number", "exclusiveMinimum": 0 }
+            }
+        },
+
+        "Asset__Fountain": {
+            "type": "object", "additionalProperties": false,
+            "description": "Optional, read by the GrassFountain generator: blades arching out of a tight crown",
+            "required": ["Fountain__BladesMin", "Fountain__BladesMax", "Fountain__CrownShare", "Fountain__HeightMinShare", "Fountain__ReachMinShare", "Fountain__ReachMaxShare", "Fountain__DroopMinShare", "Fountain__DroopMaxShare", "Fountain__BladeWidthMm"],
+            "properties": {
+                "Fountain__BladesMin"      : { "type": "integer", "minimum": 1 },
+                "Fountain__BladesMax"      : { "type": "integer", "minimum": 1 },
+                "Fountain__CrownShare"     : { "type": "number", "minimum": 0, "maximum": 0.9, "description": "The crown the blades grow from, as a share of the half width" },
+                "Fountain__HeightMinShare" : { "type": "number", "exclusiveMinimum": 0, "maximum": 1, "description": "The shortest blade, as a share of the height" },
+                "Fountain__ReachMinShare"  : { "type": "number", "minimum": 0, "maximum": 1, "description": "How far out an upright blade's tip goes, as a share of the room past the crown" },
+                "Fountain__ReachMaxShare"  : { "type": "number", "minimum": 0, "maximum": 1, "description": "How far out an arching blade's tip goes" },
+                "Fountain__DroopMinShare"  : { "type": "number", "exclusiveMinimum": 0, "maximum": 1, "description": "An arching blade's tip height, as a share of the blade's: lower falls further" },
+                "Fountain__DroopMaxShare"  : { "type": "number", "exclusiveMinimum": 0, "maximum": 1, "description": "An upright blade's tip height" },
+                "Fountain__BladeWidthMm"   : { "type": "number", "exclusiveMinimum": 0 }
+            }
+        },
+
+        "Asset__Stems": {
+            "type": "object", "additionalProperties": false,
+            "description": "Optional, read by the MultiStem generator: clear stems from one foot into a canopy laid out by Masses__Layout Vase",
+            "required": ["Stems__CountMin", "Stems__CountMax", "Stems__WidthMinMm", "Stems__WidthMaxMm", "Stems__FootSpreadShare", "Stems__CanopyBaseShare", "Stems__BranchShare"],
+            "properties": {
+                "Stems__CountMin"        : { "type": "integer", "minimum": 1 },
+                "Stems__CountMax"        : { "type": "integer", "minimum": 1 },
+                "Stems__WidthMinMm"      : { "type": "number", "exclusiveMinimum": 0 },
+                "Stems__WidthMaxMm"      : { "type": "number", "exclusiveMinimum": 0 },
+                "Stems__FootSpreadShare" : { "type": "number", "minimum": 0, "maximum": 1, "description": "The stems' feet lie within this share of the half width of the middle" },
+                "Stems__CanopyBaseShare" : { "type": "number", "minimum": 0, "maximum": 0.9, "description": "Where the canopy starts, as a share of the height: the stems are clear below it" },
+                "Stems__BranchShare"     : { "type": "number", "minimum": 0, "maximum": 1, "description": "The chance a stem forks a side branch into the next mass round" }
             }
         },
 

@@ -1,0 +1,126 @@
+{
+    "Asset__Id"          : "VVL_07_1051",
+    "Asset__Name"        : "Lavender",
+    "Asset__Description" : "A low cushion of fine narrow leaves with flower spikes on slender stems above it, tallest in the middle and leaning out to the edge: English lavender in flower, for the front of a border, edging a path or a planter. From Adam's reference photos, 17-Nov-2026.",
+
+    "Asset__Meta": {
+        "Meta__Version" : "1.0.0",
+        "Meta__Created" : "17-Nov-2026",
+        "Meta__Author"  : "Adam Noble - Noble Architecture",
+        "Meta__Status"  : "Active"
+    },
+
+    "Asset__Identity": {
+        "Identity__CollectionCode" : "07",
+        "Identity__Type"           : "Shrubs",
+        "Identity__Family"         : "105",
+        "Identity__Item"           : 1,
+        "Identity__Name"           : "Lavender",
+        "Identity__Variant"        : "Var-01"
+    },
+
+    "Asset__Generator": {
+        "Generator__Name"    : "SpikedClump",
+        "Generator__Version" : 1
+    },
+
+    "Asset__Proxy": {
+        "Proxy__Shape"       : "Dome",
+        "Proxy__RingCount"   : 4,
+        "Proxy__SectorCount" : 10
+    },
+
+    "Asset__Placement": {
+        "Placement__RotationVariationDeg"   : 180,
+        "Placement__ScaleVariationPercent"  : 10,
+        "Placement__HeightVariationPercent" : 10,
+        "Placement__AlignToPath"            : false,
+        "Placement__StretchAlongPath"       : false,
+        "Placement__MinSpacingMm"           : 450,
+        "Placement__DefaultWeight"          : 20
+    },
+
+    "Asset__Catalogue": {
+        "Catalogue__Keywords"      : ["lavender", "flowering", "spikes", "aromatic", "edging", "border", "planter"],
+        "Catalogue__Season"        : "Summer",
+        "Catalogue__BotanicalName" : "Lavandula angustifolia"
+    },
+
+    "Asset__Size": {
+        "Size__WidthMm"     : 700,
+        "Size__DepthMm"     : 650,
+        "Size__HeightMm"    : 600,
+        "Size__JitterShare" : 0.08
+    },
+
+    "Asset__Masses": {
+        "Masses__Layout"            : "Mound",
+        "Masses__CountMin"          : 3,
+        "Masses__CountMax"          : 5,
+        "Masses__ScallopChordMinMm" : 30,
+        "Masses__ScallopChordMaxMm" : 90,
+        "Masses__ScallopDepth"      : 0.45,
+        "Masses__ScallopSkew"       : 1.30,
+        "Masses__TipShare"          : 0.35
+    },
+
+    "Asset__Clumps": {
+        "Clumps__RadiusMinMm"  : 28,
+        "Clumps__RadiusMaxMm"  : 50,
+        "Clumps__Skew"         : 1.20,
+        "Clumps__Spacing"      : 0.95,
+        "Clumps__ReachMin"     : 0.95,
+        "Clumps__ReachMax"     : 1.08,
+        "Clumps__ScallopDepth" : 0.32,
+        "Clumps__TipShare"     : 0.65,
+        "Clumps__Ellipse"      : 0.10,
+        "Clumps__Wobble"       : 0.02
+    },
+
+    "Asset__Nubs": {
+        "Nubs__Share"       : 0.30,
+        "Nubs__RadiusMinMm" : 10,
+        "Nubs__RadiusMaxMm" : 20
+    },
+
+    "Asset__Spikes": {
+        "Spikes__CountMin"           : 24,
+        "Spikes__CountMax"           : 32,
+        "Spikes__CushionWidthShare"  : 0.85,
+        "Spikes__CushionHeightShare" : 0.55,
+        "Spikes__Splay"              : 1.00,
+        "Spikes__TopMinShare"        : 0.72,
+        "Spikes__LengthMinMm"        : 70,
+        "Spikes__LengthMaxMm"        : 105,
+        "Spikes__WhorlRadiusMinMm"   : 9,
+        "Spikes__WhorlRadiusMaxMm"   : 12,
+        "Spikes__WhorlStepShare"     : 1.50,
+        "Spikes__WhorlScallopDepth"  : 0.20,
+        "Spikes__StemWidthMm"        : 4
+    },
+
+    "Asset__Line": {
+        "Line__InteriorChance"  : 0.10,
+        "Line__InteriorSpanDeg" : 80,
+        "Line__TailChance"      : 0.40,
+        "Line__TailMinRad"      : 0.25,
+        "Line__TailMaxRad"      : 0.90,
+        "Line__CurlChance"      : 0.25,
+        "Line__CurlAmount"      : 0.55,
+        "Line__BreakChance"     : 0.05,
+        "Line__CuspHookChance"  : 0.35,
+        "Line__CuspHookMinMm"   : 15,
+        "Line__CuspHookMaxMm"   : 50,
+        "Line__SpurShare"       : 0.30
+    },
+
+    "Asset__Tufts": {
+        "Tufts__CountMin"     : 0,
+        "Tufts__CountMax"     : 0,
+        "Tufts__HeightMinMm"  : 0,
+        "Tufts__HeightMaxMm"  : 0,
+        "Tufts__BladesMin"    : 0,
+        "Tufts__BladesMax"    : 0,
+        "Tufts__BladeWidthMm" : 0
+    }
+}

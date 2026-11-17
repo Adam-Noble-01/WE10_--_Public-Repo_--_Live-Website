@@ -52,7 +52,14 @@
 //   shell, written as they are: see BushBuilder's header.
 // - A CLIPPED FORM'S MARKS. Its bush also carries marks, an arc inside a ball's outline on its
 //   near surface, where it is the highest thing there: see BushBuilder's header. They leave one
-//   by one with distance as inner arcs do, and the Inner Arcs slider thins them out.
+//   by one with distance as inner arcs do, and the Inner Arcs slider thins them out. A flower
+//   head carries one too (v1.3.0).
+// - INKED BALLS (v1.3.0). A bush may carry ink, its balls whose outline is drawn whole (a flower
+//   head, a lavender whorl). A fourth state, INNER_INK, is an inner line kept whole at the inner
+//   weight: the ball's own, or where what the eye sees just past the line is an inked ball, so a
+//   leaf crossing in front of a head shows its edge there. An inked ball smaller on screen than
+//   INK_MIN_PX, judged by its lodR, drops out, fill and all. A bush without ink takes the old
+//   path unchanged, by the engine hash.
 //
 // FRAMES:
 // - World metres, +Y up, in and out. Angles run round each ball from its own right
@@ -78,6 +85,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 17-Nov-2026 - Version 1.3.0 (ValeVision3D v2.99.0, TrueVision3D v2.189.0)
+// - Inked balls (see the header): INNER_INK, ClassifyInked, INK_MIN_PX. Only a bush carrying
+//   ink takes any of it: every line of the eleven assets before it is unchanged, by the engine
+//   hash (39fd60a48826a363a509bfa9158494a0).
+//
 // 04-Nov-2026 - Version 1.2.0 (ValeVision3D v2.86.0)
 // - A bush's facing and marks, for clipped forms, and a stem. Without them every line it draws
 //   is unchanged.
@@ -123,6 +135,7 @@
     const Na__VegContour__HIDDEN       = 0;
     const Na__VegContour__OUTER        = 1;
     const Na__VegContour__INNER        = 2;
+    const Na__VegContour__INNER_INK    = 3;                                    // <-- v1.3.0: an inner line kept whole, as an inked ball's (see the header)
     const Na__VegContour__BISECT_STEPS = 7;                                    // <-- 15 degrees down to a tenth of one: the two lines touch
     const Na__VegContour__EPS_M        = 0.0004;                               // <-- A point on a ball's own surface is not behind it
     const Na__VegContour__MIN_K        = 18;
@@ -133,6 +146,7 @@
     const Na__VegContour__MARK_LOD     = 0.60;                                 // <-- Of the inner arcs' size on screen: a mark is drawn smaller, so it stays longer
     const Na__VegContour__MARK_MIN_PX  = 7;                                    // <-- A shorter mark is a speck
     const Na__VegContour__MARK_SPAN    = 1.5;                                  // <-- Times the asset's inner arc: a mark is nearer the middle, so it needs more turn to read
+    const Na__VegContour__INK_MIN_PX   = 1.6;                                  // <-- v1.3.0: an inked ball smaller than this on screen drops out, fill and all: a far spike's whorls would be dark beads, or white specks on the ground
     const Na__VegContour__STEM_FOOT    = 0.05;                                 // <-- Of a stem's length: the foot flares this far up
     const Na__VegContour__STEM_FLARE   = 0.5;
     // ------------------------------------------------------------
@@ -170,6 +184,7 @@
     // several hundred thousand times per view.
     // ------------------------------------------------------------
     let Cx = null, Cy = null, Cz = null, Ra = null, RMax = null, RMin = null, Pol = null, PolStart = null, PolN = null, Sty = null, Tier = null;
+    let Ink = null;                                                            // <-- v1.3.0: the bush's inked balls, or null on every plant without one
     let Ex = 0, Ey = 0, Ez = 0, Fx = 0, Fy = 0, Fz = 0, IsOrtho = false;
     let Tx = 0, Ty = 0, Tz = 0;
     let GroundY = 0;
@@ -362,6 +377,7 @@
             const len = Math.sqrt(vx * vx + vy * vy + vz * vz) || 1;
             vx /= len; vy /= len; vz /= len;
         }
+        if (Ink !== null) return Na__VegContour__ClassifyInked(i, qx, qy, qz, vx, vy, vz);
         for (let n = NbrStart[i], end = NbrStart[i + 1]; n < end; n++) {
             const j   = NbrList[n];
             const ox  = Cx[j] - qx, oy = Cy[j] - qy, oz = Cz[j] - qz;
@@ -373,6 +389,37 @@
             }
         }
         return Na__VegContour__OUTER;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Beyond a Point, on a Bush with Inked Balls (v1.3.0)
+    // ------------------------------------------------------------
+    // An inner line is kept whole when its own ball is inked, or when what the eye sees just past
+    // it is an inked ball: the nearest surface along the ray, not merely any ball behind. So a
+    // flower head shows its whole round over the leaves, and a leaf crossing in front of a head
+    // shows its edge there. Anything else is a plain inner line, thinned as always.
+    // ------------------------------------------------------------
+    function Na__VegContour__ClassifyInked(i, qx, qy, qz, vx, vy, vz) {
+        let found = false, nearest = Infinity, nearestInked = false;
+        for (let n = NbrStart[i], end = NbrStart[i + 1]; n < end; n++) {
+            const j   = NbrList[n];
+            const ox  = Cx[j] - qx, oy = Cy[j] - qy, oz = Cz[j] - qz;
+            const tca = ox * vx + oy * vy + oz * vz;
+            const oo  = ox * ox + oy * oy + oz * oz;
+            const d2  = oo - tca * tca;
+            if (!Na__VegContour__InsideOutline(j, d2, vx * tca - ox, vy * tca - oy, vz * tca - oz)) continue;
+            if (Ink[i] === 1) return Na__VegContour__INNER_INK;
+            found = true;
+            const rr  = Ra[j];
+            const at  = tca - ((d2 < rr * rr) ? Math.sqrt(rr * rr - d2) : 0);  // <-- Where the ray meets its near surface
+            if (at < nearest) {
+                nearest      = at;
+                nearestInked = Ink[j] === 1;
+            }
+        }
+        if (!found) return Na__VegContour__OUTER;
+        return nearestInked ? Na__VegContour__INNER_INK : Na__VegContour__INNER;
     }
     // ------------------------------------------------------------
 
@@ -543,6 +590,7 @@
 
             Active[i] = (bush.tier[i] === Na__VegBuild__TIER_MASS || PxR[i] >= style.lodSkipPx) ? 1 : 0;
             if (facing && (facing[i * 3] * nx + facing[i * 3 + 1] * ny + facing[i * 3 + 2] * nz) > Na__VegContour__FACING_AWAY) Active[i] = 0;
+            if (Ink !== null && Ink[i] === 1 && bush.inkLodR[i] * scale < Na__VegContour__INK_MIN_PX) Active[i] = 0;   // <-- v1.3.0: see INK_MIN_PX
         }
 
         // NEIGHBOURS | Only balls whose outlines can touch on the page: an eighth of the work
@@ -662,6 +710,8 @@
                 Na__VegContour__EmitArc(out, i, phase, phase + Na__VegContour__TAU, stepRad, false);
             } else if (St[0] === Na__VegContour__INNER && hasArc) {
                 Na__VegContour__DrawInnerArc(out, bush, i, u, phase, phase + Na__VegContour__TAU, stepRad, allowCurl);
+            } else if (St[0] === Na__VegContour__INNER_INK) {
+                Na__VegContour__EmitArc(out, i, phase, phase + Na__VegContour__TAU, stepRad, true);
             }
             return;
         }
@@ -711,6 +761,8 @@
                 }
             } else if (state === Na__VegContour__INNER && hasArc) {
                 Na__VegContour__DrawInnerArc(out, bush, i, u, a0, a1, stepRad, allowCurl);
+            } else if (state === Na__VegContour__INNER_INK) {
+                Na__VegContour__EmitArc(out, i, a0, a1, stepRad, true);        // <-- Kept whole, at the inner weight
             }
         }
     }
@@ -891,6 +943,7 @@
         Cx = bush.cx; Cy = bush.cy; Cz = bush.cz;
         Ra = bush.r; RMax = bush.rMax; RMin = bush.rMin;
         Pol = bush.polar; PolStart = bush.polStart; PolN = bush.polN; Sty = bush.style; Tier = bush.tier;
+        Ink = bush.ink || null;
 
         Na__VegContour__SetUpBalls(bush, view, style);
 
