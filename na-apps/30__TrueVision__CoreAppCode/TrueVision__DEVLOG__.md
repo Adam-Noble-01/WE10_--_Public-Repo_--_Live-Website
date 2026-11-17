@@ -93,6 +93,73 @@ grass and THI[s])
   mirror at the path its sync map names, so the tab's own asset list is empty here).
 
 # ---------------------------------------------------------
+## TrueVision3D v2.188.0  -  17-Nov-2026
+### Water: a Hot Tub's Water Is Drawn as Water, Whatever the Export
+
+**What Adam asked for** (with the SK02 hot tub asset)
+- "Seek out my plugins folder and the SSOT, and create a water texture."
+- "Seek out TrueVision 3D, the downstream app, and the TrueVision 3D sync, which gets it into that app, and add
+  handling for a water material."
+- "Create the water material and add it to a water plane."
+
+**What was wrong**
+- There was no water. The materials SSOT had no 3D water (MAT802 is the site plan's 2D fill, MAT222 PainterlyNPR's).
+  The app ignored normal maps, and its only reflections were the mirror's and the glass's. Worse, the GLB Builder's
+  whitecard export (the MCP's default and ValeVision Cloud Sync's) wrote every material that was not `MAT000E__` as
+  "Default", so a water plane lost its water before it left SketchUp.
+
+**Now**
+- **The SSOT** (`Na__DataLib__CoreIndex__Materials__.json` 1.10.0, in the Plugins repository) has
+  `MAT150__GenericWater`, SketchUpName `MAT150__Water__ClearDefault`:
+  - transparent (0.65), glossy (roughness 0.05), double-sided, no depth write, AO-excluded;
+  - seamless 512 px textures in `Na__DataLib__CoreTextures__`: a ripple normal map, and a caustic base colour for
+    SketchUp's display;
+  - a new `WaterSurface` block (TileSizeMm 700, SecondTileSizeMm 430, RippleStrength 1.4);
+  - `meta.waterNote` says how every renderer reads it.
+- **The GLB Builder 2.16.0** exports water in every mode, whitecard included, enriched from the SSOT, and writes
+  `extras.Na__WaterSurface` on its glTF material.
+- **The app draws water** (`Na__MaterialsSystem__MaterialSwap.js` 1.1.0).
+  - A material is water when its SSOT entry has `WaterSurface`, when its GLB material carries
+    `extras.Na__WaterSurface`, or when its name is `MAT###__Water__`. So a GLB from the 2.16.0 builder works even
+    while the app's copy of the SSOT (GitHub `main`) has no MAT150.
+  - It becomes a MeshStandardMaterial with the SSOT's colour and opacity. Its ripple map is laid in world space, in two
+    crossing layers, with no reliance on the GLB's UVs. The ripples are injected with onBeforeCompile, so log depth,
+    section clipping and fog are untouched.
+  - It reflects the scene's HDR as the mirror and the glass do: `Na__MaterialsSystem__ApplyWaterEnvironmentOverrides`,
+    called beside them in the loading sequence 1.7.1. It is AO-excluded.
+  - Still water, no clock: the progressive refinement settles on it like everything else.
+  - The ripple map is the SSOT's `NormalUrl` when it has one, else the app's own copy
+    (`01__AppAssets__TrueVision/07__AppAssets__Textures/MAT150__Water__ClearDefault__Normal__.png`).
+
+**Files**
+- New: `01__AppAssets__TrueVision/07__AppAssets__Textures/MAT150__Water__ClearDefault__Normal__.png`.
+- Changed: `20__System__MaterialsSystem/Na__MaterialsSystem__MaterialSwap.js` 1.1.0;
+  `01__AppCore/Na__AppFlow__LoadingSequence.js` 1.7.1;
+  `62__Feature__AppInstallability/TrueVision__Pwa__ServiceWorker__Logic__.js` 1.21.0.
+- Outside this repository (Plugins): the SSOT 1.10.0 and its textures; the GLB Builder 2.16.0 (MaterialHandling 3.2.0,
+  MaterialLookupSystem 1.2.0).
+- Service worker token: `2026-11-17-01`.
+
+**Tested** (the MCP's sandbox, SK02, headless Edge on the graphics card; no write of any kind)
+- The material pass on test meshes: a `MAT150__Water__ClearDefault` mesh (the SSOT copy from GitHub has no MAT150) and
+  a `MAT151__...` mesh carrying `Na__WaterSurface` both became water (opacity 0.65, double-sided, no depth write, the
+  AO-excluded layer); glass beside them was unchanged.
+- End to end: the SK02 hot tub (18_9041) exported by the GLB Builder 2.16.0 in whitecard mode (`no_materials`) to a
+  scratch GLB. The water kept its name, BLEND at 0.65, double-sided, its texture and `extras.Na__WaterSurface`; every
+  other part was "Default". Loaded into the sandbox page with GLTFLoader and passed through the app's material pass
+  and water environment override, the water became a water surface with the HDR reflection, and the shell, seats and
+  headrests stayed whitecard. Looked at in the SK02 garden corner from above and at a low angle; the colour and ripple
+  scale were tuned there.
+- `tv3d_check`: syntax clean, `Na__Verify__Exports__` PASS (614 files), nothing new failing in the module graph.
+
+**Not tested**
+- A project published with water through Cloud Sync and R2 (nothing was pushed); the live site; a phone.
+- The Layout Editor's drawings and sheet pictures with water in them (water is transparent, so the drawing material
+  presets treat it as glass).
+- The SSOT fetched from GitHub with MAT150 in it: the SSOT is not yet pushed, so every test above ran on the name and
+  extras fallbacks.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.187.0  -  16-Nov-2026
 ### A Turned Phone Redraws the 3D View to Its New Shape, and Phones Get ValeVision's Phone Layout
 

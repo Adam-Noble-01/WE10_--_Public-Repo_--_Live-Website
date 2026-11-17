@@ -31,6 +31,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 17-Nov-2026 - Version 1.7.1 (v2.188.0)
+// - Water surfaces reflect the scene environment: Na__ApplyLibraryMaterials
+//   calls Na__MaterialsSystem__ApplyWaterEnvironmentOverrides beside the
+//   mirror and glass overrides.
+//
 // 15-Nov-2026 - Version 1.7.0 (v2.186.0)
 // - THE MODEL LOADS IN STAGES (Na__ModelLoader__StartStagedLoad): the building,
 //   then fixtures, furniture and interior decor, several files at once. A
@@ -292,7 +297,8 @@
     import {
         Na__MaterialsSystem__ApplyMaterials,
         Na__MaterialsSystem__ApplyMirrorEnvironmentOverrides,
-        Na__MaterialsSystem__ApplyGlassEnvironmentOverrides
+        Na__MaterialsSystem__ApplyGlassEnvironmentOverrides,
+        Na__MaterialsSystem__ApplyWaterEnvironmentOverrides
     } from '../20__System__MaterialsSystem/Na__MaterialsSystem__MaterialSwap.js';
     // ------------------------------------------------------------
 
@@ -935,6 +941,8 @@
                             brightnessMultiplier: Na__Config__SceneEnvironment.Scene__Environment__GlassBrightnessMultiplier
                         });
                     }
+
+                    Na__MaterialsSystem__ApplyWaterEnvironmentOverrides(group, Na__Scene__EnvironmentTexture);  // <-- Water reflects the sky (v2.188.0)
                 }
             }
         };

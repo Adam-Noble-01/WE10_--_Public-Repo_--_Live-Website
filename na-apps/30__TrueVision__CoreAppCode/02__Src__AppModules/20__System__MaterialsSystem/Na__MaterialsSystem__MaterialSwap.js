@@ -21,6 +21,26 @@
 //   and tags node.userData.na_aoExclude = true. The render pipeline disables
 //   layer 1 on the camera during depth pre-passes so the SSAO shader never
 //   receives depth data for these meshes (foliage, plants, etc.).
+// - WATER: a material that is water (an SSOT entry with WaterSurface, a GLB
+//   material with extras.Na__WaterSurface from the GLB Builder 2.16.0, or a
+//   MAT###__Water__ name) becomes a water surface: transparent, glossy,
+//   rippled by the SSOT's normal map laid in world space, reflecting the
+//   scene environment (Na__MaterialsSystem__CreateWaterMaterial).
+//
+// -----------------------------------------------------------------------------
+//
+// DEVELOPMENT LOG:
+// 17-Nov-2026 - Version 1.1.0 (v2.188.0)
+// - Water surfaces (Adam, with the SK02 hot tub: "add handling for a water
+//   material"). The SSOT's MAT150__Water__ClearDefault (SSOT 1.10.0), any
+//   MAT###__Water__ name, or a GLB material the GLB Builder marked as water
+//   is swapped for a water surface even where the app's copy of the SSOT
+//   has no entry for it, its ripple map from the SSOT's NormalUrl or the
+//   app's own copy (07__AppAssets__Textures). AO-excluded like foliage.
+//   New export ApplyWaterEnvironmentOverrides, called beside the glass one.
+//
+// 23-Feb-2026 - Version 1.0.0
+// - The material swap from the materials library.
 //
 // =============================================================================
 
@@ -36,6 +56,29 @@ import { Na__DataLib__GetPipelineExclusions } from '../01__AppCore/AppCore__Data
     // MODULE CONSTANTS | Shared Texture Loader Instance
     // ------------------------------------------------------------
     const Na__MaterialsSystem__TextureLoader = new THREE.TextureLoader();     // <-- Reused for all texture loads
+    // ------------------------------------------------------------
+
+    // MODULE CONSTANTS | Water Surfaces (v2.188.0)
+    // ------------------------------------------------------------
+    const Na__MaterialsSystem__WATER_NAME_PATTERN = /^MAT\d{3}__Water__/;   // <-- Water by name, whatever the app's SSOT copy holds
+    const Na__MaterialsSystem__WATER_DEFAULTS     = Object.freeze({         // <-- MAT150__GenericWater (SSOT 1.10.0), for water the SSOT copy lacks
+        SketchUpName    : 'MAT150__Water__ClearDefault',
+        BaseColor       : 'rgb(40, 110, 135)',
+        Opacity         : 0.65,
+        Transparent     : true,
+        IsDoubleSided   : true,
+        DepthWrite      : false,
+        PbrRoughness    : 0.05,
+        PbrMetallic     : 0.0,
+        EnvMapIntensity : 1.0,
+        AoExclude       : true,
+        WaterSurface    : Object.freeze({ TileSizeMm: 700, SecondTileSizeMm: 430, RippleStrength: 1.4 })
+    });
+    const Na__MaterialsSystem__WATER_NORMAL_FALLBACK_URL                   // <-- The SSOT's ripple map, kept with the app (offline, or before the SSOT is pushed)
+        = './01__AppAssets__TrueVision/07__AppAssets__Textures/MAT150__Water__ClearDefault__Normal__.png';
+    const Na__MaterialsSystem__WaterNormalCache   = new Map();             // <-- Ripple map URL -> Promise<THREE.Texture|null>, one load each
+    const Na__MaterialsSystem__WaterState         = new WeakMap();         // <-- Water material -> its shader uniforms
+    let   Na__MaterialsSystem__WaterFlatNormal    = null;                  // <-- 1 x 1 level normal, until a ripple map loads
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -313,6 +356,203 @@ import { Na__DataLib__GetPipelineExclusions } from '../01__AppCore/AppCore__Data
 
 
 // -----------------------------------------------------------------------------
+// REGION | Water Surfaces
+// -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | A 1 x 1 Level Normal Map
+    // ------------------------------------------------------------
+    // Holds a water material's normal map slot until the ripple map has
+    // loaded, so the shader always samples a valid texture.
+    // ------------------------------------------------------------
+    function Na__MaterialsSystem__FlatNormalTexture() {
+        if (!Na__MaterialsSystem__WaterFlatNormal) {
+            Na__MaterialsSystem__WaterFlatNormal = new THREE.DataTexture(new Uint8Array([128, 128, 255, 255]), 1, 1, THREE.RGBAFormat);
+            Na__MaterialsSystem__WaterFlatNormal.needsUpdate = true;
+        }
+        return Na__MaterialsSystem__WaterFlatNormal;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Water Settings for a Material, or Null
+    // ------------------------------------------------------------
+    // A material is water when its SSOT entry carries WaterSurface, when its
+    // GLB material carries extras.Na__WaterSurface (GLB Builder 2.16.0 on, read
+    // by GLTFLoader into userData), or when its name is MAT###__Water__. The
+    // first that answers wins: the SSOT stays the authority, and a GLB or a
+    // name still works while the app's copy of the SSOT (GitHub main) has no
+    // entry for it.
+    // ------------------------------------------------------------
+    function Na__MaterialsSystem__WaterSettings(materialName, config, sourceMaterial) {
+        if (config && config.WaterSurface && typeof config.WaterSurface === 'object') {
+            return config.WaterSurface;                                       // <-- The SSOT entry
+        }
+        const fromGlb = (sourceMaterial && sourceMaterial.userData) ? sourceMaterial.userData.Na__WaterSurface : null;
+        if (fromGlb && typeof fromGlb === 'object') {
+            return fromGlb;                                                   // <-- The GLB Builder's extras
+        }
+        if (materialName && Na__MaterialsSystem__WATER_NAME_PATTERN.test(materialName)) {
+            return Na__MaterialsSystem__WATER_DEFAULTS.WaterSurface;          // <-- The name alone
+        }
+        return null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Is This Material a Water Surface
+    // ------------------------------------------------------------
+    function Na__MaterialsSystem__IsWaterMaterial(material) {
+        return !!(material && material.userData && material.userData.na_isWater === true);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Create a Water Surface Material
+    // ------------------------------------------------------------
+    // The library's PBR material (transparent, glossy, double-sided, no depth
+    // write) with ripples: the SSOT's seamless normal map is sampled in WORLD
+    // space, in two layers of different sizes so its tile never shows, and
+    // bent into the shading normal of a level surface. World space because a
+    // GLB's UVs follow SketchUp's texture placement, or are missing from a
+    // whitecard export. Injected into MeshStandardMaterial so log depth, the
+    // section clip planes and fog keep working. Still water: no clock, so the
+    // progressive refinement settles on it like everything else.
+    // The uniforms live in a WeakMap, not in userData: a material clone copies
+    // userData through JSON, which must not meet a texture.
+    // ------------------------------------------------------------
+    function Na__MaterialsSystem__CreateWaterMaterial(config, water, polygonOffsetConfig) {
+        const merged   = Object.assign({}, Na__MaterialsSystem__WATER_DEFAULTS, config || {});
+        const material = Na__MaterialsSystem__CreatePbrMaterial(merged, polygonOffsetConfig);
+        const tileA    = Math.max(50, Number(water.TileSizeMm) || 700) / 1000;       // <-- Integer mm in data, metres in three.js
+        const tileB    = Math.max(50, Number(water.SecondTileSizeMm) || 430) / 1000;
+        const strength = Number.isFinite(Number(water.RippleStrength)) ? Number(water.RippleStrength) : 1.4;
+
+        const uniforms = {
+            naWaterNormalMap : { value: Na__MaterialsSystem__FlatNormalTexture() },
+            naWaterTile      : { value: new THREE.Vector2(tileA, tileB) },
+            naWaterStrength  : { value: strength }
+        };
+        Na__MaterialsSystem__WaterState.set(material, uniforms);
+        material.userData.na_isWater            = true;                       // <-- JSON-safe flags only
+        material.userData.na_waterEnvIntensity  = (typeof merged.EnvMapIntensity === 'number') ? merged.EnvMapIntensity : 1.0;
+
+        material.onBeforeCompile = (shader) => {
+            Object.assign(shader.uniforms, uniforms);
+            shader.vertexShader = shader.vertexShader
+                .replace('#include <common>', '#include <common>\nvarying vec3 vNaWaterWorldPos;')
+                .replace('#include <worldpos_vertex>', [
+                    '#include <worldpos_vertex>',
+                    'vec4 naWaterWorld = vec4( transformed, 1.0 );',
+                    '#ifdef USE_BATCHING',
+                    '    naWaterWorld = batchingMatrix * naWaterWorld;',
+                    '#endif',
+                    '#ifdef USE_INSTANCING',
+                    '    naWaterWorld = instanceMatrix * naWaterWorld;',
+                    '#endif',
+                    'vNaWaterWorldPos = ( modelMatrix * naWaterWorld ).xyz;'
+                ].join('\n'));
+            shader.fragmentShader = shader.fragmentShader
+                .replace('#include <common>', [
+                    '#include <common>',
+                    'uniform sampler2D naWaterNormalMap;',
+                    'uniform vec2 naWaterTile;',
+                    'uniform float naWaterStrength;',
+                    'varying vec3 vNaWaterWorldPos;'
+                ].join('\n'))
+                .replace('#include <normal_fragment_maps>', [
+                    '#include <normal_fragment_maps>',
+                    '{',
+                    '    vec2 naPlan    = vec2( vNaWaterWorldPos.x, - vNaWaterWorldPos.z );',
+                    '    vec2 naSlope   = ( texture2D( naWaterNormalMap, naPlan / naWaterTile.x ).xy * 2.0 - 1.0 )',
+                    '                   + ( texture2D( naWaterNormalMap, naPlan / naWaterTile.y + vec2( 0.37, 0.61 ) ).xy * 2.0 - 1.0 );',
+                    '    vec3 naWorldN  = normalize( vec3( naSlope.x * naWaterStrength, 1.0, - naSlope.y * naWaterStrength ) ) * faceDirection;',
+                    '    normal = normalize( ( viewMatrix * vec4( naWorldN, 0.0 ) ).xyz );',
+                    '}'
+                ].join('\n'));
+        };
+        material.customProgramCacheKey = () => 'na-water-surface-v1';
+        return material;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Load a Ripple Map Once, Repeating
+    // ------------------------------------------------------------
+    function Na__MaterialsSystem__LoadWaterNormal(url) {
+        if (!Na__MaterialsSystem__WaterNormalCache.has(url)) {
+            Na__MaterialsSystem__WaterNormalCache.set(url, Na__MaterialsSystem__LoadTexture(url).then((tex) => {
+                if (!tex) return null;
+                tex.colorSpace = THREE.LinearSRGBColorSpace;                  // <-- Normal maps are linear
+                tex.wrapS      = THREE.RepeatWrapping;                        // <-- Seamless tile, laid in world space
+                tex.wrapT      = THREE.RepeatWrapping;
+                tex.anisotropy = 8;                                           // <-- Clamped to the device; keeps ripples crisp at a grazing look
+                tex.needsUpdate = true;
+                return tex;
+            }));
+        }
+        return Na__MaterialsSystem__WaterNormalCache.get(url);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Give a Water Material Its Ripple Map (Async)
+    // ------------------------------------------------------------
+    // The SSOT's NormalUrl first; the app's own copy of the same map when the
+    // SSOT has none or it cannot be fetched (offline, or not yet pushed).
+    // ------------------------------------------------------------
+    async function Na__MaterialsSystem__ApplyWaterNormalMap(material, config) {
+        const uniforms = Na__MaterialsSystem__WaterState.get(material);
+        if (!uniforms) return;
+        const ssotUrl = (config && config.TextureMaps && config.TextureMaps.NormalUrl) ? config.TextureMaps.NormalUrl : null;
+        let texture = ssotUrl ? await Na__MaterialsSystem__LoadWaterNormal(ssotUrl) : null;
+        if (!texture) {
+            texture = await Na__MaterialsSystem__LoadWaterNormal(Na__MaterialsSystem__WATER_NORMAL_FALLBACK_URL);
+        }
+        if (texture) {
+            uniforms.naWaterNormalMap.value = texture;                        // <-- A uniform swap: no shader rebuild
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Apply the Environment to Water Surfaces
+    // ------------------------------------------------------------
+    // Water reflects the sky as the mirror and the glass do, at its own
+    // EnvMapIntensity from the SSOT (1.0 for MAT150).
+    // ------------------------------------------------------------
+    function Na__MaterialsSystem__ApplyWaterEnvironmentOverrides(modelGroup, envMapTexture) {
+        if (!modelGroup || !envMapTexture) return;
+        const processedMaterials = new Set();
+        let waterMatchedCount = 0;
+
+        const applyToMaterial = (material) => {
+            if (!Na__MaterialsSystem__IsWaterMaterial(material) || processedMaterials.has(material)) return;
+            processedMaterials.add(material);
+            material.envMap          = envMapTexture;
+            material.envMapIntensity = material.userData.na_waterEnvIntensity;
+            material.needsUpdate     = true;
+            waterMatchedCount++;
+        };
+
+        modelGroup.traverse((node) => {
+            if (!node.isMesh || !node.material) return;
+            if (Array.isArray(node.material)) {
+                node.material.forEach(applyToMaterial);
+            } else {
+                applyToMaterial(node.material);
+            }
+        });
+
+        if (waterMatchedCount > 0) {
+            console.log(`[MaterialsSystem] Water overrides applied: matched=${waterMatchedCount}`);
+        }
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Main Material Swap Function
 // -----------------------------------------------------------------------------
 
@@ -350,6 +590,7 @@ import { Na__DataLib__GetPipelineExclusions } from '../01__AppCore/AppCore__Data
         let   mirrorSeen      = 0;                                            // <-- Number of mirror materials encountered in traversal
         let   mirrorSwapped   = 0;                                            // <-- Number of mirror materials swapped from library
         let   aoExcludedCount = 0;                                            // <-- Meshes assigned to AO-excluded layer 1
+        let   waterCount      = 0;                                            // <-- Water surface materials made (v2.188.0)
 
         const { tokens: aoExclusionTokens, matchMode: aoExclusionMatchMode }  // <-- Name-based AO exclusion list from Components DataLib
             = Na__MaterialsSystem__GetAoExclusionTokens();
@@ -366,7 +607,8 @@ import { Na__DataLib__GetPipelineExclusions } from '../01__AppCore/AppCore__Data
             }
 
             const config = lookupMap.get(materialName);                        // <-- O(1) lookup by SketchUpName
-            if (!config) {
+            const water  = Na__MaterialsSystem__WaterSettings(materialName, config, sourceMaterial);   // <-- Water, by the SSOT, the GLB or the name
+            if (!config && !water) {
                 indexedMissing++;
                 if (materialName === mirrorDebugName) {
                     console.warn('[MaterialsSystem] Mirror material indexed but missing in lookup map:', materialName);
@@ -378,6 +620,12 @@ import { Na__DataLib__GetPipelineExclusions } from '../01__AppCore/AppCore__Data
 
             if (materialCache.has(materialName)) {
                 pbrMaterial = materialCache.get(materialName);                 // <-- Reuse cached material instance
+            } else if (water) {
+                pbrMaterial = Na__MaterialsSystem__CreateWaterMaterial(config, water, polygonOffsetConfig);
+                pbrMaterial.name = materialName;                               // <-- Its own name, not the defaults'
+                materialCache.set(materialName, pbrMaterial);
+                texturePromises.push(Na__MaterialsSystem__ApplyWaterNormalMap(pbrMaterial, config));
+                waterCount++;
             } else {
                 pbrMaterial = Na__MaterialsSystem__CreatePbrMaterial(config, polygonOffsetConfig);
                 materialCache.set(materialName, pbrMaterial);                  // <-- Cache for reuse
@@ -416,7 +664,8 @@ import { Na__DataLib__GetPipelineExclusions } from '../01__AppCore/AppCore__Data
             const primaryMaterial = Array.isArray(node.material) ? node.material[0] : node.material;
             if (primaryMaterial && Na__MaterialsSystem__IsIndexedName(primaryMaterial.name)) {
                 const matConfig = lookupMap.get(primaryMaterial.name);
-                if (matConfig && matConfig.AoExclude === true) {
+                if ((matConfig && matConfig.AoExclude === true)
+                    || (!matConfig && Na__MaterialsSystem__IsWaterMaterial(primaryMaterial))) {   // <-- Water the SSOT copy lacks: AO-excluded by the defaults
                     na_aoExclude = true;                                      // <-- Material-driven AO exclusion
                 }
             }
@@ -435,7 +684,7 @@ import { Na__DataLib__GetPipelineExclusions } from '../01__AppCore/AppCore__Data
         }
 
         console.log(
-            `[MaterialsSystem] IndexedSeen=${indexedSeen}, Swapped=${swapCount}, IndexedMissing=${indexedMissing}, UniqueSwapped=${materialCache.size}, MirrorSeen=${mirrorSeen}, MirrorSwapped=${mirrorSwapped}, AoExcluded=${aoExcludedCount}`
+            `[MaterialsSystem] IndexedSeen=${indexedSeen}, Swapped=${swapCount}, IndexedMissing=${indexedMissing}, UniqueSwapped=${materialCache.size}, MirrorSeen=${mirrorSeen}, MirrorSwapped=${mirrorSwapped}, AoExcluded=${aoExcludedCount}, Water=${waterCount}`
         );
     }
     // ------------------------------------------------------------
@@ -561,7 +810,9 @@ import { Na__DataLib__GetPipelineExclusions } from '../01__AppCore/AppCore__Data
     export {
         Na__MaterialsSystem__ApplyMaterials,
         Na__MaterialsSystem__ApplyMirrorEnvironmentOverrides,
-        Na__MaterialsSystem__ApplyGlassEnvironmentOverrides
+        Na__MaterialsSystem__ApplyGlassEnvironmentOverrides,
+        Na__MaterialsSystem__ApplyWaterEnvironmentOverrides,
+        Na__MaterialsSystem__IsWaterMaterial
     };
     // ------------------------------------------------------------
 

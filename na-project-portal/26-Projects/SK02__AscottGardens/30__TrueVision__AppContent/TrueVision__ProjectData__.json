@@ -44,6 +44,81 @@
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/SK02__TrueVision__SiteBoundaries__LineworkModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__ExistingBuilding/SK02__TrueVision__SiteBoundaries__MeshModel__.glb"
             ]
+        },
+        {
+            "groupId": "DesignPhase01__ConceptDesign__Scheme-01",
+            "label": "Concept Design - Scheme-01",
+            "modelUrls": [
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__01__OrbitHelperCube__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__FirstFloor__ExistingDoors__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__FirstFloor__ExistingDoors__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__FirstFloor__ExistingFixtures__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__FirstFloor__ExistingFixtures__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__FirstFloor__ExistingFloors__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__FirstFloor__ExistingFloors__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__FirstFloor__ExistingRoofs__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__FirstFloor__ExistingRoofs__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__FirstFloor__ExistingWalls__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__FirstFloor__ExistingWalls__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__FirstFloor__ExistingWindows__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__FirstFloor__ExistingWindows__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__FirstFloor__ProposedDoors__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__FirstFloor__ProposedDoors__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__FirstFloor__ProposedFloors__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__FirstFloor__ProposedFloors__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__FirstFloor__ProposedWalls__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__FirstFloor__ProposedWalls__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__FirstFloor__ProposedWindows__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__FirstFloor__ProposedWindows__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ExistingDoors__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ExistingDoors__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ExistingFixtures__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ExistingFixtures__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ExistingFloors__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ExistingFloors__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ExistingRoofs__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ExistingRoofs__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ExistingStairs__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ExistingStairs__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ExistingWalls__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ExistingWalls__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ExistingWindows__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ExistingWindows__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ProposedDoors__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ProposedDoors__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ProposedFixtures__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ProposedFixtures__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ProposedFloors__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ProposedFloors__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ProposedRoofs__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ProposedRoofs__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ProposedStairs__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ProposedStairs__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ProposedWalls__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ProposedWalls__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ProposedWindows__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__GroundFloor__ProposedWindows__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__SecondFloor__ExistingFixtures__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__SecondFloor__ExistingFixtures__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__SecondFloor__ExistingFloors__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__SecondFloor__ExistingFloors__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__SecondFloor__ExistingRoofs__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__SecondFloor__ExistingRoofs__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__SecondFloor__ExistingWalls__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__SecondFloor__ExistingWalls__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__SecondFloor__ProposedFixtures__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__SecondFloor__ProposedFixtures__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__SecondFloor__ProposedRoofs__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__Storey__SecondFloor__ProposedRoofs__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__TrueVision__Linetype__DoorSwings__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__TrueVision__Linetype__ElementsForRemoval__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__TrueVision__MainBuildingModel__Existing__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__TrueVision__MainBuildingModel__Existing__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__TrueVision__MainBuildingModel__Proposed__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__TrueVision__MainBuildingModel__Proposed__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__TrueVision__SiteBoundaries__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/SK02__AscottGardens/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/SK02__TrueVision__SiteBoundaries__MeshModel__.glb"
+            ]
         }
     ],
     "Camera__DefaultPosition": {
@@ -64,5 +139,1529 @@
     "Navmode__EnabledModes": {
         "Navmode__EnabledModes__Walk": true,
         "Navmode__EnabledModes__Fly": true
+    },
+    "Vegetation__SceneData": {
+        "Vegetation__SceneData__SchemaVersion": 1,
+        "Vegetation__SceneData__Enabled": true,
+        "Vegetation__SceneData__ShowByDefault": true,
+        "Vegetation__SceneData__DefaultTransparencyPercent": 0,
+        "Vegetation__SceneData__ShowOnLiveDrawings": false,
+        "Vegetation__SceneData__LineRules": {
+            "Vegetation__LineRules__LineWeightPx": 0.8,
+            "Vegetation__LineRules__InnerWeightShare": 0.8,
+            "Vegetation__LineRules__InnerArcsFactor": 1,
+            "Vegetation__LineRules__HooksFactor": 1,
+            "Vegetation__LineRules__CurlsFactor": 1,
+            "Vegetation__LineRules__PenLiftsFactor": 1,
+            "Vegetation__LineRules__ScallopSizeFactor": 1,
+            "Vegetation__LineRules__SmallBumpsFactor": 1,
+            "Vegetation__LineRules__Advanced": {
+                "Vegetation__LineRulesAdvanced__SegmentPx": 4,
+                "Vegetation__LineRulesAdvanced__LodSkipPx": 1,
+                "Vegetation__LineRulesAdvanced__LodInnerArcsPx": 6,
+                "Vegetation__LineRulesAdvanced__LodHooksPx": 3,
+                "Vegetation__LineRulesAdvanced__LodCurlsPx": 5,
+                "Vegetation__LineRulesAdvanced__LodBladesPx": 7,
+                "Vegetation__LineRulesAdvanced__FillWallShare": 1,
+                "Vegetation__LineRulesAdvanced__FillTone": 0.975,
+                "Vegetation__LineRulesAdvanced__DepthBias": 3e-05
+            }
+        },
+        "Vegetation__SceneData__Tools": {
+            "Vegetation__Tools__Linear": {
+                "Vegetation__Path__PaletteUid": "",
+                "Vegetation__Path__PlantScale": 1,
+                "Vegetation__Path__SpacingMm": 1150,
+                "Vegetation__Path__Curved": false,
+                "Vegetation__Path__Advanced": {
+                    "Vegetation__PathAdvanced__RotationVariationDeg": 12,
+                    "Vegetation__PathAdvanced__ScaleVariationPercent": 10,
+                    "Vegetation__PathAdvanced__HeightVariationPercent": 8,
+                    "Vegetation__PathAdvanced__SpacingVariationPercent": 15,
+                    "Vegetation__PathAdvanced__SideOffsetMm": 60,
+                    "Vegetation__PathAdvanced__DepthAcrossMm": 0,
+                    "Vegetation__PathAdvanced__HeightFitMm": 0,
+                    "Vegetation__PathAdvanced__AlignToPath": true,
+                    "Vegetation__PathAdvanced__FitLastPlant": true
+                }
+            },
+            "Vegetation__Tools__Brush": {
+                "Vegetation__Brush__PaletteUid": "",
+                "Vegetation__Brush__PlantScale": 1,
+                "Vegetation__Brush__RadiusMm": 900,
+                "Vegetation__Brush__DensityPerSquareM": 0.9,
+                "Vegetation__Brush__RotationVariationDeg": 180,
+                "Vegetation__Brush__ScaleVariationPercent": 10,
+                "Vegetation__Brush__MaxSlopeDeg": 35,
+                "Vegetation__Brush__MinSpacingMm": 650,
+                "Vegetation__Brush__SameHeightOnly": true,
+                "Vegetation__Brush__SameHeightMm": 200
+            },
+            "Vegetation__Tools__Place": {
+                "Vegetation__Place__PlantScale": 1
+            }
+        },
+        "Vegetation__SceneData__Assets": {
+            "VVL_07_1011": {
+                "Asset__Id": "VVL_07_1011",
+                "Asset__Name": "Upright Shrub",
+                "Asset__Description": "A taller, looser shrub with a broken outline: smaller clumps, leaf tips on the edge and deep notches. Lifts the rhythm of a planter run.",
+                "Asset__Meta": {
+                    "Meta__Version": "1.0.0",
+                    "Meta__Created": "04-Nov-2026",
+                    "Meta__Author": "Adam Noble - Noble Architecture",
+                    "Meta__Status": "Active"
+                },
+                "Asset__Identity": {
+                    "Identity__CollectionCode": "07",
+                    "Identity__Type": "Shrubs",
+                    "Identity__Family": "101",
+                    "Identity__Item": 1,
+                    "Identity__Name": "UprightShrub",
+                    "Identity__Variant": "Var-01"
+                },
+                "Asset__Generator": {
+                    "Generator__Name": "BallCluster",
+                    "Generator__Version": 1
+                },
+                "Asset__Proxy": {
+                    "Proxy__Shape": "Dome",
+                    "Proxy__RingCount": 5,
+                    "Proxy__SectorCount": 10
+                },
+                "Asset__Placement": {
+                    "Placement__RotationVariationDeg": 180,
+                    "Placement__ScaleVariationPercent": 12,
+                    "Placement__HeightVariationPercent": 10,
+                    "Placement__AlignToPath": false,
+                    "Placement__StretchAlongPath": false,
+                    "Placement__MinSpacingMm": 700,
+                    "Placement__DefaultWeight": 25
+                },
+                "Asset__Catalogue": {
+                    "Catalogue__Keywords": [
+                        "shrub",
+                        "upright",
+                        "tall",
+                        "loose",
+                        "leafy"
+                    ],
+                    "Catalogue__Season": "AllYear",
+                    "Catalogue__BotanicalName": null
+                },
+                "Asset__Size": {
+                    "Size__WidthMm": 1050,
+                    "Size__DepthMm": 950,
+                    "Size__HeightMm": 1500,
+                    "Size__JitterShare": 0.12
+                },
+                "Asset__Masses": {
+                    "Masses__Layout": "Upright",
+                    "Masses__CountMin": 4,
+                    "Masses__CountMax": 6,
+                    "Masses__ScallopChordMinMm": 55,
+                    "Masses__ScallopChordMaxMm": 190,
+                    "Masses__ScallopDepth": 0.58,
+                    "Masses__ScallopSkew": 1.4,
+                    "Masses__TipShare": 0.45
+                },
+                "Asset__Clumps": {
+                    "Clumps__RadiusMinMm": 55,
+                    "Clumps__RadiusMaxMm": 120,
+                    "Clumps__Skew": 1.35,
+                    "Clumps__Spacing": 0.9,
+                    "Clumps__ReachMin": 0.98,
+                    "Clumps__ReachMax": 1.3,
+                    "Clumps__ScallopDepth": 0.26,
+                    "Clumps__TipShare": 0.45,
+                    "Clumps__Ellipse": 0.12,
+                    "Clumps__Wobble": 0.02
+                },
+                "Asset__Nubs": {
+                    "Nubs__Share": 0.4,
+                    "Nubs__RadiusMinMm": 22,
+                    "Nubs__RadiusMaxMm": 42
+                },
+                "Asset__Line": {
+                    "Line__InteriorChance": 0.12,
+                    "Line__InteriorSpanDeg": 80,
+                    "Line__TailChance": 0.7,
+                    "Line__TailMinRad": 0.3,
+                    "Line__TailMaxRad": 1.25,
+                    "Line__CurlChance": 0.3,
+                    "Line__CurlAmount": 0.62,
+                    "Line__BreakChance": 0.08,
+                    "Line__CuspHookChance": 0.5,
+                    "Line__CuspHookMinMm": 40,
+                    "Line__CuspHookMaxMm": 130,
+                    "Line__SpurShare": 0.26
+                },
+                "Asset__Tufts": {
+                    "Tufts__CountMin": 0,
+                    "Tufts__CountMax": 1,
+                    "Tufts__HeightMinMm": 260,
+                    "Tufts__HeightMaxMm": 420,
+                    "Tufts__BladesMin": 5,
+                    "Tufts__BladesMax": 7,
+                    "Tufts__BladeWidthMm": 30
+                }
+            },
+            "VVL_07_1012": {
+                "Asset__Id": "VVL_07_1012",
+                "Asset__Name": "Upright Shrub (No Grass)",
+                "Asset__Description": "A taller, looser shrub with a broken outline: smaller clumps, leaf tips on the edge and deep notches, with no grass tufts at its foot. Lifts the rhythm of a planter run.",
+                "Asset__Meta": {
+                    "Meta__Version": "1.0.0",
+                    "Meta__Created": "06-Nov-2026",
+                    "Meta__Author": "Adam Noble - Noble Architecture",
+                    "Meta__Status": "Active"
+                },
+                "Asset__Identity": {
+                    "Identity__CollectionCode": "07",
+                    "Identity__Type": "Shrubs",
+                    "Identity__Family": "101",
+                    "Identity__Item": 2,
+                    "Identity__Name": "UprightShrub",
+                    "Identity__Variant": "Var-02"
+                },
+                "Asset__Generator": {
+                    "Generator__Name": "BallCluster",
+                    "Generator__Version": 1
+                },
+                "Asset__Proxy": {
+                    "Proxy__Shape": "Dome",
+                    "Proxy__RingCount": 5,
+                    "Proxy__SectorCount": 10
+                },
+                "Asset__Placement": {
+                    "Placement__RotationVariationDeg": 180,
+                    "Placement__ScaleVariationPercent": 12,
+                    "Placement__HeightVariationPercent": 10,
+                    "Placement__AlignToPath": false,
+                    "Placement__StretchAlongPath": false,
+                    "Placement__MinSpacingMm": 700,
+                    "Placement__DefaultWeight": 25
+                },
+                "Asset__Catalogue": {
+                    "Catalogue__Keywords": [
+                        "shrub",
+                        "upright",
+                        "tall",
+                        "loose",
+                        "leafy"
+                    ],
+                    "Catalogue__Season": "AllYear",
+                    "Catalogue__BotanicalName": null
+                },
+                "Asset__Size": {
+                    "Size__WidthMm": 1050,
+                    "Size__DepthMm": 950,
+                    "Size__HeightMm": 1500,
+                    "Size__JitterShare": 0.12
+                },
+                "Asset__Masses": {
+                    "Masses__Layout": "Upright",
+                    "Masses__CountMin": 4,
+                    "Masses__CountMax": 6,
+                    "Masses__ScallopChordMinMm": 55,
+                    "Masses__ScallopChordMaxMm": 190,
+                    "Masses__ScallopDepth": 0.58,
+                    "Masses__ScallopSkew": 1.4,
+                    "Masses__TipShare": 0.45
+                },
+                "Asset__Clumps": {
+                    "Clumps__RadiusMinMm": 55,
+                    "Clumps__RadiusMaxMm": 120,
+                    "Clumps__Skew": 1.35,
+                    "Clumps__Spacing": 0.9,
+                    "Clumps__ReachMin": 0.98,
+                    "Clumps__ReachMax": 1.3,
+                    "Clumps__ScallopDepth": 0.26,
+                    "Clumps__TipShare": 0.45,
+                    "Clumps__Ellipse": 0.12,
+                    "Clumps__Wobble": 0.02
+                },
+                "Asset__Nubs": {
+                    "Nubs__Share": 0.4,
+                    "Nubs__RadiusMinMm": 22,
+                    "Nubs__RadiusMaxMm": 42
+                },
+                "Asset__Line": {
+                    "Line__InteriorChance": 0.12,
+                    "Line__InteriorSpanDeg": 80,
+                    "Line__TailChance": 0.7,
+                    "Line__TailMinRad": 0.3,
+                    "Line__TailMaxRad": 1.25,
+                    "Line__CurlChance": 0.3,
+                    "Line__CurlAmount": 0.62,
+                    "Line__BreakChance": 0.08,
+                    "Line__CuspHookChance": 0.5,
+                    "Line__CuspHookMinMm": 40,
+                    "Line__CuspHookMaxMm": 130,
+                    "Line__SpurShare": 0.26
+                },
+                "Asset__Tufts": {
+                    "Tufts__CountMin": 0,
+                    "Tufts__CountMax": 0,
+                    "Tufts__HeightMinMm": 260,
+                    "Tufts__HeightMaxMm": 420,
+                    "Tufts__BladesMin": 5,
+                    "Tufts__BladesMax": 7,
+                    "Tufts__BladeWidthMm": 30
+                }
+            },
+            "VVL_07_1061": {
+                "Asset__Id": "VVL_07_1061",
+                "Asset__Name": "Multi-Stem Shrub",
+                "Asset__Description": "A tall shrub on three to five clear stems that lean out from one foot into a light, open canopy: the stems show below and through it. For the back of a border, a corner against a wall, or a feature in a planter. From Adam's reference photos, 17-Nov-2026.",
+                "Asset__Meta": {
+                    "Meta__Version": "1.0.0",
+                    "Meta__Created": "17-Nov-2026",
+                    "Meta__Author": "Adam Noble - Noble Architecture",
+                    "Meta__Status": "Active"
+                },
+                "Asset__Identity": {
+                    "Identity__CollectionCode": "07",
+                    "Identity__Type": "Shrubs",
+                    "Identity__Family": "106",
+                    "Identity__Item": 1,
+                    "Identity__Name": "MultiStemShrub",
+                    "Identity__Variant": "Var-01"
+                },
+                "Asset__Generator": {
+                    "Generator__Name": "MultiStem",
+                    "Generator__Version": 1
+                },
+                "Asset__Proxy": {
+                    "Proxy__Shape": "Dome",
+                    "Proxy__RingCount": 6,
+                    "Proxy__SectorCount": 12
+                },
+                "Asset__Placement": {
+                    "Placement__RotationVariationDeg": 180,
+                    "Placement__ScaleVariationPercent": 10,
+                    "Placement__HeightVariationPercent": 10,
+                    "Placement__AlignToPath": false,
+                    "Placement__StretchAlongPath": false,
+                    "Placement__MinSpacingMm": 1600,
+                    "Placement__DefaultWeight": 6
+                },
+                "Asset__Catalogue": {
+                    "Catalogue__Keywords": [
+                        "shrub",
+                        "multi-stem",
+                        "small tree",
+                        "open",
+                        "feature",
+                        "border",
+                        "screening"
+                    ],
+                    "Catalogue__Season": "Summer",
+                    "Catalogue__BotanicalName": null
+                },
+                "Asset__Size": {
+                    "Size__WidthMm": 2000,
+                    "Size__DepthMm": 1800,
+                    "Size__HeightMm": 2500,
+                    "Size__JitterShare": 0.08
+                },
+                "Asset__Masses": {
+                    "Masses__Layout": "Vase",
+                    "Masses__CountMin": 10,
+                    "Masses__CountMax": 13,
+                    "Masses__ScallopChordMinMm": 60,
+                    "Masses__ScallopChordMaxMm": 180,
+                    "Masses__ScallopDepth": 0.5,
+                    "Masses__ScallopSkew": 1.35,
+                    "Masses__TipShare": 0.35
+                },
+                "Asset__Clumps": {
+                    "Clumps__RadiusMinMm": 40,
+                    "Clumps__RadiusMaxMm": 80,
+                    "Clumps__Skew": 1.25,
+                    "Clumps__Spacing": 0.95,
+                    "Clumps__ReachMin": 0.95,
+                    "Clumps__ReachMax": 1.12,
+                    "Clumps__ScallopDepth": 0.28,
+                    "Clumps__TipShare": 0.45,
+                    "Clumps__Ellipse": 0.12,
+                    "Clumps__Wobble": 0.02
+                },
+                "Asset__Nubs": {
+                    "Nubs__Share": 0.35,
+                    "Nubs__RadiusMinMm": 18,
+                    "Nubs__RadiusMaxMm": 36
+                },
+                "Asset__Stems": {
+                    "Stems__CountMin": 4,
+                    "Stems__CountMax": 6,
+                    "Stems__WidthMinMm": 30,
+                    "Stems__WidthMaxMm": 50,
+                    "Stems__FootSpreadShare": 0.1,
+                    "Stems__CanopyBaseShare": 0.32,
+                    "Stems__BranchShare": 0.8
+                },
+                "Asset__Line": {
+                    "Line__InteriorChance": 0.3,
+                    "Line__InteriorSpanDeg": 85,
+                    "Line__TailChance": 0.6,
+                    "Line__TailMinRad": 0.3,
+                    "Line__TailMaxRad": 1.2,
+                    "Line__CurlChance": 0.3,
+                    "Line__CurlAmount": 0.6,
+                    "Line__BreakChance": 0.12,
+                    "Line__CuspHookChance": 0.45,
+                    "Line__CuspHookMinMm": 40,
+                    "Line__CuspHookMaxMm": 130,
+                    "Line__SpurShare": 0.3
+                },
+                "Asset__Tufts": {
+                    "Tufts__CountMin": 0,
+                    "Tufts__CountMax": 0,
+                    "Tufts__HeightMinMm": 0,
+                    "Tufts__HeightMaxMm": 0,
+                    "Tufts__BladesMin": 0,
+                    "Tufts__BladesMax": 0,
+                    "Tufts__BladeWidthMm": 0
+                }
+            },
+            "VVL_07_1051": {
+                "Asset__Id": "VVL_07_1051",
+                "Asset__Name": "Lavender",
+                "Asset__Description": "A low cushion of fine narrow leaves with flower spikes on slender stems above it, tallest in the middle and leaning out to the edge: English lavender in flower, for the front of a border, edging a path or a planter. From Adam's reference photos, 17-Nov-2026.",
+                "Asset__Meta": {
+                    "Meta__Version": "1.0.0",
+                    "Meta__Created": "17-Nov-2026",
+                    "Meta__Author": "Adam Noble - Noble Architecture",
+                    "Meta__Status": "Active"
+                },
+                "Asset__Identity": {
+                    "Identity__CollectionCode": "07",
+                    "Identity__Type": "Shrubs",
+                    "Identity__Family": "105",
+                    "Identity__Item": 1,
+                    "Identity__Name": "Lavender",
+                    "Identity__Variant": "Var-01"
+                },
+                "Asset__Generator": {
+                    "Generator__Name": "SpikedClump",
+                    "Generator__Version": 1
+                },
+                "Asset__Proxy": {
+                    "Proxy__Shape": "Dome",
+                    "Proxy__RingCount": 4,
+                    "Proxy__SectorCount": 10
+                },
+                "Asset__Placement": {
+                    "Placement__RotationVariationDeg": 180,
+                    "Placement__ScaleVariationPercent": 10,
+                    "Placement__HeightVariationPercent": 10,
+                    "Placement__AlignToPath": false,
+                    "Placement__StretchAlongPath": false,
+                    "Placement__MinSpacingMm": 450,
+                    "Placement__DefaultWeight": 20
+                },
+                "Asset__Catalogue": {
+                    "Catalogue__Keywords": [
+                        "lavender",
+                        "flowering",
+                        "spikes",
+                        "aromatic",
+                        "edging",
+                        "border",
+                        "planter"
+                    ],
+                    "Catalogue__Season": "Summer",
+                    "Catalogue__BotanicalName": "Lavandula angustifolia"
+                },
+                "Asset__Size": {
+                    "Size__WidthMm": 700,
+                    "Size__DepthMm": 650,
+                    "Size__HeightMm": 600,
+                    "Size__JitterShare": 0.08
+                },
+                "Asset__Masses": {
+                    "Masses__Layout": "Mound",
+                    "Masses__CountMin": 3,
+                    "Masses__CountMax": 5,
+                    "Masses__ScallopChordMinMm": 30,
+                    "Masses__ScallopChordMaxMm": 90,
+                    "Masses__ScallopDepth": 0.45,
+                    "Masses__ScallopSkew": 1.3,
+                    "Masses__TipShare": 0.35
+                },
+                "Asset__Clumps": {
+                    "Clumps__RadiusMinMm": 28,
+                    "Clumps__RadiusMaxMm": 50,
+                    "Clumps__Skew": 1.2,
+                    "Clumps__Spacing": 0.95,
+                    "Clumps__ReachMin": 0.95,
+                    "Clumps__ReachMax": 1.08,
+                    "Clumps__ScallopDepth": 0.32,
+                    "Clumps__TipShare": 0.65,
+                    "Clumps__Ellipse": 0.1,
+                    "Clumps__Wobble": 0.02
+                },
+                "Asset__Nubs": {
+                    "Nubs__Share": 0.3,
+                    "Nubs__RadiusMinMm": 10,
+                    "Nubs__RadiusMaxMm": 20
+                },
+                "Asset__Spikes": {
+                    "Spikes__CountMin": 24,
+                    "Spikes__CountMax": 32,
+                    "Spikes__CushionWidthShare": 0.85,
+                    "Spikes__CushionHeightShare": 0.55,
+                    "Spikes__Splay": 1,
+                    "Spikes__TopMinShare": 0.72,
+                    "Spikes__LengthMinMm": 70,
+                    "Spikes__LengthMaxMm": 105,
+                    "Spikes__WhorlRadiusMinMm": 9,
+                    "Spikes__WhorlRadiusMaxMm": 12,
+                    "Spikes__WhorlStepShare": 1.5,
+                    "Spikes__WhorlScallopDepth": 0.2,
+                    "Spikes__StemWidthMm": 4
+                },
+                "Asset__Line": {
+                    "Line__InteriorChance": 0.1,
+                    "Line__InteriorSpanDeg": 80,
+                    "Line__TailChance": 0.4,
+                    "Line__TailMinRad": 0.25,
+                    "Line__TailMaxRad": 0.9,
+                    "Line__CurlChance": 0.25,
+                    "Line__CurlAmount": 0.55,
+                    "Line__BreakChance": 0.05,
+                    "Line__CuspHookChance": 0.35,
+                    "Line__CuspHookMinMm": 15,
+                    "Line__CuspHookMaxMm": 50,
+                    "Line__SpurShare": 0.3
+                },
+                "Asset__Tufts": {
+                    "Tufts__CountMin": 0,
+                    "Tufts__CountMax": 0,
+                    "Tufts__HeightMinMm": 0,
+                    "Tufts__HeightMaxMm": 0,
+                    "Tufts__BladesMin": 0,
+                    "Tufts__BladesMax": 0,
+                    "Tufts__BladeWidthMm": 0
+                }
+            },
+            "VVL_07_3001": {
+                "Asset__Id": "VVL_07_3001",
+                "Asset__Name": "Arching Grass",
+                "Asset__Description": "An ornamental grass: fine blades from a tight crown, the middle ones near upright and tallest, the outer ones arching out and over to the ground. For the front of a border or a planter's edge. From Adam's reference photos, 17-Nov-2026. Only Asset__Fountain draws it: its masses, clumps and nubs are not read.",
+                "Asset__Meta": {
+                    "Meta__Version": "1.0.0",
+                    "Meta__Created": "17-Nov-2026",
+                    "Meta__Author": "Adam Noble - Noble Architecture",
+                    "Meta__Status": "Active"
+                },
+                "Asset__Identity": {
+                    "Identity__CollectionCode": "07",
+                    "Identity__Type": "Grasses",
+                    "Identity__Family": "300",
+                    "Identity__Item": 1,
+                    "Identity__Name": "ArchingGrass",
+                    "Identity__Variant": "Var-01"
+                },
+                "Asset__Generator": {
+                    "Generator__Name": "GrassFountain",
+                    "Generator__Version": 1
+                },
+                "Asset__Proxy": {
+                    "Proxy__Shape": "Dome",
+                    "Proxy__RingCount": 4,
+                    "Proxy__SectorCount": 10
+                },
+                "Asset__Placement": {
+                    "Placement__RotationVariationDeg": 180,
+                    "Placement__ScaleVariationPercent": 12,
+                    "Placement__HeightVariationPercent": 12,
+                    "Placement__AlignToPath": false,
+                    "Placement__StretchAlongPath": false,
+                    "Placement__MinSpacingMm": 450,
+                    "Placement__DefaultWeight": 15
+                },
+                "Asset__Catalogue": {
+                    "Catalogue__Keywords": [
+                        "grass",
+                        "ornamental",
+                        "arching",
+                        "fountain",
+                        "soft",
+                        "edging",
+                        "border",
+                        "planter"
+                    ],
+                    "Catalogue__Season": "AllYear",
+                    "Catalogue__BotanicalName": null
+                },
+                "Asset__Size": {
+                    "Size__WidthMm": 750,
+                    "Size__DepthMm": 750,
+                    "Size__HeightMm": 650,
+                    "Size__JitterShare": 0.1
+                },
+                "Asset__Masses": {
+                    "Masses__Layout": "Mound",
+                    "Masses__CountMin": 1,
+                    "Masses__CountMax": 1,
+                    "Masses__ScallopChordMinMm": 40,
+                    "Masses__ScallopChordMaxMm": 80,
+                    "Masses__ScallopDepth": 0.3,
+                    "Masses__ScallopSkew": 1,
+                    "Masses__TipShare": 0.5
+                },
+                "Asset__Clumps": {
+                    "Clumps__RadiusMinMm": 30,
+                    "Clumps__RadiusMaxMm": 50,
+                    "Clumps__Skew": 1,
+                    "Clumps__Spacing": 1,
+                    "Clumps__ReachMin": 0.95,
+                    "Clumps__ReachMax": 1.05,
+                    "Clumps__ScallopDepth": 0.3,
+                    "Clumps__TipShare": 0.5,
+                    "Clumps__Ellipse": 0.1,
+                    "Clumps__Wobble": 0.02
+                },
+                "Asset__Nubs": {
+                    "Nubs__Share": 0,
+                    "Nubs__RadiusMinMm": 10,
+                    "Nubs__RadiusMaxMm": 20
+                },
+                "Asset__Fountain": {
+                    "Fountain__BladesMin": 32,
+                    "Fountain__BladesMax": 44,
+                    "Fountain__CrownShare": 0.28,
+                    "Fountain__HeightMinShare": 0.55,
+                    "Fountain__ReachMinShare": 0.2,
+                    "Fountain__ReachMaxShare": 1,
+                    "Fountain__DroopMinShare": 0.25,
+                    "Fountain__DroopMaxShare": 0.9,
+                    "Fountain__BladeWidthMm": 8
+                },
+                "Asset__Line": {
+                    "Line__InteriorChance": 0.1,
+                    "Line__InteriorSpanDeg": 80,
+                    "Line__TailChance": 0.3,
+                    "Line__TailMinRad": 0.25,
+                    "Line__TailMaxRad": 0.8,
+                    "Line__CurlChance": 0.2,
+                    "Line__CurlAmount": 0.5,
+                    "Line__BreakChance": 0.05,
+                    "Line__CuspHookChance": 0.3,
+                    "Line__CuspHookMinMm": 15,
+                    "Line__CuspHookMaxMm": 40,
+                    "Line__SpurShare": 0.2
+                },
+                "Asset__Tufts": {
+                    "Tufts__CountMin": 0,
+                    "Tufts__CountMax": 0,
+                    "Tufts__HeightMinMm": 0,
+                    "Tufts__HeightMaxMm": 0,
+                    "Tufts__BladesMin": 0,
+                    "Tufts__BladesMax": 0,
+                    "Tufts__BladeWidthMm": 0
+                }
+            },
+            "VVL_07_1041": {
+                "Asset__Id": "VVL_07_1041",
+                "Asset__Name": "Annabelle Hydrangea",
+                "Asset__Description": "A rounded mound of broad pointed leaves carrying big round white flower heads over its top and front, each head drawn whole against the leaves behind it. Drawn from Adam's reference photos of a border against a rendered wall, 17-Nov-2026.",
+                "Asset__Meta": {
+                    "Meta__Version": "1.0.0",
+                    "Meta__Created": "17-Nov-2026",
+                    "Meta__Author": "Adam Noble - Noble Architecture",
+                    "Meta__Status": "Active"
+                },
+                "Asset__Identity": {
+                    "Identity__CollectionCode": "07",
+                    "Identity__Type": "Shrubs",
+                    "Identity__Family": "104",
+                    "Identity__Item": 1,
+                    "Identity__Name": "AnnabelleHydrangea",
+                    "Identity__Variant": "Var-01"
+                },
+                "Asset__Generator": {
+                    "Generator__Name": "FloweringMound",
+                    "Generator__Version": 1
+                },
+                "Asset__Proxy": {
+                    "Proxy__Shape": "Dome",
+                    "Proxy__RingCount": 5,
+                    "Proxy__SectorCount": 10
+                },
+                "Asset__Placement": {
+                    "Placement__RotationVariationDeg": 180,
+                    "Placement__ScaleVariationPercent": 12,
+                    "Placement__HeightVariationPercent": 8,
+                    "Placement__AlignToPath": false,
+                    "Placement__StretchAlongPath": false,
+                    "Placement__MinSpacingMm": 900,
+                    "Placement__DefaultWeight": 15
+                },
+                "Asset__Catalogue": {
+                    "Catalogue__Keywords": [
+                        "ornamental",
+                        "flowering",
+                        "hydrangea",
+                        "annabelle",
+                        "white",
+                        "mound",
+                        "border",
+                        "planter"
+                    ],
+                    "Catalogue__Season": "Summer",
+                    "Catalogue__BotanicalName": "Hydrangea arborescens 'Annabelle'"
+                },
+                "Asset__Size": {
+                    "Size__WidthMm": 1200,
+                    "Size__DepthMm": 1100,
+                    "Size__HeightMm": 1050,
+                    "Size__JitterShare": 0.08
+                },
+                "Asset__Masses": {
+                    "Masses__Layout": "Mound",
+                    "Masses__CountMin": 4,
+                    "Masses__CountMax": 6,
+                    "Masses__ScallopChordMinMm": 50,
+                    "Masses__ScallopChordMaxMm": 150,
+                    "Masses__ScallopDepth": 0.4,
+                    "Masses__ScallopSkew": 1.3,
+                    "Masses__TipShare": 0.25
+                },
+                "Asset__Clumps": {
+                    "Clumps__RadiusMinMm": 55,
+                    "Clumps__RadiusMaxMm": 100,
+                    "Clumps__Skew": 1.1,
+                    "Clumps__Spacing": 0.95,
+                    "Clumps__ReachMin": 0.94,
+                    "Clumps__ReachMax": 1.06,
+                    "Clumps__ScallopDepth": 0.35,
+                    "Clumps__TipShare": 0.7,
+                    "Clumps__Ellipse": 0.1,
+                    "Clumps__Wobble": 0.02
+                },
+                "Asset__Nubs": {
+                    "Nubs__Share": 0.25,
+                    "Nubs__RadiusMinMm": 20,
+                    "Nubs__RadiusMaxMm": 38
+                },
+                "Asset__Heads": {
+                    "Heads__CountMin": 16,
+                    "Heads__CountMax": 22,
+                    "Heads__RadiusMinMm": 85,
+                    "Heads__RadiusMaxMm": 130,
+                    "Heads__ReachMin": 1,
+                    "Heads__ReachMax": 1.15,
+                    "Heads__UpMin": 0,
+                    "Heads__LowShare": 0.4,
+                    "Heads__Spacing": 0.85,
+                    "Heads__ScallopChordMinMm": 20,
+                    "Heads__ScallopChordMaxMm": 34,
+                    "Heads__ScallopDepth": 0.3,
+                    "Heads__Ellipse": 0.05,
+                    "Heads__MarkShare": 0.65
+                },
+                "Asset__Line": {
+                    "Line__InteriorChance": 0.2,
+                    "Line__InteriorSpanDeg": 60,
+                    "Line__TailChance": 0.5,
+                    "Line__TailMinRad": 0.25,
+                    "Line__TailMaxRad": 1,
+                    "Line__CurlChance": 0.3,
+                    "Line__CurlAmount": 0.6,
+                    "Line__BreakChance": 0.06,
+                    "Line__CuspHookChance": 0.4,
+                    "Line__CuspHookMinMm": 30,
+                    "Line__CuspHookMaxMm": 100,
+                    "Line__SpurShare": 0.25
+                },
+                "Asset__Tufts": {
+                    "Tufts__CountMin": 0,
+                    "Tufts__CountMax": 0,
+                    "Tufts__HeightMinMm": 0,
+                    "Tufts__HeightMaxMm": 0,
+                    "Tufts__BladesMin": 0,
+                    "Tufts__BladesMax": 0,
+                    "Tufts__BladeWidthMm": 0
+                }
+            },
+            "VVL_07_1031": {
+                "Asset__Id": "VVL_07_1031",
+                "Asset__Name": "Mophead Hydrangea",
+                "Asset__Description": "A soft ornamental shrub carrying big round flower heads over its leaves: a loose mound with bold circles in the outline and through the middle, for a border or a large planter.",
+                "Asset__Meta": {
+                    "Meta__Version": "1.0.0",
+                    "Meta__Created": "04-Nov-2026",
+                    "Meta__Author": "Adam Noble - Noble Architecture",
+                    "Meta__Status": "Active"
+                },
+                "Asset__Identity": {
+                    "Identity__CollectionCode": "07",
+                    "Identity__Type": "Shrubs",
+                    "Identity__Family": "103",
+                    "Identity__Item": 1,
+                    "Identity__Name": "MopheadHydrangea",
+                    "Identity__Variant": "Var-01"
+                },
+                "Asset__Generator": {
+                    "Generator__Name": "BallCluster",
+                    "Generator__Version": 1
+                },
+                "Asset__Proxy": {
+                    "Proxy__Shape": "Dome",
+                    "Proxy__RingCount": 5,
+                    "Proxy__SectorCount": 10
+                },
+                "Asset__Placement": {
+                    "Placement__RotationVariationDeg": 180,
+                    "Placement__ScaleVariationPercent": 12,
+                    "Placement__HeightVariationPercent": 8,
+                    "Placement__AlignToPath": false,
+                    "Placement__StretchAlongPath": false,
+                    "Placement__MinSpacingMm": 1100,
+                    "Placement__DefaultWeight": 15
+                },
+                "Asset__Catalogue": {
+                    "Catalogue__Keywords": [
+                        "ornamental",
+                        "flowering",
+                        "hydrangea",
+                        "mound",
+                        "border",
+                        "planter"
+                    ],
+                    "Catalogue__Season": "Summer",
+                    "Catalogue__BotanicalName": null
+                },
+                "Asset__Size": {
+                    "Size__WidthMm": 1300,
+                    "Size__DepthMm": 1200,
+                    "Size__HeightMm": 1050,
+                    "Size__JitterShare": 0.08
+                },
+                "Asset__Masses": {
+                    "Masses__Layout": "Mound",
+                    "Masses__CountMin": 4,
+                    "Masses__CountMax": 6,
+                    "Masses__ScallopChordMinMm": 60,
+                    "Masses__ScallopChordMaxMm": 170,
+                    "Masses__ScallopDepth": 0.42,
+                    "Masses__ScallopSkew": 1.3,
+                    "Masses__TipShare": 0.1
+                },
+                "Asset__Clumps": {
+                    "Clumps__RadiusMinMm": 88,
+                    "Clumps__RadiusMaxMm": 148,
+                    "Clumps__Skew": 0.9,
+                    "Clumps__Spacing": 1.02,
+                    "Clumps__ReachMin": 0.94,
+                    "Clumps__ReachMax": 1.08,
+                    "Clumps__ScallopDepth": 0.24,
+                    "Clumps__TipShare": 0,
+                    "Clumps__Ellipse": 0.06,
+                    "Clumps__Wobble": 0.02
+                },
+                "Asset__Nubs": {
+                    "Nubs__Share": 0.42,
+                    "Nubs__RadiusMinMm": 20,
+                    "Nubs__RadiusMaxMm": 42
+                },
+                "Asset__Line": {
+                    "Line__InteriorChance": 0.62,
+                    "Line__InteriorSpanDeg": 150,
+                    "Line__TailChance": 0.46,
+                    "Line__TailMinRad": 0.2,
+                    "Line__TailMaxRad": 0.9,
+                    "Line__CurlChance": 0.34,
+                    "Line__CurlAmount": 0.6,
+                    "Line__BreakChance": 0.06,
+                    "Line__CuspHookChance": 0.34,
+                    "Line__CuspHookMinMm": 30,
+                    "Line__CuspHookMaxMm": 95,
+                    "Line__SpurShare": 0.1
+                },
+                "Asset__Tufts": {
+                    "Tufts__CountMin": 0,
+                    "Tufts__CountMax": 0,
+                    "Tufts__HeightMinMm": 0,
+                    "Tufts__HeightMaxMm": 0,
+                    "Tufts__BladesMin": 0,
+                    "Tufts__BladesMax": 0,
+                    "Tufts__BladeWidthMm": 0
+                }
+            }
+        },
+        "Vegetation__SceneData__Palettes": [],
+        "Vegetation__SceneData__Paths": [],
+        "Vegetation__SceneData__Plops": [
+            {
+                "Vegetation__Plop__Uid": "A0001",
+                "Vegetation__Plop__AssetId": "VVL_07_1011",
+                "Vegetation__Plop__Seed": 8390,
+                "Vegetation__Plop__PositionMm": [
+                    18041,
+                    -150,
+                    -31844
+                ],
+                "Vegetation__Plop__YawDeg": 178,
+                "Vegetation__Plop__SizeMm": [
+                    1050,
+                    950,
+                    1500
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0002",
+                "Vegetation__Plop__AssetId": "VVL_07_1012",
+                "Vegetation__Plop__Seed": 56657,
+                "Vegetation__Plop__PositionMm": [
+                    16940,
+                    -150,
+                    -31824
+                ],
+                "Vegetation__Plop__YawDeg": 60,
+                "Vegetation__Plop__SizeMm": [
+                    1050,
+                    950,
+                    1500
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0003",
+                "Vegetation__Plop__AssetId": "VVL_07_1061",
+                "Vegetation__Plop__Seed": 36380,
+                "Vegetation__Plop__PositionMm": [
+                    15846,
+                    -150,
+                    -31381
+                ],
+                "Vegetation__Plop__YawDeg": 178,
+                "Vegetation__Plop__SizeMm": [
+                    2000,
+                    1800,
+                    2500
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0004",
+                "Vegetation__Plop__AssetId": "VVL_07_1012",
+                "Vegetation__Plop__Seed": 98578,
+                "Vegetation__Plop__PositionMm": [
+                    14788,
+                    -150,
+                    -31759
+                ],
+                "Vegetation__Plop__YawDeg": 39,
+                "Vegetation__Plop__SizeMm": [
+                    1050,
+                    950,
+                    1500
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0005",
+                "Vegetation__Plop__AssetId": "VVL_07_1011",
+                "Vegetation__Plop__Seed": 44836,
+                "Vegetation__Plop__PositionMm": [
+                    13863,
+                    -150,
+                    -31606
+                ],
+                "Vegetation__Plop__YawDeg": 2,
+                "Vegetation__Plop__SizeMm": [
+                    1050,
+                    950,
+                    1500
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0006",
+                "Vegetation__Plop__AssetId": "VVL_07_1061",
+                "Vegetation__Plop__Seed": 79532,
+                "Vegetation__Plop__PositionMm": [
+                    12988,
+                    -150,
+                    -30815
+                ],
+                "Vegetation__Plop__YawDeg": -54,
+                "Vegetation__Plop__SizeMm": [
+                    2000,
+                    1800,
+                    2500
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0007",
+                "Vegetation__Plop__AssetId": "VVL_07_1011",
+                "Vegetation__Plop__Seed": 42384,
+                "Vegetation__Plop__PositionMm": [
+                    10958,
+                    -150,
+                    -30238
+                ],
+                "Vegetation__Plop__YawDeg": -94,
+                "Vegetation__Plop__SizeMm": [
+                    1050,
+                    950,
+                    1500
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0008",
+                "Vegetation__Plop__AssetId": "VVL_07_1012",
+                "Vegetation__Plop__Seed": 78479,
+                "Vegetation__Plop__PositionMm": [
+                    9998,
+                    -150,
+                    -29703
+                ],
+                "Vegetation__Plop__YawDeg": 95,
+                "Vegetation__Plop__SizeMm": [
+                    1050,
+                    950,
+                    1500
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0009",
+                "Vegetation__Plop__AssetId": "VVL_07_1012",
+                "Vegetation__Plop__Seed": 59409,
+                "Vegetation__Plop__PositionMm": [
+                    9036,
+                    -150,
+                    -29167
+                ],
+                "Vegetation__Plop__YawDeg": 57,
+                "Vegetation__Plop__SizeMm": [
+                    1050,
+                    950,
+                    1500
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0010",
+                "Vegetation__Plop__AssetId": "VVL_07_1051",
+                "Vegetation__Plop__Seed": 93267,
+                "Vegetation__Plop__PositionMm": [
+                    17740,
+                    -150,
+                    -31160
+                ],
+                "Vegetation__Plop__YawDeg": 46,
+                "Vegetation__Plop__SizeMm": [
+                    700,
+                    650,
+                    600
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0011",
+                "Vegetation__Plop__AssetId": "VVL_07_1051",
+                "Vegetation__Plop__Seed": 41454,
+                "Vegetation__Plop__PositionMm": [
+                    17180,
+                    -150,
+                    -31160
+                ],
+                "Vegetation__Plop__YawDeg": 17,
+                "Vegetation__Plop__SizeMm": [
+                    700,
+                    650,
+                    600
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0012",
+                "Vegetation__Plop__AssetId": "VVL_07_1051",
+                "Vegetation__Plop__Seed": 77107,
+                "Vegetation__Plop__PositionMm": [
+                    16620,
+                    -150,
+                    -31160
+                ],
+                "Vegetation__Plop__YawDeg": 75,
+                "Vegetation__Plop__SizeMm": [
+                    700,
+                    650,
+                    600
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0013",
+                "Vegetation__Plop__AssetId": "VVL_07_3001",
+                "Vegetation__Plop__Seed": 15824,
+                "Vegetation__Plop__PositionMm": [
+                    14865,
+                    -150,
+                    -30955
+                ],
+                "Vegetation__Plop__YawDeg": -69,
+                "Vegetation__Plop__SizeMm": [
+                    750,
+                    750,
+                    650
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0014",
+                "Vegetation__Plop__AssetId": "VVL_07_3001",
+                "Vegetation__Plop__Seed": 86487,
+                "Vegetation__Plop__PositionMm": [
+                    14309,
+                    -150,
+                    -30688
+                ],
+                "Vegetation__Plop__YawDeg": 94,
+                "Vegetation__Plop__SizeMm": [
+                    750,
+                    750,
+                    650
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0015",
+                "Vegetation__Plop__AssetId": "VVL_07_1051",
+                "Vegetation__Plop__Seed": 95225,
+                "Vegetation__Plop__PositionMm": [
+                    13814,
+                    -150,
+                    -30322
+                ],
+                "Vegetation__Plop__YawDeg": -159,
+                "Vegetation__Plop__SizeMm": [
+                    700,
+                    650,
+                    600
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0016",
+                "Vegetation__Plop__AssetId": "VVL_07_1051",
+                "Vegetation__Plop__Seed": 78048,
+                "Vegetation__Plop__PositionMm": [
+                    13395,
+                    -150,
+                    -29871
+                ],
+                "Vegetation__Plop__YawDeg": 170,
+                "Vegetation__Plop__SizeMm": [
+                    700,
+                    650,
+                    600
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0017",
+                "Vegetation__Plop__AssetId": "VVL_07_1051",
+                "Vegetation__Plop__Seed": 81826,
+                "Vegetation__Plop__PositionMm": [
+                    13069,
+                    -150,
+                    -29349
+                ],
+                "Vegetation__Plop__YawDeg": -62,
+                "Vegetation__Plop__SizeMm": [
+                    700,
+                    650,
+                    600
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0018",
+                "Vegetation__Plop__AssetId": "VVL_07_3001",
+                "Vegetation__Plop__Seed": 33262,
+                "Vegetation__Plop__PositionMm": [
+                    12845,
+                    -150,
+                    -28775
+                ],
+                "Vegetation__Plop__YawDeg": -134,
+                "Vegetation__Plop__SizeMm": [
+                    750,
+                    750,
+                    650
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0019",
+                "Vegetation__Plop__AssetId": "VVL_07_1041",
+                "Vegetation__Plop__Seed": 34839,
+                "Vegetation__Plop__PositionMm": [
+                    12782,
+                    -150,
+                    -29735
+                ],
+                "Vegetation__Plop__YawDeg": 84,
+                "Vegetation__Plop__SizeMm": [
+                    1200,
+                    1100,
+                    1050
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0020",
+                "Vegetation__Plop__AssetId": "VVL_07_1031",
+                "Vegetation__Plop__Seed": 87389,
+                "Vegetation__Plop__PositionMm": [
+                    11776,
+                    -150,
+                    -29177
+                ],
+                "Vegetation__Plop__YawDeg": -141,
+                "Vegetation__Plop__SizeMm": [
+                    1300,
+                    1200,
+                    1050
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0021",
+                "Vegetation__Plop__AssetId": "VVL_07_1041",
+                "Vegetation__Plop__Seed": 61848,
+                "Vegetation__Plop__PositionMm": [
+                    10652,
+                    -150,
+                    -28837
+                ],
+                "Vegetation__Plop__YawDeg": -81,
+                "Vegetation__Plop__SizeMm": [
+                    1200,
+                    1100,
+                    1050
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0022",
+                "Vegetation__Plop__AssetId": "VVL_07_1012",
+                "Vegetation__Plop__Seed": 83661,
+                "Vegetation__Plop__PositionMm": [
+                    22215,
+                    -150,
+                    -26748
+                ],
+                "Vegetation__Plop__YawDeg": -94,
+                "Vegetation__Plop__SizeMm": [
+                    1050,
+                    950,
+                    1500
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0023",
+                "Vegetation__Plop__AssetId": "VVL_07_1011",
+                "Vegetation__Plop__Seed": 39206,
+                "Vegetation__Plop__PositionMm": [
+                    22173,
+                    -150,
+                    -27847
+                ],
+                "Vegetation__Plop__YawDeg": 166,
+                "Vegetation__Plop__SizeMm": [
+                    1050,
+                    950,
+                    1500
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0024",
+                "Vegetation__Plop__AssetId": "VVL_07_1051",
+                "Vegetation__Plop__Seed": 66918,
+                "Vegetation__Plop__PositionMm": [
+                    22005,
+                    -150,
+                    -27060
+                ],
+                "Vegetation__Plop__YawDeg": 27,
+                "Vegetation__Plop__SizeMm": [
+                    700,
+                    650,
+                    600
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0025",
+                "Vegetation__Plop__AssetId": "VVL_07_1011",
+                "Vegetation__Plop__Seed": 78183,
+                "Vegetation__Plop__PositionMm": [
+                    18342,
+                    -287,
+                    -1262
+                ],
+                "Vegetation__Plop__YawDeg": -85,
+                "Vegetation__Plop__SizeMm": [
+                    1050,
+                    950,
+                    1500
+                ],
+                "Vegetation__Plop__Scale": 0.85
+            },
+            {
+                "Vegetation__Plop__Uid": "A0026",
+                "Vegetation__Plop__AssetId": "VVL_07_1041",
+                "Vegetation__Plop__Seed": 69883,
+                "Vegetation__Plop__PositionMm": [
+                    19391,
+                    -288,
+                    -1220
+                ],
+                "Vegetation__Plop__YawDeg": 170,
+                "Vegetation__Plop__SizeMm": [
+                    1200,
+                    1100,
+                    1050
+                ],
+                "Vegetation__Plop__Scale": 0.85
+            },
+            {
+                "Vegetation__Plop__Uid": "A0027",
+                "Vegetation__Plop__AssetId": "VVL_07_1012",
+                "Vegetation__Plop__Seed": 27753,
+                "Vegetation__Plop__PositionMm": [
+                    20489,
+                    -291,
+                    -1124
+                ],
+                "Vegetation__Plop__YawDeg": -143,
+                "Vegetation__Plop__SizeMm": [
+                    1050,
+                    950,
+                    1500
+                ],
+                "Vegetation__Plop__Scale": 0.85
+            },
+            {
+                "Vegetation__Plop__Uid": "A0028",
+                "Vegetation__Plop__AssetId": "VVL_07_1031",
+                "Vegetation__Plop__Seed": 39453,
+                "Vegetation__Plop__PositionMm": [
+                    21592,
+                    -289,
+                    -1198
+                ],
+                "Vegetation__Plop__YawDeg": 129,
+                "Vegetation__Plop__SizeMm": [
+                    1300,
+                    1200,
+                    1050
+                ],
+                "Vegetation__Plop__Scale": 0.85
+            },
+            {
+                "Vegetation__Plop__Uid": "A0029",
+                "Vegetation__Plop__AssetId": "VVL_07_1011",
+                "Vegetation__Plop__Seed": 84380,
+                "Vegetation__Plop__PositionMm": [
+                    22558,
+                    -290,
+                    -1160
+                ],
+                "Vegetation__Plop__YawDeg": 109,
+                "Vegetation__Plop__SizeMm": [
+                    1050,
+                    950,
+                    1500
+                ],
+                "Vegetation__Plop__Scale": 0.85
+            },
+            {
+                "Vegetation__Plop__Uid": "A0030",
+                "Vegetation__Plop__AssetId": "VVL_07_1041",
+                "Vegetation__Plop__Seed": 21321,
+                "Vegetation__Plop__PositionMm": [
+                    22613,
+                    -260,
+                    -2470
+                ],
+                "Vegetation__Plop__YawDeg": 108,
+                "Vegetation__Plop__SizeMm": [
+                    1200,
+                    1100,
+                    1050
+                ],
+                "Vegetation__Plop__Scale": 0.85
+            },
+            {
+                "Vegetation__Plop__Uid": "A0031",
+                "Vegetation__Plop__AssetId": "VVL_07_1012",
+                "Vegetation__Plop__Seed": 63391,
+                "Vegetation__Plop__PositionMm": [
+                    22689,
+                    -234,
+                    -3569
+                ],
+                "Vegetation__Plop__YawDeg": -67,
+                "Vegetation__Plop__SizeMm": [
+                    1050,
+                    950,
+                    1500
+                ],
+                "Vegetation__Plop__Scale": 0.85
+            },
+            {
+                "Vegetation__Plop__Uid": "A0032",
+                "Vegetation__Plop__AssetId": "VVL_07_1031",
+                "Vegetation__Plop__Seed": 58479,
+                "Vegetation__Plop__PositionMm": [
+                    22594,
+                    -209,
+                    -4670
+                ],
+                "Vegetation__Plop__YawDeg": -109,
+                "Vegetation__Plop__SizeMm": [
+                    1300,
+                    1200,
+                    1050
+                ],
+                "Vegetation__Plop__Scale": 0.85
+            },
+            {
+                "Vegetation__Plop__Uid": "A0033",
+                "Vegetation__Plop__AssetId": "VVL_07_1011",
+                "Vegetation__Plop__Seed": 32454,
+                "Vegetation__Plop__PositionMm": [
+                    22712,
+                    -183,
+                    -5769
+                ],
+                "Vegetation__Plop__YawDeg": -41,
+                "Vegetation__Plop__SizeMm": [
+                    1050,
+                    950,
+                    1500
+                ],
+                "Vegetation__Plop__Scale": 0.85
+            },
+            {
+                "Vegetation__Plop__Uid": "A0034",
+                "Vegetation__Plop__AssetId": "VVL_07_1041",
+                "Vegetation__Plop__Seed": 11500,
+                "Vegetation__Plop__PositionMm": [
+                    22661,
+                    -158,
+                    -6870
+                ],
+                "Vegetation__Plop__YawDeg": 166,
+                "Vegetation__Plop__SizeMm": [
+                    1200,
+                    1100,
+                    1050
+                ],
+                "Vegetation__Plop__Scale": 0.85
+            },
+            {
+                "Vegetation__Plop__Uid": "A0035",
+                "Vegetation__Plop__AssetId": "VVL_07_1051",
+                "Vegetation__Plop__Seed": 78341,
+                "Vegetation__Plop__PositionMm": [
+                    22523,
+                    -169,
+                    -6376
+                ],
+                "Vegetation__Plop__YawDeg": -112,
+                "Vegetation__Plop__SizeMm": [
+                    700,
+                    650,
+                    600
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0036",
+                "Vegetation__Plop__AssetId": "VVL_07_1051",
+                "Vegetation__Plop__Seed": 28288,
+                "Vegetation__Plop__PositionMm": [
+                    22511,
+                    -195,
+                    -5256
+                ],
+                "Vegetation__Plop__YawDeg": -2,
+                "Vegetation__Plop__SizeMm": [
+                    700,
+                    650,
+                    600
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0037",
+                "Vegetation__Plop__AssetId": "VVL_07_3001",
+                "Vegetation__Plop__Seed": 68610,
+                "Vegetation__Plop__PositionMm": [
+                    22498,
+                    -221,
+                    -4136
+                ],
+                "Vegetation__Plop__YawDeg": -174,
+                "Vegetation__Plop__SizeMm": [
+                    750,
+                    750,
+                    650
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0038",
+                "Vegetation__Plop__AssetId": "VVL_07_1051",
+                "Vegetation__Plop__Seed": 3357,
+                "Vegetation__Plop__PositionMm": [
+                    22486,
+                    -247,
+                    -3016
+                ],
+                "Vegetation__Plop__YawDeg": 60,
+                "Vegetation__Plop__SizeMm": [
+                    700,
+                    650,
+                    600
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0039",
+                "Vegetation__Plop__AssetId": "VVL_07_3001",
+                "Vegetation__Plop__Seed": 62895,
+                "Vegetation__Plop__PositionMm": [
+                    22474,
+                    -273,
+                    -1897
+                ],
+                "Vegetation__Plop__YawDeg": 123,
+                "Vegetation__Plop__SizeMm": [
+                    750,
+                    750,
+                    650
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0040",
+                "Vegetation__Plop__AssetId": "VVL_07_1051",
+                "Vegetation__Plop__Seed": 31987,
+                "Vegetation__Plop__PositionMm": [
+                    20798,
+                    -286,
+                    -1311
+                ],
+                "Vegetation__Plop__YawDeg": -21,
+                "Vegetation__Plop__SizeMm": [
+                    700,
+                    650,
+                    600
+                ]
+            },
+            {
+                "Vegetation__Plop__Uid": "A0041",
+                "Vegetation__Plop__AssetId": "VVL_07_1051",
+                "Vegetation__Plop__Seed": 96967,
+                "Vegetation__Plop__PositionMm": [
+                    17980,
+                    -282,
+                    -1503
+                ],
+                "Vegetation__Plop__YawDeg": 15,
+                "Vegetation__Plop__SizeMm": [
+                    700,
+                    650,
+                    600
+                ]
+            }
+        ]
     }
 }

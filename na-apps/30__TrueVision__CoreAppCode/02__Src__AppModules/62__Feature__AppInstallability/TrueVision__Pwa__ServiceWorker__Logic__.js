@@ -34,6 +34,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 17-Nov-2026 - Version 1.21.0
+// - Token BUMPED to 2026-11-17-01 for v2.188.0 (water surfaces). The loading
+//   sequence imports a new export from the material swap
+//   (ApplyWaterEnvironmentOverrides): a warm client pairing the new loading
+//   sequence with an old cached material swap would fail the import.
+//
 // 16-Nov-2026 - Version 1.20.0
 // - Token BUMPED to 2026-11-16-01 for v2.187.0 (a turned phone redraws the 3D
 //   view to its new shape; the phone layout). The viewport watcher's fix must
@@ -796,7 +802,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-11-16-01';                                                         // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-11-17-01';                                                         // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id
