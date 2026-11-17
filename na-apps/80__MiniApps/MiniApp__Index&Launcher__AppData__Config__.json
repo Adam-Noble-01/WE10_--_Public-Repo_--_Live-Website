@@ -222,6 +222,26 @@
             "MiniApp__LoadOrder"         : 10,
             "MiniApp__LaunchInNewTab"    : true,
             "MiniApp__LaunchInNewWindow" : false
+        },
+
+        "MiniApp__RoomSizeComparator_11" : {
+            "MiniApp__LaunchFile"        : "MiniApp__SpacePlanningUtils__RoomSizeComparator__Main__.html",
+            "MiniApp__RelativePath"      : "07_MiniApps__SpacePlanningUtils",
+            "MiniApp__Title"             : "Room Size Comparator",
+            "MiniApp__Description"       : "Type a room's area, or its length and width, in square metres or square feet and see how it compares with typical UK sizes for that room type: drawn to scale as nested boxes from minimum to oversized, with every room type side by side and the sources behind each figure.",
+            "MiniApp__Notes"             : "Category: SpacePlanningUtils - first tool in the space planning collection. Data from Adam's room size sheet, cleaned into 02__AppData JSON and checked against published UK standards (NDSS, Approved Document M, London housing design standards) and trade sources, with every change from the sheet kept beside it. Modular HTML/CSS/JS with AppConfig JSON; node logic tests in 04__Testing.",
+            "MiniApp__KeyWords"          : [
+                                                "Room Sizes",
+                                                "Floor Area",
+                                                "Space Standards",
+                                                "NDSS",
+                                                "m² / ft²",
+                                                "To Scale"
+                                           ],
+            "MiniApp__Added"             : "16-Nov-2026",
+            "MiniApp__LoadOrder"         : 11,
+            "MiniApp__LaunchInNewTab"    : true,
+            "MiniApp__LaunchInNewWindow" : false
         }
     }
 }

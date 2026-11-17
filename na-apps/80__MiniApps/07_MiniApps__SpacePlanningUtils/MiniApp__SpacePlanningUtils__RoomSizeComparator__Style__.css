@@ -1,0 +1,1612 @@
+/* =============================================================================
+   NOBLE ARCHITECTURE - MINI APP - ROOM SIZE COMPARATOR - STYLESHEET
+   =============================================================================
+
+   FILE    : MiniApp__SpacePlanningUtils__RoomSizeComparator__Style__.css
+   AUTHOR  : Adam Noble - Noble Architecture
+   PURPOSE : App styles layered on the shared utility stylesheet (AD02_30):
+             compact header, folder tabs, controls, the Compare, All Rooms and
+             Data & Sources views, phone layouts and print
+   CREATED : 16-Nov-2026
+
+   NOTES:
+   - Data colours (the five band blues and the orange for your room) live in
+     the AppConfig and are applied inline by the modules; this sheet only uses
+     them through the --RSC_Col_* tokens for chrome that mirrors them.
+   - Text never wears a data colour: values and labels stay in ink tones and a
+     swatch, dot or line beside them carries the colour.
+
+   ========================================================================== */
+
+/* -----------------------------------------------------------------------------
+   REGION | Fonts (house Open Sans, live copy as fallback)
+   -------------------------------------------------------------------------- */
+@font-face {
+    font-family                          : "Open Sans";
+    font-style                           : normal;
+    font-weight                          : 400;
+    font-display                         : swap;
+    src                                  : url("../../01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Regular__.ttf") format("truetype"),
+                                           url("https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Regular__.ttf") format("truetype");
+}
+
+@font-face {
+    font-family                          : "Open Sans";
+    font-style                           : normal;
+    font-weight                          : 600;
+    font-display                         : swap;
+    src                                  : url("../../01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__SemiBold__.ttf") format("truetype"),
+                                           url("https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__SemiBold__.ttf") format("truetype");
+}
+
+@font-face {
+    font-family                          : "Open Sans";
+    font-style                           : normal;
+    font-weight                          : 700;
+    font-display                         : swap;
+    src                                  : url("../../01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Bold__.ttf") format("truetype"),
+                                           url("https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Bold__.ttf") format("truetype");
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Variables
+   -------------------------------------------------------------------------- */
+:root {
+    --font-regular                       : "Open Sans", "Segoe UI", Arial, sans-serif;
+    --font-semibold                      : "Open Sans", "Segoe UI", Arial, sans-serif;
+    --font-light                         : "Open Sans", "Segoe UI", Arial, sans-serif;
+    --font-medium                        : "Open Sans", "Segoe UI", Arial, sans-serif;
+    --font-bold                          : "Open Sans", "Segoe UI", Arial, sans-serif;
+
+    --RSC_Col_Brand                      : var(--color-brand, #555041);
+    --RSC_Col_Heading                    : #172b3a;
+    --RSC_Col_Ink                        : #1f2a33;
+    --RSC_Col_Ink2                       : #52514e;
+    --RSC_Col_Muted                      : #6f6d67;
+    --RSC_Col_Border                     : #dcdbd5;
+    --RSC_Col_Hairline                   : #e8e7e1;
+    --RSC_Col_Surface                    : #ffffff;
+    --RSC_Col_SurfaceSoft                : #f7f7f5;
+    --RSC_Col_Page                       : #f0f0ee;
+    --RSC_Col_Hover                      : #f4f5f7;
+    --RSC_Col_Selected                   : #edf3fc;
+    --RSC_Col_You                        : #eb6834;
+    --RSC_Col_YouSoft                    : #fdf1eb;
+    --RSC_Col_Critical                   : #d03b3b;
+    --RSC_Col_CriticalSoft               : #fdeded;
+    --RSC_Col_Focus                      : #2a78d6;
+    --RSC_Col_Range                      : #e1e7f0;
+
+    --RSC_Size_Radius                    : 0.375rem;
+    --RSC_Size_ContentWidth              : 1240px;
+    --RSC_Size_HeaderLogo                : 1.65rem;
+    --RSC_Size_StripRow                  : 30px;
+}
+
+html,
+body {
+    height                               : 100%;
+    margin                               : 0;
+    color                                : var(--RSC_Col_Ink);
+    font-family                          : var(--font-regular);
+}
+
+.RSC__main [hidden],
+.RSC__tooltip[hidden] {
+    display                              : none !important;
+}
+
+:focus-visible {
+    outline                              : 2px solid var(--RSC_Col_Focus);
+    outline-offset                       : 2px;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Page Frame And Compact Header
+   The shared sheet scrolls FULL__page-app-container; the page itself is fixed
+   to the window so the controls bar can stick to the top of that scroll.
+   -------------------------------------------------------------------------- */
+.PAGE__container {
+    height                               : 100%;
+    min-height                           : 0;
+    overflow                             : hidden;
+    background-color                     : var(--RSC_Col_Page);
+}
+
+.FULL__page-app-container {
+    background-color                     : var(--RSC_Col_Page);
+}
+
+.HEAD__container {
+    padding-top                          : 0.2rem;
+    padding-bottom                       : 0.2rem;
+    flex-shrink                          : 0;
+}
+
+.RSC__header-nav {
+    max-width                            : var(--RSC_Size_ContentWidth);
+    min-height                           : 1.9rem;
+    box-sizing                           : border-box;
+    gap                                  : 0.6rem;
+}
+
+.RSC__header-logo {
+    width                                : var(--RSC_Size_HeaderLogo);
+    height                               : var(--RSC_Size_HeaderLogo);
+    display                              : block;
+    flex-shrink                          : 0;
+}
+
+.HEAD__title {
+    margin                               : 0;
+    font-size                            : 0.95rem;
+    font-weight                          : 600;
+    line-height                          : 1.15;
+    white-space                          : nowrap;
+}
+
+.RSC__header-end {
+    margin-left                          : auto;
+    display                              : flex;
+    align-items                          : center;
+    gap                                  : 0.5rem;
+}
+
+.HEAD__version-note {
+    margin-left                          : 0;
+    font-size                            : 0.75rem;
+}
+
+.FOOT__container {
+    padding-top                          : 0.4rem;
+    padding-bottom                       : 0.4rem;
+    font-size                            : 0.62rem;
+}
+
+.MAIN__container.RSC__main {
+    max-width                            : var(--RSC_Size_ContentWidth);
+    margin-top                           : 0;
+    gap                                  : 0.75rem;
+    padding-bottom                       : 2rem;
+}
+
+.RSC__error-message {
+    margin                               : 2rem 0;
+    padding                              : 1rem;
+    border                               : 1px solid var(--RSC_Col_Critical);
+    border-radius                        : var(--RSC_Size_Radius);
+    background                           : var(--RSC_Col_CriticalSoft);
+    color                                : var(--RSC_Col_Ink);
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Tool Bar: Folder Tabs And Unit Switch
+   -------------------------------------------------------------------------- */
+.RSC__toolbar {
+    display                              : flex;
+    align-items                          : flex-end;
+    justify-content                      : space-between;
+    gap                                  : 0.75rem;
+    margin-top                           : 0.6rem;
+    border-bottom                        : 1px solid var(--RSC_Col_Border);
+}
+
+.RSC__tablist {
+    display                              : flex;
+    align-items                          : stretch;
+    gap                                  : 0.15rem;
+    min-width                            : 0;
+}
+
+.RSC__tab {
+    margin-bottom                        : -1px;
+    min-width                            : 8.5rem;
+    padding                              : 0.5rem 0.75rem 0.45rem 0.75rem;
+    border                               : 1px solid transparent;
+    border-top                           : 2px solid transparent;
+    border-radius                        : 0.25rem 0.25rem 0 0;
+    background-color                     : #e4e3de;
+    color                                : var(--color-gray-600, #666666);
+    font-family                          : var(--font-semibold);
+    font-size                            : 0.76rem;
+    font-weight                          : 600;
+    letter-spacing                       : 0.04em;
+    text-transform                       : uppercase;
+    white-space                          : nowrap;
+    cursor                               : pointer;
+}
+
+.RSC__tab:hover {
+    background-color                     : #ecebe7;
+    color                                : var(--RSC_Col_Brand);
+}
+
+.RSC__tab--active,
+.RSC__tab--active:hover {
+    background-color                     : var(--RSC_Col_Surface);
+    border-color                         : var(--RSC_Col_Border);
+    border-top-color                     : var(--RSC_Col_Brand);
+    border-bottom-color                  : var(--RSC_Col_Surface);
+    color                                : var(--RSC_Col_Brand);
+    font-weight                          : 700;
+}
+
+.RSC__unit-switch {
+    margin-bottom                        : 0.4rem;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Segmented Switches (units, area / length × width)
+   -------------------------------------------------------------------------- */
+.RSC__segmented {
+    display                              : inline-flex;
+    padding                              : 2px;
+    gap                                  : 2px;
+    border                               : 1px solid var(--RSC_Col_Border);
+    border-radius                        : 0.4rem;
+    background-color                     : var(--RSC_Col_Surface);
+    flex-shrink                          : 0;
+}
+
+.RSC__segmented label {
+    position                             : relative;
+    cursor                               : pointer;
+}
+
+.RSC__segmented input {
+    position                             : absolute;
+    opacity                              : 0;
+    pointer-events                       : none;
+}
+
+.RSC__segmented span {
+    display                              : block;
+    min-width                            : 2.6rem;
+    padding                              : 0.32rem 0.7rem;
+    border-radius                        : 0.3rem;
+    color                                : var(--RSC_Col_Ink2);
+    font-size                            : 0.85rem;
+    font-weight                          : 600;
+    text-align                           : center;
+    white-space                          : nowrap;
+    transition                           : background-color 0.15s, color 0.15s;
+}
+
+.RSC__segmented label:hover span {
+    background-color                     : var(--RSC_Col_Hover);
+}
+
+.RSC__segmented input:checked + span {
+    background-color                     : var(--RSC_Col_Brand);
+    color                                : #ffffff;
+}
+
+.RSC__segmented input:focus-visible + span {
+    outline                              : 2px solid var(--RSC_Col_Focus);
+    outline-offset                       : 1px;
+}
+
+.RSC__segmented--small span {
+    min-width                            : 0;
+    padding                              : 0.2rem 0.55rem;
+    font-size                            : 0.74rem;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Your Room Controls (sticky on wide screens)
+   -------------------------------------------------------------------------- */
+.RSC__controls {
+    position                             : sticky;
+    top                                  : 0;
+    z-index                              : 20;
+    display                              : flex;
+    flex-wrap                            : wrap;
+    align-items                          : flex-start;
+    gap                                  : 0.75rem 1.25rem;
+    padding                              : 0.75rem 1rem;
+    border                               : 1px solid var(--RSC_Col_Border);
+    border-radius                        : var(--RSC_Size_Radius);
+    background-color                     : rgba(255, 255, 255, 0.97);
+    box-shadow                           : 0 2px 10px rgba(23, 43, 58, 0.06);
+}
+
+.RSC__field {
+    display                              : flex;
+    flex-direction                       : column;
+    gap                                  : 0.35rem;
+    min-width                            : 0;
+}
+
+.RSC__field--room {
+    flex                                 : 1 1 15rem;
+    max-width                            : 22rem;
+}
+
+.RSC__field--size {
+    flex                                 : 2 1 20rem;
+}
+
+.RSC__field--actions {
+    flex-direction                       : row;
+    align-items                          : flex-end;
+    align-self                           : flex-end;
+    gap                                  : 0.5rem;
+    margin-left                          : auto;
+}
+
+.RSC__label {
+    font-size                            : 0.74rem;
+    font-weight                          : 700;
+    letter-spacing                       : 0.04em;
+    text-transform                       : uppercase;
+    color                                : var(--RSC_Col_Ink2);
+}
+
+.RSC__size-head {
+    display                              : flex;
+    align-items                          : center;
+    justify-content                      : flex-start;
+    gap                                  : 0.75rem;
+    min-height                           : 1.45rem;
+}
+
+.RSC__select,
+.RSC__input {
+    box-sizing                           : border-box;
+    height                               : 2.5rem;
+    padding                              : 0 0.7rem;
+    border                               : 1px solid var(--RSC_Col_Border);
+    border-radius                        : var(--RSC_Size_Radius);
+    background-color                     : var(--RSC_Col_Surface);
+    color                                : var(--RSC_Col_Ink);
+    font-family                          : var(--font-regular);
+    font-size                            : 1rem;
+}
+
+.RSC__select {
+    width                                : 100%;
+    cursor                               : pointer;
+}
+
+.RSC__select:focus,
+.RSC__input:focus {
+    outline                              : none;
+    border-color                         : var(--RSC_Col_Focus);
+    box-shadow                           : 0 0 0 3px rgba(42, 120, 214, 0.18);
+}
+
+.RSC__input-row {
+    display                              : flex;
+    align-items                          : center;
+    gap                                  : 0.4rem;
+}
+
+.RSC__input--area {
+    width                                : 9rem;
+    font-size                            : 1.2rem;
+    font-weight                          : 600;
+    font-variant-numeric                 : tabular-nums;
+}
+
+.RSC__input--dim {
+    width                                : 6.5rem;
+    font-size                            : 1.05rem;
+    font-weight                          : 600;
+    font-variant-numeric                 : tabular-nums;
+}
+
+.RSC__suffix {
+    color                                : var(--RSC_Col_Ink2);
+    font-weight                          : 600;
+}
+
+.RSC__times {
+    padding                              : 0 0.15rem;
+    color                                : var(--RSC_Col_Muted);
+    font-size                            : 1.1rem;
+}
+
+.RSC__input-note {
+    min-height                           : 1.05rem;
+    margin                               : 0;
+    color                                : var(--RSC_Col_Ink2);
+    font-size                            : 0.8rem;
+}
+
+.RSC__input-note--error {
+    color                                : var(--RSC_Col_Critical);
+    font-weight                          : 600;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Buttons, Pills, Swatches
+   -------------------------------------------------------------------------- */
+.RSC__btn {
+    display                              : inline-flex;
+    align-items                          : center;
+    justify-content                      : center;
+    height                               : 2.5rem;
+    padding                              : 0 0.95rem;
+    border                               : 1px solid var(--RSC_Col_Border);
+    border-radius                        : var(--RSC_Size_Radius);
+    background-color                     : var(--RSC_Col_Surface);
+    color                                : var(--RSC_Col_Ink);
+    font-family                          : var(--font-semibold);
+    font-size                            : 0.85rem;
+    font-weight                          : 600;
+    text-decoration                      : none;
+    white-space                          : nowrap;
+    cursor                               : pointer;
+    transition                           : background-color 0.15s, border-color 0.15s;
+}
+
+.RSC__btn:hover {
+    background-color                     : var(--RSC_Col_Hover);
+    border-color                         : #c9c8c1;
+}
+
+.RSC__btn:active {
+    transform                            : translateY(1px);
+}
+
+.RSC__btn--small {
+    height                               : 2rem;
+    padding                              : 0 0.7rem;
+    font-size                            : 0.78rem;
+}
+
+.RSC__link-btn {
+    padding                              : 0;
+    border                               : 0;
+    background                           : none;
+    color                                : #1c5cab;
+    font-family                          : inherit;
+    font-size                            : inherit;
+    font-weight                          : 600;
+    text-decoration                      : underline;
+    text-underline-offset                : 2px;
+    cursor                               : pointer;
+}
+
+.RSC__pill {
+    display                              : inline-block;
+    padding                              : 0.1rem 0.5rem;
+    border-radius                        : 999px;
+    background-color                     : #efeeea;
+    color                                : var(--RSC_Col_Ink2);
+    font-size                            : 0.72rem;
+    font-weight                          : 700;
+    white-space                          : nowrap;
+}
+
+.RSC__pill--evidence-high                { background-color: #e5f2e8; color: #1e5a2b; }
+.RSC__pill--evidence-medium              { background-color: #e9f0fa; color: #1c4f8f; }
+.RSC__pill--evidence-low                 { background-color: #fbf0de; color: #7d4f0e; }
+.RSC__pill--evidence-none                { background-color: #efeeea; color: #5f5d58; }
+.RSC__pill--status-adjusted              { background-color: var(--RSC_Col_YouSoft); color: #8a3a14; }
+.RSC__pill--status-no-data               { background-color: #efeeea; color: #5f5d58; }
+
+.RSC__swatch {
+    display                              : inline-block;
+    flex-shrink                          : 0;
+    width                                : 0.75rem;
+    height                               : 0.75rem;
+    border                               : 1.5px solid transparent;
+    border-radius                        : 3px;
+    box-sizing                           : border-box;
+    vertical-align                       : -1px;
+}
+
+.RSC__swatch--you {
+    border-width                         : 2.5px;
+    background-color                     : transparent;
+}
+
+.RSC__alt {
+    display                              : block;
+    color                                : var(--RSC_Col_Muted);
+    font-size                            : 0.75em;
+    font-weight                          : 400;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Cards
+   -------------------------------------------------------------------------- */
+.RSC__view {
+    display                              : block;
+}
+
+.RSC__card {
+    box-sizing                           : border-box;
+    padding                              : 0.9rem 1rem;
+    border                               : 1px solid var(--RSC_Col_Border);
+    border-radius                        : var(--RSC_Size_Radius);
+    background-color                     : var(--RSC_Col_Surface);
+    min-width                            : 0;
+}
+
+.RSC__card-head {
+    display                              : flex;
+    flex-wrap                            : wrap;
+    align-items                          : center;
+    justify-content                      : space-between;
+    gap                                  : 0.5rem 1rem;
+    margin-bottom                        : 0.6rem;
+}
+
+.RSC__card-title {
+    margin                               : 0;
+    color                                : var(--RSC_Col_Heading);
+    font-family                          : var(--font-semibold);
+    font-size                            : 1rem;
+    font-weight                          : 700;
+}
+
+.RSC__card-tools {
+    display                              : flex;
+    flex-wrap                            : wrap;
+    align-items                          : center;
+    gap                                  : 0.6rem;
+}
+
+.RSC__check {
+    display                              : inline-flex;
+    align-items                          : center;
+    gap                                  : 0.4rem;
+    color                                : var(--RSC_Col_Ink2);
+    font-size                            : 0.82rem;
+    cursor                               : pointer;
+    user-select                          : none;
+}
+
+.RSC__check input {
+    width                                : 1rem;
+    height                               : 1rem;
+    margin                               : 0;
+    accent-color                         : var(--RSC_Col_Brand);
+}
+
+.RSC__caption {
+    margin                               : 0.55rem 0 0 0;
+    color                                : var(--RSC_Col_Muted);
+    font-size                            : 0.78rem;
+    line-height                          : 1.5;
+}
+
+.RSC__caption--top {
+    margin                               : 0 0 0.6rem 0;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Compare View Layout
+   -------------------------------------------------------------------------- */
+.RSC__compare-grid {
+    display                              : grid;
+    grid-template-columns                : minmax(0, 1.6fr) minmax(320px, 1fr);
+    align-items                          : start;
+    gap                                  : 0.75rem;
+}
+
+.RSC__side {
+    display                              : flex;
+    flex-direction                       : column;
+    gap                                  : 0.75rem;
+    min-width                            : 0;
+}
+
+.RSC__plan-host {
+    width                                : 100%;
+    min-height                           : 260px;
+    overflow                             : hidden;
+    border-radius                        : 0.25rem;
+}
+
+.RSC__plan-svg {
+    display                              : block;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Verdict
+   -------------------------------------------------------------------------- */
+.RSC__card--verdict {
+    border-left                          : 4px solid var(--RSC_Col_Border);
+}
+
+.RSC__card--verdict-set {
+    border-left-color                    : var(--RSC_Col_You);
+}
+
+.RSC__eyebrow {
+    margin                               : 0 0 0.25rem 0;
+    color                                : var(--RSC_Col_Muted);
+    font-size                            : 0.72rem;
+    font-weight                          : 700;
+    letter-spacing                       : 0.05em;
+    text-transform                       : uppercase;
+}
+
+.RSC__verdict-title {
+    margin                               : 0 0 0.35rem 0;
+    color                                : var(--RSC_Col_Heading);
+    font-size                            : 1.15rem;
+}
+
+.RSC__verdict-figure {
+    display                              : flex;
+    flex-wrap                            : wrap;
+    align-items                          : baseline;
+    gap                                  : 0.2rem 0.7rem;
+}
+
+.RSC__verdict-big {
+    color                                : var(--RSC_Col_Heading);
+    font-size                            : 2.1rem;
+    font-weight                          : 700;
+    line-height                          : 1.1;
+}
+
+.RSC__verdict-alt {
+    color                                : var(--RSC_Col_Muted);
+    font-size                            : 1rem;
+    font-weight                          : 600;
+}
+
+.RSC__verdict-dims {
+    margin                               : 0.1rem 0 0 0;
+    color                                : var(--RSC_Col_Ink2);
+    font-size                            : 0.9rem;
+}
+
+.RSC__chip {
+    display                              : inline-flex;
+    align-items                          : center;
+    gap                                  : 0.45rem;
+    margin-top                           : 0.6rem;
+    padding                              : 0.3rem 0.75rem;
+    border                               : 1px solid var(--RSC_Col_Border);
+    border-radius                        : 999px;
+    background-color                     : var(--RSC_Col_SurfaceSoft);
+    color                                : var(--RSC_Col_Heading);
+    font-size                            : 0.95rem;
+    font-weight                          : 700;
+}
+
+.RSC__chip--below {
+    border-color                         : var(--RSC_Col_Critical);
+    background-color                     : var(--RSC_Col_CriticalSoft);
+}
+
+.RSC__chip-icon {
+    display                              : inline-flex;
+    align-items                          : center;
+    justify-content                      : center;
+    width                                : 1.05rem;
+    height                               : 1.05rem;
+    border-radius                        : 50%;
+    background-color                     : var(--RSC_Col_Critical);
+    color                                : #ffffff;
+    font-size                            : 0.75rem;
+    font-weight                          : 700;
+}
+
+.RSC__verdict-text {
+    margin                               : 0.6rem 0 0 0;
+    font-size                            : 0.92rem;
+    line-height                          : 1.5;
+}
+
+.RSC__verdict-typical,
+.RSC__verdict-pct {
+    margin                               : 0.45rem 0 0 0;
+    color                                : var(--RSC_Col_Ink2);
+    font-size                            : 0.85rem;
+}
+
+.RSC__verdict-warning {
+    margin                               : 0.5rem 0 0 0;
+    padding                              : 0.45rem 0.6rem;
+    border-radius                        : 0.25rem;
+    background-color                     : var(--RSC_Col_CriticalSoft);
+    color                                : var(--RSC_Col_Ink);
+    font-size                            : 0.82rem;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Band Strip (one-line scale)
+   -------------------------------------------------------------------------- */
+.RSC__strip {
+    margin                               : 0.7rem 0.6rem 0.25rem 0.6rem;
+}
+
+.RSC__strip-track {
+    position                             : relative;
+    height                               : 24px;
+}
+
+.RSC__strip-range {
+    position                             : absolute;
+    top                                  : 50%;
+    height                               : 6px;
+    border-radius                        : 3px;
+    background-color                     : var(--RSC_Col_Range);
+    transform                            : translateY(-50%);
+}
+
+.RSC__strip-dot {
+    position                             : absolute;
+    top                                  : 50%;
+    width                                : 12px;
+    height                               : 12px;
+    border-radius                        : 50%;
+    box-shadow                           : 0 0 0 2px var(--RSC_Col_Surface);
+    transform                            : translate(-50%, -50%);
+}
+
+.RSC__strip-you {
+    position                             : absolute;
+    top                                  : -2px;
+    bottom                               : -2px;
+    width                                : 3px;
+    border-radius                        : 2px;
+    box-shadow                           : 0 0 0 1.5px var(--RSC_Col_Surface);
+    transform                            : translateX(-50%);
+    z-index                              : 2;
+}
+
+.RSC__strip-labels {
+    position                             : relative;
+    height                               : calc(var(--rsc-rows, 1) * var(--RSC_Size_StripRow));
+    margin-top                           : 3px;
+}
+
+.RSC__strip-label {
+    position                             : absolute;
+    top                                  : calc(var(--rsc-row, 0) * var(--RSC_Size_StripRow));
+    display                              : flex;
+    flex-direction                       : column;
+    align-items                          : center;
+    color                                : var(--RSC_Col_Ink2);
+    font-size                            : 0.72rem;
+    line-height                          : 1.2;
+    white-space                          : nowrap;
+    transform                            : translateX(-50%);
+    font-variant-numeric                 : tabular-nums;
+}
+
+.RSC__strip-label strong {
+    color                                : var(--RSC_Col_Ink);
+}
+
+.RSC__strip-label--start {
+    align-items                          : flex-start;
+    transform                            : none;
+}
+
+.RSC__strip-label--end {
+    align-items                          : flex-end;
+    transform                            : translateX(-100%);
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Band Table
+   -------------------------------------------------------------------------- */
+.RSC__table-wrap {
+    width                                : 100%;
+    overflow-x                           : auto;
+}
+
+.RSC__band-table {
+    width                                : 100%;
+    margin-top                           : 0.5rem;
+    border-collapse                      : collapse;
+    font-size                            : 0.85rem;
+}
+
+.RSC__band-table thead th {
+    padding                              : 0.35rem 0.4rem;
+    border-bottom                        : 1px solid var(--RSC_Col_Border);
+    color                                : var(--RSC_Col_Muted);
+    font-size                            : 0.7rem;
+    font-weight                          : 700;
+    letter-spacing                       : 0.05em;
+    text-align                           : left;
+    text-transform                       : uppercase;
+}
+
+.RSC__band-table thead th:nth-child(2) {
+    text-align                           : right;
+}
+
+.RSC__band-table tbody th,
+.RSC__band-table tbody td {
+    padding                              : 0.45rem 0.4rem;
+    border-bottom                        : 1px solid var(--RSC_Col_Hairline);
+    vertical-align                       : top;
+}
+
+.RSC__band-name {
+    font-weight                          : 400;
+    text-align                           : left;
+}
+
+.RSC__band-name strong {
+    margin-left                          : 0.4rem;
+}
+
+.RSC__band-note {
+    display                              : block;
+    margin                               : 0.15rem 0 0 1.15rem;
+    color                                : var(--RSC_Col_Muted);
+    font-size                            : 0.75rem;
+    line-height                          : 1.35;
+}
+
+.RSC__band-area {
+    text-align                           : right;
+    white-space                          : nowrap;
+    font-weight                          : 600;
+    font-variant-numeric                 : tabular-nums;
+}
+
+.RSC__band-dims {
+    color                                : var(--RSC_Col_Ink2);
+    white-space                          : nowrap;
+    font-variant-numeric                 : tabular-nums;
+}
+
+.RSC__band-row--nearest {
+    background-color                     : var(--RSC_Col_Selected);
+}
+
+.RSC__you-row {
+    background-color                     : var(--RSC_Col_YouSoft);
+}
+
+.RSC__you-row th {
+    box-shadow                           : inset 3px 0 0 var(--RSC_Col_You);
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Notes On The Figures
+   -------------------------------------------------------------------------- */
+.RSC__card--notes .RSC__card-title {
+    margin-bottom                        : 0.45rem;
+    font-size                            : 0.9rem;
+}
+
+.RSC__notes-text {
+    margin                               : 0;
+    color                                : var(--RSC_Col_Ink2);
+    font-size                            : 0.84rem;
+    line-height                          : 1.55;
+}
+
+.RSC__changes {
+    margin-top                           : 0.6rem;
+    padding                              : 0.5rem 0.7rem;
+    border-left                          : 3px solid var(--RSC_Col_You);
+    border-radius                        : 0.25rem;
+    background-color                     : var(--RSC_Col_YouSoft);
+    font-size                            : 0.82rem;
+}
+
+.RSC__changes--merged {
+    border-left-color                    : #9c9a93;
+    background-color                     : var(--RSC_Col_SurfaceSoft);
+}
+
+.RSC__changes ul {
+    margin                               : 0.25rem 0 0 0;
+    padding-left                         : 1.1rem;
+}
+
+.RSC__notes-meta {
+    display                              : flex;
+    flex-wrap                            : wrap;
+    align-items                          : center;
+    gap                                  : 0.4rem 0.75rem;
+    margin-top                           : 0.7rem;
+    font-size                            : 0.82rem;
+}
+
+.RSC__notes-count {
+    color                                : var(--RSC_Col_Muted);
+}
+
+.RSC__notes-aliases {
+    margin                               : 0.5rem 0 0 0;
+    color                                : var(--RSC_Col_Muted);
+    font-size                            : 0.78rem;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | All Rooms View
+   -------------------------------------------------------------------------- */
+.RSC__input--search {
+    width                                : 13rem;
+    height                               : 2rem;
+    font-size                            : 0.85rem;
+}
+
+.RSC__select--small {
+    width                                : auto;
+    height                               : 2rem;
+    font-size                            : 0.85rem;
+}
+
+.RSC__legend {
+    display                              : flex;
+    flex-wrap                            : wrap;
+    align-items                          : center;
+    gap                                  : 0.35rem 1rem;
+    margin-bottom                        : 0.6rem;
+    color                                : var(--RSC_Col_Ink2);
+    font-size                            : 0.8rem;
+}
+
+.RSC__legend-item {
+    display                              : inline-flex;
+    align-items                          : center;
+    gap                                  : 0.35rem;
+}
+
+.RSC__legend-dot {
+    width                                : 10px;
+    height                               : 10px;
+    border-radius                        : 50%;
+}
+
+.RSC__legend-line {
+    width                                : 3px;
+    height                               : 14px;
+    border-radius                        : 2px;
+}
+
+.RSC__legend-item--you {
+    margin-left                          : 0.5rem;
+    font-weight                          : 600;
+}
+
+.RSC__all {
+    display                              : flex;
+    flex-direction                       : column;
+}
+
+.RSC__ar-row {
+    display                              : grid;
+    grid-template-columns                : minmax(9rem, 15rem) minmax(0, 1fr) 9.5rem;
+    align-items                          : center;
+    gap                                  : 0 0.9rem;
+    width                                : 100%;
+    min-height                           : 30px;
+    margin                               : 0;
+    padding                              : 0 0.5rem;
+    border                               : 0;
+    border-radius                        : 0;
+    background                           : none;
+    color                                : var(--RSC_Col_Ink);
+    font-family                          : inherit;
+    font-size                            : 0.84rem;
+    text-align                           : left;
+    box-sizing                           : border-box;
+}
+
+.RSC__ar-row--room {
+    cursor                               : pointer;
+}
+
+.RSC__ar-row--room:hover {
+    background-color                     : var(--RSC_Col_Hover);
+}
+
+.RSC__ar-row--room:focus-visible {
+    outline-offset                       : -2px;
+}
+
+.RSC__ar-row--selected {
+    background-color                     : var(--RSC_Col_Selected);
+}
+
+.RSC__ar-row--selected .RSC__ar-name {
+    font-weight                          : 700;
+}
+
+.RSC__ar-row--header {
+    min-height                           : 26px;
+    color                                : var(--RSC_Col_Muted);
+    font-size                            : 0.7rem;
+    font-weight                          : 700;
+    letter-spacing                       : 0.05em;
+    text-transform                       : uppercase;
+}
+
+.RSC__ar-row--footer {
+    margin-top                           : 0.2rem;
+}
+
+.RSC__ar-row--group {
+    min-height                           : 30px;
+    margin-top                           : 0;
+    border-top                           : 1px solid var(--RSC_Col_Border);
+    color                                : var(--RSC_Col_Brand);
+    font-size                            : 0.72rem;
+    font-weight                          : 700;
+    letter-spacing                       : 0.05em;
+    text-transform                       : uppercase;
+}
+
+.RSC__ar-name {
+    overflow                             : hidden;
+    text-overflow                        : ellipsis;
+    white-space                          : nowrap;
+}
+
+.RSC__ar-track {
+    position                             : relative;
+    align-self                           : stretch;
+    min-height                           : 30px;
+    border-right                         : 1px solid var(--RSC_Col_Hairline);
+    background-image                     : linear-gradient(to right, var(--RSC_Col_Hairline) 1px, transparent 1px);
+    background-size                      : calc(100% / var(--rsc-grid-intervals, 8)) 100%;
+}
+
+.RSC__ar-row--header .RSC__ar-track {
+    min-height                           : 26px;
+    background-image                     : none;
+    border-right                         : 0;
+}
+
+.RSC__ar-tick {
+    position                             : absolute;
+    top                                  : 50%;
+    color                                : var(--RSC_Col_Muted);
+    font-size                            : 0.68rem;
+    font-weight                          : 600;
+    letter-spacing                       : 0;
+    text-transform                       : none;
+    white-space                          : nowrap;
+    transform                            : translate(-50%, -50%);
+    font-variant-numeric                 : tabular-nums;
+}
+
+.RSC__ar-tick:first-child {
+    transform                            : translate(0, -50%);
+}
+
+.RSC__ar-tick:last-child {
+    transform                            : translate(-100%, -50%);
+}
+
+.RSC__ar-range {
+    position                             : absolute;
+    top                                  : 50%;
+    height                               : 6px;
+    border-radius                        : 3px;
+    background-color                     : var(--RSC_Col_Range);
+    transform                            : translateY(-50%);
+}
+
+.RSC__ar-dot {
+    position                             : absolute;
+    top                                  : 50%;
+    width                                : 9px;
+    height                               : 9px;
+    border-radius                        : 50%;
+    box-shadow                           : 0 0 0 2px var(--RSC_Col_Surface);
+    transform                            : translate(-50%, -50%);
+    z-index                              : 1;
+}
+
+.RSC__ar-dot--medium {
+    width                                : 12px;
+    height                               : 12px;
+}
+
+.RSC__ar-you {
+    position                             : absolute;
+    top                                  : 0;
+    bottom                               : 0;
+    width                                : 2px;
+    transform                            : translateX(-1px);
+    z-index                              : 2;
+}
+
+.RSC__ar-chip {
+    display                              : inline-flex;
+    align-items                          : center;
+    gap                                  : 0.4rem;
+    color                                : var(--RSC_Col_Ink);
+    font-size                            : 0.8rem;
+    font-weight                          : 600;
+    white-space                          : nowrap;
+}
+
+.RSC__ar-chip--head {
+    color                                : var(--RSC_Col_Muted);
+    font-size                            : 0.7rem;
+}
+
+.RSC__ar-chip--below::before {
+    content                              : "!";
+    display                              : inline-flex;
+    align-items                          : center;
+    justify-content                      : center;
+    width                                : 0.9rem;
+    height                               : 0.9rem;
+    border-radius                        : 50%;
+    background-color                     : var(--RSC_Col_Critical);
+    color                                : #ffffff;
+    font-size                            : 0.65rem;
+    font-weight                          : 700;
+}
+
+.RSC__ar-empty {
+    margin                               : 1rem 0;
+    color                                : var(--RSC_Col_Muted);
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Tooltip And Toast
+   -------------------------------------------------------------------------- */
+.RSC__tooltip {
+    position                             : fixed;
+    z-index                              : 1000;
+    max-width                            : 17rem;
+    padding                              : 0.55rem 0.7rem;
+    border                               : 1px solid var(--RSC_Col_Border);
+    border-radius                        : var(--RSC_Size_Radius);
+    background-color                     : var(--RSC_Col_Surface);
+    box-shadow                           : 0 8px 24px rgba(23, 43, 58, 0.14);
+    font-size                            : 0.78rem;
+    pointer-events                       : none;
+}
+
+.RSC__tooltip-title {
+    display                              : block;
+    margin-bottom                        : 0.3rem;
+    color                                : var(--RSC_Col_Heading);
+    font-size                            : 0.82rem;
+}
+
+.RSC__tooltip-list {
+    display                              : grid;
+    gap                                  : 0.15rem;
+    margin                               : 0;
+}
+
+.RSC__tooltip-list div {
+    display                              : flex;
+    justify-content                      : space-between;
+    gap                                  : 1.2rem;
+}
+
+.RSC__tooltip-list dt {
+    display                              : inline-flex;
+    align-items                          : center;
+    gap                                  : 0.35rem;
+    color                                : var(--RSC_Col_Ink2);
+}
+
+.RSC__tooltip-list dd {
+    margin                               : 0;
+    color                                : var(--RSC_Col_Ink);
+    font-weight                          : 700;
+    font-variant-numeric                 : tabular-nums;
+}
+
+.RSC__tooltip-you {
+    display                              : flex;
+    align-items                          : center;
+    gap                                  : 0.4rem;
+    margin                               : 0.4rem 0 0 0;
+    padding-top                          : 0.35rem;
+    border-top                           : 1px solid var(--RSC_Col_Hairline);
+    font-weight                          : 600;
+}
+
+.RSC__toast {
+    position                             : fixed;
+    left                                 : 50%;
+    bottom                               : 2.2rem;
+    z-index                              : 1100;
+    max-width                            : min(90vw, 28rem);
+    padding                              : 0.6rem 1rem;
+    border-radius                        : var(--RSC_Size_Radius);
+    background-color                     : #2b2a27;
+    color                                : #ffffff;
+    font-size                            : 0.85rem;
+    opacity                              : 0;
+    pointer-events                       : none;
+    transform                            : translate(-50%, 8px);
+    transition                           : opacity 0.2s, transform 0.2s;
+}
+
+.RSC__toast--show {
+    opacity                              : 1;
+    transform                            : translate(-50%, 0);
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Data And Sources View
+   -------------------------------------------------------------------------- */
+.RSC__view#js__viewData {
+    display                              : flex;
+    flex-direction                       : column;
+    gap                                  : 0.75rem;
+}
+
+.RSC__card--prose {
+    font-size                            : 0.88rem;
+    line-height                          : 1.6;
+}
+
+.RSC__card--prose p {
+    max-width                            : 80ch;
+    margin                               : 0.5rem 0 0 0;
+}
+
+.RSC__prose-lead {
+    font-weight                          : 600;
+}
+
+.RSC__prose-note {
+    color                                : var(--RSC_Col_Muted);
+    font-size                            : 0.8rem;
+}
+
+.RSC__prose-cols {
+    display                              : grid;
+    grid-template-columns                : minmax(0, 1fr) minmax(0, 1fr);
+    gap                                  : 0.5rem 2rem;
+    margin-top                           : 0.6rem;
+}
+
+.RSC__prose-head {
+    margin                               : 0.8rem 0 0.35rem 0;
+    color                                : var(--RSC_Col_Heading);
+    font-size                            : 0.85rem;
+}
+
+.RSC__def-list {
+    display                              : grid;
+    grid-template-columns                : 5.5rem minmax(0, 1fr);
+    gap                                  : 0.25rem 0.75rem;
+    margin                               : 0;
+}
+
+.RSC__def-list dt {
+    font-weight                          : 700;
+}
+
+.RSC__def-list dd {
+    margin                               : 0;
+    color                                : var(--RSC_Col_Ink2);
+}
+
+.RSC__prose-list {
+    margin                               : 0;
+    padding-left                         : 1.1rem;
+    color                                : var(--RSC_Col_Ink2);
+}
+
+.RSC__prose-list li {
+    margin-bottom                        : 0.3rem;
+}
+
+.RSC__data-table {
+    width                                : 100%;
+    min-width                            : 760px;
+    border-collapse                      : collapse;
+    font-size                            : 0.84rem;
+}
+
+.RSC__data-table thead th {
+    position                             : sticky;
+    top                                  : 0;
+    padding                              : 0.45rem 0.5rem;
+    border-bottom                        : 1px solid var(--RSC_Col_Border);
+    background-color                     : var(--RSC_Col_Surface);
+    color                                : var(--RSC_Col_Muted);
+    font-size                            : 0.7rem;
+    font-weight                          : 700;
+    letter-spacing                       : 0.05em;
+    text-align                           : left;
+    text-transform                       : uppercase;
+    white-space                          : nowrap;
+}
+
+.RSC__data-table td,
+.RSC__data-table tbody th {
+    padding                              : 0.4rem 0.5rem;
+    border-bottom                        : 1px solid var(--RSC_Col_Hairline);
+    vertical-align                       : top;
+}
+
+.RSC__data-group th {
+    padding-top                          : 0.75rem;
+    background-color                     : var(--RSC_Col_SurfaceSoft);
+    color                                : var(--RSC_Col_Brand);
+    font-size                            : 0.72rem;
+    font-weight                          : 700;
+    letter-spacing                       : 0.05em;
+    text-align                           : left;
+    text-transform                       : uppercase;
+}
+
+.RSC__data-table .RSC__num {
+    text-align                           : right;
+    white-space                          : nowrap;
+    font-variant-numeric                 : tabular-nums;
+}
+
+.RSC__num--changed > span:first-child {
+    font-weight                          : 700;
+}
+
+.RSC__was {
+    display                              : block;
+    color                                : var(--RSC_Col_Muted);
+    font-size                            : 0.7rem;
+    text-decoration                      : line-through;
+}
+
+.RSC__data-name {
+    font-weight                          : 400;
+    text-align                           : left;
+}
+
+.RSC__data-toggle {
+    padding                              : 0;
+    border                               : 0;
+    background                           : none;
+    color                                : var(--RSC_Col_Ink);
+    font-family                          : inherit;
+    font-size                            : inherit;
+    font-weight                          : 600;
+    text-align                           : left;
+    cursor                               : pointer;
+}
+
+.RSC__data-toggle::before {
+    content                              : "▸";
+    display                              : inline-block;
+    width                                : 1rem;
+    color                                : var(--RSC_Col_Muted);
+    transition                           : transform 0.15s;
+}
+
+.RSC__data-toggle[aria-expanded="true"]::before {
+    transform                            : rotate(90deg);
+}
+
+.RSC__data-toggle:hover {
+    color                                : #1c5cab;
+}
+
+.RSC__data-row--open {
+    background-color                     : var(--RSC_Col_Selected);
+}
+
+.RSC__data-detail > td {
+    padding                              : 0.6rem 1rem 0.9rem 1.5rem;
+    background-color                     : #fbfbfa;
+}
+
+.RSC__detail-notes {
+    max-width                            : 90ch;
+    margin                               : 0 0 0.4rem 0;
+    line-height                          : 1.55;
+}
+
+.RSC__detail-facts {
+    margin                               : 0 0 0.6rem 0;
+    padding-left                         : 1.1rem;
+    color                                : var(--RSC_Col_Ink2);
+    font-size                            : 0.8rem;
+}
+
+.RSC__detail-empty {
+    color                                : var(--RSC_Col_Muted);
+    font-style                           : italic;
+}
+
+.RSC__source-list {
+    margin                               : 0;
+    padding-left                         : 1.4rem;
+}
+
+.RSC__source-list li {
+    margin-bottom                        : 0.5rem;
+}
+
+.RSC__source-head {
+    display                              : flex;
+    flex-wrap                            : wrap;
+    align-items                          : baseline;
+    gap                                  : 0.2rem 0.6rem;
+}
+
+.RSC__source-link {
+    color                                : #1c5cab;
+    font-weight                          : 600;
+    word-break                           : break-word;
+}
+
+.RSC__source-tags {
+    display                              : inline-flex;
+    flex-wrap                            : wrap;
+    gap                                  : 0.25rem;
+}
+
+.RSC__tag {
+    padding                              : 0 0.4rem;
+    border                               : 1px solid var(--RSC_Col_Border);
+    border-radius                        : 0.2rem;
+    color                                : var(--RSC_Col_Muted);
+    font-size                            : 0.68rem;
+    font-weight                          : 600;
+    white-space                          : nowrap;
+}
+
+.RSC__source-figure {
+    margin                               : 0.1rem 0 0 0;
+    color                                : var(--RSC_Col_Ink2);
+    font-size                            : 0.8rem;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Narrower Screens
+   -------------------------------------------------------------------------- */
+@media (max-width: 980px) {
+    .RSC__compare-grid {
+        grid-template-columns            : minmax(0, 1fr);
+    }
+
+    .RSC__side {
+        display                          : contents;
+    }
+
+    .RSC__card--verdict                  { order: 1; }
+    .RSC__card--plan                     { order: 2; }
+    .RSC__card--bands                    { order: 3; }
+    .RSC__card--notes                    { order: 4; }
+
+    .RSC__prose-cols {
+        grid-template-columns            : minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .MAIN__container.RSC__main {
+        padding-left                     : 0.6rem;
+        padding-right                    : 0.6rem;
+    }
+
+    .RSC__controls {
+        position                         : static;
+        padding                          : 0.7rem;
+        box-shadow                       : none;
+    }
+
+    .RSC__field--room,
+    .RSC__field--size {
+        flex-basis                       : 100%;
+        max-width                        : none;
+    }
+
+    .RSC__field--actions {
+        margin-left                      : 0;
+    }
+
+    .RSC__tab {
+        min-width                        : 0;
+        padding                          : 0.45rem 0.55rem 0.4rem 0.55rem;
+        font-size                        : 0.68rem;
+        letter-spacing                   : 0.02em;
+    }
+
+    .RSC__card {
+        padding                          : 0.75rem;
+    }
+
+    .RSC__verdict-big {
+        font-size                        : 1.8rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .RSC__toolbar {
+        flex-wrap                        : wrap-reverse;
+        border-bottom                    : 0;
+    }
+
+    .RSC__tablist {
+        width                            : 100%;
+        border-bottom                    : 1px solid var(--RSC_Col_Border);
+    }
+
+    .RSC__tab {
+        flex                             : 1 1 0;
+    }
+
+    .RSC__unit-switch {
+        margin-left                      : auto;
+        margin-bottom                    : 0;
+    }
+
+    .RSC__ar-row {
+        grid-template-columns            : minmax(0, 1fr) auto;
+        grid-template-areas              : "name chip" "track track";
+        gap                              : 0.1rem 0.5rem;
+        padding                          : 0.3rem 0.4rem;
+    }
+
+    .RSC__ar-row .RSC__ar-name           { grid-area: name; }
+    .RSC__ar-row .RSC__ar-track          { grid-area: track; min-height: 22px; }
+    .RSC__ar-row .RSC__ar-chip           { grid-area: chip; }
+
+    .RSC__ar-row--header .RSC__ar-name,
+    .RSC__ar-row--header .RSC__ar-chip {
+        display                          : none;
+    }
+
+    .RSC__ar-row--group .RSC__ar-track {
+        min-height                       : 8px;
+    }
+
+    .RSC__input--search {
+        width                            : 100%;
+    }
+
+    .RSC__card-tools {
+        width                            : 100%;
+    }
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Print (the Compare view on one page)
+   -------------------------------------------------------------------------- */
+@media print {
+    .PAGE__container,
+    .FULL__page-app-container {
+        height                           : auto;
+        overflow                         : visible;
+        background                       : #ffffff;
+    }
+
+    .RSC__toolbar,
+    .RSC__field--actions,
+    .RSC__card-tools,
+    .RSC__tooltip,
+    .RSC__toast,
+    .FOOT__container {
+        display                          : none !important;
+    }
+
+    .RSC__controls {
+        position                         : static;
+        box-shadow                       : none;
+    }
+
+    .RSC__card {
+        break-inside                     : avoid;
+    }
+}
+/* endregion ---------------------------------------------------------------- */
