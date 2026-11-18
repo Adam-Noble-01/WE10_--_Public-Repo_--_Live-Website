@@ -3,7 +3,7 @@
         "NaMiniApp__AppTitle": "Text To Reader",
         "NaMiniApp__AppSubTitle": "Reader Utils",
         "NaMiniApp__Created": "19-Sep-2026",
-        "NaMiniApp__Version": "1.9.6"
+        "NaMiniApp__Version": "1.9.7"
     },
     "NaMiniApp__Assets": {
         "NaMiniApp__MarkedEsmUrl": "./02__PhononRuntime/marked.esm.js"
@@ -12,10 +12,26 @@
         "NaMiniApp__AcceptedFileExtensions": [
             ".md",
             ".markdown",
-            ".txt"
+            ".txt",
+            ".pdf"
         ],
         "NaMiniApp__MobileScrollBreakpoint": 768,
         "NaMiniApp__DefaultView": "read"
+    },
+    "NaMiniApp__DragDrop": {
+        "OverlayTitle": "Drop to read",
+        "OverlayHint": "Markdown, text or PDF file",
+        "UnsupportedText": "That file type can't be read here. Drop a Markdown, text or PDF file.",
+        "MultipleText": "Opened {name}. {count} other dropped files were left."
+    },
+    "NaMiniApp__Pdf": {
+        "NaMiniApp__RuntimeUrl": "./04__PdfJsRuntime/",
+        "NaMiniApp__RuntimeVersion": "6.5.438",
+        "NaMiniApp__MinUsableChars": 25,
+        "NaMiniApp__MaxGarbageRatio": 0.3,
+        "NaMiniApp__MinImageCoverage": 0.3,
+        "NaMiniApp__HeaderFooterBand": 0.08,
+        "NaMiniApp__PartialEveryMs": 1500
     },
     "NaMiniApp__WhatsApp": {
         "NaMiniApp__TestPattern": "\\[\\d{1,2}\\/\\d{1,2},\\s*\\d{1,2}:\\d{2}\\]\\s*[^:]+:\\s*",
@@ -30,15 +46,35 @@
         "NaMiniApp__UploadButton": "Open text: paste from clipboard or open a file",
         "NaMiniApp__SourceTitle": "What would you like to read?",
         "NaMiniApp__SourcePaste": "Paste from clipboard",
-        "NaMiniApp__SourceFile": "Open Markdown / text file",
+        "NaMiniApp__SourceFile": "Open Markdown / text / PDF file",
         "NaMiniApp__SourceLater": "Not now",
         "NaMiniApp__ClipboardEmpty": "The clipboard has no text. Copy some text first, or open a file.",
         "NaMiniApp__ClipboardBlockedPlaceholder": "The browser did not allow clipboard access. Paste your text here (Ctrl+V or long-press), then tap Read.",
         "NaMiniApp__FooterText": "© 2026 Noble Architecture | All Rights Reserved",
         "NaMiniApp__StatusLoadedPrefix": "Loaded",
         "NaMiniApp__StatusUnsupportedPrefix": "Unsupported file type",
-        "NaMiniApp__StatusUnsupportedSuffix": "Please choose a .md or .txt file.",
+        "NaMiniApp__StatusUnsupportedSuffix": "Please choose a .md, .txt or .pdf file.",
         "NaMiniApp__StatusReadErrorPrefix": "Error reading file",
+        "NaMiniApp__PdfOpening": "Opening PDF \"{name}\"…",
+        "NaMiniApp__PdfReading": "Reading PDF: page {page} of {pages}",
+        "NaMiniApp__PdfRecognising": "Recognising text: scanned page {page} of {pages}",
+        "NaMiniApp__PdfDone": "PDF read: {pages} in {seconds} s.",
+        "NaMiniApp__PdfOcrFailedPage": "Text recognition failed on page {pageNumber}",
+        "NaMiniApp__PdfPagesFailedOne": "Page {pages} could not be read.",
+        "NaMiniApp__PdfPagesFailedMany": "Pages {pages} could not be read.",
+        "NaMiniApp__PdfScansSkipped": "{scans} not read: text recognition is not installed.",
+        "NaMiniApp__PdfOnlyScans": "This PDF is {scans} with no text. Text recognition is needed to read it.",
+        "NaMiniApp__PdfNoText": "This PDF has no text the reader can use.",
+        "NaMiniApp__PdfPassword": "This PDF is password-protected. Open it in a PDF viewer, save a copy without the password, and open that.",
+        "NaMiniApp__PdfInvalid": "This file is not a readable PDF (it may be damaged or incomplete).",
+        "NaMiniApp__PdfWaitingForStop": "The rest appears when you press Stop.",
+        "NaMiniApp__OcrTitle": "Read scanned pages?",
+        "NaMiniApp__OcrConsentOne": "1 page of this PDF is a scan, with no text to read. Download text recognition ({mb} MB, once) to read it? It runs on this device and works offline afterwards.",
+        "NaMiniApp__OcrConsentMany": "{count} pages of this PDF are scans, with no text to read. Download text recognition ({mb} MB, once) to read them? It runs on this device and works offline afterwards.",
+        "NaMiniApp__OcrDownload": "Download",
+        "NaMiniApp__OcrLater": "Not now",
+        "NaMiniApp__OcrInstalling": "Downloading text recognition: {loaded} of {total} MB",
+        "NaMiniApp__OcrInstallFailed": "The download did not finish: {error}. Try again, or choose Not now.",
         "NaMiniApp__ErrorMarkedMissing": "Error: Marked.js library failed to load.",
         "NaMiniApp__ErrorRenderPrefix": "Error rendering content",
         "NaMiniApp__ErrorEmptyCsv": "Error: Empty CSV data.",

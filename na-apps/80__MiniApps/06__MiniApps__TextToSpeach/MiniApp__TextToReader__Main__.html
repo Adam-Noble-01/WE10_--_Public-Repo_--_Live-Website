@@ -8,7 +8,8 @@
   CREATED : 19-Sep-2026
 
   DESCRIPTION:
-  - Paste from the clipboard or open Markdown, WhatsApp chat text, or ```csv``` blocks.
+  - Paste from the clipboard or open Markdown, WhatsApp chat text, ```csv``` blocks or a PDF.
+  - A PDF's pages are reflowed into one continuous article (text layer, or OCR for scans).
   - Two views: Read (the article, with read-aloud controls in the same bar)
     and Edit (full-page Markdown). A launch modal offers clipboard or file.
   - WhatsApp timestamp/sender prefixes are stripped and converted to a list.
@@ -23,6 +24,10 @@
   - 01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js  (chat cleanup)
   - 01__AppModules/MiniApp__TextToReader__CsvTable__.js        (CSV to tables)
   - 01__AppModules/MiniApp__TextToReader__FileUpload__.js      (local file load; picker opens in the last folder)
+  - 01__AppModules/MiniApp__TextToReader__PdfRenderer__.js     (PDF to one continuous Markdown article, PDF.js in 04__PdfJsRuntime)
+  - 01__AppModules/MiniApp__TextToReader__DragDrop__.js        (drop a file on the page to read it)
+  - 01__AppModules/MiniApp__TextToReader__PdfOcr__.js          (text recognition for scanned pages: PP-OCRv6 in 05__PaddleOcrRuntime)
+  - 01__AppModules/MiniApp__TextToReader__OcrModal__.js        (asks once before text recognition downloads)
   - 01__AppModules/MiniApp__TextToReader__UserConfig__.js      (voice, speed, pitch, last file: kept between sessions)
   - 01__AppModules/MiniApp__TextToReader__ActivityLog__.js     (Na logo: processing times and failures)
   - 01__AppModules/MiniApp__TextToReader__MarkdownRender__.js  (render pipeline)
@@ -55,10 +60,10 @@
         <link rel="stylesheet"
               href="../../../assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_30_-_STYL_-_Core-Default-Web-Utility-App-Stylesheet.css" />
         <!-- ?v= : see REGION | Versioned App Files at the foot of the body -->
-        <link rel="stylesheet" href="MiniApp__TextToReader__Style__.css?v=1.9.6" />
+        <link rel="stylesheet" href="MiniApp__TextToReader__Style__.css?v=1.9.7" />
         <!-- @delegate: MiniApp__TextToReader__MarkdownStyle__.css -->
-        <link rel="stylesheet" href="MiniApp__TextToReader__MarkdownStyle__.css?v=1.9.6" />
-        <link rel="stylesheet" href="MiniApp__TextToReader__ReadAloud__.css?v=1.9.6" />
+        <link rel="stylesheet" href="MiniApp__TextToReader__MarkdownStyle__.css?v=1.9.7" />
+        <link rel="stylesheet" href="MiniApp__TextToReader__ReadAloud__.css?v=1.9.7" />
     </head>
 <!-- endregion -------------------------------------------------------- -->
 
@@ -99,11 +104,11 @@
                             <input id="js__fileUploadInput"
                                    class="TTR__upload-input"
                                    type="file"
-                                   accept=".md,.markdown,.txt,text/markdown,text/plain"
+                                   accept=".md,.markdown,.txt,.pdf,text/markdown,text/plain,application/pdf"
                                    hidden />
                             <div id="js__uploadFileButton"
                                  class="TTR__upload-icon-button"
-                                 title="Upload Markdown / Text File">
+                                 title="Open Markdown / Text / PDF File">
                                 <svg class="TTR__upload-icon"
                                      viewBox="0 0 24 24"
                                      fill="none"
@@ -203,8 +208,8 @@
                         <!-- --------------------------------------------- -->
                         <!-- REGION | Text Source Modal                    -->
                         <!-- Opens on launch while there is no text: paste -->
-                        <!-- from the clipboard or open a Markdown / text  -->
-                        <!-- file. The header's file icon reopens it.      -->
+                        <!-- from the clipboard or open a Markdown, text  -->
+                        <!-- or PDF file. The header's file icon reopens it. -->
                         <!-- @delegate: 01__AppModules/MiniApp__TextToReader__SourceModal__.js -->
                         <!-- --------------------------------------------- -->
                             <dialog id="js__sourceModal" class="TTR__voice-modal TTR__source-modal" aria-labelledby="js__sourceModalTitle">
@@ -216,7 +221,7 @@
                                     </button>
                                     <button id="js__sourceFile" class="TTR__source-choice" type="button">
                                         <span class="TTR__source-graphic TTR__icon-file" aria-hidden="true"></span>
-                                        <span id="js__sourceFileLabel" class="TTR__source-label">Open Markdown / text file</span>
+                                        <span id="js__sourceFileLabel" class="TTR__source-label">Open Markdown / text / PDF file</span>
                                     </button>
                                 </div>
                                 <p id="js__uploadFileStatus" class="TTR__voice-modal-status" role="status" aria-live="polite"></p>
@@ -297,6 +302,24 @@
                         <!-- endregion ------------------------------------ -->
 
                         <!-- --------------------------------------------- -->
+                        <!-- REGION | Text Recognition (OCR) Modal         -->
+                        <!-- Asks once before the OCR model downloads, the -->
+                        <!-- first time a PDF has scanned pages.           -->
+                        <!-- @delegate: 01__AppModules/MiniApp__TextToReader__OcrModal__.js -->
+                        <!-- --------------------------------------------- -->
+                            <dialog id="js__ocrModal" class="TTR__voice-modal TTR__ocr-modal" aria-labelledby="js__ocrModalTitle">
+                                <h2 id="js__ocrModalTitle">Read scanned pages?</h2>
+                                <p id="js__ocrModalText"></p>
+                                <progress id="js__ocrModalProgress" max="100" value="0" hidden></progress>
+                                <p id="js__ocrModalStatus" class="TTR__voice-modal-status" role="status" aria-live="polite"></p>
+                                <div class="TTR__voice-modal-actions">
+                                    <button id="js__ocrModalDownload" class="TTR__icon-download" type="button">Download</button>
+                                    <button id="js__ocrModalLater" type="button">Not now</button>
+                                </div>
+                            </dialog>
+                        <!-- endregion ------------------------------------ -->
+
+                        <!-- --------------------------------------------- -->
                         <!-- REGION | Activity Log Modal                   -->
                         <!-- Opened from the Na logo: what the reader did, -->
                         <!-- how long it took and what failed.             -->
@@ -363,25 +386,29 @@
             <script type="importmap">
             {
                 "imports": {
-                    "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js"       : "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js?v=1.9.6",
-                    "./01__AppModules/MiniApp__TextToReader__FileUpload__.js"     : "./01__AppModules/MiniApp__TextToReader__FileUpload__.js?v=1.9.6",
-                    "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js" : "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js?v=1.9.6",
-                    "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js" : "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js?v=1.9.6",
-                    "./01__AppModules/MiniApp__TextToReader__CsvTable__.js"       : "./01__AppModules/MiniApp__TextToReader__CsvTable__.js?v=1.9.6",
-                    "./01__AppModules/MiniApp__TextToReader__CompactTransport__.js": "./01__AppModules/MiniApp__TextToReader__CompactTransport__.js?v=1.9.6",
-                    "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js"      : "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js?v=1.9.6",
-                    "./01__AppModules/MiniApp__TextToReader__SpeechEngines__.js"  : "./01__AppModules/MiniApp__TextToReader__SpeechEngines__.js?v=1.9.6",
-                    "./01__AppModules/MiniApp__TextToReader__Highlight__.js"      : "./01__AppModules/MiniApp__TextToReader__Highlight__.js?v=1.9.6",
-                    "./01__AppModules/MiniApp__TextToReader__Sections__.js"       : "./01__AppModules/MiniApp__TextToReader__Sections__.js?v=1.9.6",
-                    "./01__AppModules/MiniApp__TextToReader__SourceModal__.js"    : "./01__AppModules/MiniApp__TextToReader__SourceModal__.js?v=1.9.6",
-                    "./01__AppModules/MiniApp__TextToReader__WordJump__.js"       : "./01__AppModules/MiniApp__TextToReader__WordJump__.js?v=1.9.6",
-                    "./01__AppModules/MiniApp__TextToReader__UserConfig__.js"     : "./01__AppModules/MiniApp__TextToReader__UserConfig__.js?v=1.9.6",
-                    "./01__AppModules/MiniApp__TextToReader__ActivityLog__.js"    : "./01__AppModules/MiniApp__TextToReader__ActivityLog__.js?v=1.9.6"
+                    "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js"       : "./01__AppModules/MiniApp__TextToReader__ViewTabs__.js?v=1.9.7",
+                    "./01__AppModules/MiniApp__TextToReader__FileUpload__.js"     : "./01__AppModules/MiniApp__TextToReader__FileUpload__.js?v=1.9.7",
+                    "./01__AppModules/MiniApp__TextToReader__PdfRenderer__.js"    : "./01__AppModules/MiniApp__TextToReader__PdfRenderer__.js?v=1.9.7",
+                    "./01__AppModules/MiniApp__TextToReader__DragDrop__.js"       : "./01__AppModules/MiniApp__TextToReader__DragDrop__.js?v=1.9.7",
+                    "./01__AppModules/MiniApp__TextToReader__PdfOcr__.js"         : "./01__AppModules/MiniApp__TextToReader__PdfOcr__.js?v=1.9.7",
+                    "./01__AppModules/MiniApp__TextToReader__OcrModal__.js"       : "./01__AppModules/MiniApp__TextToReader__OcrModal__.js?v=1.9.7",
+                    "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js" : "./01__AppModules/MiniApp__TextToReader__MarkdownRender__.js?v=1.9.7",
+                    "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js" : "./01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js?v=1.9.7",
+                    "./01__AppModules/MiniApp__TextToReader__CsvTable__.js"       : "./01__AppModules/MiniApp__TextToReader__CsvTable__.js?v=1.9.7",
+                    "./01__AppModules/MiniApp__TextToReader__CompactTransport__.js": "./01__AppModules/MiniApp__TextToReader__CompactTransport__.js?v=1.9.7",
+                    "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js"      : "./01__AppModules/MiniApp__TextToReader__ReadAloud__.js?v=1.9.7",
+                    "./01__AppModules/MiniApp__TextToReader__SpeechEngines__.js"  : "./01__AppModules/MiniApp__TextToReader__SpeechEngines__.js?v=1.9.7",
+                    "./01__AppModules/MiniApp__TextToReader__Highlight__.js"      : "./01__AppModules/MiniApp__TextToReader__Highlight__.js?v=1.9.7",
+                    "./01__AppModules/MiniApp__TextToReader__Sections__.js"       : "./01__AppModules/MiniApp__TextToReader__Sections__.js?v=1.9.7",
+                    "./01__AppModules/MiniApp__TextToReader__SourceModal__.js"    : "./01__AppModules/MiniApp__TextToReader__SourceModal__.js?v=1.9.7",
+                    "./01__AppModules/MiniApp__TextToReader__WordJump__.js"       : "./01__AppModules/MiniApp__TextToReader__WordJump__.js?v=1.9.7",
+                    "./01__AppModules/MiniApp__TextToReader__UserConfig__.js"     : "./01__AppModules/MiniApp__TextToReader__UserConfig__.js?v=1.9.7",
+                    "./01__AppModules/MiniApp__TextToReader__ActivityLog__.js"    : "./01__AppModules/MiniApp__TextToReader__ActivityLog__.js?v=1.9.7"
                 }
             }
             </script>
 
-            <script type="module" src="01__AppModules/MiniApp__TextToReader__Main__.js?v=1.9.6"></script>
+            <script type="module" src="01__AppModules/MiniApp__TextToReader__Main__.js?v=1.9.7"></script>
         <!-- endregion ---------------------------------------------------- -->
     </body>
 <!-- endregion -------------------------------------------------------- -->

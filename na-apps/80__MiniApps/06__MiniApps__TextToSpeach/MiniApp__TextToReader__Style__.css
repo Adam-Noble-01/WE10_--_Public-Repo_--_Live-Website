@@ -399,6 +399,93 @@ body[data-ttr-mode="edit"] .FORM__textarea {
 /* endregion ---------------------------------------------------------------- */
 
 /* -----------------------------------------------------------------------------
+   REGION | Drag And Drop A File
+   @delegate: 01__AppModules/MiniApp__TextToReader__DragDrop__.js
+   While files are dragged over the window a calm full-window overlay says what
+   a drop will do. With the source modal open (top layer, page inert) the dialog
+   carries the drop state and its file button is marked as the target.
+   -------------------------------------------------------------------------- */
+.TTR__drop-overlay {
+    position                             : fixed;
+    inset                                : 0;
+    z-index                              : 2000;
+    display                              : flex;
+    align-items                          : center;
+    justify-content                      : center;
+    padding                              : 1.25rem;
+    background-color                     : rgba(38, 59, 73, 0.18);
+    pointer-events                       : none;
+    animation                            : TTR__drop-fade 0.12s ease-out;
+}
+
+.TTR__drop-overlay[hidden] {
+    display                              : none;
+}
+
+.TTR__drop-card {
+    box-sizing                           : border-box;
+    display                              : flex;
+    flex-direction                       : column;
+    align-items                          : center;
+    gap                                  : 0.55rem;
+    width                                : min(100%, var(--TTR_Size_ContentWidth));
+    height                               : min(100%, 22rem);
+    justify-content                      : center;
+    border                               : 2px dashed #263b49;
+    border-radius                        : 10px;
+    background-color                     : rgba(255, 255, 255, 0.94);
+    color                                : #263b49;
+    font-family                          : "Open Sans", "Segoe UI", Arial, sans-serif;
+    box-shadow                           : 0 12px 40px rgba(38, 59, 73, 0.22);
+}
+
+.TTR__drop-icon {
+    display                              : block;
+    width                                : 64px;
+    height                               : 64px;
+    background-color                     : currentColor;
+    -webkit-mask                         : var(--ttr-icon) center / contain no-repeat;
+    mask                                 : var(--ttr-icon) center / contain no-repeat;
+}
+
+.TTR__drop-title {
+    font-size                            : 1.15rem;
+    font-weight                          : 600;
+}
+
+.TTR__drop-hint {
+    font-size                            : 0.85rem;
+    color                                : var(--TTR_Col_StatusText);
+}
+
+/* Source modal open: the dialog itself shows the drop, the file button is the target */
+.TTR__source-modal.TTR__source-modal--drop {
+    outline                              : 2px dashed #263b49;
+    outline-offset                       : 4px;
+}
+
+.TTR__source-modal--drop #js__sourceFile {
+    background                           : white;
+    border-color                         : #263b49;
+    box-shadow                           : 0 0 0 2px #263b49 inset;
+}
+
+/* Nothing on the page reacts to the pointer while a file is over it */
+body.TTR__dragging-file .PAGE__container {
+    pointer-events                       : none;
+}
+
+@keyframes TTR__drop-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .TTR__drop-overlay { animation: none; }
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
    REGION | Mobile
    -------------------------------------------------------------------------- */
 @media screen and (max-width: 768px) {

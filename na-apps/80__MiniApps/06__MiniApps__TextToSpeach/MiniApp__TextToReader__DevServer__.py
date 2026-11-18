@@ -10,6 +10,11 @@ on http://localhost:8765/ (override with --port), opening the reader, with:
     .github/workflows/static.yml); it is git-ignored, never committed
   - 03__KokoroRuntime fetched on first run too (kokoro-js + ONNX Runtime wasm),
     also git-ignored
+  - 04__PdfJsRuntime fetched on first run, and again when the pinned pdfjs-dist
+    version changes (only its runtime files), also git-ignored
+  - 05__PaddleOcrRuntime (onnxruntime-web + PP-OCRv6 small and tiny ONNX models from
+    Hugging Face at pinned commits) fetched on first run, every file SHA-256 checked,
+    also git-ignored
   - the app's cache-first service worker replaced by one that removes itself and
     clears the app-shell cache (the downloaded voice model is kept), so edits are
     never hidden behind a stale cache; pass --with-sw to test the real offline worker
@@ -20,6 +25,7 @@ Usage:  python MiniApp__TextToReader__DevServer__.py [--port 8765] [--no-browser
 """
 import argparse
 import functools
+import hashlib
 import http.server
 import os
 import shutil
@@ -27,6 +33,7 @@ import socketserver
 import subprocess
 import tarfile
 import tempfile
+import urllib.request
 import webbrowser
 
 Na__Dev__AppDir = os.path.dirname(os.path.abspath(__file__))
@@ -38,6 +45,33 @@ Na__Dev__MarkedPkg = "marked@15.0.12"
 Na__Dev__KokoroDir = os.path.join(Na__Dev__AppDir, "03__KokoroRuntime")
 Na__Dev__KokoroPkg = "kokoro-js@1.2.1"
 Na__Dev__TransformersPkg = "@huggingface/transformers@3.5.1"   # supplies ONNX Runtime's wasm
+Na__Dev__PdfJsDir = os.path.join(Na__Dev__AppDir, "04__PdfJsRuntime")
+Na__Dev__PdfJsPkg = "pdfjs-dist@6.5.438"
+# Only the runtime set of pdfjs-dist (about 3 MB of its 37 MB): the main module, its worker,
+# the image-decoder and colour wasm, base-14 fonts, CJK cMaps and every licence beside them.
+# Keep in step with the "Publish Text To Reader PDF.js runtime" step of .github/workflows/static.yml.
+Na__Dev__PdfJsFiles = ["LICENSE", "package.json",
+                       "build/pdf.min.mjs", "build/pdf.worker.min.mjs",
+                       "wasm/jbig2.wasm", "wasm/openjpeg.wasm", "wasm/qcms_bg.wasm",
+                       "wasm/LICENSE_JBIG2", "wasm/LICENSE_OPENJPEG", "wasm/LICENSE_QCMS",
+                       "wasm/LICENSE_PDFJS_JBIG2", "wasm/LICENSE_PDFJS_OPENJPEG", "wasm/LICENSE_PDFJS_QCMS"]
+Na__Dev__PdfJsFolders = ["iccs", "standard_fonts", "cmaps"]
+Na__Dev__PaddleOcrDir = os.path.join(Na__Dev__AppDir, "05__PaddleOcrRuntime")
+Na__Dev__OrtWebPkg = "onnxruntime-web@1.31.1"
+Na__Dev__PaddleOcrHf = "https://huggingface.co/PaddlePaddle/{repo}/resolve/{commit}/{name}"
+# served path -> (source, SHA-256); source is "ort" (the npm tarball's dist/) or (repo, commit, name).
+# Keep in step with the "Publish Text To Reader PaddleOCR runtime" step of .github/workflows/static.yml.
+Na__Dev__PaddleOcrFiles = {
+    "ort.wasm.min.mjs":            ("ort", "c21d9c326d453a4a61398270c804d5979e118540597cb0c07f7b3d64e6098234"),
+    "ort-wasm-simd-threaded.mjs":  ("ort", "30ed0b5cd1182ede931fea448afb567d4dc705ec957af09f108a2be5f770dac3"),
+    "ort-wasm-simd-threaded.wasm": ("ort", "4b884c203b0fa48d057be3332c65513ff85aa3c5bddd6946acc0fab7ecda001d"),
+    "models/small/det.onnx": (("PP-OCRv6_small_det_onnx", "28fe5895c24fd108c19eb3e8479f4ab385fbfc62", "inference.onnx"), "d73e0058b7a8086bbd57f3d10b8bcd4ff95363f67e06e2762b5e814fe9c9410e"),
+    "models/small/rec.onnx": (("PP-OCRv6_small_rec_onnx", "b8f84f0b80c529de40b4fbb3544b84fa7233a513", "inference.onnx"), "5435fd747c9e0efe15a96d0b378d5bd157e9492ed8fd80edf08f30d02fa24634"),
+    "models/small/rec.yml":  (("PP-OCRv6_small_rec_onnx", "b8f84f0b80c529de40b4fbb3544b84fa7233a513", "inference.yml"),  "ab078671bb49f06228eadccd34f1bb501e157f7a047095ffb943ba81512c77d1"),
+    "models/tiny/det.onnx":  (("PP-OCRv6_tiny_det_onnx",  "2ba1506c0380b8f0b03dd142459aac66d4421f6c", "inference.onnx"), "193bab7a04fca699a6c82e6abb5b81bdb28177f0abd4062552b04908dafb19f8"),
+    "models/tiny/rec.onnx":  (("PP-OCRv6_tiny_rec_onnx",  "2612ab37152ae0a677521bae4e1e3d4fb4cf7c30", "inference.onnx"), "9ef676d6ed3c88256a2d92c640c44f25b0c40947e111b14b8be8f594091563e6"),
+    "models/tiny/rec.yml":   (("PP-OCRv6_tiny_rec_onnx",  "2612ab37152ae0a677521bae4e1e3d4fb4cf7c30", "inference.yml"),  "66170210bad538e83fff3c4a3867e547d6bf20b50d64b20347c4b913f3034ea1"),
+}
 
 
 def Na__Dev__NpmPackExtract(pkg, dest, strip=1):
@@ -94,6 +128,71 @@ def Na__Dev__EnsureKokoroRuntime():
                 shutil.copy(os.path.join(tmp, "transformers", "dist", name), Na__Dev__KokoroDir)
     except (OSError, subprocess.CalledProcessError) as e:
         print(f"WARNING: could not fetch the Kokoro runtime ({e}). Phonon voices still work.")
+
+
+def Na__Dev__EnsurePdfJsRuntime():
+    """pdfjs-dist runtime files into 04__PdfJsRuntime, as the Pages workflow does.
+    A different pinned version (package.json) refetches, so main module and worker always match."""
+    Na__Pkg = os.path.join(Na__Dev__PdfJsDir, "package.json")
+    Na__Version = Na__Dev__PdfJsPkg.rsplit("@", 1)[1]
+    Na__Present = all(os.path.exists(os.path.join(Na__Dev__PdfJsDir, *n.split("/"))) and
+                      os.path.getsize(os.path.join(Na__Dev__PdfJsDir, *n.split("/"))) > 0
+                      for n in Na__Dev__PdfJsFiles)
+    if Na__Present:
+        with open(Na__Pkg, encoding="utf-8") as f:
+            if f'"version": "{Na__Version}"' in f.read():
+                return
+    print(f"Fetching {Na__Dev__PdfJsPkg} into 04__PdfJsRuntime (first run only)...")
+    try:
+        with tempfile.TemporaryDirectory() as tmp:
+            Na__Dev__NpmPackExtract(Na__Dev__PdfJsPkg, os.path.join(tmp, "pdfjs"))
+            Na__Src = os.path.join(tmp, "pdfjs")
+            shutil.rmtree(Na__Dev__PdfJsDir, ignore_errors=True)
+            for n in Na__Dev__PdfJsFiles:
+                Na__Target = os.path.join(Na__Dev__PdfJsDir, *n.split("/"))
+                os.makedirs(os.path.dirname(Na__Target), exist_ok=True)
+                shutil.copy(os.path.join(Na__Src, *n.split("/")), Na__Target)
+            for d in Na__Dev__PdfJsFolders:
+                shutil.copytree(os.path.join(Na__Src, d), os.path.join(Na__Dev__PdfJsDir, d))
+    except (OSError, subprocess.CalledProcessError) as e:
+        print(f"WARNING: could not fetch the PDF.js runtime ({e}). PDFs will not open; text files still work.")
+
+def Na__Dev__Sha256(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def Na__Dev__EnsurePaddleOcrRuntime():
+    """onnxruntime-web + PP-OCRv6 small/tiny into 05__PaddleOcrRuntime, SHA-256 checked, as the Pages workflow does."""
+    def ok(rel, sha):
+        p = os.path.join(Na__Dev__PaddleOcrDir, *rel.split("/"))
+        return os.path.exists(p) and Na__Dev__Sha256(p) == sha
+    missing = [rel for rel, (_, sha) in Na__Dev__PaddleOcrFiles.items() if not ok(rel, sha)]
+    if not missing:
+        return
+    print("Fetching PaddleOCR runtime into 05__PaddleOcrRuntime (first run only, about 53 MB)...")
+    try:
+        with tempfile.TemporaryDirectory() as tmp:
+            if any(Na__Dev__PaddleOcrFiles[rel][0] == "ort" for rel in missing):
+                Na__Dev__NpmPackExtract(Na__Dev__OrtWebPkg, os.path.join(tmp, "ort"))
+            for rel in missing:
+                src, sha = Na__Dev__PaddleOcrFiles[rel]
+                dest = os.path.join(Na__Dev__PaddleOcrDir, *rel.split("/"))
+                os.makedirs(os.path.dirname(dest), exist_ok=True)
+                if src == "ort":
+                    shutil.copy(os.path.join(tmp, "ort", "dist", rel), dest)
+                else:
+                    repo, commit, name = src
+                    urllib.request.urlretrieve(Na__Dev__PaddleOcrHf.format(repo=repo, commit=commit, name=name), dest)
+                if Na__Dev__Sha256(dest) != sha:
+                    os.remove(dest)
+                    raise OSError(f"SHA-256 mismatch for {rel}")
+    except (OSError, subprocess.CalledProcessError) as e:
+        print(f"WARNING: could not fetch the PaddleOCR runtime ({e}). Scanned PDF pages will not be read.")
+
 
 Na__Dev__ServiceWorkerPath = Na__Dev__MainPage.rsplit("/", 1)[0] + "/MiniApp__TextToReader__ServiceWorker__.js"
 Na__Dev__UseRealServiceWorker = False
@@ -177,6 +276,8 @@ def main():
 
     Na__Dev__EnsureRuntime()
     Na__Dev__EnsureKokoroRuntime()
+    Na__Dev__EnsurePdfJsRuntime()
+    Na__Dev__EnsurePaddleOcrRuntime()
     handler = functools.partial(Na__Dev__Handler, directory=Na__Dev__SiteRoot)
     with Na__Dev__Server(("127.0.0.1", args.port), handler) as srv:
         url = f"http://localhost:{args.port}/"

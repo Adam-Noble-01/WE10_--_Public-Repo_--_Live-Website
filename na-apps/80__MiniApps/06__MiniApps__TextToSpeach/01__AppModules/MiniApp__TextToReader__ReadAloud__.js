@@ -1833,6 +1833,31 @@ export function Na__TextToReader__SetReadAloudVisible(Na__Visible) {
 // --------------------------------------------------------
 
 
+// FUNCTION | IsReadAloudBusy - True while speech is preparing, prepared or playing
+// --------------------------------------------------------
+// A PDF filling in progressively leaves the article alone while this is true, so the
+// listener's prepared audio and place are never thrown away mid-read.
+export function Na__TextToReader__IsReadAloudBusy() {
+    return Na__Reader__Generating || Na__Reader__Ready || Na__Reader__Run !== null || Na__Reader__SectionStarting;
+}
+// --------------------------------------------------------
+
+
+// FUNCTION | ShowReaderStatus - The bar's status line (and progress) for work outside speech, e.g. reading a PDF
+// --------------------------------------------------------
+// Na__Fraction 0..1 shows the progress bar; null hides it, after which the line fades as usual.
+export function Na__TextToReader__ShowReaderStatus(Na__Message, Na__Fraction = null) {
+    if (Number.isFinite(Na__Fraction)) {
+        Na__Reader__Nodes.progress.hidden = false;
+        Na__Reader__Nodes.progress.value = Math.round(Math.max(0, Math.min(1, Na__Fraction)) * 100);
+    } else if (!Na__Reader__Generating) {
+        Na__Reader__Nodes.progress.hidden = true;
+    }
+    Na__Reader__SetStatus(Na__Message);
+}
+// --------------------------------------------------------
+
+
 // FUNCTION | SetVoiceDeclinedHandler - Let the controller leave the Read tab when the download is declined
 // --------------------------------------------------------
 export function Na__TextToReader__SetVoiceDeclinedHandler(Na__Handler) {

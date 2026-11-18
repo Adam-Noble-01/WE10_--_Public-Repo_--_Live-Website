@@ -72,7 +72,10 @@ function Na__UserConfig__BuildDefaults(Na__ReadAloudConfig, Na__AppVersion) {
         "NaUserConfig__Files" : {
             "NaUserConfig__LastFileName"   : null,
             "NaUserConfig__LastFileOpened" : null,
-            "NaUserConfig__FolderRemembered" : false
+            "NaUserConfig__FolderRemembered" : false,
+            "NaUserConfig__LastFileKind"   : null,     // "text" or "pdf"
+            "NaUserConfig__LastFilePages"  : null,     // PDFs: pages, and how they were read
+            "NaUserConfig__LastFileReadMs" : null
         }
     };
 }
@@ -293,8 +296,9 @@ export async function Na__TextToReader__GetLastFileHandle() {
 
 
 // FUNCTION | RememberOpenedFile - Record the file's name and, where there is one, its handle
+// Na__Details (optional): { kind: "text" | "pdf", pages: { total, text, ocr, skipped }, ms }
 // ------------------------------------------------------------
-export async function Na__TextToReader__RememberOpenedFile(Na__FileName, Na__Handle) {
+export async function Na__TextToReader__RememberOpenedFile(Na__FileName, Na__Handle, Na__Details = null) {
     let Na__FolderRemembered = false;
     if (Na__Handle) {
         try {
@@ -308,6 +312,9 @@ export async function Na__TextToReader__RememberOpenedFile(Na__FileName, Na__Han
     Na__Files.NaUserConfig__LastFileName     = Na__FileName;
     Na__Files.NaUserConfig__LastFileOpened   = new Date().toISOString();
     Na__Files.NaUserConfig__FolderRemembered = Na__FolderRemembered || Na__Files.NaUserConfig__FolderRemembered;
+    Na__Files.NaUserConfig__LastFileKind     = Na__Details?.kind || "text";
+    Na__Files.NaUserConfig__LastFilePages    = Na__Details?.pages || null;
+    Na__Files.NaUserConfig__LastFileReadMs   = Number.isFinite(Na__Details?.ms) ? Math.round(Na__Details.ms) : null;
     Na__UserConfig__Save();
 }
 // ------------------------------------------------------------

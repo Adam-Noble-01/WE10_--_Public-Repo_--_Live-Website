@@ -309,55 +309,70 @@ body[data-ttr-mode="read"] .MAIN__output > h1:first-child {
 
 /* -----------------------------------------------------------------------------
    REGION | Ordered Lists — Nested Counters
+   Numbers sit where the bullets sit (3 mm in) and the text follows a number
+   column wide enough for "10." (1.10, 1.1.10 nested), at the body type size,
+   so a numbered list lines up with a bullet list instead of standing far in.
+   A list starting past 1 (<ol start="3">: a PDF list broken by a page or a
+   column) counts on from its start: MarkdownRender__.js gives such a list
+   --NaMd_OlStart (start - 1), which every other list resets to 0.
    -------------------------------------------------------------------------- */
 .MAIN__output ol {
+    --NaMd_OlStart                       : 0;
     list-style-type                      : none;
     margin-top                           : 02.00mm;
-    margin-bottom                        : 05.00mm;
-    padding-left                         : 07.00mm;
+    margin-bottom                        : 03.50mm;
+    padding-left                         : 03.00mm;
     color                                : var(--NaMd_Col_Body);
-    font-size                            : 11.00pt;
-    line-height                          : 1.50;
-    counter-reset                        : item;
+    font-size                            : var(--NaMd_Size_Body);
+    line-height                          : 1.40;
+    counter-reset                        : item var(--NaMd_OlStart);
 }
 
 .MAIN__output ol li {
     position                             : relative;
     display                              : block;
-    margin-bottom                        : 02.00mm;
-    padding-left                         : 05.00mm;
+    margin-bottom                        : 01.00mm;
+    padding-left                         : 06.00mm;
 }
 
 .MAIN__output ol > li::before {
-    content                              : counter(item) ". ";
+    content                              : counter(item) ".";
     counter-increment                    : item;
     position                             : absolute;
-    left                                 : -07.00mm;
+    left                                 : 00.00mm;
     top                                  : 00.00mm;
 }
 
 .MAIN__output ol ol {
-    margin-top                           : 02.00mm;
-    margin-bottom                        : 02.00mm;
-    padding-left                         : 07.00mm;
-    counter-reset                        : subitem;
+    margin-top                           : 01.00mm;
+    margin-bottom                        : 01.00mm;
+    padding-left                         : 00.00mm;
+    counter-reset                        : subitem var(--NaMd_OlStart);
+}
+
+.MAIN__output ol ol > li {
+    padding-left                         : 08.50mm;
 }
 
 .MAIN__output ol ol > li::before {
-    content                              : counter(item) "." counter(subitem) " ";
+    content                              : counter(item) "." counter(subitem);
     counter-increment                    : subitem;
-    left                                 : -07.00mm;
+    left                                 : 00.00mm;
 }
 
 .MAIN__output ol ol ol {
-    padding-left                         : 07.00mm;
-    counter-reset                        : subsubitem;
+    padding-left                         : 00.00mm;
+    counter-reset                        : subsubitem var(--NaMd_OlStart);
+}
+
+.MAIN__output ol ol ol > li {
+    padding-left                         : 11.00mm;
 }
 
 .MAIN__output ol ol ol > li::before {
-    content                              : counter(item) "." counter(subitem) "." counter(subsubitem) " ";
+    content                              : counter(item) "." counter(subitem) "." counter(subsubitem);
     counter-increment                    : subsubitem;
-    left                                 : -07.00mm;
+    left                                 : 00.00mm;
 }
 /* endregion ---------------------------------------------------------------- */
 

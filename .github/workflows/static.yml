@@ -98,6 +98,74 @@ jobs:
           test -s "$RUNTIME/ort-wasm-simd-threaded.jsep.wasm"
           echo "Published kokoro-js 1.2.1 with ONNX Runtime from transformers 3.5.1."
 
+      # PDF.js reads PDFs into the reader (text layers, and pages rendered for OCR).
+      # Only its runtime set is published (about 3 MB of the 37 MB package): the main
+      # module, its worker (must be the same version), image-decoder and colour wasm,
+      # base-14 fonts, CJK cMaps and every licence. Keep in step with the dev server.
+      - name: Publish Text To Reader PDF.js runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="na-apps/80__MiniApps/06__MiniApps__TextToSpeach"
+          RUNTIME="$APP/04__PdfJsRuntime"
+          mkdir -p "$RUNTIME/build" "$RUNTIME/wasm" /tmp/na-reader-pdfjs
+          npm pack pdfjs-dist@6.5.438 --pack-destination /tmp --silent
+          tar -xzf /tmp/pdfjs-dist-6.5.438.tgz -C /tmp/na-reader-pdfjs --strip-components=1
+          SRC=/tmp/na-reader-pdfjs
+          cp "$SRC/LICENSE" "$SRC/package.json" "$RUNTIME/"
+          cp "$SRC/build/pdf.min.mjs" "$SRC/build/pdf.worker.min.mjs" "$RUNTIME/build/"
+          cp "$SRC/wasm/jbig2.wasm" "$SRC/wasm/openjpeg.wasm" "$SRC/wasm/qcms_bg.wasm" "$RUNTIME/wasm/"
+          cp "$SRC"/wasm/LICENSE_JBIG2 "$SRC"/wasm/LICENSE_OPENJPEG "$SRC"/wasm/LICENSE_QCMS "$RUNTIME/wasm/"
+          cp "$SRC"/wasm/LICENSE_PDFJS_JBIG2 "$SRC"/wasm/LICENSE_PDFJS_OPENJPEG "$SRC"/wasm/LICENSE_PDFJS_QCMS "$RUNTIME/wasm/"
+          cp -r "$SRC/iccs" "$SRC/standard_fonts" "$SRC/cmaps" "$RUNTIME/"
+          test -s "$RUNTIME/build/pdf.min.mjs"
+          test -s "$RUNTIME/build/pdf.worker.min.mjs"
+          test -s "$RUNTIME/wasm/openjpeg.wasm"
+          test -s "$RUNTIME/wasm/jbig2.wasm"
+          test -s "$RUNTIME/wasm/qcms_bg.wasm"
+          test -s "$RUNTIME/standard_fonts/LiberationSans-Regular.ttf"
+          test -s "$RUNTIME/cmaps/UniJIS-UTF16-H.bcmap"
+          grep -q '"version": "6.5.438"' "$RUNTIME/package.json"
+          echo "Published pdfjs-dist 6.5.438."
+
+      # PP-OCRv6 text recognition for scanned PDF pages: ONNX Runtime Web (plain
+      # SIMD-threaded wasm) from npm, the models from Hugging Face at pinned
+      # commits, every file checked against its SHA-256. A device downloads one
+      # tier (small 46.1 MB, tiny 21.2 MB) into its own cache, only after agreeing.
+      - name: Publish Text To Reader PaddleOCR runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="na-apps/80__MiniApps/06__MiniApps__TextToSpeach"
+          RUNTIME="$APP/05__PaddleOcrRuntime"
+          mkdir -p "$RUNTIME/models/small" "$RUNTIME/models/tiny" /tmp/na-reader-ort
+          npm pack onnxruntime-web@1.31.1 --pack-destination /tmp --silent
+          tar -xzf /tmp/onnxruntime-web-1.31.1.tgz -C /tmp/na-reader-ort --strip-components=1
+          for f in ort.wasm.min.mjs ort-wasm-simd-threaded.mjs ort-wasm-simd-threaded.wasm; do
+            cp "/tmp/na-reader-ort/dist/$f" "$RUNTIME/$f"
+          done
+          HF="https://huggingface.co/PaddlePaddle"
+          fetch() { curl -fsSL --retry 3 -o "$RUNTIME/models/$1" "$HF/$2/resolve/$3/$4"; }
+          fetch small/det.onnx PP-OCRv6_small_det_onnx 28fe5895c24fd108c19eb3e8479f4ab385fbfc62 inference.onnx
+          fetch small/rec.onnx PP-OCRv6_small_rec_onnx b8f84f0b80c529de40b4fbb3544b84fa7233a513 inference.onnx
+          fetch small/rec.yml  PP-OCRv6_small_rec_onnx b8f84f0b80c529de40b4fbb3544b84fa7233a513 inference.yml
+          fetch tiny/det.onnx  PP-OCRv6_tiny_det_onnx  2ba1506c0380b8f0b03dd142459aac66d4421f6c inference.onnx
+          fetch tiny/rec.onnx  PP-OCRv6_tiny_rec_onnx  2612ab37152ae0a677521bae4e1e3d4fb4cf7c30 inference.onnx
+          fetch tiny/rec.yml   PP-OCRv6_tiny_rec_onnx  2612ab37152ae0a677521bae4e1e3d4fb4cf7c30 inference.yml
+          cd "$RUNTIME"
+          sha256sum -c - <<'SUMS'
+          c21d9c326d453a4a61398270c804d5979e118540597cb0c07f7b3d64e6098234  ort.wasm.min.mjs
+          30ed0b5cd1182ede931fea448afb567d4dc705ec957af09f108a2be5f770dac3  ort-wasm-simd-threaded.mjs
+          4b884c203b0fa48d057be3332c65513ff85aa3c5bddd6946acc0fab7ecda001d  ort-wasm-simd-threaded.wasm
+          d73e0058b7a8086bbd57f3d10b8bcd4ff95363f67e06e2762b5e814fe9c9410e  models/small/det.onnx
+          5435fd747c9e0efe15a96d0b378d5bd157e9492ed8fd80edf08f30d02fa24634  models/small/rec.onnx
+          ab078671bb49f06228eadccd34f1bb501e157f7a047095ffb943ba81512c77d1  models/small/rec.yml
+          193bab7a04fca699a6c82e6abb5b81bdb28177f0abd4062552b04908dafb19f8  models/tiny/det.onnx
+          9ef676d6ed3c88256a2d92c640c44f25b0c40947e111b14b8be8f594091563e6  models/tiny/rec.onnx
+          66170210bad538e83fff3c4a3867e547d6bf20b50d64b20347c4b913f3034ea1  models/tiny/rec.yml
+          SUMS
+          echo "Published onnxruntime-web 1.31.1 and PP-OCRv6 small + tiny."
+
       # The artifact is named per attempt. "Re-run jobs" keeps the run's earlier uploads, and
       # deploy-pages refuses a run holding two artifacts of the same name ("Multiple artifacts
       # named github-pages"), so a re-run of a failed deploy could never succeed (run #728).

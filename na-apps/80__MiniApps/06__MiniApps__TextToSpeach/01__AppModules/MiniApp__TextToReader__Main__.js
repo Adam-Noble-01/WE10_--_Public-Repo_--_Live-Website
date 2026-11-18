@@ -15,7 +15,11 @@
 // -----------------------------------------------------------------------------
 
 // @delegate: ./MiniApp__TextToReader__FileUpload__.js
-import { Na__TextToReader__InitialiseFileUpload } from "./MiniApp__TextToReader__FileUpload__.js";
+import {
+    Na__TextToReader__InitialiseFileUpload,
+    Na__TextToReader__OpenFile,
+    Na__TextToReader__IsSupportedFile
+} from "./MiniApp__TextToReader__FileUpload__.js";
 
 // @delegate: ./MiniApp__TextToReader__ViewTabs__.js
 import {
@@ -45,7 +49,20 @@ import {
 import { Na__TextToReader__LoadUserConfig } from "./MiniApp__TextToReader__UserConfig__.js";
 
 // @delegate: ./MiniApp__TextToReader__ActivityLog__.js
-import { Na__TextToReader__InitialiseActivityLog } from "./MiniApp__TextToReader__ActivityLog__.js";
+import {
+    Na__TextToReader__InitialiseActivityLog,
+    Na__TextToReader__Log,
+    Na__TextToReader__LogTimer
+} from "./MiniApp__TextToReader__ActivityLog__.js";
+
+// @delegate: ./MiniApp__TextToReader__PdfRenderer__.js
+import { Na__TextToReader__PdfToMarkdown } from "./MiniApp__TextToReader__PdfRenderer__.js";
+
+// @delegate: ./MiniApp__TextToReader__OcrModal__.js
+import {
+    Na__TextToReader__InitialiseOcrModal,
+    Na__TextToReader__AskOcrConsent
+} from "./MiniApp__TextToReader__OcrModal__.js";
 
 // @delegate: ./MiniApp__TextToReader__CompactTransport__.js
 import {
@@ -58,7 +75,9 @@ import {
     Na__TextToReader__InitialiseReadAloud,
     Na__TextToReader__StopReadAloud,
     Na__TextToReader__SetReadAloudVisible,
-    Na__TextToReader__StartLoadedText
+    Na__TextToReader__StartLoadedText,
+    Na__TextToReader__IsReadAloudBusy,
+    Na__TextToReader__ShowReaderStatus
 } from "./MiniApp__TextToReader__ReadAloud__.js";
 
 // endregion -------------------------------------------------------------------
@@ -70,8 +89,26 @@ import {
 
  const Na__TextToReader__ConfigPath = "./MiniApp__TextToReader__AppConfig__.json";   // Resolved against the page, not the module folder
 
+ // The release's ?v= (this script's own URL carries it). The config is fetched with it, like
+ // every other app file: the previous release's service worker serves the first visit after
+ // a release from its own cache, and an unversioned config URL would hand the new code the
+ // old config (1.9.7 found this: no ".pdf", so PDFs were refused until a second reload).
+ const Na__TextToReader__ReleaseVersion = new URL(import.meta.url).searchParams.get("v");
+
+ // Drag and drop (WORKER__DragDrop's module), loaded after start-up so a missing or failing
+ // module can never stop the reader opening; the import map gives it its versioned URL
+ const Na__TextToReader__DragDropModuleUrl = "./MiniApp__TextToReader__DragDrop__.js";
+
  let Na__TextToReader__AppConfig   = null;
  let Na__TextToReader__MarkedParse = null;
+
+ // PDF being read: its AbortController (a newer file cancels it), whether its text is on
+ // screen yet, and text held back while read-aloud is busy with what is on screen
+ let Na__TextToReader__PdfJob          = null;
+ let Na__TextToReader__PdfShown        = false;
+ let Na__TextToReader__PdfPending      = null;
+ let Na__TextToReader__PdfPendingTimer = 0;
+ let Na__TextToReader__HoldAutoStart   = false;   // partial PDF text: show it, prepare speech only once whole
 
  const Na__TextToReader__Dom = {
      Na__AppTitle          : document.getElementById("js__appTitle"),
@@ -219,6 +256,7 @@ function Na__TextToReader__RenderCurrentInput() {
 // FUNCTION | Show newly arrived text in the Read view from the top
 // ------------------------------------------------------------
 function Na__TextToReader__ShowTextInReadView() {
+    Na__TextToReader__HoldAutoStart = false;
     if (Na__TextToReader__GetActiveMode() === "read") {
         if (Na__TextToReader__RenderCurrentInput()) Na__TextToReader__StartLoadedText();
         Na__TextToReader__FocusReadableArticle();
@@ -231,9 +269,22 @@ function Na__TextToReader__ShowTextInReadView() {
 // ------------------------------------------------------------
 
 
+// FUNCTION | Stop reading a PDF that new text has replaced
+// ------------------------------------------------------------
+function Na__TextToReader__CancelPdfJob() {
+    Na__TextToReader__PdfJob?.abort();
+    Na__TextToReader__PdfJob = null;
+    Na__TextToReader__PdfPending = null;
+    clearInterval(Na__TextToReader__PdfPendingTimer);
+    Na__TextToReader__PdfPendingTimer = 0;
+}
+// ------------------------------------------------------------
+
+
 // FUNCTION | Put clipboard text into the editor and read it
 // ------------------------------------------------------------
 function Na__TextToReader__HandleClipboardText(Na__Text) {
+    Na__TextToReader__CancelPdfJob();
     Na__TextToReader__Dom.Na__InputText.value = Na__Text;
     Na__TextToReader__ShowTextInReadView();
 }
@@ -309,6 +360,7 @@ function Na__TextToReader__FocusReadableArticle() {
 // FUNCTION | After a local file loads, close the modal and read it
 // ------------------------------------------------------------
 function Na__TextToReader__HandleFileLoaded() {
+    Na__TextToReader__CancelPdfJob();
     Na__TextToReader__CloseSourceModal();
     Na__TextToReader__ShowTextInReadView();
 }
@@ -324,13 +376,176 @@ function Na__TextToReader__HandleModeChange(Na__Mode) {
     if (Na__Mode !== "read") Na__TextToReader__StopReadAloud();
 
     if (Na__Mode === "read") {
-        if (Na__TextToReader__RenderCurrentInput()) Na__TextToReader__StartLoadedText();
+        if (Na__TextToReader__RenderCurrentInput() && !Na__TextToReader__HoldAutoStart) Na__TextToReader__StartLoadedText();
         Na__TextToReader__FocusReadableArticle();
         return;
     }
 
     if (Na__Mode === "edit") {
         Na__TextToReader__Dom.Na__InputText.focus();
+    }
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | Fill a UI text template's {name} placeholders
+// ------------------------------------------------------------
+function Na__TextToReader__FormatText(Na__Template, Na__Values) {
+    return String(Na__Template || "").replace(/\{(\w+)\}/g, (Na__Match, Na__Key) =>
+        (Na__Key in Na__Values ? String(Na__Values[Na__Key]) : Na__Match));
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | "1 page", "3 pages"
+// ------------------------------------------------------------
+function Na__TextToReader__CountText(Na__Count, Na__Noun) {
+    return `${Na__Count} ${Na__Noun}${Na__Count === 1 ? "" : "s"}`;
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | "2", "2 and 5", "2, 5 and 7"
+// ------------------------------------------------------------
+function Na__TextToReader__ListText(Na__Items) {
+    if (Na__Items.length <= 1) return Na__Items.join("");
+    return Na__Items.slice(0, -1).join(", ") + " and " + Na__Items[Na__Items.length - 1];
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | Show a PDF's text: what is read so far, or the whole document
+// ------------------------------------------------------------
+// The first text replaces whatever was on screen, as any new file does. After that, while
+// read-aloud is preparing, holding or playing audio, the article is left alone and the
+// newest text waits (checked each second), so the listener's audio and place survive.
+// Speech is prepared automatically only once the whole PDF is in.
+function Na__TextToReader__ShowPdfText(Na__Markdown, Na__IsFinal) {
+    Na__TextToReader__Dom.Na__InputText.value = Na__Markdown;
+    if (Na__TextToReader__PdfShown && Na__TextToReader__IsReadAloudBusy()) {
+        Na__TextToReader__PdfPending = { markdown: Na__Markdown, final: Na__IsFinal };
+        if (!Na__TextToReader__PdfPendingTimer) {
+            Na__TextToReader__PdfPendingTimer = setInterval(() => {
+                if (Na__TextToReader__IsReadAloudBusy() || !Na__TextToReader__PdfPending) return;
+                const Na__Pending = Na__TextToReader__PdfPending;
+                Na__TextToReader__ShowPdfText(Na__Pending.markdown, Na__Pending.final);
+            }, 1000);
+        }
+        return;
+    }
+    clearInterval(Na__TextToReader__PdfPendingTimer);
+    Na__TextToReader__PdfPendingTimer = 0;
+    Na__TextToReader__PdfPending = null;
+    Na__TextToReader__PdfShown = true;
+
+    if (Na__IsFinal) {
+        Na__TextToReader__ShowTextInReadView();
+        return;
+    }
+    Na__TextToReader__HoldAutoStart = true;
+    if (Na__TextToReader__GetActiveMode() === "read") {
+        Na__TextToReader__RenderCurrentInput();
+        Na__TextToReader__ResetCompactTransport();
+    } else {
+        Na__TextToReader__SetActiveMode("read");
+    }
+}
+// ------------------------------------------------------------
+
+
+// FUNCTION | Read a chosen PDF into the article; resolves its details, or null if a newer file replaced it
+// ------------------------------------------------------------
+async function Na__TextToReader__HandlePdfChosen(Na__File) {
+    const Na__UiText = Na__TextToReader__AppConfig.NaMiniApp__UiText;
+    Na__TextToReader__CancelPdfJob();
+    const Na__Job = new AbortController();
+    Na__TextToReader__PdfJob = Na__Job;
+    Na__TextToReader__PdfShown = false;
+
+    Na__TextToReader__CloseSourceModal();
+    Na__TextToReader__StopReadAloud();
+
+    // A newer file (or pasted text) aborts this job; until then it is current, finished or not
+    const Na__IsCurrent = () => !Na__Job.signal.aborted;
+    const Na__Status = (Na__Message, Na__Fraction) => {
+        if (Na__IsCurrent()) Na__TextToReader__ShowReaderStatus(Na__Message, Na__Fraction);
+    };
+    const Na__Timer = Na__TextToReader__LogTimer(`Reading PDF "${Na__File.name}"`);
+
+    try {
+        const Na__Result = await Na__TextToReader__PdfToMarkdown(await Na__File.arrayBuffer(), {
+            config     : Na__TextToReader__AppConfig.NaMiniApp__Pdf,
+            signal     : Na__Job.signal,
+            onProgress : ({ phase, page, pages, pageNumber }) => {
+                if (phase === "open") {
+                    Na__Status(Na__TextToReader__FormatText(Na__UiText.NaMiniApp__PdfOpening, { name: Na__File.name }), 0);
+                } else if (phase === "text") {
+                    Na__Status(Na__TextToReader__FormatText(Na__UiText.NaMiniApp__PdfReading, { page, pages }), page / pages);
+                } else if (phase === "ocr-failed") {
+                    // One scanned page failed; the rest of the PDF carries on (named again at the end)
+                    Na__Status(Na__TextToReader__FormatText(Na__UiText.NaMiniApp__PdfOcrFailedPage, { pageNumber }), page / pages);
+                } else {
+                    Na__Status(Na__TextToReader__FormatText(Na__UiText.NaMiniApp__PdfRecognising, { page, pages, pageNumber }), (page - 1) / pages);
+                }
+            },
+            onPartial  : (Na__Markdown) => {
+                if (Na__IsCurrent()) Na__TextToReader__ShowPdfText(Na__Markdown, false);
+            },
+            // Scanned pages and no OCR model yet: ask once, install on Download
+            onOcrConsent : (Na__Request) => Na__TextToReader__AskOcrConsent(Na__Request, Na__Job.signal)
+        });
+        if (!Na__IsCurrent()) return null;
+        if (Na__TextToReader__PdfJob === Na__Job) Na__TextToReader__PdfJob = null;
+
+        // Skipped scans are either failed recognitions (named by page) or pages left unread
+        // because text recognition is not installed
+        const Na__Failed = Array.isArray(Na__Result.failedPages) ? Na__Result.failedPages : [];
+        const Na__NotInstalled = Math.max(0, Na__Result.skippedPages - Na__Failed.length);
+        const Na__FailedText = Na__Failed.length
+            ? Na__TextToReader__FormatText(Na__Failed.length === 1 ? Na__UiText.NaMiniApp__PdfPagesFailedOne : Na__UiText.NaMiniApp__PdfPagesFailedMany,
+                { pages: Na__TextToReader__ListText(Na__Failed) })
+            : "";
+        const Na__Readable = Na__Result.textPages + Na__Result.ocrPages;
+        const Na__Seconds = (Na__Result.ms / 1000).toFixed(1);
+        const Na__Summary = `${Na__TextToReader__CountText(Na__Result.pages, "page")}: ${Na__Result.textPages} text` +
+            (Na__Result.ocrPages ? `, ${Na__Result.ocrPages} by text recognition (${(Na__Result.ocrMs / 1000).toFixed(1)} s)` : "") +
+            (Na__Failed.length ? `, recognition failed on ${Na__Failed.length === 1 ? "page" : "pages"} ${Na__TextToReader__ListText(Na__Failed)}` : "") +
+            (Na__NotInstalled ? `, ${Na__NotInstalled} scanned not read` : "");
+        const Na__Scans = Na__TextToReader__CountText(Na__NotInstalled, "scanned page");
+        const Na__ScansText = Na__NotInstalled ? Na__TextToReader__FormatText(Na__UiText.NaMiniApp__PdfScansSkipped, { scans: Na__Scans }) : "";
+        if (Na__FailedText) Na__TextToReader__Log("warn", `"${Na__File.name}": ${Na__FailedText}`);
+        if (Na__ScansText) Na__TextToReader__Log("warn", Na__ScansText);
+        if (!Na__Readable || !Na__Result.markdown.replace(/<!--[\s\S]*?-->/g, "").trim()) {
+            throw new Error(Na__FailedText && !Na__NotInstalled ? Na__FailedText
+                : Na__NotInstalled ? Na__TextToReader__FormatText(Na__UiText.NaMiniApp__PdfOnlyScans, { scans: Na__Scans })
+                : Na__UiText.NaMiniApp__PdfNoText);
+        }
+
+        // Timed only once something is readable; an unreadable PDF is logged once, as a failure
+        Na__Timer(`Read PDF "${Na__File.name}": ${Na__Summary}`);
+        Na__TextToReader__ShowPdfText(Na__Result.markdown, true);
+        const Na__Done = Na__TextToReader__FormatText(Na__UiText.NaMiniApp__PdfDone, { pages: Na__TextToReader__CountText(Na__Result.pages, "page"), seconds: Na__Seconds }) +
+            (Na__FailedText ? " " + Na__FailedText : "") +
+            (Na__ScansText ? " " + Na__ScansText : "") +
+            (Na__TextToReader__PdfPending ? " " + Na__UiText.NaMiniApp__PdfWaitingForStop : "");
+        Na__TextToReader__ShowReaderStatus(Na__Done, null);
+
+        return {
+            kind  : "pdf",
+            pages : { total: Na__Result.pages, text: Na__Result.textPages, ocr: Na__Result.ocrPages, skipped: Na__Result.skippedPages, failed: Na__Failed },
+            ms    : Na__Result.ms
+        };
+    } catch (Na__ErrorObject) {
+        if (!Na__IsCurrent()) return null;   // a newer file took over; its own job reports
+        if (Na__TextToReader__PdfJob === Na__Job) Na__TextToReader__PdfJob = null;
+        Na__TextToReader__HoldAutoStart = false;
+        Na__TextToReader__ShowReaderStatus("", null);
+        const Na__Message = Na__ErrorObject?.name === "PasswordException" ? Na__UiText.NaMiniApp__PdfPassword
+            : Na__ErrorObject?.name === "InvalidPDFException" ? Na__UiText.NaMiniApp__PdfInvalid
+            : (Na__ErrorObject?.message || String(Na__ErrorObject));
+        Na__Timer.fail(Na__Message);
+        Na__TextToReader__OpenSourceModal();
+        throw new Error(Na__Message);
     }
 }
 // ------------------------------------------------------------
@@ -373,8 +588,23 @@ function Na__TextToReader__RegisterEventListeners() {
         statusElement       : Na__TextToReader__Dom.Na__UploadFileStatus,
         acceptedExtensions  : Na__Defaults.NaMiniApp__AcceptedFileExtensions,
         uiText              : Na__UiText,
-        onFileLoaded        : Na__TextToReader__HandleFileLoaded
+        onFileLoaded        : Na__TextToReader__HandleFileLoaded,
+        onPdfChosen         : Na__TextToReader__HandlePdfChosen
     });
+
+    // @delegate: ./MiniApp__TextToReader__DragDrop__.js
+    // Files dropped on the page open through the same FileUpload entry as the picker
+    import(Na__TextToReader__DragDropModuleUrl)
+        .then(({ Na__TextToReader__InitialiseDragDrop }) => Na__TextToReader__InitialiseDragDrop({
+            config          : Na__TextToReader__AppConfig.NaMiniApp__DragDrop,
+            appConfig       : Na__TextToReader__AppConfig,
+            dropTarget      : document.body,
+            openFile        : Na__TextToReader__OpenFile,
+            isSupportedFile : Na__TextToReader__IsSupportedFile,
+            sourceModal     : Na__TextToReader__Dom.Na__SourceModal,
+            statusElement   : Na__TextToReader__Dom.Na__UploadFileStatus
+        }))
+        .catch((Na__ErrorObject) => console.warn("Text To Reader: drag and drop not available:", Na__ErrorObject));
 
     // Native paste into Edit: let the browser insert text before rendering and starting.
     // A coalesced input fallback also catches mobile keyboards that skip the paste event.
@@ -409,7 +639,10 @@ async function Na__TextToReader__BootstrapApp() {
         return;
     }
 
-    const Na__ConfigResponse = await fetch(Na__TextToReader__ConfigPath, { cache: "no-cache" });
+    const Na__ConfigUrl = Na__TextToReader__ReleaseVersion
+        ? `${Na__TextToReader__ConfigPath}?v=${encodeURIComponent(Na__TextToReader__ReleaseVersion)}`
+        : Na__TextToReader__ConfigPath;
+    const Na__ConfigResponse = await fetch(Na__ConfigUrl, { cache: "no-cache" });
     if (!Na__ConfigResponse.ok) {
         throw new Error(`Failed to load app config (HTTP ${Na__ConfigResponse.status}).`);
     }
@@ -420,6 +653,7 @@ async function Na__TextToReader__BootstrapApp() {
     Na__TextToReader__MarkedParse = await Na__TextToReader__LoadMarkedLibrary(Na__MarkedEsmUrl);
 
     Na__TextToReader__ApplyUiTextFromConfig();
+    Na__TextToReader__InitialiseOcrModal(Na__TextToReader__AppConfig.NaMiniApp__UiText);
 
     // The Na logo opens the activity log: processing times and failures, kept across reloads
     Na__TextToReader__InitialiseActivityLog({

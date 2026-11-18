@@ -49,7 +49,10 @@ export function Na__TextToReader__RenderInputToHtml(Na__RawText, Na__MarkedParse
         Na__AppConfig.NaMiniApp__WhatsApp
     );
     const Na__CsvResult   = Na__TextToReader__ProcessCsvBlocks(Na__CleanedText);
-    const Na__MarkdownHtml = Na__MarkedParse(Na__CsvResult.processedText);
+    // A numbered list starting past 1 counts on from its start: the styles draw their own
+    // numbers with a CSS counter, which <ol start> alone does not move (MarkdownStyle__.css)
+    const Na__MarkdownHtml = Na__MarkedParse(Na__CsvResult.processedText)
+        .replace(/<ol start="(\d+)">/g, (Na__Tag, Na__Start) => `<ol start="${Na__Start}" style="--NaMd_OlStart: ${Number(Na__Start) - 1}">`);
 
     if (Na__CsvResult.csvBlocks.length === 0) {
         return Na__MarkdownHtml;

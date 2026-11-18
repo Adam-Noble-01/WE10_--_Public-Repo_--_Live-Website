@@ -520,3 +520,135 @@ LEGACY SOURCE
     Stop then Play replayed at once with nothing re-rendered; a tap on
     sentence 35 started "sentences 35-36" after 1.7 s.
   - Version 1.9.6 in the HTML (every ?v=), the AppConfig and the service worker.
+
+----------------------------------------------------------------
+1.9.7 - 18-Nov-2026 | PDF Reading, Text Recognition For Scans, Drag And Drop
+  PDF reading:
+  - Open or drop a PDF and its pages become one continuous article in the reader's own
+    typography (not page images), so Read, highlighting, sections and word jump work exactly
+    as for Markdown. New 01__AppModules/MiniApp__TextToReader__PdfRenderer__.js rebuilds
+    PDF.js's text items into lines, two columns (left read to its foot before the right),
+    headings (by size), paragraphs and lists. It drops running headers, footers and page
+    numbers, rejoins line-end hyphens ("plan-making" keeps its hyphen when the document writes
+    it so), joins a paragraph that crosses a page, and drops raised footnote numbers. Pages
+    are marked only by invisible <!-- Page n --> comments, seen in Edit.
+  - PDF.js is pdfjs-dist 6.5.438 (Apache-2.0; MuPDF.js was ruled out as AGPL), in the new
+    git-ignored 04__PdfJsRuntime: main module, worker, image-decoder wasm, fonts and cMaps,
+    about 4.4 MB. Both scripts load by URLs carrying the PDF.js version, so a cached main
+    module can never meet a worker from another release.
+  - Long PDFs fill in as they are read ("Reading PDF: page 12 of 80"). Speech is prepared
+    once the whole PDF is in; if you start listening sooner, the article is left alone and
+    the rest appears when you press Stop.
+  - The picker and file input take .pdf; the source modal reads "Open Markdown / text / PDF
+    file". A password-protected, damaged or scans-only PDF reopens it with the reason. The
+    last-file record keeps a PDF's pages and read time; the activity log times each PDF.
+  - Measured in Edge on the studio PC: a 3-page report 0.1 s; 60 pages 0.39 s; NPPF August
+    2026, 130 pages, 0.64 s (234 headings); Charnwood Housing SPD, 46 pages, 0.30 s.
+  Text recognition for scanned pages:
+  - A page short of text that is mostly image (30 % or more of it) is a scan; blank pages and
+    pages with a small logo never are. Scans are drawn by PDF.js and read by PaddleOCR
+    PP-OCRv6 (Baidu, Apache-2.0) on ONNX Runtime Web 1.31.1 in a Web Worker (new
+    MiniApp__TextToReader__PdfOcr__.js and MiniApp__TextToReader__PdfOcrWorker__.js). Their
+    lines go through the same reflow as text pages.
+  - The first time, a modal asks: "4 pages of this PDF are scans, with no text to read.
+    Download text recognition (46.1 MB, once) to read them?" (new
+    MiniApp__TextToReader__OcrModal__.js). Computers get the small models (46.1 MB), phones
+    the tiny ones (21.2 MB); every file is SHA-256 checked and kept in
+    NaTextToReader__PaddleOcr__v1 for offline use. After that, scans are read without asking.
+  - Measured on Adam's 4-page image-only test PDF (10__Testing): 2.5 to 3.0 s a page, 10.5 to
+    12.6 s for the PDF on 6 threads, 99.2 % of words as in its text edition (7 errors in 897:
+    Greek and Cyrillic read as Latin look-alikes, and O/0 and I/1/l swapped in the codes). The
+    JH03 covering letter (3 JPEG scans): 10.9 s, clean text.
+  - A page whose recognition fails is named in the status line ("Text recognition failed on
+    page 2") and, when the PDF is done, in the status and the activity log ("Pages 2 and 4
+    could not be read."); the other pages still read. If every page fails, the source modal
+    says so. Checked by crashing the OCR worker on chosen pages (NaPdfOcr__TestBreakWorker).
+  - Pages are drawn for OCR with PDF.js's "print" intent. The default "display" steps on
+    requestAnimationFrame, which never fires in a background tab or on a phone with its
+    screen off: OCR stalled there (found in the Claude pane, over 2 minutes on one page).
+  Drag and drop:
+  - New MiniApp__TextToReader__DragDrop__.js: drop a file on the Read view, the Edit view
+    or the open source modal. Window capture-phase listeners act on file drags only, so a
+    text drag in the editor is untouched; every file dragover and drop is cancelled, so Edge
+    never navigates away from the app.
+  - A calm full-window "Drop to read" card shows on Read and Edit. With the source modal
+    open, the page behind it is inert, so the dialog gets a dashed outline and its file
+    button is marked instead.
+  - The drop state clears on drop, Esc, the window losing focus, a dragleave out of the
+    window, and a 1-second watchdog after the last dragover.
+  - The first supported file opens through Na__TextToReader__OpenFile(file, { source:
+    "drop", handle }), the same way in as the picker. Where getAsFileSystemHandle() exists
+    the handle is kept, so the picker's last folder follows dropped files. Unsupported and
+    multi-file drops show the AppConfig text and write an activity-log line.
+  - Checked with synthetic drops in the pane: a .md on the modal's file button (the modal
+    closes, the text renders); a .txt on Read; a .docx refused; .jpg + .md + .txt (the .md
+    opens); a PDF dropped on the editor (it reflows); an editor text drag (not intercepted).
+  - Checked by Adam with a real drag from Explorer: "drag and drop works great".
+  - Limits: on a multi-file drop, the reader's "preparing audio" status replaces the message
+    within a second (the activity log keeps it). Phones fire no drag events.
+  Formatting (tables, lists, inline styles):
+  - A new layout pass in PdfRenderer (WORKER__PdfFormatting) reads tables from the page's
+    geometry. Rows are cut at wide gaps and at a drawn grid's vertical lines; pieces that line
+    up over two or more rows are columns; the bands between full-width lines are laid out one
+    at a time. Two prose columns read left then right; anything else becomes a GFM table in
+    the house table style. Ruled tables keep wrapped cells ("Page / count") together, and
+    cells OCR missed are left empty.
+  - Numbered lists: a wrapped line stays with its item, and a list's start number is kept
+    (the CSS counters honour it; MarkdownRender passes --NaMd_OlStart). The number column lines
+    up with the bullets: text 34 px in against 28 px for bullets (was 45 px), at the body
+    size instead of 11 pt; nested lists step 8.5 mm and 11 mm. Checked on Adam's own Markdown
+    (terrain-from-point-clouds.md), before and after.
+  - Inline styles from the font names (fontExtraProperties): bold, italic and bold italic
+    with tight markers, headings left plain. Mono text becomes a fenced code block or a code
+    span; link annotations (http, https, mailto) become links; rules become ---; small
+    capital labels become bold; a large italic sentence becomes a quote. Address lines stay
+    as lines, and a salutation is its own paragraph.
+  - OCR headings: sizes are clustered from the box height (an OCR ratio of 1.22), with guards
+    for logos, lists, sign-offs and sentence tails. On Adam's benchmark, 17 of 17 document
+    headings match between the text and OCR editions (was 31 against 17).
+  - One failed OCR page no longer stops the PDF: it is noted, reported and listed in
+    failedPages. A cancel still stops everything.
+  - Regression: the NPPF (130 pages, 1.35 s) keeps the same headings and 1,087 list items,
+    gains 6 annex tables, and loses 2 old garbled joins. The Charnwood SPD (46 pages, 0.86 s)
+    keeps the same 189 list items and has 4 real tables. Adam's text edition: 4 pages in
+    148 ms, with the 2 tables, the quote, the lists, inline styles, the code block and the
+    link all present.
+  - Read-aloud plays a table's header, then each row in order, with sentence and word
+    highlights.
+  - Known limits: tables with merged headers or bulleted cells come out partly as text; a
+    key-value table's first row becomes the GFM header; OCR cannot tell capital labels from
+    headings by size; PP-OCRv6 has no Cyrillic.
+  Runtimes and folders:
+  - 04__PdfJsRuntime (pdfjs-dist 6.5.438) and 05__PaddleOcrRuntime (onnxruntime-web 1.31.1
+    plus PP-OCRv6 small and tiny ONNX from Hugging Face at pinned commits, 52.6 MB, every file
+    SHA-256 checked) work like 02 and 03: git-ignored, published by the Pages workflow
+    (.github/workflows/static.yml) and fetched by the dev server on first run.
+  - Adam's tests now live in 10__Testing (was 04__Testing), including a text and an
+    image-only edition of the same 4-page PDF.
+  Offline and the release rule:
+  - The service worker keeps PDF.js in its own cache, NaTextToReader__PdfJsRuntime__6.5.438
+    (module, worker, wasm and fonts at install; cMaps on first use). It outlasts app releases
+    and is replaced only when the PDF.js version changes. The OCR runtime and models are
+    served from their own cache and never copied into the shell.
+  - The AppConfig now loads by its release ?v= as well, and is precached that way. Found while
+    testing the update: the previous release's worker handed the old config to the new code
+    on the first visit, so 1.9.7 would have refused PDFs until a second reload.
+  - RELEASE RULE: with each release set every ?v= in Main__.html, the AppConfig entry in the
+    service worker's shell list, the shell cache name and NaMiniApp__Version.
+  - Checked in headless Edge with the real service worker: installed at 1.9.6, updated to
+    1.9.7 (old shell purged; the PDF.js, OCR, voice and user-config caches kept; v1.9.7 on
+    the first load), then with the server stopped: the app opened cross-origin isolated, a
+    text PDF read in 78 ms, and the image-only PDF was recognised in 10.5 s on 6 threads.
+  Known limits:
+  - Text recognition reads Greek in its own alphabet on the small tier, through a word-level
+    script vote at decode time with no model change. Tiny reads it one letter off. PP-OCRv6's
+    dictionaries hold no Cyrillic at all, so Cyrillic in scans becomes Latin look-alikes.
+    Codes that mix O/0 and I/1/l can swap.
+  - A lone "£" that the small tier nearly read as "f" (f 0.52, £ 0.44) is restored by a
+    narrow decode-time currency rule. It applies only to a one-letter word other than a/I,
+    with the currency sign at half the letter's probability or more. Table amounts already
+    read £ on both tiers.
+  - An invisible OCR layer already in a PDF is used as it is. A page whose text is garbled
+    and has no image under it is dropped, noted in its page comment.
+  - Not yet checked on Adam's Android phone (tiny OCR tier, speed and memory).
+  - Version 1.9.7 in the HTML (every ?v=), the AppConfig and the service worker.
