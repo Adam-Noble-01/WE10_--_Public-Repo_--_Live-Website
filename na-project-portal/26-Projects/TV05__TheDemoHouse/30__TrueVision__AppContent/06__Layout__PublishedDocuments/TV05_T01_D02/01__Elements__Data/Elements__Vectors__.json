@@ -1,0 +1,143 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName"  : "Elements__Vectors__.json",
+        "Meta__Kind"      : "vector",
+        "Meta__LayerType" : "vector",
+        "Meta__Document"  : "TV05_T01_D02",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments",
+        "Meta__Note"      : "Published by TrueVision. The array is the elements as the sheet holds them, authoring keys verbatim, with resolved keys added. Elements__LayerSvg is each layer's markup exactly as the editor draws it; the reader paints that."
+    },
+    "Elements__Vectors" : [
+        {
+            "Shape__LayerId" : "Layer_004",
+            "Shape__Points"  : [
+                [
+                    282.5,
+                    257.6
+                ],
+                [
+                    257.65,
+                    257.6
+                ],
+                [
+                    64.35,
+                    257.6
+                ],
+                [
+                    44.35,
+                    257.6
+                ]
+            ],
+            "Shape__Closed"        : false,
+            "Shape__StrokeColour"  : "#960000",
+            "Shape__StrokePt"      : 0.25,
+            "Shape__FillColour"    : null,
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : {
+                "LineStyle__Kind"   : "centre",
+                "LineStyle__Scale"  : 0.5,
+                "LineStyle__DashMm" : 8,
+                "LineStyle__GapMm"  : 2,
+                "LineStyle__MarkMm" : 2
+            },
+            "Shape__Id" : "Shape_001"
+        },
+        {
+            "Shape__LayerId" : "Layer_004",
+            "Shape__Points"  : [
+                [
+                    77.881,
+                    255.884
+                ],
+                [
+                    82.119,
+                    255.884
+                ],
+                [
+                    80,
+                    257.6
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#960000",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#960000",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.09,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_002"
+        },
+        {
+            "Shape__LayerId" : "Layer_004",
+            "Shape__Points"  : [
+                [
+                    488.85,
+                    257.6
+                ],
+                [
+                    453.65,
+                    257.6
+                ],
+                [
+                    341.35,
+                    257.6
+                ],
+                [
+                    318.91,
+                    257.6
+                ]
+            ],
+            "Shape__Closed"        : false,
+            "Shape__StrokeColour"  : "#960000",
+            "Shape__StrokePt"      : 0.25,
+            "Shape__FillColour"    : null,
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : {
+                "LineStyle__Kind"   : "centre",
+                "LineStyle__Scale"  : 0.5,
+                "LineStyle__DashMm" : 8,
+                "LineStyle__GapMm"  : 2,
+                "LineStyle__MarkMm" : 2
+            },
+            "Shape__Id" : "Shape_003"
+        },
+        {
+            "Shape__LayerId" : "Layer_004",
+            "Shape__Points"  : [
+                [
+                    354.881,
+                    255.884
+                ],
+                [
+                    359.119,
+                    255.884
+                ],
+                [
+                    357,
+                    257.6
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#960000",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : "#960000",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.09,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Id"            : "Shape_004"
+        }
+    ],
+    "Elements__LayerSvg" : {
+        "Layer_004" : "<path d=\"M282.5 257.6L257.65 257.6L64.35 257.6L44.35 257.6\" fill=\"none\" stroke=\"#960000\" stroke-width=\"0.088\" stroke-linejoin=\"round\" stroke-linecap=\"butt\" stroke-dasharray=\"4 1 1 1\"/><path d=\"M77.881 255.884L82.119 255.884L80 257.6Z\" fill=\"#960000\" fill-opacity=\"0.09\" stroke=\"#960000\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M488.85 257.6L453.65 257.6L341.35 257.6L318.91 257.6\" fill=\"none\" stroke=\"#960000\" stroke-width=\"0.088\" stroke-linejoin=\"round\" stroke-linecap=\"butt\" stroke-dasharray=\"4 1 1 1\"/><path d=\"M354.881 255.884L359.119 255.884L357 257.6Z\" fill=\"#960000\" fill-opacity=\"0.09\" stroke=\"#960000\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/>"
+    }
+}

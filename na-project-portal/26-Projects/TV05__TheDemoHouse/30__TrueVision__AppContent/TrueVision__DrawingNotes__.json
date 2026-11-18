@@ -2,23 +2,236 @@
     "ProjectSpecification__Description": "TV05 The Demo House (TrueVision demo project 1, fictitious client). The local drawing-notes document TrueVision keeps in sync with the same filename on R2. Notes are added by the planning-drawing-note-writer skill; none yet.",
     "ProjectSpecification__Version": 1,
     "ProjectSpecification__ProjectCode": "TV05",
-    "ProjectSpecification__UpdatedIso": "2026-11-18T19:57:02+00:00",
+    "ProjectSpecification__UpdatedIso": "2026-11-18T21:19:46.997Z",
     "ProjectSpecification__NumberDigits": 2,
-    "ProjectSpecification__LastIdNumber": 0,
+    "ProjectSpecification__LastIdNumber": 31,
     "ProjectSpecification__Groups": [
         {
             "Group__Id": "SpecGroup_001",
             "Group__Prefix": "GN",
             "Group__Title": "General Notes",
             "Group__IsGeneral": true,
-            "Group__Notes": []
+            "Group__Notes": [
+                {
+                    "Note__Id": "SpecNote_003",
+                    "Note__Code": "GN01",
+                    "Note__Title": "Drawing scope",
+                    "Note__Body": "Drawings describe the proposed development for planning assessment. They are not construction drawings or a complete Building Regulations specification. Obtain coordinated construction details, structural calculations and Building Control approval before relevant work starts. Refer discrepancies to Noble Architecture before proceeding.",
+                    "Note__UpdatedIso": "2026-11-18T21:19:46.997Z"
+                },
+                {
+                    "Note__Id": "SpecNote_004",
+                    "Note__Code": "GN02",
+                    "Note__Title": "Design basis",
+                    "Note__Body": "Concept design for a new two-storey dwelling, drawn from the supplied plan and elevation drawing. No site survey has been undertaken: confirm levels, boundaries, services and ground conditions before design development. Use stated dimensions; do not scale.",
+                    "Note__UpdatedIso": "2026-11-18T21:19:46.997Z"
+                }
+            ]
+        },
+        {
+            "Group__Id": "SpecGroup_005",
+            "Group__Prefix": "LV",
+            "Group__Title": "Levels",
+            "Group__IsGeneral": false,
+            "Group__Notes": [
+                {
+                    "Note__Id": "SpecNote_006",
+                    "Note__Code": "LV01",
+                    "Note__Title": "Floor levels and heights",
+                    "Note__Body": "GFFL is the datum, 150 mm above finished ground. First-floor FFL 2,665 mm; ceilings 2,400 mm above each floor level. Eaves soffit 4,725 mm and ridge 7,850 mm above GFFL, equal to the drawn 4,875 mm and 8,000 mm above ground.",
+                    "Note__UpdatedIso": "2026-11-18T21:19:46.997Z"
+                }
+            ]
+        },
+        {
+            "Group__Id": "SpecGroup_007",
+            "Group__Prefix": "WF",
+            "Group__Title": "External Walls",
+            "Group__IsGeneral": false,
+            "Group__Notes": [
+                {
+                    "Note__Id": "SpecNote_008",
+                    "Note__Code": "WF01",
+                    "Note__Title": "Facing brickwork",
+                    "Note__Body": "External walls: 325 mm cavity construction of 100 mm facing brick, 130 mm cavity and 95 mm blockwork with finish; footprint 9,665 x 5,615 mm over brickwork. Brick type, colour, bond and mortar to be agreed with the LPA from samples before work above DPC.",
+                    "Note__UpdatedIso": "2026-11-18T21:19:46.997Z"
+                },
+                {
+                    "Note__Id": "SpecNote_009",
+                    "Note__Code": "WF02",
+                    "Note__Title": "Brick heads and cills",
+                    "Note__Body": "Soldier-course heads where drawn: Front and Left ground-floor windows and Left first-floor windows. Brick-on-edge cills to every window, 40 mm proud of the brick face. Lintels and cavity trays to the structural design.",
+                    "Note__UpdatedIso": "2026-11-18T21:19:46.997Z"
+                },
+                {
+                    "Note__Id": "SpecNote_010",
+                    "Note__Code": "WF03",
+                    "Note__Title": "DPC and ground clearance",
+                    "Note__Body": "DPC at GFFL, 150 mm above finished ground. Maintain 150 mm between DPC and adjoining ground or paving, except at detailed thresholds.",
+                    "Note__UpdatedIso": "2026-11-18T21:19:46.997Z"
+                }
+            ]
+        },
+        {
+            "Group__Id": "SpecGroup_011",
+            "Group__Prefix": "RF",
+            "Group__Title": "Roof and Rainwater",
+            "Group__IsGeneral": false,
+            "Group__Notes": [
+                {
+                    "Note__Id": "SpecNote_012",
+                    "Note__Code": "RF01",
+                    "Note__Title": "Pitched roof",
+                    "Note__Body": "Dual-pitched roof at 45 degrees, ridge parallel to the Front elevation, gables to the Left and Right. Slate or small-format tile covering in courses at 212 mm gauge as drawn; product and colour to be agreed with the LPA.",
+                    "Note__UpdatedIso": "2026-11-18T21:19:46.997Z"
+                },
+                {
+                    "Note__Id": "SpecNote_013",
+                    "Note__Code": "RF02",
+                    "Note__Title": "Eaves and verges",
+                    "Note__Body": "Boxed eaves to the Front and Rear: soffit 4,725 mm above GFFL, fascia face 185 mm proud of the brickwork. Verges 50 mm beyond the gable walls, finished with dry-verge caps.",
+                    "Note__UpdatedIso": "2026-11-18T21:19:46.997Z"
+                },
+                {
+                    "Note__Id": "SpecNote_014",
+                    "Note__Code": "RF03",
+                    "Note__Title": "Rainwater goods",
+                    "Note__Body": "112 mm half-round gutters to both eaves, stopped 50 mm beyond each verge. Two 68 mm rainwater pipes, at the Front-Left and Rear-Right corners. Colour to be agreed; discharge route to the drainage design.",
+                    "Note__UpdatedIso": "2026-11-18T21:19:46.997Z"
+                }
+            ]
+        },
+        {
+            "Group__Id": "SpecGroup_015",
+            "Group__Prefix": "OP",
+            "Group__Title": "Windows and Doors",
+            "Group__IsGeneral": false,
+            "Group__Notes": [
+                {
+                    "Note__Id": "SpecNote_016",
+                    "Note__Code": "OP01",
+                    "Note__Title": "Casement windows",
+                    "Note__Body": "White-framed casement windows, each a single light, frames set 50 mm behind the brick face. Main windows 1,020 mm wide. Frame material, opening lights, egress and safety glazing to be confirmed in the Building Regulations design.",
+                    "Note__UpdatedIso": "2026-11-18T21:19:46.997Z"
+                },
+                {
+                    "Note__Id": "SpecNote_017",
+                    "Note__Code": "OP02",
+                    "Note__Title": "Living room side windows",
+                    "Note__Body": "Two tall windows to the Left elevation: cill 445 mm and transom 880 mm above GFFL. Safety glazing below the transom to the Building Regulations design.",
+                    "Note__UpdatedIso": "2026-11-18T21:19:46.997Z"
+                },
+                {
+                    "Note__Id": "SpecNote_018",
+                    "Note__Code": "OP03",
+                    "Note__Title": "Front door",
+                    "Note__Body": "Single front door in a 1,015 mm structural opening, opening inwards, hinged on the WC side: vertically panelled leaf with a narrow glazed strip as drawn. Leaf material, colour and glazing to be agreed.",
+                    "Note__UpdatedIso": "2026-11-18T21:19:46.997Z"
+                },
+                {
+                    "Note__Id": "SpecNote_019",
+                    "Note__Code": "OP04",
+                    "Note__Title": "Dining room French doors",
+                    "Note__Body": "Fully glazed French doors from the dining area to the Right elevation, opening outwards: 1,590 mm structural opening, head 2,095 mm above GFFL. Detail the threshold and an external landing for the 150 mm drop to ground.",
+                    "Note__UpdatedIso": "2026-11-18T21:19:46.997Z"
+                },
+                {
+                    "Note__Id": "SpecNote_020",
+                    "Note__Code": "OP05",
+                    "Note__Title": "Stair window",
+                    "Note__Body": "Stair window to the Rear elevation over the flight: 690 mm wide, cill 2,535 mm and head 3,750 mm above GFFL. Safety glazing and cleaning access to be confirmed.",
+                    "Note__UpdatedIso": "2026-11-18T21:19:46.997Z"
+                }
+            ]
+        },
+        {
+            "Group__Id": "SpecGroup_021",
+            "Group__Prefix": "PR",
+            "Group__Title": "Canopy and Step",
+            "Group__IsGeneral": false,
+            "Group__Notes": [
+                {
+                    "Note__Id": "SpecNote_022",
+                    "Note__Code": "PR01",
+                    "Note__Title": "Front door canopy",
+                    "Note__Body": "Hood canopy over the front door and WC window: 2,910 mm wide, 635 mm projection, top 2,350 mm above GFFL, on two shaped brackets. Moulded cornice with scrolled ends as drawn. Covering, falls and fixings to be detailed.",
+                    "Note__UpdatedIso": "2026-11-18T21:19:46.997Z"
+                },
+                {
+                    "Note__Id": "SpecNote_023",
+                    "Note__Code": "PR02",
+                    "Note__Title": "Front door step",
+                    "Note__Body": "Single 150 mm step from finished ground to the front door threshold at GFFL, 1,300 mm wide at its base. Step finish and nosing to be agreed; level access to be reviewed in the Building Regulations design.",
+                    "Note__UpdatedIso": "2026-11-18T21:19:46.997Z"
+                }
+            ]
+        },
+        {
+            "Group__Id": "SpecGroup_024",
+            "Group__Prefix": "IL",
+            "Group__Title": "Internal Layout",
+            "Group__IsGeneral": false,
+            "Group__Notes": [
+                {
+                    "Note__Id": "SpecNote_025",
+                    "Note__Code": "IL01",
+                    "Note__Title": "Ground-floor layout",
+                    "Note__Body": "Ground floor: living room, hall with WC and store, open-plan kitchen and dining. Partitions 130 mm studwork; spine wall 150 mm masonry, continued on the first floor. Door openings 2,100 mm high above FFL.",
+                    "Note__UpdatedIso": "2026-11-18T21:19:46.997Z"
+                },
+                {
+                    "Note__Id": "SpecNote_026",
+                    "Note__Code": "IL02",
+                    "Note__Title": "First-floor layout",
+                    "Note__Body": "First floor: three bedrooms, family bathroom, airing cupboard with hot water cylinder, and en-suite shower room to bedroom 1. Partitions 130 mm studwork; spine wall to IL01.",
+                    "Note__UpdatedIso": "2026-11-18T21:19:46.997Z"
+                },
+                {
+                    "Note__Id": "SpecNote_027",
+                    "Note__Code": "IL03",
+                    "Note__Title": "Staircase",
+                    "Note__Body": "Staircase along the Rear wall: 13 risers of 205 mm, 230 mm going, 950 mm wide, with three winders at each end. Guarded landing balustrade to the stairwell. Bulkhead to the living room's rear corner beneath the top winders.",
+                    "Note__UpdatedIso": "2026-11-18T21:19:46.997Z"
+                },
+                {
+                    "Note__Id": "SpecNote_028",
+                    "Note__Code": "IL04",
+                    "Note__Title": "Internal doors",
+                    "Note__Body": "Ten internal door leaves with narrow vertical panels, linings and architraves, including a pair from the hall to the living room. Leaf sizes as drawn; finish and ironmongery to be agreed.",
+                    "Note__UpdatedIso": "2026-11-18T21:19:46.997Z"
+                }
+            ]
         },
         {
             "Group__Id": "SpecGroup_002",
-            "Group__Prefix": "FN",
-            "Group__Title": "Finishes",
+            "Group__Prefix": "FT",
+            "Group__Title": "Kitchen and Fit-out",
             "Group__IsGeneral": false,
-            "Group__Notes": []
+            "Group__Notes": [
+                {
+                    "Note__Id": "SpecNote_029",
+                    "Note__Code": "FT01",
+                    "Note__Title": "Fitted kitchen",
+                    "Note__Body": "U-shaped fitted kitchen with one worktop: inset sink below the Front window, hob to the Right wall and tall fridge-freezer housing. Wall units 720 mm high from 1,450 mm above GFFL; boiler in a wall cupboard at the Front-Right corner.",
+                    "Note__UpdatedIso": "2026-11-18T21:19:46.997Z"
+                },
+                {
+                    "Note__Id": "SpecNote_030",
+                    "Note__Code": "FT02",
+                    "Note__Title": "Sanitaryware",
+                    "Note__Body": "Bathroom: bath, WC and pedestal basin. En-suite: shower, WC and pedestal basin. Ground-floor WC: WC and basin. Extract ventilation to the Building Regulations design.",
+                    "Note__UpdatedIso": "2026-11-18T21:19:46.997Z"
+                },
+                {
+                    "Note__Id": "SpecNote_031",
+                    "Note__Code": "FT03",
+                    "Note__Title": "Fitted wardrobes",
+                    "Note__Body": "Fitted hanging wardrobes, 2,300 mm high and 600 mm deep: bedroom 1 on the Right wall beside the en-suite; bedroom 2 on the wall to bedroom 3, at the Front.",
+                    "Note__UpdatedIso": "2026-11-18T21:19:46.997Z"
+                }
+            ]
         }
-    ]
+    ],
+    "ProjectSpecification__Revision": "A",
+    "ProjectSpecification__DocumentNumber": ""
 }

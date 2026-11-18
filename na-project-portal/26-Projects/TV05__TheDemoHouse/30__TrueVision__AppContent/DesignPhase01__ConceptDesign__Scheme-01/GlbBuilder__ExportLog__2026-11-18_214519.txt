@@ -3,7 +3,7 @@
 ===============================================================================
  Model      : MCP__TEST__FullHouseOrchestrationTest__Recovered__.skp
  Export dir : D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01
- Timestamp  : 2026-11-18_205212
+ Timestamp  : 2026-11-18_214519
  Console    : suppressed (OFF)
 -------------------------------------------------------------------------------
   Project prefix detected: 'MCP__'
@@ -244,7 +244,10 @@ Exporting series: MCP__TrueVision__LandscapeEnvironment...
     Traversing: LANDSCAPE__Terrain__Primative_ID4093694...
     Traversal complete: 1 entities -> 1 buckets, 24 vertices, 12 triangles
     [TextureEngine] State reset
-    [MaterialEngine] no-materials (whitecard + MAT000E__ exempt) mode: 0 material(s) exported
+    [MaterialLookup] Loading materials library via DataLib...
+    [MaterialLookup] Materials library loaded successfully via DataLib
+    [MaterialLookup] Index built: 63 indexed materials
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
     Building mesh: 07__Landscape::Default (24 verts, 12 tris)
     Total meshes built: 1
 GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__TrueVision__LandscapeEnvironment__MeshModel__.glb (2212 bytes, BIN: 840 bytes)
@@ -276,7 +279,7 @@ Exporting series: MCP__01__OrbitHelperCube...
     Traversing: 01__OrbitHelperCube_ID6033865...
     Traversal complete: 1 entities -> 1 buckets, 24 vertices, 12 triangles
     [TextureEngine] State reset
-    [MaterialEngine] no-materials (whitecard + MAT000E__ exempt) mode: 0 material(s) exported
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
     Building mesh: 01__OrbitHelperCube::Default (24 verts, 12 tris)
     Total meshes built: 1
 GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__01__OrbitHelperCube__MeshModel__.glb (2208 bytes, BIN: 840 bytes)
@@ -301,7 +304,7 @@ Exporting storey series: MCP__Storey__GroundFloor__ProposedFloors...
     Traversing: SUB__UkHome__Step__Front__01_ID5913537...
     Traversal complete: 2 entities -> 1 buckets, 48 vertices, 24 triangles
     [TextureEngine] State reset
-    [MaterialEngine] no-materials (whitecard + MAT000E__ exempt) mode: 0 material(s) exported
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
     Building mesh: 22__ProposedBuilding__Floors::Default (48 verts, 24 tris)
     Total meshes built: 1
 GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__GroundFloor__ProposedFloors__MeshModel__.glb (3100 bytes, BIN: 1680 bytes)
@@ -331,7 +334,7 @@ GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-
 
 Exporting storey series: MCP__Storey__GroundFloor__ProposedFixtures...
   Using virtual flattening for non-destructive world-space export...
-    [Instancing] Found 75 instanced placements across 13 definition(s) (13 mesh group(s))
+    [Instancing] Found 74 instanced placements across 13 definition(s) (13 mesh group(s))
     [Instancing] Mirrored fallback-to-unique count: 1 placement(s)
     Traversing: ARN001__AssemblyRun__GroundFloor__Kitchen_ID4847566...
     Traversing: ARN002__AssemblyRun__GroundFloor__Kitchen__WallUnits__Front_ID4847567...
@@ -341,6 +344,7 @@ Exporting storey series: MCP__Storey__GroundFloor__ProposedFixtures...
     Traversing: SUB__UkHome__WC__Toilet__01_ID5647537...
     Traversing: SUB__UkHome__WC__Basin__01_ID5650467...
     Traversing: SUB__UkHome__WC__Radiator__01_ID5650711...
+    Traversing: SUB__UkHome__Dining__CeilingLight__01_ID5690252...
     Traversing: SUB__UkHome__Kitchen__Sink__01_ID5696264...
     Traversing: SUB__UkHome__Kitchen__Tap__01_ID5699950...
     Traversing: SUB__UkHome__Kitchen__Hob__01_ID5700279...
@@ -352,10 +356,10 @@ Exporting storey series: MCP__Storey__GroundFloor__ProposedFixtures...
     Traversing: SUB__UkHome__Kitchen__PlinthReturn__01_ID5722685...
     Traversing: ARN004__AssemblyRun__GroundFloor__Living__MediaUnit_ID5724983...
     Traversing: SUB__UkHome__Living__Tv__01_ID6029493...
-    Traversal complete: 19 entities -> 2 buckets, 36083 vertices, 21499 triangles
+    Traversal complete: 20 entities -> 2 buckets, 36587 vertices, 21823 triangles
     [TextureEngine] State reset
-    [MaterialEngine] no-materials (whitecard + MAT000E__ exempt) mode: 0 material(s) exported
-    Building mesh: 27__ProposedBuilding__Fixtures::Default (35255 verts, 21149 tris)
+    [MaterialEngine] indexed-only mode: 1 material(s) exported
+    Building mesh: 27__ProposedBuilding__Fixtures::Default (35759 verts, 21473 tris)
     Building mesh: 27__ProposedBuilding__Fixtures::MAT701__Glass__BlackenedGlass (828 verts, 350 tris)
     Total meshes built: 2
 
@@ -370,8 +374,8 @@ Exporting storey series: MCP__Storey__GroundFloor__ProposedFixtures...
       [Instancing] ACB006__WallUnit__ARN002__Type-W: 1 mesh -> 2 nodes
       [Instancing] Built shared mesh: UkHome__Gen__Radiator1000__ (220 verts, 128 tris)
       [Instancing] UkHome__Gen__Radiator1000__: 1 mesh -> 2 nodes
-      [Instancing] Built shared mesh: UkHome__Gen__Pendant__ (504 verts, 324 tris)
-      [Instancing] UkHome__Gen__Pendant__: 1 mesh -> 4 nodes
+      [Instancing] Built shared mesh: UkHome__Gen__PendantShort__ (504 verts, 324 tris)
+      [Instancing] UkHome__Gen__PendantShort__: 1 mesh -> 3 nodes
       [Instancing] Built shared mesh: 17_4004_10__Toilet__SubComp__SeatHinge__ (24 verts, 12 tris)
       [Instancing] 17_4004_10__Toilet__SubComp__SeatHinge__: 1 mesh -> 2 nodes
       [Instancing] Built shared mesh: UkHome__Gen__FlushLight__ (576 verts, 376 tris)
@@ -387,18 +391,18 @@ Exporting storey series: MCP__Storey__GroundFloor__ProposedFixtures...
       [Instancing] Built shared mesh: Na__Cabinetry__Leg__Na__Cabinetry__Leg__Type-01__AdjustablePlinthLeg__h150mm__h100 (838 verts, 528 tris)
       [Instancing] Na__Cabinetry__Leg__Na__Cabinetry__Leg__Type-01__AdjustablePlinthLeg__h150mm__h100: 1 mesh -> 8 nodes
     [Instancing] Instanced mesh export complete
-GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__GroundFloor__ProposedFixtures__MeshModel__.glb (1726884 bytes, BIN: 1695436 bytes)
+GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__GroundFloor__ProposedFixtures__MeshModel__.glb (1744940 bytes, BIN: 1713508 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 1726884 bytes
-    Chunk 1: "JSON", Length: 31420 bytes
-    Chunk 2: "BIN\x00", Length: 1695436 bytes
+    File size: 1744940 bytes
+    Chunk 1: "JSON", Length: 31404 bytes
+    Chunk 2: "BIN\x00", Length: 1713508 bytes
   ✓ GLB validation passed
   ✓ Export complete (non-destructive, model unchanged)
   Using virtual flattening for linework export (same transforms as mesh)...
-    [Instancing] Found 75 instanced placements across 13 definition(s) (13 mesh group(s))
+    [Instancing] Found 74 instanced placements across 13 definition(s) (13 mesh group(s))
     [Instancing] Mirrored fallback-to-unique count: 1 placement(s)
     Traversing linework: ARN001__AssemblyRun__GroundFloor__Kitchen_ID4847566...
     Traversing linework: ARN002__AssemblyRun__GroundFloor__Kitchen__WallUnits__Front_ID4847567...
@@ -428,7 +432,7 @@ GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-
     Traversing linework: SUB__UkHome__Kitchen__PlinthReturn__01_ID5722685...
     Traversing linework: ARN004__AssemblyRun__GroundFloor__Living__MediaUnit_ID5724983...
     Traversing linework: SUB__UkHome__Living__Tv__01_ID6029493...
-    Linework traversal complete: 28 entities -> 8821 edges
+    Linework traversal complete: 28 entities -> 8989 edges
 
     [Instancing/Linework] Building shared linework mesh(es)...
       [Instancing] Built shared linework: Na__Cabinetry__Leg__Na__Cabinetry__Leg__Type-01__AdjustablePlinthLeg__h150mm__h150 (270 edges)
@@ -441,8 +445,8 @@ GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-
       [Instancing/Linework] ACB006__WallUnit__ARN002__Type-W: 2 nodes
       [Instancing] Built shared linework: UkHome__Gen__Radiator1000__ (87 edges)
       [Instancing/Linework] UkHome__Gen__Radiator1000__: 2 nodes
-      [Instancing] Built shared linework: UkHome__Gen__Pendant__ (168 edges)
-      [Instancing/Linework] UkHome__Gen__Pendant__: 4 nodes
+      [Instancing] Built shared linework: UkHome__Gen__PendantShort__ (168 edges)
+      [Instancing/Linework] UkHome__Gen__PendantShort__: 3 nodes
       [Instancing] Built shared linework: 17_4004_10__Toilet__SubComp__SeatHinge__ (12 edges)
       [Instancing/Linework] 17_4004_10__Toilet__SubComp__SeatHinge__: 2 nodes
       [Instancing] Built shared linework: UkHome__Gen__FlushLight__ (192 edges)
@@ -458,14 +462,14 @@ GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-
       [Instancing] Built shared linework: Na__Cabinetry__Leg__Na__Cabinetry__Leg__Type-01__AdjustablePlinthLeg__h150mm__h100 (270 edges)
       [Instancing/Linework] Na__Cabinetry__Leg__Na__Cabinetry__Leg__Type-01__AdjustablePlinthLeg__h150mm__h100: 8 nodes
     [Instancing/Linework] Instanced linework export complete
-GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__GroundFloor__ProposedFixtures__LineworkModel__.glb (745820 bytes, BIN: 712992 bytes)
+GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__GroundFloor__ProposedFixtures__LineworkModel__.glb (755020 bytes, BIN: 722400 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 745820 bytes
-    Chunk 1: "JSON", Length: 32800 bytes
-    Chunk 2: "BIN\x00", Length: 712992 bytes
+    File size: 755020 bytes
+    Chunk 1: "JSON", Length: 32592 bytes
+    Chunk 2: "BIN\x00", Length: 722400 bytes
   ✓ GLB validation passed
   ✓ Linework export complete
 
@@ -487,7 +491,7 @@ Exporting storey series: MCP__Storey__GroundFloor__ProposedWalls...
     Traversing: SUB__UkHome__Living__StairBulkhead__01_ID6172489...
     Traversal complete: 14 entities -> 1 buckets, 709 vertices, 480 triangles
     [TextureEngine] State reset
-    [MaterialEngine] no-materials (whitecard + MAT000E__ exempt) mode: 0 material(s) exported
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
     Building mesh: 21__ProposedBuilding__Walls::Default (709 verts, 480 tris)
     Total meshes built: 1
 GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__GroundFloor__ProposedWalls__MeshModel__.glb (27012 bytes, BIN: 25568 bytes)
@@ -515,15 +519,15 @@ GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-
     Traversing linework: SUB__LineworkDetailing__Left__GroundFloor__BrickCourses_ID5914108...
     Traversing linework: SUB__LineworkDetailing__Right__GroundFloor__BrickCourses_ID5914379...
     Traversing linework: SUB__UkHome__Living__StairBulkhead__01_ID6172489...
-    Linework traversal complete: 14 entities -> 916 edges
-GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__GroundFloor__ProposedWalls__LineworkModel__.glb (58340 bytes, BIN: 51296 bytes)
+    Linework traversal complete: 14 entities -> 909 edges
+GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__GroundFloor__ProposedWalls__LineworkModel__.glb (57900 bytes, BIN: 50904 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 58340 bytes
-    Chunk 1: "JSON", Length: 7016 bytes
-    Chunk 2: "BIN\x00", Length: 51296 bytes
+    File size: 57900 bytes
+    Chunk 1: "JSON", Length: 6968 bytes
+    Chunk 2: "BIN\x00", Length: 50904 bytes
   ✓ GLB validation passed
   ✓ Linework export complete
 
@@ -538,7 +542,7 @@ Exporting storey series: MCP__Storey__GroundFloor__ProposedDoors...
     Traversal complete: 0 entities -> 0 buckets, 0 vertices, 0 triangles
     [DoorHandler] 6 door assembly(ies) detected — will export with hierarchy preservation
     [TextureEngine] State reset
-    [MaterialEngine] no-materials (whitecard + MAT000E__ exempt) mode: 0 material(s) exported
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
     Total meshes built: 0
 
     [DoorHandler v2.2.2] Exporting 6 mesh door assembly(ies)... (closed runtime MOD guard active)
@@ -610,6 +614,7 @@ Exporting storey series: MCP__Storey__GroundFloor__ProposedDoors...
       [DoorHandler/Mesh] Door assembly complete: ADR011__ExteriorSingleDoor__GroundFloor__Front__02__Hall
       [DoorHandler/Mesh] Building door assembly: ADR012__ExteriorDoubleDoor__GroundFloor__Right__01__Dining
         [DoorHandler/Mesh] KEEP  child='MOD001__ROT__-90-Deg__ExteriorDoubleDoorPanel' tag='Na__Door__Closed' reason=closed_runtime_mod_forced_export
+    [MaterialEngine] Enriched: MAT101__Glass__ClearDefault
           [DoorHandler] Mesh: Na__Door__Closed::MAT101__Glass__ClearDefault (24 verts, 12 tris)
           [DoorHandler] Mesh: Na__DoorHandle::Default (5748 verts, 2980 tris)
           [DoorHandler] Mesh: Na__Door__Closed::Default (48 verts, 32 tris)
@@ -627,13 +632,13 @@ Exporting storey series: MCP__Storey__GroundFloor__ProposedDoors...
           [DoorHandler] Mesh: Layer0::Default (48 verts, 32 tris)
       [DoorHandler/Mesh] Door assembly complete: ADR012__ExteriorDoubleDoor__GroundFloor__Right__01__Dining
     [DoorHandler] Door assembly export complete
-GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__GroundFloor__ProposedDoors__MeshModel__.glb (1339380 bytes, BIN: 1301408 bytes)
+GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__GroundFloor__ProposedDoors__MeshModel__.glb (1339596 bytes, BIN: 1301408 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 1339380 bytes
-    Chunk 1: "JSON", Length: 37944 bytes
+    File size: 1339596 bytes
+    Chunk 1: "JSON", Length: 38160 bytes
     Chunk 2: "BIN\x00", Length: 1301408 bytes
   ✓ GLB validation passed
   ✓ Export complete (non-destructive, model unchanged)
@@ -752,7 +757,7 @@ Exporting storey series: MCP__Storey__GroundFloor__ProposedFurniture...
     Traversing: SUB__UkHome__Living__Pouffe__01_ID6035554...
     Traversal complete: 5 entities -> 1 buckets, 8761 vertices, 6104 triangles
     [TextureEngine] State reset
-    [MaterialEngine] no-materials (whitecard + MAT000E__ exempt) mode: 0 material(s) exported
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
     Building mesh: 28__ProposedBuilding__Furniture::Default (8761 verts, 6104 tris)
     Total meshes built: 1
 
@@ -874,7 +879,7 @@ Exporting storey series: MCP__Storey__GroundFloor__ProposedInteriorDecor...
     Traversing: SUB__UkHome__Hall__WallMirror__01_ID5643265...
     Traversal complete: 5 entities -> 3 buckets, 23415 vertices, 10212 triangles
     [TextureEngine] State reset
-    [MaterialEngine] no-materials (whitecard + MAT000E__ exempt) mode: 0 material(s) exported
+    [MaterialEngine] indexed-only mode: 2 material(s) exported
     Building mesh: 29__ProposedBuilding__InteriorDecor::Default (4540 verts, 2472 tris)
     Building mesh: 29__ProposedBuilding__InteriorDecor::MAT160__Generic__PlantFoliage#1 (11375 verts, 3900 tris)
     Building mesh: 29__ProposedBuilding__InteriorDecor::MAT161__Generic__PlantStem#1 (7500 verts, 3840 tris)
@@ -884,13 +889,13 @@ Exporting storey series: MCP__Storey__GroundFloor__ProposedInteriorDecor...
       [Instancing] Built shared mesh: 19_4002_10__Plant__SubComp__Leaf__Individual__ (35 verts, 12 tris)
       [Instancing] 19_4002_10__Plant__SubComp__Leaf__Individual__: 1 mesh -> 364 nodes
     [Instancing] Instanced mesh export complete
-GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__GroundFloor__ProposedInteriorDecor__MeshModel__.glb (952172 bytes, BIN: 811744 bytes)
+GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__GroundFloor__ProposedInteriorDecor__MeshModel__.glb (952556 bytes, BIN: 811744 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 952172 bytes
-    Chunk 1: "JSON", Length: 140400 bytes
+    File size: 952556 bytes
+    Chunk 1: "JSON", Length: 140784 bytes
     Chunk 2: "BIN\x00", Length: 811744 bytes
   ✓ GLB validation passed
   ✓ Export complete (non-destructive, model unchanged)
@@ -927,17 +932,18 @@ Exporting storey series: MCP__Storey__GroundFloor__ProposedWindows...
     Traversing: AWN006__Window__GroundFloor__Left__02__Living_ID5912635...
     Traversal complete: 5 entities -> 2 buckets, 1936 vertices, 1164 triangles
     [TextureEngine] State reset
-    [MaterialEngine] no-materials (whitecard + MAT000E__ exempt) mode: 0 material(s) exported
+    [MaterialEngine] Enriched: MAT101__Glass__ClearDefault
+    [MaterialEngine] indexed-only mode: 1 material(s) exported
     Building mesh: 24__ProposedBuilding__Windows::MAT101__Glass__ClearDefault (168 verts, 84 tris)
     Building mesh: 24__ProposedBuilding__Windows::Default (1768 verts, 1080 tris)
     Total meshes built: 2
-GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__GroundFloor__ProposedWindows__MeshModel__.glb (71536 bytes, BIN: 68936 bytes)
+GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__GroundFloor__ProposedWindows__MeshModel__.glb (71752 bytes, BIN: 68936 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 71536 bytes
-    Chunk 1: "JSON", Length: 2572 bytes
+    File size: 71752 bytes
+    Chunk 1: "JSON", Length: 2788 bytes
     Chunk 2: "BIN\x00", Length: 68936 bytes
   ✓ GLB validation passed
   ✓ Export complete (non-destructive, model unchanged)
@@ -965,7 +971,7 @@ Exporting storey series: MCP__Storey__GroundFloor__ProposedRoofs...
     Traversing: SUB__UkHome__PorchCanopy__Front__01_ID5916158...
     Traversal complete: 2 entities -> 1 buckets, 218 vertices, 140 triangles
     [TextureEngine] State reset
-    [MaterialEngine] no-materials (whitecard + MAT000E__ exempt) mode: 0 material(s) exported
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
     Building mesh: 23__ProposedBuilding__Roofs::Default (218 verts, 140 tris)
     Total meshes built: 1
 GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__GroundFloor__ProposedRoofs__MeshModel__.glb (9224 bytes, BIN: 7816 bytes)
@@ -999,7 +1005,7 @@ Exporting storey series: MCP__Storey__GroundFloor__ProposedStairs...
     Traversing: SUB__UkHome__Staircase__Main_ID6170803...
     Traversal complete: 1 entities -> 1 buckets, 1160 vertices, 716 triangles
     [TextureEngine] State reset
-    [MaterialEngine] no-materials (whitecard + MAT000E__ exempt) mode: 0 material(s) exported
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
     Building mesh: 26__ProposedBuilding__Staircase::Default (1160 verts, 716 tris)
     Total meshes built: 1
 
@@ -1048,7 +1054,7 @@ Exporting storey series: MCP__Storey__FirstFloor__ProposedFloors...
     Traversing: SUB__UkHome__FirstFloorSlab_ID4098403...
     Traversal complete: 1 entities -> 1 buckets, 48 vertices, 28 triangles
     [TextureEngine] State reset
-    [MaterialEngine] no-materials (whitecard + MAT000E__ exempt) mode: 0 material(s) exported
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
     Building mesh: 22__ProposedBuilding__Floors::Default (48 verts, 28 tris)
     Total meshes built: 1
 GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__FirstFloor__ProposedFloors__MeshModel__.glb (3112 bytes, BIN: 1704 bytes)
@@ -1091,7 +1097,7 @@ Exporting storey series: MCP__Storey__FirstFloor__ProposedWalls...
     Traversing: SUB__LineworkDetailing__Right__FirstFloor__BrickCourses_ID5915169...
     Traversal complete: 12 entities -> 1 buckets, 713 vertices, 486 triangles
     [TextureEngine] State reset
-    [MaterialEngine] no-materials (whitecard + MAT000E__ exempt) mode: 0 material(s) exported
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
     Building mesh: 21__ProposedBuilding__Walls::Default (713 verts, 486 tris)
     Total meshes built: 1
 GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__FirstFloor__ProposedWalls__MeshModel__.glb (27160 bytes, BIN: 25732 bytes)
@@ -1117,15 +1123,15 @@ GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-
     Traversing linework: SUB__LineworkDetailing__Back__FirstFloor__BrickCourses_ID5914825...
     Traversing linework: SUB__LineworkDetailing__Left__FirstFloor__BrickCourses_ID5914952...
     Traversing linework: SUB__LineworkDetailing__Right__FirstFloor__BrickCourses_ID5915169...
-    Linework traversal complete: 12 entities -> 788 edges
-GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__FirstFloor__ProposedWalls__LineworkModel__.glb (50152 bytes, BIN: 44128 bytes)
+    Linework traversal complete: 12 entities -> 784 edges
+GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__FirstFloor__ProposedWalls__LineworkModel__.glb (49832 bytes, BIN: 43904 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 50152 bytes
-    Chunk 1: "JSON", Length: 5996 bytes
-    Chunk 2: "BIN\x00", Length: 44128 bytes
+    File size: 49832 bytes
+    Chunk 1: "JSON", Length: 5900 bytes
+    Chunk 2: "BIN\x00", Length: 43904 bytes
   ✓ GLB validation passed
   ✓ Linework export complete
 
@@ -1140,7 +1146,7 @@ Exporting storey series: MCP__Storey__FirstFloor__ProposedDoors...
     Traversal complete: 0 entities -> 0 buckets, 0 vertices, 0 triangles
     [DoorHandler] 6 door assembly(ies) detected — will export with hierarchy preservation
     [TextureEngine] State reset
-    [MaterialEngine] no-materials (whitecard + MAT000E__ exempt) mode: 0 material(s) exported
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
     Total meshes built: 0
 
     [DoorHandler v2.2.2] Exporting 6 mesh door assembly(ies)... (closed runtime MOD guard active)
@@ -1360,7 +1366,8 @@ Exporting storey series: MCP__Storey__FirstFloor__ProposedFixtures...
     Traversing: SUB__UkHome__Bathroom__Bath__01_ID6029495...
     Traversal complete: 8 entities -> 2 buckets, 4360 vertices, 2436 triangles
     [TextureEngine] State reset
-    [MaterialEngine] no-materials (whitecard + MAT000E__ exempt) mode: 0 material(s) exported
+    [MaterialEngine] Enriched: MAT615__Metal__Ironmongery__Chrome
+    [MaterialEngine] indexed-only mode: 1 material(s) exported
     Building mesh: 27__ProposedBuilding__Fixtures::Default (4168 verts, 2316 tris)
     Building mesh: 27__ProposedBuilding__Fixtures::MAT615__Metal__Ironmongery__Chrome (192 verts, 120 tris)
     Total meshes built: 2
@@ -1390,18 +1397,18 @@ Exporting storey series: MCP__Storey__FirstFloor__ProposedFixtures...
       [Instancing] UkHome__Gen__FlushLight__: 1 mesh -> 2 nodes
       [Instancing] Built shared mesh: UkHome__Gen__Radiator1000__ (220 verts, 128 tris)
       [Instancing] UkHome__Gen__Radiator1000__: 1 mesh -> 2 nodes
-      [Instancing] Built shared mesh: UkHome__Gen__Pendant__ (504 verts, 324 tris)
-      [Instancing] UkHome__Gen__Pendant__: 1 mesh -> 4 nodes
+      [Instancing] Built shared mesh: UkHome__Gen__PendantShort__ (504 verts, 324 tris)
+      [Instancing] UkHome__Gen__PendantShort__: 1 mesh -> 4 nodes
       [Instancing] Built shared mesh: UkHome__Gen__Bath__Foot__ (96 verts, 60 tris)
       [Instancing] UkHome__Gen__Bath__Foot__: 1 mesh -> 4 nodes
     [Instancing] Instanced mesh export complete
-GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__FirstFloor__ProposedFixtures__MeshModel__.glb (650084 bytes, BIN: 621088 bytes)
+GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__FirstFloor__ProposedFixtures__MeshModel__.glb (650284 bytes, BIN: 621088 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 650084 bytes
-    Chunk 1: "JSON", Length: 28968 bytes
+    File size: 650284 bytes
+    Chunk 1: "JSON", Length: 29168 bytes
     Chunk 2: "BIN\x00", Length: 621088 bytes
   ✓ GLB validation passed
   ✓ Export complete (non-destructive, model unchanged)
@@ -1457,18 +1464,18 @@ GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-
       [Instancing/Linework] UkHome__Gen__FlushLight__: 2 nodes
       [Instancing] Built shared linework: UkHome__Gen__Radiator1000__ (87 edges)
       [Instancing/Linework] UkHome__Gen__Radiator1000__: 2 nodes
-      [Instancing] Built shared linework: UkHome__Gen__Pendant__ (168 edges)
-      [Instancing/Linework] UkHome__Gen__Pendant__: 4 nodes
+      [Instancing] Built shared linework: UkHome__Gen__PendantShort__ (168 edges)
+      [Instancing/Linework] UkHome__Gen__PendantShort__: 4 nodes
       [Instancing] Built shared linework: UkHome__Gen__Bath__Foot__ (32 edges)
       [Instancing/Linework] UkHome__Gen__Bath__Foot__: 4 nodes
     [Instancing/Linework] Instanced linework export complete
-GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__FirstFloor__ProposedFixtures__LineworkModel__.glb (217064 bytes, BIN: 195944 bytes)
+GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__FirstFloor__ProposedFixtures__LineworkModel__.glb (217068 bytes, BIN: 195944 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 217064 bytes
-    Chunk 1: "JSON", Length: 21092 bytes
+    File size: 217068 bytes
+    Chunk 1: "JSON", Length: 21096 bytes
     Chunk 2: "BIN\x00", Length: 195944 bytes
   ✓ GLB validation passed
   ✓ Linework export complete
@@ -1485,17 +1492,18 @@ Exporting storey series: MCP__Storey__FirstFloor__ProposedWindows...
     Traversing: AWN013__Window__FirstFloor__Right__02__EnSuite_ID5912644...
     Traversal complete: 8 entities -> 2 buckets, 3248 vertices, 1920 triangles
     [TextureEngine] State reset
-    [MaterialEngine] no-materials (whitecard + MAT000E__ exempt) mode: 0 material(s) exported
+    [MaterialEngine] Enriched: MAT101__Glass__ClearDefault
+    [MaterialEngine] indexed-only mode: 1 material(s) exported
     Building mesh: 24__ProposedBuilding__Windows::MAT101__Glass__ClearDefault (192 verts, 96 tris)
     Building mesh: 24__ProposedBuilding__Windows::Default (3056 verts, 1824 tris)
     Total meshes built: 2
-GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__FirstFloor__ProposedWindows__MeshModel__.glb (118056 bytes, BIN: 115456 bytes)
+GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__FirstFloor__ProposedWindows__MeshModel__.glb (118272 bytes, BIN: 115456 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 118056 bytes
-    Chunk 1: "JSON", Length: 2572 bytes
+    File size: 118272 bytes
+    Chunk 1: "JSON", Length: 2788 bytes
     Chunk 2: "BIN\x00", Length: 115456 bytes
   ✓ GLB validation passed
   ✓ Export complete (non-destructive, model unchanged)
@@ -1532,7 +1540,7 @@ Exporting storey series: MCP__Storey__FirstFloor__ProposedFurniture...
     Traversing: SUB__UkHome__Bedroom1__Bed__01_ID6018712...
     Traversal complete: 6 entities -> 1 buckets, 87065 vertices, 38984 triangles
     [TextureEngine] State reset
-    [MaterialEngine] no-materials (whitecard + MAT000E__ exempt) mode: 0 material(s) exported
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
     Building mesh: 28__ProposedBuilding__Furniture::Default (87065 verts, 38984 tris)
     Total meshes built: 1
 
@@ -1597,7 +1605,7 @@ Exporting storey series: MCP__Storey__FirstFloor__ProposedInteriorDecor...
     Traversing: SUB__UkHome__Bedroom1__Plant__01_ID6027130...
     Traversal complete: 2 entities -> 4 buckets, 17536 vertices, 8292 triangles
     [TextureEngine] State reset
-    [MaterialEngine] no-materials (whitecard + MAT000E__ exempt) mode: 0 material(s) exported
+    [MaterialEngine] indexed-only mode: 3 material(s) exported
     Building mesh: 29__ProposedBuilding__InteriorDecor::Default (8708 verts, 4586 tris)
     Building mesh: 29__ProposedBuilding__InteriorDecor::MAT140__Mirror__ClearDefault#1 (32 verts, 30 tris)
     Building mesh: 29__ProposedBuilding__InteriorDecor::MAT160__Generic__PlantFoliage#1 (4680 verts, 1560 tris)
@@ -1610,13 +1618,13 @@ Exporting storey series: MCP__Storey__FirstFloor__ProposedInteriorDecor...
       [Instancing] Built shared mesh: 19_4003_10__Plant__SubComp__Leaf__Individual__ (90 verts, 30 tris)
       [Instancing] 19_4003_10__Plant__SubComp__Leaf__Individual__: 1 mesh -> 52 nodes
     [Instancing] Instanced mesh export complete
-GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__FirstFloor__ProposedInteriorDecor__MeshModel__.glb (665008 bytes, BIN: 637220 bytes)
+GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__FirstFloor__ProposedInteriorDecor__MeshModel__.glb (665580 bytes, BIN: 637220 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 665008 bytes
-    Chunk 1: "JSON", Length: 27760 bytes
+    File size: 665580 bytes
+    Chunk 1: "JSON", Length: 28332 bytes
     Chunk 2: "BIN\x00", Length: 637220 bytes
   ✓ GLB validation passed
   ✓ Export complete (non-destructive, model unchanged)
@@ -1654,7 +1662,7 @@ Exporting storey series: MCP__Storey__FirstFloor__ProposedStairs...
     Traversing: SUB__UkHome__Landing__Balustrade__01_ID6170812...
     Traversal complete: 1 entities -> 1 buckets, 208 vertices, 128 triangles
     [TextureEngine] State reset
-    [MaterialEngine] no-materials (whitecard + MAT000E__ exempt) mode: 0 material(s) exported
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
     Building mesh: 26__ProposedBuilding__Staircase::Default (208 verts, 128 tris)
     Total meshes built: 1
 
@@ -1701,7 +1709,7 @@ Exporting storey series: MCP__Storey__SecondFloor__ProposedWalls...
     Traversing: SUB__LineworkDetailing__Right__RoofStorey__BrickCourses_ID5915477...
     Traversal complete: 3 entities -> 1 buckets, 36 vertices, 16 triangles
     [TextureEngine] State reset
-    [MaterialEngine] no-materials (whitecard + MAT000E__ exempt) mode: 0 material(s) exported
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
     Building mesh: 21__ProposedBuilding__Walls::Default (36 verts, 16 tris)
     Total meshes built: 1
 GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__SecondFloor__ProposedWalls__MeshModel__.glb (2724 bytes, BIN: 1248 bytes)
@@ -1719,13 +1727,13 @@ GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-
     Traversing linework: SUB__LineworkDetailing__Left__RoofStorey__BrickCourses_ID5915368...
     Traversing linework: SUB__LineworkDetailing__Right__RoofStorey__BrickCourses_ID5915477...
     Linework traversal complete: 3 entities -> 88 edges
-GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__SecondFloor__ProposedWalls__LineworkModel__.glb (7104 bytes, BIN: 4928 bytes)
+GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__SecondFloor__ProposedWalls__LineworkModel__.glb (7044 bytes, BIN: 4928 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 7104 bytes
-    Chunk 1: "JSON", Length: 2148 bytes
+    File size: 7044 bytes
+    Chunk 1: "JSON", Length: 2088 bytes
     Chunk 2: "BIN\x00", Length: 4928 bytes
   ✓ GLB validation passed
   ✓ Linework export complete
@@ -1735,7 +1743,7 @@ Exporting storey series: MCP__Storey__SecondFloor__ProposedFloors...
     Traversing: SUB__UkHome__FirstFloorCeiling_ID4098611...
     Traversal complete: 1 entities -> 1 buckets, 24 vertices, 12 triangles
     [TextureEngine] State reset
-    [MaterialEngine] no-materials (whitecard + MAT000E__ exempt) mode: 0 material(s) exported
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
     Building mesh: 22__ProposedBuilding__Floors::Default (24 verts, 12 tris)
     Total meshes built: 1
 GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-portal/26-Projects/TV05__TheDemoHouse/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/MCP__Storey__SecondFloor__ProposedFloors__MeshModel__.glb (2248 bytes, BIN: 840 bytes)
@@ -1774,7 +1782,7 @@ Exporting storey series: MCP__Storey__SecondFloor__ProposedRoofs...
     Traversing: SUB__LineworkDetailing__Top__BackSlope__RoofCourses_ID6033774...
     Traversal complete: 7 entities -> 1 buckets, 324 vertices, 196 triangles
     [TextureEngine] State reset
-    [MaterialEngine] no-materials (whitecard + MAT000E__ exempt) mode: 0 material(s) exported
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
     Building mesh: 23__ProposedBuilding__Roofs::Default (324 verts, 196 tris)
     Total meshes built: 1
 
@@ -1842,5 +1850,5 @@ GLB file written: D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-project-
     02__ClearanceLines__IndicatorLines: no linework (4 hidden/soft/smooth entities skipped)
 === 1 linetype file(s), 349 edges ===
 -------------------------------------------------------------------------------
- Export complete. Elapsed: 14.85s
+ Export complete. Elapsed: 16.84s
 ===============================================================================

@@ -1,0 +1,67 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName"  : "Elements__Text__.json",
+        "Meta__Kind"      : "annotation",
+        "Meta__LayerType" : "annotation",
+        "Meta__Document"  : "TV05_T01_D02",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments",
+        "Meta__Note"      : "Published by TrueVision. The array is the elements as the sheet holds them, authoring keys verbatim, with resolved keys added. Elements__LayerSvg is each layer's markup exactly as the editor draws it; the reader paints that."
+    },
+    "Elements__Text" : [
+        {
+            "Annotation__Id"         : "Text_001",
+            "Annotation__Text"       : "PROPOSED FRONT ELEVATION",
+            "Annotation__PosXMm"     : 63.5,
+            "Annotation__PosYMm"     : 307.5,
+            "Annotation__SizeMm"     : 3.5,
+            "Annotation__FontWeight" : 600,
+            "Annotation__Colour"     : "#172b3a",
+            "Annotation__Align"      : "left",
+            "Annotation__LeaderXMm"  : null,
+            "Annotation__LeaderYMm"  : null,
+            "Annotation__LayerId"    : "Layer_002"
+        },
+        {
+            "Annotation__Id"         : "Text_002",
+            "Annotation__Text"       : "PROPOSED LEFT ELEVATION",
+            "Annotation__PosXMm"     : 335.5,
+            "Annotation__PosYMm"     : 307.5,
+            "Annotation__SizeMm"     : 3.5,
+            "Annotation__FontWeight" : 600,
+            "Annotation__Colour"     : "#172b3a",
+            "Annotation__Align"      : "left",
+            "Annotation__LeaderXMm"  : null,
+            "Annotation__LeaderYMm"  : null,
+            "Annotation__LayerId"    : "Layer_002"
+        },
+        {
+            "Annotation__Text"       : "GFFL",
+            "Annotation__PosXMm"     : 77.709,
+            "Annotation__PosYMm"     : 255.378,
+            "Annotation__SizeMm"     : 2,
+            "Annotation__FontWeight" : 400,
+            "Annotation__Colour"     : "#960000",
+            "Annotation__Align"      : "left",
+            "Annotation__LeaderXMm"  : null,
+            "Annotation__LeaderYMm"  : null,
+            "Annotation__LayerId"    : "Layer_002",
+            "Annotation__Id"         : "Text_003"
+        },
+        {
+            "Annotation__Text"       : "GFFL",
+            "Annotation__PosXMm"     : 354.709,
+            "Annotation__PosYMm"     : 255.378,
+            "Annotation__SizeMm"     : 2,
+            "Annotation__FontWeight" : 400,
+            "Annotation__Colour"     : "#960000",
+            "Annotation__Align"      : "left",
+            "Annotation__LeaderXMm"  : null,
+            "Annotation__LeaderYMm"  : null,
+            "Annotation__LayerId"    : "Layer_002",
+            "Annotation__Id"         : "Text_004"
+        }
+    ],
+    "Elements__LayerSvg" : {
+        "Layer_002" : "<text x=\"63.5\" y=\"307.5\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3.5\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">PROPOSED FRONT ELEVATION</text><text x=\"335.5\" y=\"307.5\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3.5\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">PROPOSED LEFT ELEVATION</text><text x=\"77.709\" y=\"255.378\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#960000\" text-anchor=\"start\" xml:space=\"preserve\">GFFL</text><text x=\"354.709\" y=\"255.378\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#960000\" text-anchor=\"start\" xml:space=\"preserve\">GFFL</text>"
+    }
+}
