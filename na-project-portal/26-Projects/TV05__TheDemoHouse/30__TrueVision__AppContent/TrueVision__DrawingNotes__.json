@@ -1,0 +1,24 @@
+{
+    "ProjectSpecification__Description": "TV05 The Demo House (TrueVision demo project 1, fictitious client). The local drawing-notes document TrueVision keeps in sync with the same filename on R2. Notes are added by the planning-drawing-note-writer skill; none yet.",
+    "ProjectSpecification__Version": 1,
+    "ProjectSpecification__ProjectCode": "TV05",
+    "ProjectSpecification__UpdatedIso": "2026-11-18T19:57:02+00:00",
+    "ProjectSpecification__NumberDigits": 2,
+    "ProjectSpecification__LastIdNumber": 0,
+    "ProjectSpecification__Groups": [
+        {
+            "Group__Id": "SpecGroup_001",
+            "Group__Prefix": "GN",
+            "Group__Title": "General Notes",
+            "Group__IsGeneral": true,
+            "Group__Notes": []
+        },
+        {
+            "Group__Id": "SpecGroup_002",
+            "Group__Prefix": "FN",
+            "Group__Title": "Finishes",
+            "Group__IsGeneral": false,
+            "Group__Notes": []
+        }
+    ]
+}

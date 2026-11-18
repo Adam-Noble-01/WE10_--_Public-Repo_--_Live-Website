@@ -168,6 +168,17 @@
                 "trueVision": true
             },
             "planVisionDrawings": 0
+        },
+        "TV05": {
+            "projectCode": "TV05",
+            "projectName": "The Demo House",
+            "projectFolder": "TV05__TheDemoHouse",
+            "projectYear": "26",
+            "subApps": {
+                "projectAdmin": true,
+                "planVision": false,
+                "trueVision": false
+            }
         }
     }
 }

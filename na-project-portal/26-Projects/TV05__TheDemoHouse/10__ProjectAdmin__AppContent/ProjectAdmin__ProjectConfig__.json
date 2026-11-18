@@ -1,0 +1,52 @@
+{
+    "projectCode": "TV05",
+    "projectName": "The Demo House",
+    "projectBriefConcise": "TrueVision demo project 1: a three-bedroom detached house, modelled inside and out by a team of AI agents from a single drawing sheet, to show how a project is presented in TrueVision 3D.",
+    "projectBriefFull": "This is a demonstration project with a fictitious client, made to show the Noble Architecture TrueVision workflow from start to finish.\n\nThe Demo House is a two-storey, three-bedroom detached house in brick with a 45 degree slate roof. Its ground floor holds a living room, hall, cloakroom WC, store and an open-plan kitchen and dining room with French doors. Its first floor holds three bedrooms, one with an en-suite, a family bathroom and an airing cupboard.\n\nThe whole house, inside and out, was modelled in SketchUp by coordinated AI agents working from one sheet of plans and elevations, then tagged and nested for TrueVision 3D. A full drawing set follows.",
+    "specialNotes": "Demonstration project only: the client, addresses and contact details are fictitious, and no fees apply.",
+    "projectPin": "sha256:131e27b7715c43825f14696b907812d34fb86a529dd8c98fedbf87016f5d9149",
+    "clientDataStorage": "cloudflare-r2-encrypted",
+    "contracts": {
+        "general-business": {
+            "enabled": true,
+            "signed": false,
+            "signatureRef": null,
+            "signedDate": null,
+            "specialTermsEnabled": false
+        },
+        "concept-design": {
+            "enabled": true,
+            "signed": false,
+            "signatureRef": null,
+            "signedDate": null,
+            "specialTermsEnabled": false
+        },
+        "planning-approval": {
+            "enabled": true,
+            "signed": false,
+            "signatureRef": null,
+            "signedDate": null,
+            "specialTermsEnabled": false
+        },
+        "building-regulations": {
+            "enabled": true,
+            "signed": false,
+            "signatureRef": null,
+            "signedDate": null,
+            "specialTermsEnabled": false
+        },
+        "truevision-app": {
+            "enabled": true,
+            "signed": false,
+            "signatureRef": null,
+            "signedDate": null,
+            "specialTermsEnabled": false
+        }
+    },
+    "documents": {
+        "quotation": true,
+        "specialTerms": false
+    },
+    "createdDate": "18-Nov-2026",
+    "lastModified": "18-Nov-2026 at 19:57"
+}
