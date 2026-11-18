@@ -34,6 +34,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Nov-2026 - Version 1.22.0
+// - Token BUMPED to 2026-11-18-01 for v2.189.1 (the published drawings reader's
+//   touch controls). The web viewer imports a new export from its drawings
+//   surface (Na__LeVwDraw__FitEased), and that surface a new one from the touch
+//   recogniser (Na__LeVwTouch__Stop): a warm client pairing a new importer with
+//   an old cached module would fail the import, and a tablet already holding
+//   the reader is exactly the client this fix is for.
+//
 // 17-Nov-2026 - Version 1.21.0
 // - Token BUMPED to 2026-11-17-01 for v2.188.0 (water surfaces). The loading
 //   sequence imports a new export from the material swap
@@ -802,7 +810,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-11-17-01';                                                         // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-11-18-01';                                                        // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

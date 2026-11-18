@@ -53,6 +53,24 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Nov-2026 - Version 1.3.0 (TrueVision3D v2.189.1)
+// - Adam, on an iPad with TV05's published D01: "the touch controls are just
+//   non-existent it seems to jump in like massive chunks of zoom you can't use
+//   two fingers to pan around".
+// - PINCH HANDS OFF TO PAN. Lifting one finger of a pinch used to leave the
+//   other doing nothing until it was lifted and put down again; the finger
+//   still on the glass now carries on panning from where it is.
+// - A finger lifted from a pinch of three or more re-seeds the pinch from the
+//   two still down, so the zoom does not leap to the new pair's spread.
+// - EACH FINGER IS CAPTURED by the surface (setPointerCapture), so a finger
+//   that wanders over the dock, off the stage or out of the window keeps
+//   reporting to the gesture that owns it.
+// - pointercancel is no longer a lift: a gesture the browser takes back reads
+//   no tap, starts no double tap and throws no fling.
+// - INERTIA, for a surface that asks for it (options.inertia): a one-finger
+//   drag let go while still moving coasts on and slows to rest, the way every
+//   photo and PDF app on a tablet does. Any new touch stops it dead.
+//
 // 19-Oct-2026 - Version 1.2.0
 // - onTap: a finger that lands and lifts without moving is offered to the
 //   surface first (the web viewer's measuring tools put a point down with it,
@@ -97,6 +115,20 @@
     const Na__LeVwTouch__BUSY_CLASS = 'na-le-viewer--gesturing';
     // ------------------------------------------------------------
 
+    // MODULE CONSTANTS | The Fling After a One-Finger Drag
+    // ------------------------------------------------------------
+    // Velocities are in screen pixels per millisecond. The decay is the time
+    // constant of an exponential slow-down, close to iOS's own scroll view
+    // (about 325 ms), so a flick lands about where a reader expects it to.
+    // ------------------------------------------------------------
+    const Na__LeVwTouch__FLING_SAMPLE_MS = 100;                                  // <-- How far back the release speed is read from
+    const Na__LeVwTouch__FLING_STALE_MS  = 60;                                   // <-- A finger that rested this long before lifting throws nothing
+    const Na__LeVwTouch__FLING_MIN_SPEED = 0.25;                                 // <-- Slower than this at release: no fling (a careful placement, not a flick)
+    const Na__LeVwTouch__FLING_STOP      = 0.02;                                 // <-- Speed at which the coast is over
+    const Na__LeVwTouch__FLING_DECAY_MS  = 325;                                  // <-- Exponential time constant of the slow-down
+    const Na__LeVwTouch__FLING_MAX_SPEED = 4;                                    // <-- A CDP or palm spike never throws the sheet across a room
+    // ------------------------------------------------------------
+
     // MODULE VARIABLES | Attached Target, Handlers and Gesture State
     // ------------------------------------------------------------
     let   Na__LeVwTouch__Target   = null;
@@ -110,6 +142,9 @@
     let   Na__LeVwTouch__Swiped   = false;                                       // <-- One page turn per gesture, however far the finger goes on
     let   Na__LeVwTouch__Pending  = null;                                        // <-- { panX, panY, scale, cx, cy } gathered since the last frame
     let   Na__LeVwTouch__Frame    = 0;                                           // <-- The requestAnimationFrame that will apply it
+    let   Na__LeVwTouch__Inertia  = false;                                       // <-- Whether this surface asked for a fling after a drag
+    let   Na__LeVwTouch__Samples  = [];                                          // <-- One finger's recent positions: { t, x, y }, newest last
+    let   Na__LeVwTouch__Fling    = null;                                        // <-- A coast under way: { vx, vy, last, frame }
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -239,6 +274,96 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Take a Finger, or Let It Go
+    // ------------------------------------------------------------
+    // CAPTURED, so a finger that strays over the dock, off the stage or out of
+    // the window keeps reporting here until it lifts. Without it a pinch whose
+    // finger crossed onto a button lost that finger's moves and froze.
+    // ------------------------------------------------------------
+    function Na__LeVwTouch__Capture(pointerId, take) {
+        const target = Na__LeVwTouch__Target;
+        if (!target) return;
+        try {
+            if (take) target.setPointerCapture(pointerId);
+            else if (target.hasPointerCapture && target.hasPointerCapture(pointerId)) target.releasePointerCapture(pointerId);
+        } catch (error) { /* a pointer already gone: nothing to hold */ }
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Remember Where One Finger Has Been, for Its Release Speed
+    // ------------------------------------------------------------
+    function Na__LeVwTouch__Sample(x, y) {
+        const now = performance.now();
+        Na__LeVwTouch__Samples.push({ t : now, x : x, y : y });
+        while (Na__LeVwTouch__Samples.length > 2 && (now - Na__LeVwTouch__Samples[0].t) > Na__LeVwTouch__FLING_SAMPLE_MS) Na__LeVwTouch__Samples.shift();
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Stop a Coast Where It Is
+    // ------------------------------------------------------------
+    function Na__LeVwTouch__StopFling() {
+        if (Na__LeVwTouch__Fling && Na__LeVwTouch__Fling.frame) window.cancelAnimationFrame(Na__LeVwTouch__Fling.frame);
+        Na__LeVwTouch__Fling = null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | One Frame of a Coast: Pan, Slow Down, Stop at the Edge
+    // ------------------------------------------------------------
+    // The pan goes straight to onPan, not through the gathered gesture: no
+    // finger is down, so there is no page-turn budget to build. An axis whose
+    // pan the surface could not use (the paper's edge) stops on that axis, and
+    // the coast ends when neither axis has anything left.
+    // ------------------------------------------------------------
+    function Na__LeVwTouch__FlingStep(now) {
+        const f = Na__LeVwTouch__Fling;
+        if (!f) return;
+        const dt = Math.min(48, Math.max(0, now - f.last));                      // <-- A frame missed while hidden never throws the sheet a long way at once
+        f.last = now;
+        const decay = Math.exp(-dt / Na__LeVwTouch__FLING_DECAY_MS);
+        const panX = -f.vx * dt;                                                 // <-- The content follows the finger, so the view moves the other way
+        const panY = -f.vy * dt;
+        const used = Na__LeVwTouch__Ask('onPan', panX, panY);
+        if (used && Number.isFinite(used.x) && Math.abs(used.x) < Math.abs(panX) * 0.5) f.vx = 0;
+        if (used && Number.isFinite(used.y) && Math.abs(used.y) < Math.abs(panY) * 0.5) f.vy = 0;
+        f.vx *= decay;
+        f.vy *= decay;
+        if (Math.hypot(f.vx, f.vy) < Na__LeVwTouch__FLING_STOP) { Na__LeVwTouch__Fling = null; return; }
+        f.frame = window.requestAnimationFrame(Na__LeVwTouch__FlingStep);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Throw the Sheet On From a Released Drag, If It Was Moving
+    // ------------------------------------------------------------
+    // The release speed is read across the last FLING_SAMPLE_MS of the drag. A
+    // finger that came to rest before it lifted (the newest sample older than
+    // FLING_STALE_MS) was placing the sheet, not flicking it: nothing is thrown.
+    // ------------------------------------------------------------
+    function Na__LeVwTouch__StartFling() {
+        const s = Na__LeVwTouch__Samples;
+        Na__LeVwTouch__Samples = [];
+        if (!Na__LeVwTouch__Inertia || !Na__LeVwTouch__Swallow || s.length < 2) return;
+        const now   = performance.now();
+        const first = s[0];
+        const last  = s[s.length - 1];
+        if ((now - last.t) > Na__LeVwTouch__FLING_STALE_MS) return;
+        const span = last.t - first.t;
+        if (span < 8) return;
+        let vx = (last.x - first.x) / span;
+        let vy = (last.y - first.y) / span;
+        const speed = Math.hypot(vx, vy);
+        if (speed < Na__LeVwTouch__FLING_MIN_SPEED) return;
+        if (speed > Na__LeVwTouch__FLING_MAX_SPEED) { vx *= Na__LeVwTouch__FLING_MAX_SPEED / speed; vy *= Na__LeVwTouch__FLING_MAX_SPEED / speed; }
+        Na__LeVwTouch__StopFling();
+        Na__LeVwTouch__Fling = { vx : vx, vy : vy, last : now, frame : 0 };
+        Na__LeVwTouch__Fling.frame = window.requestAnimationFrame(Na__LeVwTouch__FlingStep);
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Spend the Overscroll Budget on a Page Turn
     // ------------------------------------------------------------
     // The budget is signed the way the content travels: a finger moving LEFT
@@ -276,13 +401,17 @@
         if (event.pointerType !== 'touch') return;                               // <-- Mouse and pen keep the PC controls
         if (event.target && event.target.closest && event.target.closest('button, a, input, select, textarea')) return;   // <-- A control on the surface is pressed, not dragged
 
+        Na__LeVwTouch__StopFling();                                              // <-- A finger on a coasting sheet catches it, as on any tablet
         Na__LeVwTouch__Points.set(event.pointerId, { x : event.clientX, y : event.clientY, startX : event.clientX, startY : event.clientY });
+        Na__LeVwTouch__Capture(event.pointerId, true);
 
         // ONE FINGER | A candidate. It only becomes a drag once it has moved.
         // ------------------------------------------------------------
         if (Na__LeVwTouch__Points.size === 1) {
-            Na__LeVwTouch__Drag   = { pointerId : event.pointerId, moved : false, budget : 0, vertical : false };
-            Na__LeVwTouch__Swiped = false;
+            Na__LeVwTouch__Drag    = { pointerId : event.pointerId, moved : false, budget : 0, vertical : false };
+            Na__LeVwTouch__Swiped  = false;
+            Na__LeVwTouch__Samples = [];
+            Na__LeVwTouch__Sample(event.clientX, event.clientY);
             return;
         }
 
@@ -338,6 +467,7 @@
             Na__LeVwTouch__Drag.vertical = Math.abs(event.clientY - point.startY) > Math.abs(event.clientX - point.startX);
             Na__LeVwTouch__Busy(true);
         }
+        Na__LeVwTouch__Sample(event.clientX, event.clientY);
         Na__LeVwTouch__Gather(-dx, -dy, 1, event.clientX, event.clientY);
         if (Na__LeVwTouch__Swallow && event.cancelable) event.preventDefault();
     }
@@ -356,11 +486,17 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Pointer Up: Close the Gesture, or Read It as a Tap
+    // HELPER FUNCTION | A Finger Leaves: Close the Gesture, Hand It On, or Read a Tap
     // ------------------------------------------------------------
-    function Na__LeVwTouch__OnPointerUp(event) {
+    // cancelled is true for pointercancel: the browser has taken the finger
+    // back, so nothing it did is read as a tap and nothing is thrown.
+    // ------------------------------------------------------------
+    function Na__LeVwTouch__Release(event, cancelled) {
         const point = Na__LeVwTouch__Points.get(event.pointerId);
+        if (!point) return;                                                      // <-- Never ours (a press on a control, or a mouse)
         Na__LeVwTouch__Points.delete(event.pointerId);
+        Na__LeVwTouch__Capture(event.pointerId, false);
+        const wasPinch = !!Na__LeVwTouch__Pinch;
 
         // FLUSHED BEFORE THE DRAG IS LET GO, and that order is the whole point.
         // A quick flick can begin and end inside a single painted frame, so
@@ -370,21 +506,48 @@
         if (Na__LeVwTouch__Frame) { window.cancelAnimationFrame(Na__LeVwTouch__Frame); Na__LeVwTouch__Apply(); }
 
         if (Na__LeVwTouch__Drag && Na__LeVwTouch__Drag.pointerId === event.pointerId) {
-            if (!Na__LeVwTouch__Drag.moved && point) {
+            if (!cancelled && !Na__LeVwTouch__Drag.moved) {
                 // A TAP THE SURFACE USES (a measuring point put down) is not the
                 // first half of a double tap: two quick taps are two points.
                 if (Na__LeVwTouch__Ask('onTap', point.x, point.y) === true) Na__LeVwTouch__LastTap = null;
                 else Na__LeVwTouch__TestDoubleTap(point);
+            } else if (!cancelled && Na__LeVwTouch__Points.size === 0) {
+                Na__LeVwTouch__StartFling();                                     // <-- Only the last finger off throws, and only if it was still moving
             }
             Na__LeVwTouch__Drag = null;
         }
-        if (Na__LeVwTouch__Points.size < 2) Na__LeVwTouch__Pinch = null;
+
+        // PINCH TO PAN. One finger of a pinch has lifted and one is still on the
+        // glass: that finger carries on as a drag from exactly where it is. It
+        // is born moved, so lifting it is never read as a tap, and it may not
+        // turn a page - the reader was zooming, not swiping.
+        if (wasPinch && Na__LeVwTouch__Points.size === 1) {
+            const [ id, rest ] = Na__LeVwTouch__Points.entries().next().value;
+            rest.startX = rest.x;
+            rest.startY = rest.y;
+            Na__LeVwTouch__Pinch   = null;
+            Na__LeVwTouch__Drag    = { pointerId : id, moved : true, budget : 0, vertical : false };
+            Na__LeVwTouch__Swiped  = true;
+            Na__LeVwTouch__Samples = [];
+            Na__LeVwTouch__Sample(rest.x, rest.y);
+            Na__LeVwTouch__LastTap = null;
+        }
+        // THREE FINGERS DOWN TO TWO: the pinch goes on with the two left, measured
+        // afresh, or their different spread would read as a sudden zoom.
+        else if (Na__LeVwTouch__Points.size >= 2) {
+            const span = Na__LeVwTouch__Span();
+            Na__LeVwTouch__Pinch = span ? { distance : span.distance, midX : span.midX, midY : span.midY } : null;
+        }
+        else if (Na__LeVwTouch__Points.size < 2) Na__LeVwTouch__Pinch = null;
+
         if (Na__LeVwTouch__Points.size === 0) {
             Na__LeVwTouch__Swiped = false;
             Na__LeVwTouch__Busy(false);
             Na__LeVwTouch__Ask('onGestureEnd');
         }
     }
+    function Na__LeVwTouch__OnPointerUp(event)     { Na__LeVwTouch__Release(event, false); }
+    function Na__LeVwTouch__OnPointerCancel(event) { Na__LeVwTouch__Release(event, true); }
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -410,6 +573,9 @@
     // this module only watches the travel. Such a surface must declare its own
     // touch-action (pan-y on the specification pages), because it is then the
     // browser, not this module, deciding what a finger may do.
+    // options: { inertia } - true lets a one-finger drag released while moving
+    // coast on through onPan and slow to rest. Only where this module does the
+    // panning itself (swallow left on); a browser-scrolled surface has its own.
     // ------------------------------------------------------------
     function Na__LeVwTouch__Attach(target, handlers, options) {
         if (!target) return false;
@@ -417,11 +583,12 @@
         Na__LeVwTouch__Target   = target;
         Na__LeVwTouch__Handlers = handlers || {};
         Na__LeVwTouch__Swallow  = !(options && options.swallow === false);
+        Na__LeVwTouch__Inertia  = !!(options && options.inertia === true);
         Na__LeVwTouch__Bound    = {
             pointerdown   : Na__LeVwTouch__OnPointerDown,
             pointermove   : Na__LeVwTouch__OnPointerMove,
             pointerup     : Na__LeVwTouch__OnPointerUp,
-            pointercancel : Na__LeVwTouch__OnPointerUp
+            pointercancel : Na__LeVwTouch__OnPointerCancel
         };
         // pointermove is NOT passive: a pinch and a pan both call preventDefault
         // so the browser does not also scroll the page under the reader.
@@ -462,13 +629,23 @@
             Na__LeVwTouch__Busy(false);
         }
         Na__LeVwTouch__Cancel();
+        Na__LeVwTouch__StopFling();
+        Na__LeVwTouch__Points.forEach((point, id) => Na__LeVwTouch__Capture(id, false));
         Na__LeVwTouch__Points.clear();
         Na__LeVwTouch__Target = Na__LeVwTouch__Handlers = Na__LeVwTouch__Bound = null;
         Na__LeVwTouch__Drag   = Na__LeVwTouch__Pinch = Na__LeVwTouch__LastTap = null;
         Na__LeVwTouch__Swiped = false;
         Na__LeVwTouch__Swallow = true;
+        Na__LeVwTouch__Inertia = false;
+        Na__LeVwTouch__Samples = [];
         return true;
     }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Stop Any Coast Now (an Eased Zoom or Fit Is About to Move the Sheet)
+    // ------------------------------------------------------------
+    function Na__LeVwTouch__Stop() { Na__LeVwTouch__StopFling(); return true; }
     // ------------------------------------------------------------
 
 
@@ -504,6 +681,7 @@
     export {
         Na__LeVwTouch__Attach,
         Na__LeVwTouch__Detach,
+        Na__LeVwTouch__Stop,
         Na__LeVwTouch__IsTouchDevice,
         Na__LeVwTouch__IsGesturing
     };

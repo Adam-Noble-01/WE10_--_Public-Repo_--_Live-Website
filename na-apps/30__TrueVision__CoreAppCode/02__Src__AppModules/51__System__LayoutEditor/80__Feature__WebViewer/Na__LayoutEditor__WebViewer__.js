@@ -60,6 +60,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Nov-2026 - Version 1.5.1 (TrueVision3D v2.189.1)
+// - The dock's - and + step 1.25 a press (was 1.35) and glide there, and Fit
+//   glides back to the whole sheet (Na__LeVwDraw__FitEased). Adam, on an iPad:
+//   "it seems to jump in like massive chunks of zoom". Three presses still
+//   come to about x2 (1.95), the step PDF readers use, and a reader at Fit
+//   reaches the closest zoom in fourteen presses instead of eleven.
+//
 // 19-Oct-2026 - Version 1.5.0
 // - SYMBOLS ON A PHONE (TrueVision3D v2.181.0). Adam: "On mobile phone
 //   versions of TrueVision, just use the symbols and drop the text." PDF and
@@ -135,6 +142,7 @@
         Na__LeVwDraw__Attach,
         Na__LeVwDraw__Detach,
         Na__LeVwDraw__Fit,
+        Na__LeVwDraw__FitEased,
         Na__LeVwDraw__ZoomBy,
         Na__LeVwDraw__SetTapHandler
     } from './Na__LayoutEditor__WebViewer__Drawings__.js';
@@ -165,7 +173,7 @@
     // ------------------------------------------------------------
     const Na__LeVw__BODY_CLASS = 'na-le-viewer--active';                         // <-- On the body: the stylesheet collapses the editor shell behind it
     const Na__LeVw__SPEC_ID    = '__specification__';                            // <-- The specification's id in the document list; no sheet can hold it
-    const Na__LeVw__ZOOM_STEP  = 1.35;
+    const Na__LeVw__ZOOM_STEP  = 1.25;                                           // <-- One dock press, glided; three come to about x2
     // ------------------------------------------------------------
 
     // MODULE CONSTANTS | The Dock's Icons
@@ -469,7 +477,7 @@
         switch (action) {
             case 'previous'   : Na__LeVw__Step('previous');                                           break;
             case 'next'       : Na__LeVw__Step('next');                                               break;
-            case 'fit'        : Na__LeVwDraw__Fit();                                                  break;
+            case 'fit'        : Na__LeVwDraw__FitEased();                                             break;
             case 'zoom-in'    : Na__LeVwDraw__ZoomBy(Na__LeVw__ZOOM_STEP);                            break;
             case 'zoom-out'   : Na__LeVwDraw__ZoomBy(1 / Na__LeVw__ZOOM_STEP);                        break;
             case 'pdf'        : void Na__LeVw__Pdf();                                                 break;

@@ -2,6 +2,63 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.189.1  -  18-Nov-2026
+### The Published Drawings Reader Pinches, Pans and Zooms Smoothly on a Tablet
+
+**What Adam asked for** (on an iPad, TV05's published D01 on noble-architecture.com)
+- "In the published client viewer drawings canvas on an iPad I'm trying to zoom in and out to navigate and pan around
+  the drawings and the touch controls are just non-existent it seems to jump in like massive chunks of zoom you can't
+  use two fingers to pan around etc etc"
+- On the fix plan: "The fixes and push absolutely everything live."
+
+**What was wrong**
+- The reader had a touch recogniser all along (`Na__LeVwTouch`), but its pinch called `Na__LeNav__ZoomAbout` without
+  the gesture flag the wheel passes. Every frame of a pinch announced a settled zoom, and the whole sheet was laid out
+  and painted again under the fingers: 32 settles in one 32-step pinch on TV05 D01. The surface's own figure for that
+  redraw is 76-110 ms a step, against 17-20 ms with the paper held as one layer. On an iPad the sheet trailed the
+  fingers in jumps.
+- The dock's − / + stepped x1.35 and a double tap x2.5, each landing in a single frame.
+- Lifting one finger of a pinch left the other doing nothing until it was lifted and put down again. A drag let go
+  while moving stopped dead. A pan that reached the paper's edge chained on and bounced the page.
+
+**Now**
+- **Pinch is a zoom gesture**, as the wheel is: the sheet scales as the layer already drawn and is painted crisp once,
+  when the fingers rest (0 settles during the same pinch, 1 at rest).
+- **Pinch to pan:** the finger left on the glass carries on panning. Three fingers down to two re-measure the pinch.
+- **Each finger is captured** by the stage. A pointercancel is no longer read as a lift (no tap, no fling).
+- **Eased zooms:** − / + now step 1.25 a press and glide over 180 ms (ease-out cubic). Presses stack on the target,
+  so three quick presses always come to x1.95. A double tap glides in x2.5 and glides back to the whole sheet. The
+  dock's Fit glides too. Each glide frame is a gesture step: one crisp redraw at rest. A finger, a mouse button or
+  the wheel on the sheet stops a glide where it is.
+- **Inertia** on the drawings stage: a flick coasts on and slows to rest (325 ms decay), stops at the paper's edge,
+  and any touch catches it. The Specification keeps the browser's own scrolling.
+- **No rubber band:** `overscroll-behavior: none` on the viewer stage and the page around it. The dock and the
+  viewer's tab strip take `touch-action: manipulation`, so a quick double press is two steps, not a page zoom.
+- Desktop wheel and mouse drag are unchanged (measured identical). The dock's buttons glide on desktop as well.
+
+**Files**
+- Changed: `51__System__LayoutEditor/80__Feature__WebViewer/Na__LayoutEditor__WebViewer__TouchControls__.js` 1.3.0;
+  `51__System__LayoutEditor/80__Feature__WebViewer/Na__LayoutEditor__WebViewer__Drawings__.js` 1.3.0;
+  `51__System__LayoutEditor/80__Feature__WebViewer/Na__LayoutEditor__WebViewer__.js` 1.5.1;
+  `51__System__LayoutEditor/80__Feature__WebViewer/Na__LayoutEditor__Styles__WebViewer__.css`;
+  `62__Feature__AppInstallability/TrueVision__Pwa__ServiceWorker__Logic__.js` 1.22.0.
+- Service worker token: `2026-11-18-01` (new exports imported across modules: `Na__LeVwDraw__FitEased`,
+  `Na__LeVwTouch__Stop`).
+
+**Tested** (a private headless Chrome, iPad portrait 1024 x 1366, reader mode on localhost 8090, TV05 D01, CDP touch;
+the bench is in the TV05 job's `06__Reports/TV05__TouchFix__Bench`)
+- Pinch, CPU throttled x6: ZOOM_SETTLED 32 -> 0 during the pinch and 1 at rest, same zoom ratio (2.60), same anchor.
+- Two-finger pan unchanged. Pinch to pan: the remaining finger pans 200 px at zoom ratio 1.000 (synthetic touch
+  PointerEvents, as CDP cannot lift one finger of two). A flick coasts about 400-490 px, where before it stopped dead.
+- − / + / double tap: 11 glide frames each, instead of 1. A second double tap returns to Fit exactly.
+- Desktop wheel (3 notches) and middle-button drag: identical numbers before and after. `node --check` passes on
+  every changed file.
+
+**Not tested**
+- A real iPad or Android tablet (WebKit's own gesture arbitration, the real frame rate).
+- The Specification viewer after the touch module's capture and cancel change (it does not take the fling).
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.189.0  -  17-Nov-2026
 ### Four New Plants from Adam's Border Photos, and the Flowering Wall Border Palette
 

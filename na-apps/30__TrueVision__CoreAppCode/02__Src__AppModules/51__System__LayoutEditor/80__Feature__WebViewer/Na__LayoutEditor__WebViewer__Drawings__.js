@@ -44,6 +44,23 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Nov-2026 - Version 1.3.0 (TrueVision3D v2.189.1)
+// - Adam, on an iPad with TV05's published D01: "it seems to jump in like
+//   massive chunks of zoom you can't use two fingers to pan around".
+// - A PINCH IS A ZOOM GESTURE, as the wheel's is. Its zoom now tells the sheet
+//   surface so (ZoomAbout's gesture argument), and everything that follows a
+//   zoom - the redraw of the whole sheet, the grid, Draft mode - waits until
+//   the fingers rest. Before, every frame of a pinch announced a settled zoom
+//   and the browser laid out and painted the whole sheet again under the
+//   fingers: 32 settles in one 32-step pinch, measured on TV05 D01.
+// - EASED ZOOMS. The dock's - and + (now 1.25 a press), a double tap and the
+//   dock's Fit glide over EASE_MS instead of landing in one frame, each frame
+//   a gesture step, so the sheet is drawn crisp ONCE when the glide rests.
+//   Presses in quick succession stack on the glide's target.
+// - A double tap on a magnified sheet glides back to the whole sheet, about
+//   the one point that lands it exactly where Fit puts it.
+// - The touch recogniser is asked for its fling (inertia) on this surface.
+//
 // 19-Oct-2026 - Version 1.2.0
 // - A finger's single tap is offered to a tap handler first (SetTapHandler,
 //   the web viewer's measuring tools, TrueVision3D v2.180.0). One it uses is
@@ -77,9 +94,10 @@
         Na__LeSurface__GetZoom,
         Na__LeSurface__GetPixelsPerMm
     } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
-    import { Na__LeNav__Fit, Na__LeNav__PanBy, Na__LeNav__ZoomAbout, Na__LeNav__ZoomTo } from '../10__Core__SheetSurface/Na__LayoutEditor__Navigation__.js';
+    import { Na__LeNav__Fit, Na__LeNav__PanBy, Na__LeNav__ZoomAbout } from '../10__Core__SheetSurface/Na__LayoutEditor__Navigation__.js';
     import { Na__LePc__Attach, Na__LePc__Detach } from '../10__Core__SheetSurface/Na__LayoutEditor__Controls__Pc__.js';
-    import { Na__LeVwTouch__Attach, Na__LeVwTouch__Detach } from './Na__LayoutEditor__WebViewer__TouchControls__.js';
+    import { Na__LeVwTouch__Attach, Na__LeVwTouch__Detach, Na__LeVwTouch__Stop } from './Na__LayoutEditor__WebViewer__TouchControls__.js';
+    import { Na__DevGate__IsAuthoringEnabled } from '../../03__AppUtils/Na__AppUtils__DevGate__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -99,10 +117,22 @@
     const Na__LeVwDraw__FIT_TOLERANCE = 0.02;
     // ------------------------------------------------------------
 
+    // MODULE CONSTANTS | How Long an Eased Zoom Glides
+    // ------------------------------------------------------------
+    // Long enough for the eye to follow where the sheet went - the reason a
+    // jump of x2.5 in one frame read as "massive chunks" - and short enough
+    // that a button still feels like it answered at once. 180 ms with an
+    // ease-out cubic: most of the change lands in the first 80 ms.
+    // ------------------------------------------------------------
+    const Na__LeVwDraw__EASE_MS = 180;
+    // ------------------------------------------------------------
+
     // MODULE VARIABLES | Attachment
     // ------------------------------------------------------------
     let Na__LeVwDraw__Attached = false;
     let Na__LeVwDraw__TapHandler = null;                                         // <-- Asked first about a finger's tap (the measuring tools); true means it used it
+    let Na__LeVwDraw__Ease     = null;                                           // <-- A glide under way: { from, to, x, y, start, frame, done }
+    let Na__LeVwDraw__Interrupt = null;                                          // <-- The listener that stops a glide when a finger, a button or the wheel takes over
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -140,6 +170,107 @@
         const fit = Na__LeVwDraw__FitZoom();
         if (!fit) return true;                                                   // <-- Nothing to compare against: treat it as fitted so a tap magnifies
         return Math.abs(Na__LeSurface__GetZoom() - fit) <= (fit * Na__LeVwDraw__FIT_TOLERANCE);
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Eased Zoom
+// -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | The Zoom Range a Glide May Aim Within
+    // ------------------------------------------------------------
+    // The same ceiling and floor Na__LeNav__ZoomAbout clamps every step to. The
+    // glide needs them for its TARGET: presses stack on the target, and one
+    // left free to run past the ceiling would make the next - press do nothing
+    // while it worked its way back down.
+    // ------------------------------------------------------------
+    function Na__LeVwDraw__ClampZoom(zoom) {
+        const setup = Na__LeCfg__GetNavigationSetup();
+        const max   = (Na__DevGate__IsAuthoringEnabled() && Number.isFinite(setup.authoringZoomMax)) ? setup.authoringZoomMax : setup.zoomMax;
+        return Math.min(max, Math.max(setup.zoomMin, zoom));
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Stop a Glide Where It Is
+    // ------------------------------------------------------------
+    // The zoom already reached stays; the surface settles it on its own timer
+    // (every step was a gesture step), so nothing is left half drawn.
+    // ------------------------------------------------------------
+    function Na__LeVwDraw__StopEase() {
+        if (Na__LeVwDraw__Ease && Na__LeVwDraw__Ease.frame) window.cancelAnimationFrame(Na__LeVwDraw__Ease.frame);
+        Na__LeVwDraw__Ease = null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | One Frame of a Glide
+    // ------------------------------------------------------------
+    // GEOMETRIC, NOT LINEAR: the zoom runs from -> to as a ratio, so a glide
+    // out reads at the same pace as the glide in that it undoes. Every frame is
+    // a gesture step (the fourth argument), so the sheet is scaled as the one
+    // layer already drawn and painted crisp once, when the glide has rested.
+    // ------------------------------------------------------------
+    function Na__LeVwDraw__EaseStep(now) {
+        const ease = Na__LeVwDraw__Ease;
+        if (!ease) return;
+        const t = Math.min(1, Math.max(0, (now - ease.start) / Na__LeVwDraw__EASE_MS));
+        const k = 1 - Math.pow(1 - t, 3);                                        // <-- Ease-out cubic
+        Na__LeNav__ZoomAbout(ease.from * Math.pow(ease.to / ease.from, k), ease.x, ease.y, true);
+        if (t < 1) { ease.frame = window.requestAnimationFrame(Na__LeVwDraw__EaseStep); return; }
+        Na__LeVwDraw__Ease = null;
+        if (typeof ease.done === 'function') ease.done();
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Glide the Zoom to a Target About a Client Point
+    // ------------------------------------------------------------
+    // A glide already running is replaced by one from where it has got to, so
+    // a second press during the first carries on smoothly rather than jumping.
+    // done() runs when the glide arrives, never when it is interrupted.
+    // ------------------------------------------------------------
+    function Na__LeVwDraw__EaseZoomAbout(target, clientX, clientY, done) {
+        const from = Na__LeSurface__GetZoom();
+        const to   = Na__LeVwDraw__ClampZoom(target);
+        Na__LeVwDraw__StopEase();
+        Na__LeVwTouch__Stop();                                                   // <-- A coasting sheet would fight the glide's anchor
+        if (!(from > 0) || !(to > 0) || Math.abs(to - from) <= from * 1e-4) {
+            if (typeof done === 'function') done();
+            return;
+        }
+        Na__LeVwDraw__Ease = { from : from, to : to, x : clientX, y : clientY, start : performance.now(), frame : 0, done : done };
+        Na__LeVwDraw__Ease.frame = window.requestAnimationFrame(Na__LeVwDraw__EaseStep);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Glide Back to the Whole Sheet
+    // ------------------------------------------------------------
+    // A zoom about a point keeps that point still, so a glide to Fit needs the
+    // ONE point that the zoom maps from where the paper is now to where Fit
+    // will centre it. For a scale s about a point p, a paper edge at L lands at
+    // p + s(L - p); asking for Fit's edge F gives p = (F - sL) / (1 - s), on
+    // each axis. Fit itself runs at the end to land the last pixel exactly.
+    // A sheet already within the tolerance of Fit simply fits.
+    // ------------------------------------------------------------
+    function Na__LeVwDraw__EaseToFit() {
+        const els  = Na__LeSurface__GetElements();
+        const fit  = Na__LeVwDraw__FitZoom();
+        const zoom = Na__LeSurface__GetZoom();
+        if (!els.stage || !els.paper || !fit || !(zoom > 0)) { Na__LeVwDraw__StopEase(); Na__LeNav__Fit(); return; }
+        const s = Na__LeVwDraw__ClampZoom(fit) / zoom;
+        if (Math.abs(1 - s) < 0.01) { Na__LeVwDraw__StopEase(); Na__LeNav__Fit(); return; }
+        const stageRect = els.stage.getBoundingClientRect();
+        const paperRect = els.paper.getBoundingClientRect();
+        const fitLeft = stageRect.left + els.stage.clientLeft + ((els.stage.clientWidth  - (paperRect.width  * s)) / 2);
+        const fitTop  = stageRect.top  + els.stage.clientTop  + ((els.stage.clientHeight - (paperRect.height * s)) / 2);
+        const px = (fitLeft - (s * paperRect.left)) / (1 - s);
+        const py = (fitTop  - (s * paperRect.top))  / (1 - s);
+        Na__LeVwDraw__EaseZoomAbout(fit, px, py, () => { if (Na__LeVwDraw__Attached) Na__LeNav__Fit(); });
     }
     // ------------------------------------------------------------
 
@@ -217,19 +348,27 @@
 
     // HELPER FUNCTION | Pinch: Multiply the Zoom About the Fingers' Midpoint
     // ------------------------------------------------------------
+    // A GESTURE STEP (the fourth argument), as a wheel notch is: the sheet is
+    // scaled as the layer already drawn while the fingers move, and laid out
+    // and painted crisp once they rest. Without it every frame of a pinch
+    // settled the zoom and redrew the whole sheet under the fingers.
+    // ------------------------------------------------------------
     function Na__LeVwDraw__OnPinch(factor, clientX, clientY) {
         if (!Number.isFinite(factor) || factor <= 0) return;
-        Na__LeNav__ZoomAbout(Na__LeSurface__GetZoom() * factor, clientX, clientY);
+        Na__LeVwDraw__StopEase();
+        Na__LeNav__ZoomAbout(Na__LeSurface__GetZoom() * factor, clientX, clientY, true);
     }
     // ------------------------------------------------------------
 
 
     // HELPER FUNCTION | Double Tap: The Whole Sheet, or a Closer Look at That Point
     // ------------------------------------------------------------
+    // Both ways glide (EASE_MS) rather than land in one frame.
+    // ------------------------------------------------------------
     function Na__LeVwDraw__OnDoubleTap(clientX, clientY) {
-        if (!Na__LeVwDraw__IsFitted()) { Na__LeNav__Fit(); return; }
+        if (!Na__LeVwDraw__IsFitted()) { Na__LeVwDraw__EaseToFit(); return; }
         const setup = Na__LeCfg__GetWebViewerSetup();
-        Na__LeNav__ZoomAbout(Na__LeSurface__GetZoom() * setup.doubleTapZoomFactor, clientX, clientY);
+        Na__LeVwDraw__EaseZoomAbout(Na__LeSurface__GetZoom() * setup.doubleTapZoomFactor, clientX, clientY);
     }
     // ------------------------------------------------------------
 
@@ -273,7 +412,13 @@
             onPinch     : Na__LeVwDraw__OnPinch,
             onTap       : Na__LeVwDraw__OnTap,
             onDoubleTap : Na__LeVwDraw__OnDoubleTap
-        });
+        }, { inertia : true });
+        // A FINGER, A MOUSE BUTTON OR THE WHEEL ON THE SHEET TAKES IT OVER: a
+        // glide still running would fight the hand for the zoom. Capture and
+        // passive, so this only listens and every other handler runs as before.
+        Na__LeVwDraw__Interrupt = () => Na__LeVwDraw__StopEase();
+        els.stage.addEventListener('pointerdown', Na__LeVwDraw__Interrupt, { capture : true, passive : true });
+        els.stage.addEventListener('wheel',       Na__LeVwDraw__Interrupt, { capture : true, passive : true });
         return true;
     }
     // ------------------------------------------------------------
@@ -295,6 +440,13 @@
     // ------------------------------------------------------------
     function Na__LeVwDraw__Detach() {
         if (!Na__LeVwDraw__Attached) return false;
+        Na__LeVwDraw__StopEase();
+        const els = Na__LeSurface__GetElements();
+        if (els.stage && Na__LeVwDraw__Interrupt) {
+            els.stage.removeEventListener('pointerdown', Na__LeVwDraw__Interrupt, { capture : true });
+            els.stage.removeEventListener('wheel',       Na__LeVwDraw__Interrupt, { capture : true });
+        }
+        Na__LeVwDraw__Interrupt = null;
         Na__LeVwTouch__Detach();
         Na__LePc__Detach();
         Na__LeVwDraw__Attached = false;
@@ -315,6 +467,8 @@
     // them.
     // ------------------------------------------------------------
     function Na__LeVwDraw__Fit() {
+        Na__LeVwDraw__StopEase();
+        Na__LeVwTouch__Stop();
         const els = Na__LeSurface__GetElements();
         if (els.stage && els.stage.clientWidth > 0 && els.stage.clientHeight > 0) { Na__LeNav__Fit(); return true; }
         window.requestAnimationFrame(() => { if (Na__LeVwDraw__Attached) Na__LeNav__Fit(); });
@@ -323,11 +477,34 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Glide to the Whole Sheet (the Dock's Fit Button)
+    // ------------------------------------------------------------
+    // The reader pressed Fit, so the sheet glides there and they can see where
+    // they were on it. A document being shown for the first time uses Fit,
+    // which lands at once: there is nowhere to glide from.
+    // ------------------------------------------------------------
+    function Na__LeVwDraw__FitEased() {
+        const els = Na__LeSurface__GetElements();
+        if (!els.stage || !(els.stage.clientWidth > 0) || !(els.stage.clientHeight > 0)) return Na__LeVwDraw__Fit();
+        Na__LeVwDraw__EaseToFit();
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Step the Zoom In or Out From the Dock Buttons
+    // ------------------------------------------------------------
+    // A GLIDE about the middle of the stage. A press during a glide multiplies
+    // the glide's TARGET, not the zoom it has reached, so three quick presses
+    // of 1.25 always come to 1.95 however fast they are made.
     // ------------------------------------------------------------
     function Na__LeVwDraw__ZoomBy(factor) {
         if (!Number.isFinite(factor) || factor <= 0) return false;
-        Na__LeNav__ZoomTo(Na__LeSurface__GetZoom() * factor);
+        const els = Na__LeSurface__GetElements();
+        if (!els.stage) return false;
+        const base = Na__LeVwDraw__Ease ? Na__LeVwDraw__Ease.to : Na__LeSurface__GetZoom();
+        const rect = els.stage.getBoundingClientRect();
+        Na__LeVwDraw__EaseZoomAbout(base * factor, rect.left + (rect.width / 2), rect.top + (rect.height / 2));
         return true;
     }
     // ------------------------------------------------------------
@@ -360,6 +537,7 @@
         Na__LeVwDraw__Detach,
         Na__LeVwDraw__SetTapHandler,
         Na__LeVwDraw__Fit,
+        Na__LeVwDraw__FitEased,
         Na__LeVwDraw__ZoomBy,
         Na__LeVwDraw__ZoomPercent,
         Na__LeVwDraw__IsFitted,

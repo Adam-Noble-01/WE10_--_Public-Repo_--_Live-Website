@@ -577,6 +577,32 @@
     -webkit-touch-callout              : none;
 }
 
+/* NOTHING BEHIND THE SHEET MAY RUBBER-BAND (TrueVision3D v2.189.1). A pan that
+   reaches the paper's edge, or a fling that coasts into it, must stop there:
+   on iOS the scroll chained on to the page, which bounced the whole viewer
+   and on Android pulled down to refresh it. The stage does all its own
+   panning, so it gives none of its travel away; the page around it has
+   nothing to scroll in the viewer, so it is held still too. */
+
+.na-le-host--viewer .na-le-stage {
+    overscroll-behavior                : none;
+}
+
+html:has(body.na-le-viewer--active),
+body.na-le-viewer--active {
+    overscroll-behavior                : none;
+}
+
+/* THE CHROME ROUND THE SHEET ANSWERS A TAP AT ONCE. manipulation keeps a
+   finger's pan and pinch but drops the double tap the browser would read as
+   "zoom the page", so a reader pressing + twice quickly gets two steps of the
+   sheet rather than the whole viewer magnified behind the dock. */
+
+.na-le-viewer__dock,
+.na-le-host--viewer .na-le-tabs {
+    touch-action                       : manipulation;
+}
+
 /* THE SPECIFICATION'S PAGES SCROLL THEMSELVES. pan-y hands the browser the
    vertical - momentum, rubber band and all - and keeps the horizontal, which
    is the travel the touch module turns into the next document. It is what
