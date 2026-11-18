@@ -10,24 +10,24 @@
         "Document__Phase"         : "T01",
         "Document__Number"        : "D03",
         "Document__Name"          : "Rear & Right Elevations",
-        "Document__Revision"      : "A",
-        "Document__Status"        : null,
+        "Document__Revision"      : "B",
+        "Document__Status"        : "PRELIMINARY",
         "Document__SourceSheetId" : "Sheet_004"
     },
     "PublishedDocument__Publish" : {
         "Publish__SchemaVersion"  : 1,
-        "Publish__AtIso"          : "2026-11-18T22:11:50.456Z",
-        "Publish__AtEpochMs"      : 1795039910456,
+        "Publish__AtIso"          : "2026-11-18T23:27:56.598Z",
+        "Publish__AtEpochMs"      : 1795044476598,
         "Publish__ByApp"          : "TrueVision3D Layout Editor",
         "Publish__ByAppVersion"   : "v2.176.0",
-        "Publish__RevisionAction" : "new",
-        "Publish__Archived"       : null
+        "Publish__RevisionAction" : "archived-and-rebuilt",
+        "Publish__Archived"       : "00__Archive__Revisions/TV05_T01_D03__Revision__A.zip"
     },
     "PublishedDocument__Files" : {
         "Files__Sheet" : {
             "File__Path"   : "Document__Sheet__.json",
-            "File__Bytes"  : 18569,
-            "File__Sha256" : "05ce6a6eb9"
+            "File__Bytes"  : 30687,
+            "File__Sha256" : "7cb0e3cab5"
         },
         "Files__Elements" : [
             {
@@ -37,8 +37,8 @@
                 ],
                 "File__Path"   : "01__Elements__Data/Elements__Dimensions__.json",
                 "File__Count"  : 11,
-                "File__Bytes"  : 23090,
-                "File__Sha256" : "8f5540f388"
+                "File__Bytes"  : 23032,
+                "File__Sha256" : "ca6be3149d"
             },
             {
                 "File__Type"   : "annotation",
@@ -47,8 +47,16 @@
                 ],
                 "File__Path"   : "01__Elements__Data/Elements__Text__.json",
                 "File__Count"  : 4,
-                "File__Bytes"  : 3766,
-                "File__Sha256" : "0e96d0fe66"
+                "File__Bytes"  : 35653,
+                "File__Sha256" : "17f88f9bd4"
+            },
+            {
+                "File__Type"   : "leader",
+                "File__Layers" : [],
+                "File__Path"   : "01__Elements__Data/Elements__Bubbles__.json",
+                "File__Count"  : 9,
+                "File__Bytes"  : 13763,
+                "File__Sha256" : "e99bd3803e"
             },
             {
                 "File__Type"   : "vector",
@@ -174,11 +182,11 @@
             }
         ],
         "Files__Pdf" : {
-            "File__Path"   : "Document__Print__d347a9fad8.pdf",
-            "File__Bytes"  : 368181,
-            "File__Sha256" : "d347a9fad8",
-            "File__Name"   : "TV05_T01_D03__RearRightElevations__A2__RevA__18-Nov-2026__.pdf"
+            "File__Path"   : "Document__Print__7f6fa642f0.pdf",
+            "File__Bytes"  : 393435,
+            "File__Sha256" : "7f6fa642f0",
+            "File__Name"   : "TV05_T01_D03__RearRightElevations__A2__RevB__18-Nov-2026__.pdf"
         },
-        "Files__TotalBytes" : 946274
+        "Files__TotalBytes" : 1029238
     }
 }

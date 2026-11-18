@@ -94,7 +94,7 @@
                 "PresentationMode__Group__Id": "Group_003",
                 "PresentationMode__Group__Name": "Dollhouse View",
                 "PresentationMode__Group__Order": 4,
-                "PresentationMode__Group__Enabled": false
+                "PresentationMode__Group__Enabled": true
             },
             {
                 "PresentationMode__Group__Id": "Group_004",
@@ -112,7 +112,7 @@
                 "PresentationMode__Group__Id": "Group_006",
                 "PresentationMode__Group__Name": "First Floor 3D Views",
                 "PresentationMode__Group__Order": 3,
-                "PresentationMode__Group__Enabled": false
+                "PresentationMode__Group__Enabled": true
             }
         ],
         "PresentationMode__SavedCameraScenes__Scenes": [
@@ -143,7 +143,8 @@
                 },
                 "PresentationMode__Scene__GroupId": "Group_004",
                 "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_001.webp",
-                "PresentationMode__Scene__FloorPlanId": "FloorPlan_001"
+                "PresentationMode__Scene__FloorPlanId": "FloorPlan_001",
+                "PresentationMode__Scene__LayoutEditorOnly": true
             },
             {
                 "PresentationMode__Scene__Id": "Scene_002",
@@ -172,12 +173,13 @@
                 },
                 "PresentationMode__Scene__GroupId": "Group_004",
                 "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_002.webp",
-                "PresentationMode__Scene__FloorPlanId": "FloorPlan_002"
+                "PresentationMode__Scene__FloorPlanId": "FloorPlan_002",
+                "PresentationMode__Scene__LayoutEditorOnly": true
             },
             {
                 "PresentationMode__Scene__Id": "Scene_003",
                 "PresentationMode__Scene__Name": "Front Elevation",
-                "PresentationMode__Scene__Order": 3,
+                "PresentationMode__Scene__Order": 1,
                 "PresentationMode__Scene__CameraPosition": {
                     "Camera__DefaultPos": {
                         "Camera__DefaultPos__PosX": 14833,
@@ -201,12 +203,13 @@
                 },
                 "PresentationMode__Scene__GroupId": "Group_005",
                 "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_003.webp",
-                "PresentationMode__Scene__ElevationId": "Elevation_001"
+                "PresentationMode__Scene__ElevationId": "Elevation_001",
+                "PresentationMode__Scene__LayoutEditorOnly": true
             },
             {
                 "PresentationMode__Scene__Id": "Scene_004",
                 "PresentationMode__Scene__Name": "Left Elevation",
-                "PresentationMode__Scene__Order": 4,
+                "PresentationMode__Scene__Order": 2,
                 "PresentationMode__Scene__CameraPosition": {
                     "Camera__DefaultPos": {
                         "Camera__DefaultPos__PosX": -2559,
@@ -230,12 +233,13 @@
                 },
                 "PresentationMode__Scene__GroupId": "Group_005",
                 "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_004.webp",
-                "PresentationMode__Scene__ElevationId": "Elevation_002"
+                "PresentationMode__Scene__ElevationId": "Elevation_002",
+                "PresentationMode__Scene__LayoutEditorOnly": true
             },
             {
                 "PresentationMode__Scene__Id": "Scene_005",
                 "PresentationMode__Scene__Name": "Rear Elevation",
-                "PresentationMode__Scene__Order": 5,
+                "PresentationMode__Scene__Order": 3,
                 "PresentationMode__Scene__CameraPosition": {
                     "Camera__DefaultPos": {
                         "Camera__DefaultPos__PosX": 14833,
@@ -259,12 +263,13 @@
                 },
                 "PresentationMode__Scene__GroupId": "Group_005",
                 "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_005.webp",
-                "PresentationMode__Scene__ElevationId": "Elevation_003"
+                "PresentationMode__Scene__ElevationId": "Elevation_003",
+                "PresentationMode__Scene__LayoutEditorOnly": true
             },
             {
                 "PresentationMode__Scene__Id": "Scene_006",
                 "PresentationMode__Scene__Name": "Right Elevation",
-                "PresentationMode__Scene__Order": 6,
+                "PresentationMode__Scene__Order": 4,
                 "PresentationMode__Scene__CameraPosition": {
                     "Camera__DefaultPos": {
                         "Camera__DefaultPos__PosX": 32224,
@@ -288,12 +293,13 @@
                 },
                 "PresentationMode__Scene__GroupId": "Group_005",
                 "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_006.webp",
-                "PresentationMode__Scene__ElevationId": "Elevation_004"
+                "PresentationMode__Scene__ElevationId": "Elevation_004",
+                "PresentationMode__Scene__LayoutEditorOnly": true
             },
             {
                 "PresentationMode__Scene__Id": "Scene_007",
                 "PresentationMode__Scene__Name": "3D | Front Left",
-                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_007.webp",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_007.webp?v=56de95d6",
                 "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
                 "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
                 "PresentationMode__Scene__GroupId": "Group_001",
@@ -352,12 +358,12 @@
                     },
                     "PresentationMode__Scene__Visibility__RoofVisible": true
                 },
-                "PresentationMode__Scene__Order": 7
+                "PresentationMode__Scene__Order": 1
             },
             {
                 "PresentationMode__Scene__Id": "Scene_008",
                 "PresentationMode__Scene__Name": "3D | Front Right",
-                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_008.webp",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_008.webp?v=46da4ae7",
                 "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
                 "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
                 "PresentationMode__Scene__GroupId": "Group_001",
@@ -416,12 +422,12 @@
                     },
                     "PresentationMode__Scene__Visibility__RoofVisible": true
                 },
-                "PresentationMode__Scene__Order": 8
+                "PresentationMode__Scene__Order": 2
             },
             {
                 "PresentationMode__Scene__Id": "Scene_009",
                 "PresentationMode__Scene__Name": "3D | Front",
-                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_009.webp",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_009.webp?v=dca87022",
                 "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
                 "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
                 "PresentationMode__Scene__GroupId": "Group_001",
@@ -480,12 +486,12 @@
                     },
                     "PresentationMode__Scene__Visibility__RoofVisible": true
                 },
-                "PresentationMode__Scene__Order": 9
+                "PresentationMode__Scene__Order": 3
             },
             {
                 "PresentationMode__Scene__Id": "Scene_010",
                 "PresentationMode__Scene__Name": "3D | Rear Right",
-                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_010.webp",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_010.webp?v=c75729dd",
                 "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
                 "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
                 "PresentationMode__Scene__GroupId": "Group_001",
@@ -544,12 +550,12 @@
                     },
                     "PresentationMode__Scene__Visibility__RoofVisible": true
                 },
-                "PresentationMode__Scene__Order": 10
+                "PresentationMode__Scene__Order": 4
             },
             {
                 "PresentationMode__Scene__Id": "Scene_011",
                 "PresentationMode__Scene__Name": "3D | Rear Left",
-                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_011.webp",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_011.webp?v=881dfa69",
                 "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
                 "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
                 "PresentationMode__Scene__GroupId": "Group_001",
@@ -608,12 +614,12 @@
                     },
                     "PresentationMode__Scene__Visibility__RoofVisible": true
                 },
-                "PresentationMode__Scene__Order": 11
+                "PresentationMode__Scene__Order": 5
             },
             {
                 "PresentationMode__Scene__Id": "Scene_012",
                 "PresentationMode__Scene__Name": "3D | Garden Doors",
-                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_012.webp",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_012.webp?v=8b20eff4",
                 "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
                 "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
                 "PresentationMode__Scene__GroupId": "Group_001",
@@ -672,12 +678,12 @@
                     },
                     "PresentationMode__Scene__Visibility__RoofVisible": true
                 },
-                "PresentationMode__Scene__Order": 12
+                "PresentationMode__Scene__Order": 6
             },
             {
                 "PresentationMode__Scene__Id": "Scene_013",
                 "PresentationMode__Scene__Name": "3D | Birds Eye",
-                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_013.webp",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_013.webp?v=65c9ae4a",
                 "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
                 "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
                 "PresentationMode__Scene__GroupId": "Group_001",
@@ -736,12 +742,12 @@
                     },
                     "PresentationMode__Scene__Visibility__RoofVisible": true
                 },
-                "PresentationMode__Scene__Order": 13
+                "PresentationMode__Scene__Order": 7
             },
             {
                 "PresentationMode__Scene__Id": "Scene_014",
                 "PresentationMode__Scene__Name": "Living Room | Into Room",
-                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_014.webp",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_014.webp?v=918dbedc",
                 "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
                 "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
                 "PresentationMode__Scene__GroupId": "Group_002",
@@ -806,7 +812,7 @@
             {
                 "PresentationMode__Scene__Id": "Scene_015",
                 "PresentationMode__Scene__Name": "Living Room | Towards Doors",
-                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_015.webp",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_015.webp?v=a5eff255",
                 "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
                 "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
                 "PresentationMode__Scene__GroupId": "Group_002",
@@ -871,7 +877,7 @@
             {
                 "PresentationMode__Scene__Id": "Scene_016",
                 "PresentationMode__Scene__Name": "Kitchen",
-                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_016.webp",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_016.webp?v=2d3b920e",
                 "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
                 "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
                 "PresentationMode__Scene__GroupId": "Group_002",
@@ -936,7 +942,7 @@
             {
                 "PresentationMode__Scene__Id": "Scene_017",
                 "PresentationMode__Scene__Name": "Dining Area",
-                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_017.webp",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_017.webp?v=574480ac",
                 "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
                 "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
                 "PresentationMode__Scene__GroupId": "Group_002",
@@ -1001,7 +1007,7 @@
             {
                 "PresentationMode__Scene__Id": "Scene_018",
                 "PresentationMode__Scene__Name": "Hall | To Stair",
-                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_018.webp",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_018.webp?v=4cc61471",
                 "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
                 "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
                 "PresentationMode__Scene__GroupId": "Group_002",
@@ -1062,6 +1068,652 @@
                 },
                 "PresentationMode__Scene__NavigationMode": "fly",
                 "PresentationMode__Scene__Order": 5
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_019",
+                "PresentationMode__Scene__Name": "Bedroom 1",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_019.webp?v=a6087dd6",
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__GroupId": "Group_006",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 18400,
+                        "Camera__DefaultPos__PosY": 4265,
+                        "Camera__DefaultPos__PosZ": -13450
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -2.8022,
+                        "Camera__DefaultRotation__RotY": 0.6314,
+                        "Camera__DefaultRotation__RotZ": 2.9361
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 61.93
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 16500,
+                    "OrbitHelperCube__Position__PosY": 3400,
+                    "OrbitHelperCube__Position__PosZ": -11000
+                },
+                "PresentationMode__Scene__LensMm": 20,
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__LandscapeEnvironment": true,
+                        "TrueVision__Linetype__DoorSwings": true,
+                        "Storey__FirstFloor__ProposedDoors": true,
+                        "Storey__FirstFloor__ProposedFixtures": true,
+                        "Storey__FirstFloor__ProposedFloors": true,
+                        "Storey__FirstFloor__ProposedFurniture": true,
+                        "Storey__FirstFloor__ProposedInteriorDecor": true,
+                        "Storey__FirstFloor__ProposedStairs": true,
+                        "Storey__FirstFloor__ProposedWalls": true,
+                        "Storey__FirstFloor__ProposedWindows": true,
+                        "Storey__GroundFloor__ProposedDoors": true,
+                        "Storey__GroundFloor__ProposedFixtures": true,
+                        "Storey__GroundFloor__ProposedFloors": true,
+                        "Storey__GroundFloor__ProposedFurniture": true,
+                        "Storey__GroundFloor__ProposedInteriorDecor": true,
+                        "Storey__GroundFloor__ProposedRoofs": true,
+                        "Storey__GroundFloor__ProposedStairs": true,
+                        "Storey__GroundFloor__ProposedWalls": true,
+                        "Storey__GroundFloor__ProposedWindows": true,
+                        "Storey__SecondFloor__ProposedFloors": true,
+                        "Storey__SecondFloor__ProposedRoofs": true,
+                        "Storey__SecondFloor__ProposedWalls": true
+                    },
+                    "PresentationMode__Scene__Visibility__HasStoreys": true,
+                    "PresentationMode__Scene__Visibility__Storeys": {
+                        "GroundFloor": true,
+                        "FirstFloor": true,
+                        "SecondFloor": true
+                    },
+                    "PresentationMode__Scene__Visibility__RoofVisible": true
+                },
+                "PresentationMode__Scene__NavigationMode": "fly",
+                "PresentationMode__Scene__Order": 1
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_020",
+                "PresentationMode__Scene__Name": "Bedroom 2",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_020.webp?v=1028372a",
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__GroupId": "Group_006",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 10500,
+                        "Camera__DefaultPos__PosY": 4265,
+                        "Camera__DefaultPos__PosZ": -10500
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -0.3684,
+                        "Camera__DefaultRotation__RotY": -0.5915,
+                        "Camera__DefaultRotation__RotZ": -0.212
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 61.93
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 12300,
+                    "OrbitHelperCube__Position__PosY": 3300,
+                    "OrbitHelperCube__Position__PosZ": -13000
+                },
+                "PresentationMode__Scene__LensMm": 20,
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__LandscapeEnvironment": true,
+                        "TrueVision__Linetype__DoorSwings": true,
+                        "Storey__FirstFloor__ProposedDoors": true,
+                        "Storey__FirstFloor__ProposedFixtures": true,
+                        "Storey__FirstFloor__ProposedFloors": true,
+                        "Storey__FirstFloor__ProposedFurniture": true,
+                        "Storey__FirstFloor__ProposedInteriorDecor": true,
+                        "Storey__FirstFloor__ProposedStairs": true,
+                        "Storey__FirstFloor__ProposedWalls": true,
+                        "Storey__FirstFloor__ProposedWindows": true,
+                        "Storey__GroundFloor__ProposedDoors": true,
+                        "Storey__GroundFloor__ProposedFixtures": true,
+                        "Storey__GroundFloor__ProposedFloors": true,
+                        "Storey__GroundFloor__ProposedFurniture": true,
+                        "Storey__GroundFloor__ProposedInteriorDecor": true,
+                        "Storey__GroundFloor__ProposedRoofs": true,
+                        "Storey__GroundFloor__ProposedStairs": true,
+                        "Storey__GroundFloor__ProposedWalls": true,
+                        "Storey__GroundFloor__ProposedWindows": true,
+                        "Storey__SecondFloor__ProposedFloors": true,
+                        "Storey__SecondFloor__ProposedRoofs": true,
+                        "Storey__SecondFloor__ProposedWalls": true
+                    },
+                    "PresentationMode__Scene__Visibility__HasStoreys": true,
+                    "PresentationMode__Scene__Visibility__Storeys": {
+                        "GroundFloor": true,
+                        "FirstFloor": true,
+                        "SecondFloor": true
+                    },
+                    "PresentationMode__Scene__Visibility__RoofVisible": true
+                },
+                "PresentationMode__Scene__NavigationMode": "fly",
+                "PresentationMode__Scene__Order": 2
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_021",
+                "PresentationMode__Scene__Name": "Bedroom 3",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_021.webp?v=9c9e9318",
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__GroupId": "Group_006",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 14300,
+                        "Camera__DefaultPos__PosY": 4265,
+                        "Camera__DefaultPos__PosZ": -12900
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -2.7443,
+                        "Camera__DefaultRotation__RotY": -0.3813,
+                        "Camera__DefaultRotation__RotZ": -2.9867
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 61.93
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 15300,
+                    "OrbitHelperCube__Position__PosY": 3300,
+                    "OrbitHelperCube__Position__PosZ": -10600
+                },
+                "PresentationMode__Scene__LensMm": 20,
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__LandscapeEnvironment": true,
+                        "TrueVision__Linetype__DoorSwings": true,
+                        "Storey__FirstFloor__ProposedDoors": true,
+                        "Storey__FirstFloor__ProposedFixtures": true,
+                        "Storey__FirstFloor__ProposedFloors": true,
+                        "Storey__FirstFloor__ProposedFurniture": true,
+                        "Storey__FirstFloor__ProposedInteriorDecor": true,
+                        "Storey__FirstFloor__ProposedStairs": true,
+                        "Storey__FirstFloor__ProposedWalls": true,
+                        "Storey__FirstFloor__ProposedWindows": true,
+                        "Storey__GroundFloor__ProposedDoors": true,
+                        "Storey__GroundFloor__ProposedFixtures": true,
+                        "Storey__GroundFloor__ProposedFloors": true,
+                        "Storey__GroundFloor__ProposedFurniture": true,
+                        "Storey__GroundFloor__ProposedInteriorDecor": true,
+                        "Storey__GroundFloor__ProposedRoofs": true,
+                        "Storey__GroundFloor__ProposedStairs": true,
+                        "Storey__GroundFloor__ProposedWalls": true,
+                        "Storey__GroundFloor__ProposedWindows": true,
+                        "Storey__SecondFloor__ProposedFloors": true,
+                        "Storey__SecondFloor__ProposedRoofs": true,
+                        "Storey__SecondFloor__ProposedWalls": true
+                    },
+                    "PresentationMode__Scene__Visibility__HasStoreys": true,
+                    "PresentationMode__Scene__Visibility__Storeys": {
+                        "GroundFloor": true,
+                        "FirstFloor": true,
+                        "SecondFloor": true
+                    },
+                    "PresentationMode__Scene__Visibility__RoofVisible": true
+                },
+                "PresentationMode__Scene__NavigationMode": "fly",
+                "PresentationMode__Scene__Order": 3
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_022",
+                "PresentationMode__Scene__Name": "Bathroom",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_022.webp?v=91f1c879",
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__GroupId": "Group_006",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 12400,
+                        "Camera__DefaultPos__PosY": 4265,
+                        "Camera__DefaultPos__PosZ": -13550
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -0.5155,
+                        "Camera__DefaultRotation__RotY": 0.7685,
+                        "Camera__DefaultRotation__RotZ": 0.3752
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 61.93
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 10900,
+                    "OrbitHelperCube__Position__PosY": 3500,
+                    "OrbitHelperCube__Position__PosZ": -14900
+                },
+                "PresentationMode__Scene__LensMm": 20,
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__LandscapeEnvironment": true,
+                        "TrueVision__Linetype__DoorSwings": true,
+                        "Storey__FirstFloor__ProposedDoors": true,
+                        "Storey__FirstFloor__ProposedFixtures": true,
+                        "Storey__FirstFloor__ProposedFloors": true,
+                        "Storey__FirstFloor__ProposedFurniture": true,
+                        "Storey__FirstFloor__ProposedInteriorDecor": true,
+                        "Storey__FirstFloor__ProposedStairs": true,
+                        "Storey__FirstFloor__ProposedWalls": true,
+                        "Storey__FirstFloor__ProposedWindows": true,
+                        "Storey__GroundFloor__ProposedDoors": true,
+                        "Storey__GroundFloor__ProposedFixtures": true,
+                        "Storey__GroundFloor__ProposedFloors": true,
+                        "Storey__GroundFloor__ProposedFurniture": true,
+                        "Storey__GroundFloor__ProposedInteriorDecor": true,
+                        "Storey__GroundFloor__ProposedRoofs": true,
+                        "Storey__GroundFloor__ProposedStairs": true,
+                        "Storey__GroundFloor__ProposedWalls": true,
+                        "Storey__GroundFloor__ProposedWindows": true,
+                        "Storey__SecondFloor__ProposedFloors": true,
+                        "Storey__SecondFloor__ProposedRoofs": true,
+                        "Storey__SecondFloor__ProposedWalls": true
+                    },
+                    "PresentationMode__Scene__Visibility__HasStoreys": true,
+                    "PresentationMode__Scene__Visibility__Storeys": {
+                        "GroundFloor": true,
+                        "FirstFloor": true,
+                        "SecondFloor": true
+                    },
+                    "PresentationMode__Scene__Visibility__RoofVisible": true
+                },
+                "PresentationMode__Scene__NavigationMode": "fly",
+                "PresentationMode__Scene__Order": 4
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_023",
+                "PresentationMode__Scene__Name": "Landing | To Stair",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_023.webp?v=f90411a4",
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__GroupId": "Group_006",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 15700,
+                        "Camera__DefaultPos__PosY": 4265,
+                        "Camera__DefaultPos__PosZ": -13600
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -0.41,
+                        "Camera__DefaultRotation__RotY": 1.0717,
+                        "Camera__DefaultRotation__RotZ": 0.3645
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 61.93
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 13100,
+                    "OrbitHelperCube__Position__PosY": 3700,
+                    "OrbitHelperCube__Position__PosZ": -14900
+                },
+                "PresentationMode__Scene__LensMm": 20,
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__LandscapeEnvironment": true,
+                        "TrueVision__Linetype__DoorSwings": true,
+                        "Storey__FirstFloor__ProposedDoors": true,
+                        "Storey__FirstFloor__ProposedFixtures": true,
+                        "Storey__FirstFloor__ProposedFloors": true,
+                        "Storey__FirstFloor__ProposedFurniture": true,
+                        "Storey__FirstFloor__ProposedInteriorDecor": true,
+                        "Storey__FirstFloor__ProposedStairs": true,
+                        "Storey__FirstFloor__ProposedWalls": true,
+                        "Storey__FirstFloor__ProposedWindows": true,
+                        "Storey__GroundFloor__ProposedDoors": true,
+                        "Storey__GroundFloor__ProposedFixtures": true,
+                        "Storey__GroundFloor__ProposedFloors": true,
+                        "Storey__GroundFloor__ProposedFurniture": true,
+                        "Storey__GroundFloor__ProposedInteriorDecor": true,
+                        "Storey__GroundFloor__ProposedRoofs": true,
+                        "Storey__GroundFloor__ProposedStairs": true,
+                        "Storey__GroundFloor__ProposedWalls": true,
+                        "Storey__GroundFloor__ProposedWindows": true,
+                        "Storey__SecondFloor__ProposedFloors": true,
+                        "Storey__SecondFloor__ProposedRoofs": true,
+                        "Storey__SecondFloor__ProposedWalls": true
+                    },
+                    "PresentationMode__Scene__Visibility__HasStoreys": true,
+                    "PresentationMode__Scene__Visibility__Storeys": {
+                        "GroundFloor": true,
+                        "FirstFloor": true,
+                        "SecondFloor": true
+                    },
+                    "PresentationMode__Scene__Visibility__RoofVisible": true
+                },
+                "PresentationMode__Scene__NavigationMode": "fly",
+                "PresentationMode__Scene__Order": 5
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_024",
+                "PresentationMode__Scene__Name": "En-Suite",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_024.webp?v=d7ef386b",
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__GroupId": "Group_006",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 17500,
+                        "Camera__DefaultPos__PosY": 4265,
+                        "Camera__DefaultPos__PosZ": -13850
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -0.5492,
+                        "Camera__DefaultRotation__RotY": -0.797,
+                        "Camera__DefaultRotation__RotZ": -0.4126
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 61.93
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 19000,
+                    "OrbitHelperCube__Position__PosY": 3500,
+                    "OrbitHelperCube__Position__PosZ": -15100
+                },
+                "PresentationMode__Scene__LensMm": 20,
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__LandscapeEnvironment": true,
+                        "TrueVision__Linetype__DoorSwings": true,
+                        "Storey__FirstFloor__ProposedDoors": true,
+                        "Storey__FirstFloor__ProposedFixtures": true,
+                        "Storey__FirstFloor__ProposedFloors": true,
+                        "Storey__FirstFloor__ProposedFurniture": true,
+                        "Storey__FirstFloor__ProposedInteriorDecor": true,
+                        "Storey__FirstFloor__ProposedStairs": true,
+                        "Storey__FirstFloor__ProposedWalls": true,
+                        "Storey__FirstFloor__ProposedWindows": true,
+                        "Storey__GroundFloor__ProposedDoors": true,
+                        "Storey__GroundFloor__ProposedFixtures": true,
+                        "Storey__GroundFloor__ProposedFloors": true,
+                        "Storey__GroundFloor__ProposedFurniture": true,
+                        "Storey__GroundFloor__ProposedInteriorDecor": true,
+                        "Storey__GroundFloor__ProposedRoofs": true,
+                        "Storey__GroundFloor__ProposedStairs": true,
+                        "Storey__GroundFloor__ProposedWalls": true,
+                        "Storey__GroundFloor__ProposedWindows": true,
+                        "Storey__SecondFloor__ProposedFloors": true,
+                        "Storey__SecondFloor__ProposedRoofs": true,
+                        "Storey__SecondFloor__ProposedWalls": true
+                    },
+                    "PresentationMode__Scene__Visibility__HasStoreys": true,
+                    "PresentationMode__Scene__Visibility__Storeys": {
+                        "GroundFloor": true,
+                        "FirstFloor": true,
+                        "SecondFloor": true
+                    },
+                    "PresentationMode__Scene__Visibility__RoofVisible": true
+                },
+                "PresentationMode__Scene__NavigationMode": "fly",
+                "PresentationMode__Scene__Order": 6
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_025",
+                "PresentationMode__Scene__Name": "Dollhouse | Ground Floor | Front Left",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_025.webp?v=157d490e",
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__GroupId": "Group_003",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 8826,
+                        "Camera__DefaultPos__PosY": 8160,
+                        "Camera__DefaultPos__PosZ": -2736
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -0.6813,
+                        "Camera__DefaultRotation__RotY": -0.4339,
+                        "Camera__DefaultRotation__RotZ": -0.3285
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 39.97
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 14830,
+                    "OrbitHelperCube__Position__PosY": 0,
+                    "OrbitHelperCube__Position__PosZ": -12800
+                },
+                "PresentationMode__Scene__LensMm": 33,
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__LandscapeEnvironment": true,
+                        "TrueVision__Linetype__DoorSwings": true,
+                        "Storey__FirstFloor__ProposedDoors": false,
+                        "Storey__FirstFloor__ProposedFixtures": false,
+                        "Storey__FirstFloor__ProposedFloors": false,
+                        "Storey__FirstFloor__ProposedFurniture": false,
+                        "Storey__FirstFloor__ProposedInteriorDecor": false,
+                        "Storey__FirstFloor__ProposedStairs": false,
+                        "Storey__FirstFloor__ProposedWalls": false,
+                        "Storey__FirstFloor__ProposedWindows": false,
+                        "Storey__GroundFloor__ProposedDoors": true,
+                        "Storey__GroundFloor__ProposedFixtures": true,
+                        "Storey__GroundFloor__ProposedFloors": true,
+                        "Storey__GroundFloor__ProposedFurniture": true,
+                        "Storey__GroundFloor__ProposedInteriorDecor": true,
+                        "Storey__GroundFloor__ProposedRoofs": true,
+                        "Storey__GroundFloor__ProposedStairs": true,
+                        "Storey__GroundFloor__ProposedWalls": true,
+                        "Storey__GroundFloor__ProposedWindows": true,
+                        "Storey__SecondFloor__ProposedFloors": false,
+                        "Storey__SecondFloor__ProposedRoofs": false,
+                        "Storey__SecondFloor__ProposedWalls": false
+                    },
+                    "PresentationMode__Scene__Visibility__HasStoreys": true,
+                    "PresentationMode__Scene__Visibility__Storeys": {
+                        "GroundFloor": true,
+                        "FirstFloor": false,
+                        "SecondFloor": false
+                    },
+                    "PresentationMode__Scene__Visibility__RoofVisible": true
+                },
+                "PresentationMode__Scene__Order": 1
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_026",
+                "PresentationMode__Scene__Name": "Dollhouse | Ground Floor | Rear Right",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_026.webp?v=c600551c",
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__GroupId": "Group_003",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 20862,
+                        "Camera__DefaultPos__PosY": 8160,
+                        "Camera__DefaultPos__PosZ": -22864
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -2.4603,
+                        "Camera__DefaultRotation__RotY": 0.4357,
+                        "Camera__DefaultRotation__RotZ": 2.8119
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 39.97
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 14830,
+                    "OrbitHelperCube__Position__PosY": 0,
+                    "OrbitHelperCube__Position__PosZ": -12800
+                },
+                "PresentationMode__Scene__LensMm": 33,
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__LandscapeEnvironment": true,
+                        "TrueVision__Linetype__DoorSwings": true,
+                        "Storey__FirstFloor__ProposedDoors": false,
+                        "Storey__FirstFloor__ProposedFixtures": false,
+                        "Storey__FirstFloor__ProposedFloors": false,
+                        "Storey__FirstFloor__ProposedFurniture": false,
+                        "Storey__FirstFloor__ProposedInteriorDecor": false,
+                        "Storey__FirstFloor__ProposedStairs": false,
+                        "Storey__FirstFloor__ProposedWalls": false,
+                        "Storey__FirstFloor__ProposedWindows": false,
+                        "Storey__GroundFloor__ProposedDoors": true,
+                        "Storey__GroundFloor__ProposedFixtures": true,
+                        "Storey__GroundFloor__ProposedFloors": true,
+                        "Storey__GroundFloor__ProposedFurniture": true,
+                        "Storey__GroundFloor__ProposedInteriorDecor": true,
+                        "Storey__GroundFloor__ProposedRoofs": true,
+                        "Storey__GroundFloor__ProposedStairs": true,
+                        "Storey__GroundFloor__ProposedWalls": true,
+                        "Storey__GroundFloor__ProposedWindows": true,
+                        "Storey__SecondFloor__ProposedFloors": false,
+                        "Storey__SecondFloor__ProposedRoofs": false,
+                        "Storey__SecondFloor__ProposedWalls": false
+                    },
+                    "PresentationMode__Scene__Visibility__HasStoreys": true,
+                    "PresentationMode__Scene__Visibility__Storeys": {
+                        "GroundFloor": true,
+                        "FirstFloor": false,
+                        "SecondFloor": false
+                    },
+                    "PresentationMode__Scene__Visibility__RoofVisible": true
+                },
+                "PresentationMode__Scene__Order": 2
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_027",
+                "PresentationMode__Scene__Name": "Dollhouse | First Floor | Front Left",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_027.webp?v=de3fde16",
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__GroupId": "Group_003",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 8826,
+                        "Camera__DefaultPos__PosY": 10713,
+                        "Camera__DefaultPos__PosZ": -2736
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -0.6745,
+                        "Camera__DefaultRotation__RotY": -0.436,
+                        "Camera__DefaultRotation__RotZ": -0.3257
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 39.97
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 14830,
+                    "OrbitHelperCube__Position__PosY": 2665,
+                    "OrbitHelperCube__Position__PosZ": -12800
+                },
+                "PresentationMode__Scene__LensMm": 33,
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__LandscapeEnvironment": true,
+                        "TrueVision__Linetype__DoorSwings": true,
+                        "Storey__FirstFloor__ProposedDoors": true,
+                        "Storey__FirstFloor__ProposedFixtures": true,
+                        "Storey__FirstFloor__ProposedFloors": true,
+                        "Storey__FirstFloor__ProposedFurniture": true,
+                        "Storey__FirstFloor__ProposedInteriorDecor": true,
+                        "Storey__FirstFloor__ProposedStairs": true,
+                        "Storey__FirstFloor__ProposedWalls": true,
+                        "Storey__FirstFloor__ProposedWindows": true,
+                        "Storey__GroundFloor__ProposedDoors": true,
+                        "Storey__GroundFloor__ProposedFixtures": true,
+                        "Storey__GroundFloor__ProposedFloors": true,
+                        "Storey__GroundFloor__ProposedFurniture": true,
+                        "Storey__GroundFloor__ProposedInteriorDecor": true,
+                        "Storey__GroundFloor__ProposedRoofs": true,
+                        "Storey__GroundFloor__ProposedStairs": true,
+                        "Storey__GroundFloor__ProposedWalls": true,
+                        "Storey__GroundFloor__ProposedWindows": true,
+                        "Storey__SecondFloor__ProposedFloors": false,
+                        "Storey__SecondFloor__ProposedRoofs": false,
+                        "Storey__SecondFloor__ProposedWalls": false
+                    },
+                    "PresentationMode__Scene__Visibility__HasStoreys": true,
+                    "PresentationMode__Scene__Visibility__Storeys": {
+                        "GroundFloor": true,
+                        "FirstFloor": true,
+                        "SecondFloor": false
+                    },
+                    "PresentationMode__Scene__Visibility__RoofVisible": false
+                },
+                "PresentationMode__Scene__Order": 3
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_028",
+                "PresentationMode__Scene__Name": "Dollhouse | First Floor | Rear Right",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_028.webp?v=e5ca6909",
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__GroupId": "Group_003",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 20862,
+                        "Camera__DefaultPos__PosY": 10713,
+                        "Camera__DefaultPos__PosZ": -22864
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -2.467,
+                        "Camera__DefaultRotation__RotY": 0.4378,
+                        "Camera__DefaultRotation__RotZ": 2.8147
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 39.97
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 14830,
+                    "OrbitHelperCube__Position__PosY": 2665,
+                    "OrbitHelperCube__Position__PosZ": -12800
+                },
+                "PresentationMode__Scene__LensMm": 33,
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__LandscapeEnvironment": true,
+                        "TrueVision__Linetype__DoorSwings": true,
+                        "Storey__FirstFloor__ProposedDoors": true,
+                        "Storey__FirstFloor__ProposedFixtures": true,
+                        "Storey__FirstFloor__ProposedFloors": true,
+                        "Storey__FirstFloor__ProposedFurniture": true,
+                        "Storey__FirstFloor__ProposedInteriorDecor": true,
+                        "Storey__FirstFloor__ProposedStairs": true,
+                        "Storey__FirstFloor__ProposedWalls": true,
+                        "Storey__FirstFloor__ProposedWindows": true,
+                        "Storey__GroundFloor__ProposedDoors": true,
+                        "Storey__GroundFloor__ProposedFixtures": true,
+                        "Storey__GroundFloor__ProposedFloors": true,
+                        "Storey__GroundFloor__ProposedFurniture": true,
+                        "Storey__GroundFloor__ProposedInteriorDecor": true,
+                        "Storey__GroundFloor__ProposedRoofs": true,
+                        "Storey__GroundFloor__ProposedStairs": true,
+                        "Storey__GroundFloor__ProposedWalls": true,
+                        "Storey__GroundFloor__ProposedWindows": true,
+                        "Storey__SecondFloor__ProposedFloors": false,
+                        "Storey__SecondFloor__ProposedRoofs": false,
+                        "Storey__SecondFloor__ProposedWalls": false
+                    },
+                    "PresentationMode__Scene__Visibility__HasStoreys": true,
+                    "PresentationMode__Scene__Visibility__Storeys": {
+                        "GroundFloor": true,
+                        "FirstFloor": true,
+                        "SecondFloor": false
+                    },
+                    "PresentationMode__Scene__Visibility__RoofVisible": false
+                },
+                "PresentationMode__Scene__Order": 4
             }
         ]
     },
@@ -1242,7 +1894,9 @@
                 "Sheet__Fields": {
                     "Sheet__Fields__DrawingNumber": "D01",
                     "Sheet__Fields__DrawnBy": "A. Noble",
-                    "Sheet__Fields__Title": "Concept Design  -  Proposed Ground & First Floor Plans"
+                    "Sheet__Fields__Title": "Concept Design  -  Proposed Ground & First Floor Plans",
+                    "Sheet__Fields__Revision": "B",
+                    "Sheet__Fields__Status": "PRELIMINARY"
                 },
                 "Sheet__Layers": [
                     {
@@ -3083,7 +3737,9 @@
                 "Sheet__Fields": {
                     "Sheet__Fields__DrawingNumber": "D02",
                     "Sheet__Fields__DrawnBy": "A. Noble",
-                    "Sheet__Fields__Title": "Concept Design  -  Proposed Front & Left Side Elevations"
+                    "Sheet__Fields__Title": "Concept Design  -  Proposed Front & Left Side Elevations",
+                    "Sheet__Fields__Revision": "B",
+                    "Sheet__Fields__Status": "PRELIMINARY"
                 },
                 "Sheet__Layers": [
                     {
@@ -3240,7 +3896,7 @@
                         "Annotation__Id": "Text_001",
                         "Annotation__Text": "PROPOSED FRONT ELEVATION",
                         "Annotation__PosXMm": 63.5,
-                        "Annotation__PosYMm": 307.5,
+                        "Annotation__PosYMm": 322.5,
                         "Annotation__SizeMm": 3.5,
                         "Annotation__FontWeight": 600,
                         "Annotation__Colour": "#172b3a",
@@ -3253,7 +3909,7 @@
                         "Annotation__Id": "Text_002",
                         "Annotation__Text": "PROPOSED LEFT ELEVATION",
                         "Annotation__PosXMm": 335.5,
-                        "Annotation__PosYMm": 307.5,
+                        "Annotation__PosYMm": 322.5,
                         "Annotation__SizeMm": 3.5,
                         "Annotation__FontWeight": 600,
                         "Annotation__Colour": "#172b3a",
@@ -3297,7 +3953,7 @@
                         "Dimension__StartYMm": 257.6,
                         "Dimension__EndXMm": 257.65,
                         "Dimension__EndYMm": 257.6,
-                        "Dimension__OffsetMm": 27.610000000000014,
+                        "Dimension__OffsetMm": 45.4,
                         "Dimension__TextSizeMm": 3,
                         "Dimension__Colour": "#960000",
                         "Dimension__Terminator": "tick",
@@ -3407,7 +4063,7 @@
                         "Dimension__StartYMm": 257.6,
                         "Dimension__EndXMm": 453.65,
                         "Dimension__EndYMm": 257.6,
-                        "Dimension__OffsetMm": 27.610000000000014,
+                        "Dimension__OffsetMm": 45.4,
                         "Dimension__TextSizeMm": 3,
                         "Dimension__Colour": "#960000",
                         "Dimension__Terminator": "tick",
@@ -3663,7 +4319,308 @@
                         "Shape__Id": "Shape_004"
                     }
                 ],
-                "Sheet__Leaders": [],
+                "Sheet__Leaders": [
+                    {
+                        "Leader__Id": "Leader_001",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 348.63,
+                        "Leader__TipYMm": 251.63,
+                        "Leader__AnchorXMm": 359.13,
+                        "Leader__AnchorYMm": 281.63,
+                        "Leader__Text": "WF01",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_008"
+                    },
+                    {
+                        "Leader__Id": "Leader_002",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 97.56,
+                        "Leader__TipYMm": 242.75,
+                        "Leader__AnchorXMm": 108.06,
+                        "Leader__AnchorYMm": 281.75,
+                        "Leader__Text": "WF02",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_009"
+                    },
+                    {
+                        "Leader__Id": "Leader_003",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 242.55,
+                        "Leader__TipYMm": 257.55,
+                        "Leader__AnchorXMm": 253.05,
+                        "Leader__AnchorYMm": 281.55,
+                        "Leader__Text": "WF03",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_010"
+                    },
+                    {
+                        "Leader__Id": "Leader_004",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 173.13,
+                        "Leader__TipYMm": 110.88,
+                        "Leader__AnchorXMm": 162.63,
+                        "Leader__AnchorYMm": 91.88,
+                        "Leader__Text": "RF01",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_012"
+                    },
+                    {
+                        "Leader__Id": "Leader_005",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 455.91,
+                        "Leader__TipYMm": 159.71,
+                        "Leader__AnchorXMm": 445.41,
+                        "Leader__AnchorYMm": 129.71,
+                        "Leader__Text": "RF02",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_013"
+                    },
+                    {
+                        "Leader__Id": "Leader_006",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 65.19,
+                        "Leader__TipYMm": 253.06,
+                        "Leader__AnchorXMm": 75.69,
+                        "Leader__AnchorYMm": 281.88,
+                        "Leader__Text": "RF03",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_014"
+                    },
+                    {
+                        "Leader__Id": "Leader_007",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 216.38,
+                        "Leader__TipYMm": 232.88,
+                        "Leader__AnchorXMm": 226.88,
+                        "Leader__AnchorYMm": 281.88,
+                        "Leader__Text": "OP01",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_016"
+                    },
+                    {
+                        "Leader__Id": "Leader_008",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 414.46,
+                        "Leader__TipYMm": 245.54,
+                        "Leader__AnchorXMm": 424.96,
+                        "Leader__AnchorYMm": 281.54,
+                        "Leader__Text": "OP02",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_017"
+                    },
+                    {
+                        "Leader__Id": "Leader_009",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 155.88,
+                        "Leader__TipYMm": 253.88,
+                        "Leader__AnchorXMm": 145.38,
+                        "Leader__AnchorYMm": 281.88,
+                        "Leader__Text": "OP03",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_018"
+                    },
+                    {
+                        "Leader__Id": "Leader_010",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 182.55,
+                        "Leader__TipYMm": 222.05,
+                        "Leader__AnchorXMm": 193.05,
+                        "Leader__AnchorYMm": 281.88,
+                        "Leader__Text": "PR01",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_022"
+                    },
+                    {
+                        "Leader__Id": "Leader_011",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 152.55,
+                        "Leader__TipYMm": 259.05,
+                        "Leader__AnchorXMm": 163.05,
+                        "Leader__AnchorYMm": 281.88,
+                        "Leader__Text": "PR02",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_023"
+                    },
+                    {
+                        "Leader__Id": "Leader_012",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 404.8,
+                        "Leader__TipYMm": 257.5,
+                        "Leader__AnchorXMm": 394.3,
+                        "Leader__AnchorYMm": 281.5,
+                        "Leader__Text": "LV01",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_006"
+                    }
+                ],
                 "Sheet__Groups": [],
                 "Sheet__LayerStack": 2,
                 "Sheet__Lineweights": {
@@ -3689,7 +4646,9 @@
                 "Sheet__Fields": {
                     "Sheet__Fields__DrawingNumber": "D03",
                     "Sheet__Fields__DrawnBy": "A. Noble",
-                    "Sheet__Fields__Title": "Concept Design  -  Proposed Rear & Right Side Elevations"
+                    "Sheet__Fields__Title": "Concept Design  -  Proposed Rear & Right Side Elevations",
+                    "Sheet__Fields__Revision": "B",
+                    "Sheet__Fields__Status": "PRELIMINARY"
                 },
                 "Sheet__Layers": [
                     {
@@ -3846,7 +4805,7 @@
                         "Annotation__Id": "Text_001",
                         "Annotation__Text": "PROPOSED REAR ELEVATION",
                         "Annotation__PosXMm": 63.5,
-                        "Annotation__PosYMm": 307.5,
+                        "Annotation__PosYMm": 322.5,
                         "Annotation__SizeMm": 3.5,
                         "Annotation__FontWeight": 600,
                         "Annotation__Colour": "#172b3a",
@@ -3859,7 +4818,7 @@
                         "Annotation__Id": "Text_002",
                         "Annotation__Text": "PROPOSED RIGHT ELEVATION",
                         "Annotation__PosXMm": 329,
-                        "Annotation__PosYMm": 307.5,
+                        "Annotation__PosYMm": 322.5,
                         "Annotation__SizeMm": 3.5,
                         "Annotation__FontWeight": 600,
                         "Annotation__Colour": "#172b3a",
@@ -3903,7 +4862,7 @@
                         "Dimension__StartYMm": 257.6,
                         "Dimension__EndXMm": 257.65,
                         "Dimension__EndYMm": 257.6,
-                        "Dimension__OffsetMm": 27.610000000000014,
+                        "Dimension__OffsetMm": 45.4,
                         "Dimension__TextSizeMm": 3,
                         "Dimension__Colour": "#960000",
                         "Dimension__Terminator": "tick",
@@ -4013,7 +4972,7 @@
                         "Dimension__StartYMm": 257.6,
                         "Dimension__EndXMm": 453.65,
                         "Dimension__EndYMm": 257.6,
-                        "Dimension__OffsetMm": 27.610000000000014,
+                        "Dimension__OffsetMm": 45.4,
                         "Dimension__TextSizeMm": 3,
                         "Dimension__Colour": "#960000",
                         "Dimension__Terminator": "tick",
@@ -4269,7 +5228,233 @@
                         "Shape__Id": "Shape_004"
                     }
                 ],
-                "Sheet__Leaders": [],
+                "Sheet__Leaders": [
+                    {
+                        "Leader__Id": "Leader_001",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 125.13,
+                        "Leader__TipYMm": 253.13,
+                        "Leader__AnchorXMm": 114.63,
+                        "Leader__AnchorYMm": 281.13,
+                        "Leader__Text": "WF01",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_008"
+                    },
+                    {
+                        "Leader__Id": "Leader_002",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 230.55,
+                        "Leader__TipYMm": 259.05,
+                        "Leader__AnchorXMm": 241.05,
+                        "Leader__AnchorYMm": 281.05,
+                        "Leader__Text": "WF03",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_010"
+                    },
+                    {
+                        "Leader__Id": "Leader_003",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 365.07,
+                        "Leader__TipYMm": 257.5,
+                        "Leader__AnchorXMm": 354.57,
+                        "Leader__AnchorYMm": 281.5,
+                        "Leader__Text": "LV01",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_006"
+                    },
+                    {
+                        "Leader__Id": "Leader_004",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 170.38,
+                        "Leader__TipYMm": 110.88,
+                        "Leader__AnchorXMm": 159.88,
+                        "Leader__AnchorYMm": 91.88,
+                        "Leader__Text": "RF01",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_012"
+                    },
+                    {
+                        "Leader__Id": "Leader_005",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 455.91,
+                        "Leader__TipYMm": 159.71,
+                        "Leader__AnchorXMm": 445.41,
+                        "Leader__AnchorYMm": 129.71,
+                        "Leader__Text": "RF02",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_013"
+                    },
+                    {
+                        "Leader__Id": "Leader_006",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 65.19,
+                        "Leader__TipYMm": 253.06,
+                        "Leader__AnchorXMm": 75.69,
+                        "Leader__AnchorYMm": 281.06,
+                        "Leader__Text": "RF03",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_014"
+                    },
+                    {
+                        "Leader__Id": "Leader_007",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 378.38,
+                        "Leader__TipYMm": 171.38,
+                        "Leader__AnchorXMm": 358.88,
+                        "Leader__AnchorYMm": 129.38,
+                        "Leader__Text": "OP01",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_016"
+                    },
+                    {
+                        "Leader__Id": "Leader_008",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 427.13,
+                        "Leader__TipYMm": 251.13,
+                        "Leader__AnchorXMm": 437.63,
+                        "Leader__AnchorYMm": 281.13,
+                        "Leader__Text": "OP04",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_019"
+                    },
+                    {
+                        "Leader__Id": "Leader_009",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 161.11,
+                        "Leader__TipYMm": 201.34,
+                        "Leader__AnchorXMm": 141.61,
+                        "Leader__AnchorYMm": 193.34,
+                        "Leader__Text": "OP05",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_020"
+                    }
+                ],
                 "Sheet__Groups": [],
                 "Sheet__LayerStack": 2,
                 "Sheet__Lineweights": {
@@ -4295,7 +5480,8 @@
                 "Sheet__Fields": {
                     "Sheet__Fields__DrawingNumber": "D04",
                     "Sheet__Fields__DrawnBy": "A. Noble",
-                    "Sheet__Fields__Title": "Concept Design  -  3D Visuals"
+                    "Sheet__Fields__Title": "Concept Design  -  3D Visuals",
+                    "Sheet__Fields__Status": "PRELIMINARY"
                 },
                 "Sheet__Layers": [
                     {
@@ -4339,12 +5525,1092 @@
                         "Layer__Order": 5
                     }
                 ],
-                "Sheet__Viewports": [],
-                "Sheet__Annotations": [],
+                "Sheet__Viewports": [
+                    {
+                        "Viewport__Id": "Viewport_001",
+                        "Viewport__Kind": "3d",
+                        "Viewport__SceneId": "Scene_007",
+                        "Viewport__DrawingId": null,
+                        "Viewport__ModelSourceId": null,
+                        "Viewport__Name": "",
+                        "Viewport__FrameMm": {
+                            "X": 10,
+                            "Y": 11,
+                            "WidthMm": 153.7,
+                            "HeightMm": 80.7
+                        },
+                        "Viewport__ScaleDenominator": 50,
+                        "Viewport__ModelLayers": null,
+                        "Viewport__LayerId": "Layer_001",
+                        "Viewport__PanMm": {
+                            "X": 0,
+                            "Y": 0
+                        },
+                        "Viewport__ImageMm": {
+                            "WidthMm": 153.7,
+                            "HeightMm": 80.7
+                        },
+                        "Viewport__ImageOffsetMm": {
+                            "X": 0,
+                            "Y": 0
+                        },
+                        "Viewport__Styles": {
+                            "baseImage": true,
+                            "projectedLinework": false,
+                            "profileLinework": true,
+                            "glassOpaque": true,
+                            "whitecard": true,
+                            "hiddenLines": false,
+                            "enhanceWhitecard": true,
+                            "contextLayer": true,
+                            "depthFog": true,
+                            "vegetation": false,
+                            "entourage": false
+                        },
+                        "Viewport__ProjectedEdges": null,
+                        "Viewport__CompositeWeights": null,
+                        "Viewport__MarkupMode": "scene",
+                        "Viewport__ShowScaleLabel": true,
+                        "Viewport__SnapshotAsset": null,
+                        "Viewport__Locked": false,
+                        "Viewport__ShowFrame": false
+                    },
+                    {
+                        "Viewport__Id": "Viewport_002",
+                        "Viewport__Kind": "3d",
+                        "Viewport__SceneId": "Scene_012",
+                        "Viewport__DrawingId": null,
+                        "Viewport__ModelSourceId": null,
+                        "Viewport__Name": "",
+                        "Viewport__FrameMm": {
+                            "X": 169.7,
+                            "Y": 11,
+                            "WidthMm": 153.7,
+                            "HeightMm": 80.7
+                        },
+                        "Viewport__ScaleDenominator": 50,
+                        "Viewport__ModelLayers": null,
+                        "Viewport__LayerId": "Layer_001",
+                        "Viewport__PanMm": {
+                            "X": 0,
+                            "Y": 0
+                        },
+                        "Viewport__ImageMm": {
+                            "WidthMm": 153.7,
+                            "HeightMm": 80.7
+                        },
+                        "Viewport__ImageOffsetMm": {
+                            "X": 0,
+                            "Y": 0
+                        },
+                        "Viewport__Styles": {
+                            "baseImage": true,
+                            "projectedLinework": false,
+                            "profileLinework": true,
+                            "glassOpaque": true,
+                            "whitecard": true,
+                            "hiddenLines": false,
+                            "enhanceWhitecard": true,
+                            "contextLayer": true,
+                            "depthFog": true,
+                            "vegetation": false,
+                            "entourage": false
+                        },
+                        "Viewport__ProjectedEdges": null,
+                        "Viewport__CompositeWeights": null,
+                        "Viewport__MarkupMode": "scene",
+                        "Viewport__ShowScaleLabel": true,
+                        "Viewport__SnapshotAsset": null,
+                        "Viewport__Locked": false,
+                        "Viewport__ShowFrame": false
+                    },
+                    {
+                        "Viewport__Id": "Viewport_003",
+                        "Viewport__Kind": "3d",
+                        "Viewport__SceneId": "Scene_013",
+                        "Viewport__DrawingId": null,
+                        "Viewport__ModelSourceId": null,
+                        "Viewport__Name": "",
+                        "Viewport__FrameMm": {
+                            "X": 10,
+                            "Y": 101.7,
+                            "WidthMm": 153.7,
+                            "HeightMm": 80.7
+                        },
+                        "Viewport__ScaleDenominator": 50,
+                        "Viewport__ModelLayers": null,
+                        "Viewport__LayerId": "Layer_001",
+                        "Viewport__PanMm": {
+                            "X": 0,
+                            "Y": 0
+                        },
+                        "Viewport__ImageMm": {
+                            "WidthMm": 153.7,
+                            "HeightMm": 80.7
+                        },
+                        "Viewport__ImageOffsetMm": {
+                            "X": 0,
+                            "Y": 0
+                        },
+                        "Viewport__Styles": {
+                            "baseImage": true,
+                            "projectedLinework": false,
+                            "profileLinework": true,
+                            "glassOpaque": true,
+                            "whitecard": true,
+                            "hiddenLines": false,
+                            "enhanceWhitecard": true,
+                            "contextLayer": true,
+                            "depthFog": true,
+                            "vegetation": false,
+                            "entourage": false
+                        },
+                        "Viewport__ProjectedEdges": null,
+                        "Viewport__CompositeWeights": null,
+                        "Viewport__MarkupMode": "scene",
+                        "Viewport__ShowScaleLabel": true,
+                        "Viewport__SnapshotAsset": null,
+                        "Viewport__Locked": false,
+                        "Viewport__ShowFrame": false
+                    },
+                    {
+                        "Viewport__Id": "Viewport_004",
+                        "Viewport__Kind": "3d",
+                        "Viewport__SceneId": "Scene_027",
+                        "Viewport__DrawingId": null,
+                        "Viewport__ModelSourceId": null,
+                        "Viewport__Name": "",
+                        "Viewport__FrameMm": {
+                            "X": 169.7,
+                            "Y": 101.7,
+                            "WidthMm": 153.7,
+                            "HeightMm": 80.7
+                        },
+                        "Viewport__ScaleDenominator": 50,
+                        "Viewport__ModelLayers": null,
+                        "Viewport__LayerId": "Layer_001",
+                        "Viewport__PanMm": {
+                            "X": 0,
+                            "Y": 0
+                        },
+                        "Viewport__ImageMm": {
+                            "WidthMm": 153.7,
+                            "HeightMm": 80.7
+                        },
+                        "Viewport__ImageOffsetMm": {
+                            "X": 0,
+                            "Y": 0
+                        },
+                        "Viewport__Styles": {
+                            "baseImage": true,
+                            "projectedLinework": false,
+                            "profileLinework": true,
+                            "glassOpaque": true,
+                            "whitecard": true,
+                            "hiddenLines": false,
+                            "enhanceWhitecard": true,
+                            "contextLayer": true,
+                            "depthFog": true,
+                            "vegetation": false,
+                            "entourage": false
+                        },
+                        "Viewport__ProjectedEdges": null,
+                        "Viewport__CompositeWeights": null,
+                        "Viewport__MarkupMode": "scene",
+                        "Viewport__ShowScaleLabel": true,
+                        "Viewport__SnapshotAsset": null,
+                        "Viewport__Locked": false,
+                        "Viewport__ShowFrame": false
+                    },
+                    {
+                        "Viewport__Id": "Viewport_005",
+                        "Viewport__Kind": "3d",
+                        "Viewport__SceneId": "Scene_014",
+                        "Viewport__DrawingId": null,
+                        "Viewport__ModelSourceId": null,
+                        "Viewport__Name": "",
+                        "Viewport__FrameMm": {
+                            "X": 10,
+                            "Y": 192.4,
+                            "WidthMm": 153.7,
+                            "HeightMm": 80.7
+                        },
+                        "Viewport__ScaleDenominator": 50,
+                        "Viewport__ModelLayers": null,
+                        "Viewport__LayerId": "Layer_001",
+                        "Viewport__PanMm": {
+                            "X": 0,
+                            "Y": 0
+                        },
+                        "Viewport__ImageMm": {
+                            "WidthMm": 153.7,
+                            "HeightMm": 80.7
+                        },
+                        "Viewport__ImageOffsetMm": {
+                            "X": 0,
+                            "Y": 0
+                        },
+                        "Viewport__Styles": {
+                            "baseImage": true,
+                            "projectedLinework": false,
+                            "profileLinework": true,
+                            "glassOpaque": true,
+                            "whitecard": true,
+                            "hiddenLines": false,
+                            "enhanceWhitecard": true,
+                            "contextLayer": true,
+                            "depthFog": true,
+                            "vegetation": false,
+                            "entourage": false
+                        },
+                        "Viewport__ProjectedEdges": null,
+                        "Viewport__CompositeWeights": null,
+                        "Viewport__MarkupMode": "scene",
+                        "Viewport__ShowScaleLabel": true,
+                        "Viewport__SnapshotAsset": null,
+                        "Viewport__Locked": false,
+                        "Viewport__ShowFrame": false
+                    },
+                    {
+                        "Viewport__Id": "Viewport_006",
+                        "Viewport__Kind": "3d",
+                        "Viewport__SceneId": "Scene_016",
+                        "Viewport__DrawingId": null,
+                        "Viewport__ModelSourceId": null,
+                        "Viewport__Name": "",
+                        "Viewport__FrameMm": {
+                            "X": 169.7,
+                            "Y": 192.4,
+                            "WidthMm": 153.7,
+                            "HeightMm": 80.7
+                        },
+                        "Viewport__ScaleDenominator": 50,
+                        "Viewport__ModelLayers": null,
+                        "Viewport__LayerId": "Layer_001",
+                        "Viewport__PanMm": {
+                            "X": 0,
+                            "Y": 0
+                        },
+                        "Viewport__ImageMm": {
+                            "WidthMm": 153.7,
+                            "HeightMm": 80.7
+                        },
+                        "Viewport__ImageOffsetMm": {
+                            "X": 0,
+                            "Y": 0
+                        },
+                        "Viewport__Styles": {
+                            "baseImage": true,
+                            "projectedLinework": false,
+                            "profileLinework": true,
+                            "glassOpaque": true,
+                            "whitecard": true,
+                            "hiddenLines": false,
+                            "enhanceWhitecard": true,
+                            "contextLayer": true,
+                            "depthFog": true,
+                            "vegetation": false,
+                            "entourage": false
+                        },
+                        "Viewport__ProjectedEdges": null,
+                        "Viewport__CompositeWeights": null,
+                        "Viewport__MarkupMode": "scene",
+                        "Viewport__ShowScaleLabel": true,
+                        "Viewport__SnapshotAsset": null,
+                        "Viewport__Locked": false,
+                        "Viewport__ShowFrame": false
+                    }
+                ],
+                "Sheet__Annotations": [
+                    {
+                        "Annotation__Text": "PROPOSED 3D VIEW - FRONT LEFT",
+                        "Annotation__PosXMm": 53.579,
+                        "Annotation__PosYMm": 96.869,
+                        "Annotation__SizeMm": 3.5,
+                        "Annotation__FontWeight": 600,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_001"
+                    },
+                    {
+                        "Annotation__Text": "PROPOSED 3D VIEW - GARDEN DOORS",
+                        "Annotation__PosXMm": 203.529,
+                        "Annotation__PosYMm": 96.869,
+                        "Annotation__SizeMm": 3.5,
+                        "Annotation__FontWeight": 600,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_002"
+                    },
+                    {
+                        "Annotation__Text": "PROPOSED 3D VIEW - BIRD'S-EYE",
+                        "Annotation__PosXMm": 52.579,
+                        "Annotation__PosYMm": 187.569,
+                        "Annotation__SizeMm": 3.5,
+                        "Annotation__FontWeight": 600,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_003"
+                    },
+                    {
+                        "Annotation__Text": "PROPOSED FIRST FLOOR - CUTAWAY VIEW",
+                        "Annotation__PosXMm": 198.279,
+                        "Annotation__PosYMm": 187.569,
+                        "Annotation__SizeMm": 3.5,
+                        "Annotation__FontWeight": 600,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_004"
+                    },
+                    {
+                        "Annotation__Text": "PROPOSED INTERIOR - LIVING ROOM",
+                        "Annotation__PosXMm": 9.829,
+                        "Annotation__PosYMm": 278.369,
+                        "Annotation__SizeMm": 3.5,
+                        "Annotation__FontWeight": 600,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_005"
+                    },
+                    {
+                        "Annotation__Text": "PROPOSED INTERIOR - KITCHEN",
+                        "Annotation__PosXMm": 169.529,
+                        "Annotation__PosYMm": 278.369,
+                        "Annotation__SizeMm": 3.5,
+                        "Annotation__FontWeight": 600,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_006"
+                    }
+                ],
                 "Sheet__Dimensions": [],
-                "Sheet__Shapes": [],
-                "Sheet__Leaders": [],
-                "Sheet__Groups": [],
+                "Sheet__Shapes": [
+                    {
+                        "Shape__Points": [
+                            [
+                                53.75,
+                                98.5
+                            ],
+                            [
+                                115.15,
+                                98.5
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.4,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_001"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                203.7,
+                                98.5
+                            ],
+                            [
+                                272.4,
+                                98.5
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.4,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_002"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                52.75,
+                                189.2
+                            ],
+                            [
+                                112.75,
+                                189.2
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.4,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_003"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                198.45,
+                                189.2
+                            ],
+                            [
+                                273.35,
+                                189.2
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.4,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_004"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                10,
+                                280
+                            ],
+                            [
+                                76.6,
+                                280
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.4,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_005"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                169.7,
+                                280
+                            ],
+                            [
+                                229.7,
+                                280
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.4,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_006"
+                    }
+                ],
+                "Sheet__Leaders": [
+                    {
+                        "Leader__Id": "Leader_001",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 93.3,
+                        "Leader__TipYMm": 63.5,
+                        "Leader__AnchorXMm": 104.8,
+                        "Leader__AnchorYMm": 77.5,
+                        "Leader__Text": "OP03",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_018"
+                    },
+                    {
+                        "Leader__Id": "Leader_002",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 97.95,
+                        "Leader__TipYMm": 56.75,
+                        "Leader__AnchorXMm": 122.45,
+                        "Leader__AnchorYMm": 48.75,
+                        "Leader__Text": "PR01",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_022"
+                    },
+                    {
+                        "Leader__Id": "Leader_003",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 64.75,
+                        "Leader__TipYMm": 61.45,
+                        "Leader__AnchorXMm": 47.25,
+                        "Leader__AnchorYMm": 53.45,
+                        "Leader__Text": "OP02",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_017"
+                    },
+                    {
+                        "Leader__Id": "Leader_004",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 70.67,
+                        "Leader__TipYMm": 62.5,
+                        "Leader__AnchorXMm": 58.17,
+                        "Leader__AnchorYMm": 78.5,
+                        "Leader__Text": "RF03",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_014"
+                    },
+                    {
+                        "Leader__Id": "Leader_005",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 86.65,
+                        "Leader__TipYMm": 62.85,
+                        "Leader__AnchorXMm": 76.15,
+                        "Leader__AnchorYMm": 85.85,
+                        "Leader__Text": "WF01",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_008"
+                    },
+                    {
+                        "Leader__Id": "Leader_006",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 243.65,
+                        "Leader__TipYMm": 63.95,
+                        "Leader__AnchorXMm": 261.15,
+                        "Leader__AnchorYMm": 55.95,
+                        "Leader__Text": "OP04",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_019"
+                    },
+                    {
+                        "Leader__Id": "Leader_007",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 227.35,
+                        "Leader__TipYMm": 40.95,
+                        "Leader__AnchorXMm": 208.85,
+                        "Leader__AnchorYMm": 25.95,
+                        "Leader__Text": "OP01",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_016"
+                    },
+                    {
+                        "Leader__Id": "Leader_008",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 246.3,
+                        "Leader__TipYMm": 24.25,
+                        "Leader__AnchorXMm": 261.8,
+                        "Leader__AnchorYMm": 20.25,
+                        "Leader__Text": "RF02",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_013"
+                    },
+                    {
+                        "Leader__Id": "Leader_009",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 104.95,
+                        "Leader__TipYMm": 120.95,
+                        "Leader__AnchorXMm": 122.45,
+                        "Leader__AnchorYMm": 115.95,
+                        "Leader__Text": "RF01",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_012"
+                    },
+                    {
+                        "Leader__Id": "Leader_010",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 79.3,
+                        "Leader__TipYMm": 156.2,
+                        "Leader__AnchorXMm": 59.8,
+                        "Leader__AnchorYMm": 167.2,
+                        "Leader__Text": "WF02",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_009"
+                    },
+                    {
+                        "Leader__Id": "Leader_011",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 92.35,
+                        "Leader__TipYMm": 162.65,
+                        "Leader__AnchorXMm": 102.85,
+                        "Leader__AnchorYMm": 174.65,
+                        "Leader__Text": "PR02",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_023"
+                    },
+                    {
+                        "Leader__Id": "Leader_012",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 271.25,
+                        "Leader__TipYMm": 127.35,
+                        "Leader__AnchorXMm": 297.75,
+                        "Leader__AnchorYMm": 118.35,
+                        "Leader__Text": "FT03",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_031"
+                    },
+                    {
+                        "Leader__Id": "Leader_013",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 233.05,
+                        "Leader__TipYMm": 132.95,
+                        "Leader__AnchorXMm": 221.55,
+                        "Leader__AnchorYMm": 111.95,
+                        "Leader__Text": "IL04",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_028"
+                    }
+                ],
+                "Sheet__Groups": [
+                    {
+                        "Group__Members": [
+                            {
+                                "kind": "shape",
+                                "id": "Shape_001"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_001"
+                            }
+                        ],
+                        "Group__Parametric": {
+                            "Parametric__Type": "DrawingTitle",
+                            "Parametric__Version": 1,
+                            "Parametric__Params": {
+                                "ScaleDenominator": 50,
+                                "DivisionMm": 1000,
+                                "Divisions": 5,
+                                "SubdivideFirst": false,
+                                "SubdivisionMm": 200,
+                                "Units": "m",
+                                "ShowUnits": false,
+                                "ShowScaleBar": false,
+                                "PhaseMode": "auto",
+                                "TitleText": "PROPOSED 3D VIEW - FRONT LEFT",
+                                "Uppercase": true,
+                                "UnderlineMm": 60,
+                                "BarPlacement": "below",
+                                "BarOffsetMm": 150,
+                                "ViewKind": "3d",
+                                "ViewPhase": "proposed",
+                                "ViewFacing": "",
+                                "ViewLevel": "",
+                                "ViewName": "3D | Front Left",
+                                "ViewDrawing": ""
+                            },
+                            "Parametric__Link": null
+                        },
+                        "Group__Id": "Group_001"
+                    },
+                    {
+                        "Group__Members": [
+                            {
+                                "kind": "shape",
+                                "id": "Shape_002"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_002"
+                            }
+                        ],
+                        "Group__Parametric": {
+                            "Parametric__Type": "DrawingTitle",
+                            "Parametric__Version": 1,
+                            "Parametric__Params": {
+                                "ScaleDenominator": 50,
+                                "DivisionMm": 1000,
+                                "Divisions": 5,
+                                "SubdivideFirst": false,
+                                "SubdivisionMm": 200,
+                                "Units": "m",
+                                "ShowUnits": false,
+                                "ShowScaleBar": false,
+                                "PhaseMode": "auto",
+                                "TitleText": "PROPOSED 3D VIEW - GARDEN DOORS",
+                                "Uppercase": true,
+                                "UnderlineMm": 60,
+                                "BarPlacement": "below",
+                                "BarOffsetMm": 150,
+                                "ViewKind": "3d",
+                                "ViewPhase": "proposed",
+                                "ViewFacing": "",
+                                "ViewLevel": "",
+                                "ViewName": "3D | Garden Doors",
+                                "ViewDrawing": ""
+                            },
+                            "Parametric__Link": null
+                        },
+                        "Group__Id": "Group_002"
+                    },
+                    {
+                        "Group__Members": [
+                            {
+                                "kind": "shape",
+                                "id": "Shape_003"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_003"
+                            }
+                        ],
+                        "Group__Parametric": {
+                            "Parametric__Type": "DrawingTitle",
+                            "Parametric__Version": 1,
+                            "Parametric__Params": {
+                                "ScaleDenominator": 50,
+                                "DivisionMm": 1000,
+                                "Divisions": 5,
+                                "SubdivideFirst": false,
+                                "SubdivisionMm": 200,
+                                "Units": "m",
+                                "ShowUnits": false,
+                                "ShowScaleBar": false,
+                                "PhaseMode": "auto",
+                                "TitleText": "PROPOSED 3D VIEW - BIRD'S-EYE",
+                                "Uppercase": true,
+                                "UnderlineMm": 60,
+                                "BarPlacement": "below",
+                                "BarOffsetMm": 150,
+                                "ViewKind": "3d",
+                                "ViewPhase": "proposed",
+                                "ViewFacing": "",
+                                "ViewLevel": "",
+                                "ViewName": "3D | Birds Eye",
+                                "ViewDrawing": ""
+                            },
+                            "Parametric__Link": null
+                        },
+                        "Group__Id": "Group_003"
+                    },
+                    {
+                        "Group__Members": [
+                            {
+                                "kind": "shape",
+                                "id": "Shape_004"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_004"
+                            }
+                        ],
+                        "Group__Parametric": {
+                            "Parametric__Type": "DrawingTitle",
+                            "Parametric__Version": 1,
+                            "Parametric__Params": {
+                                "ScaleDenominator": 50,
+                                "DivisionMm": 1000,
+                                "Divisions": 5,
+                                "SubdivideFirst": false,
+                                "SubdivisionMm": 200,
+                                "Units": "m",
+                                "ShowUnits": false,
+                                "ShowScaleBar": false,
+                                "PhaseMode": "auto",
+                                "TitleText": "PROPOSED FIRST FLOOR - CUTAWAY VIEW",
+                                "Uppercase": true,
+                                "UnderlineMm": 60,
+                                "BarPlacement": "below",
+                                "BarOffsetMm": 150,
+                                "ViewKind": "3d",
+                                "ViewPhase": "proposed",
+                                "ViewFacing": "",
+                                "ViewLevel": "",
+                                "ViewName": "Dollhouse | First Floor | Front Left",
+                                "ViewDrawing": ""
+                            },
+                            "Parametric__Link": null
+                        },
+                        "Group__Id": "Group_004"
+                    },
+                    {
+                        "Group__Members": [
+                            {
+                                "kind": "shape",
+                                "id": "Shape_005"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_005"
+                            }
+                        ],
+                        "Group__Parametric": {
+                            "Parametric__Type": "DrawingTitle",
+                            "Parametric__Version": 1,
+                            "Parametric__Params": {
+                                "ScaleDenominator": 50,
+                                "DivisionMm": 1000,
+                                "Divisions": 5,
+                                "SubdivideFirst": false,
+                                "SubdivisionMm": 200,
+                                "Units": "m",
+                                "ShowUnits": false,
+                                "ShowScaleBar": false,
+                                "PhaseMode": "auto",
+                                "TitleText": "PROPOSED INTERIOR - LIVING ROOM",
+                                "Uppercase": true,
+                                "UnderlineMm": 60,
+                                "BarPlacement": "below",
+                                "BarOffsetMm": 150,
+                                "ViewKind": "3d",
+                                "ViewPhase": "proposed",
+                                "ViewFacing": "",
+                                "ViewLevel": "",
+                                "ViewName": "Living Room | Into Room",
+                                "ViewDrawing": ""
+                            },
+                            "Parametric__Link": null
+                        },
+                        "Group__Id": "Group_005"
+                    },
+                    {
+                        "Group__Members": [
+                            {
+                                "kind": "shape",
+                                "id": "Shape_006"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_006"
+                            }
+                        ],
+                        "Group__Parametric": {
+                            "Parametric__Type": "DrawingTitle",
+                            "Parametric__Version": 1,
+                            "Parametric__Params": {
+                                "ScaleDenominator": 50,
+                                "DivisionMm": 1000,
+                                "Divisions": 5,
+                                "SubdivideFirst": false,
+                                "SubdivisionMm": 200,
+                                "Units": "m",
+                                "ShowUnits": false,
+                                "ShowScaleBar": false,
+                                "PhaseMode": "auto",
+                                "TitleText": "PROPOSED INTERIOR - KITCHEN",
+                                "Uppercase": true,
+                                "UnderlineMm": 60,
+                                "BarPlacement": "below",
+                                "BarOffsetMm": 150,
+                                "ViewKind": "3d",
+                                "ViewPhase": "proposed",
+                                "ViewFacing": "",
+                                "ViewLevel": "",
+                                "ViewName": "Kitchen",
+                                "ViewDrawing": ""
+                            },
+                            "Parametric__Link": null
+                        },
+                        "Group__Id": "Group_006"
+                    }
+                ],
                 "Sheet__LayerStack": 2,
                 "Sheet__Lineweights": {
                     "ViewportPt": 0.3,
@@ -4362,6 +6628,11 @@
         ],
         "LayoutEditor__DrawingsData__CommonClient": "Demi Molverson",
         "LayoutEditor__DrawingsData__CommonSiteAddress": "The Demo House, 5 Sample Street, Fauxbridge, Testshire TE5 0DM",
-        "LayoutEditor__DrawingsData__SavedIso": "2026-11-18T22:08:32.915Z"
+        "LayoutEditor__DrawingsData__SavedIso": "2026-11-18T23:24:56.355Z"
+    },
+    "Navmode__FovOverrides": {
+        "Navmode__FovOverrides__Description": "Per-project default camera FOVs (vertical degrees) overriding the master app config defaults.",
+        "Navmode__FovOverrides__WalkDeg": 61.93,
+        "Navmode__FovOverrides__FlyDeg": 61.93
     }
 }

@@ -11,13 +11,13 @@
     },
     "PublishedDocuments__Publish" : {
         "Publish__SchemaVersion"    : 1,
-        "Publish__AtIso"            : "2026-11-18T22:11:54.859Z",
-        "Publish__AtEpochMs"        : 1795039914859,
+        "Publish__AtIso"            : "2026-11-18T23:29:40.410Z",
+        "Publish__AtEpochMs"        : 1795044580410,
         "Publish__ByApp"            : "TrueVision3D Layout Editor",
         "Publish__ByAppVersion"     : "v2.176.0",
-        "Publish__LastPublishedIso" : "2026-11-18T22:11:54.859Z",
-        "Publish__DocumentCount"    : 3,
-        "Publish__UnpublishedCount" : 1,
+        "Publish__LastPublishedIso" : "2026-11-18T23:29:40.410Z",
+        "Publish__DocumentCount"    : 4,
+        "Publish__UnpublishedCount" : 0,
         "Publish__ArchiveFolder"    : "00__Archive__Revisions"
     },
     "PublishedDocuments__RasterTiers" : {
@@ -76,11 +76,11 @@
                 "WidthMm"  : 739.1,
                 "HeightMm" : 571
             },
-            "Document__Revision"       : "A",
-            "Document__Status"         : null,
+            "Document__Revision"       : "B",
+            "Document__Status"         : "PRELIMINARY",
             "Document__State"          : "published",
             "Document__Folder"         : "TV05_T01_D01",
-            "Document__PublishedAtIso" : "2026-11-18T22:10:08.883Z",
+            "Document__PublishedAtIso" : "2026-11-18T23:26:14.947Z",
             "Document__HasViewports"   : true,
             "Document__HasPdf"         : true,
             "Document__Order"          : 1
@@ -100,11 +100,11 @@
                 "WidthMm"  : 514.9,
                 "HeightMm" : 397
             },
-            "Document__Revision"       : "A",
-            "Document__Status"         : null,
+            "Document__Revision"       : "B",
+            "Document__Status"         : "PRELIMINARY",
             "Document__State"          : "published",
             "Document__Folder"         : "TV05_T01_D02",
-            "Document__PublishedAtIso" : "2026-11-18T22:11:02.861Z",
+            "Document__PublishedAtIso" : "2026-11-18T23:27:06.051Z",
             "Document__HasViewports"   : true,
             "Document__HasPdf"         : true,
             "Document__Order"          : 2
@@ -124,11 +124,11 @@
                 "WidthMm"  : 514.9,
                 "HeightMm" : 397
             },
-            "Document__Revision"       : "A",
-            "Document__Status"         : null,
+            "Document__Revision"       : "B",
+            "Document__Status"         : "PRELIMINARY",
             "Document__State"          : "published",
             "Document__Folder"         : "TV05_T01_D03",
-            "Document__PublishedAtIso" : "2026-11-18T22:11:50.456Z",
+            "Document__PublishedAtIso" : "2026-11-18T23:27:56.598Z",
             "Document__HasViewports"   : true,
             "Document__HasPdf"         : true,
             "Document__Order"          : 3
@@ -149,10 +149,12 @@
                 "HeightMm" : 274
             },
             "Document__Revision"       : "A",
-            "Document__Status"         : null,
-            "Document__State"          : "unpublished",
-            "Document__Folder"         : null,
-            "Document__PublishedAtIso" : null,
+            "Document__Status"         : "PRELIMINARY",
+            "Document__State"          : "published",
+            "Document__Folder"         : "TV05_T01_D04",
+            "Document__PublishedAtIso" : "2026-11-18T23:29:34.183Z",
+            "Document__HasViewports"   : true,
+            "Document__HasPdf"         : true,
             "Document__Order"          : 4
         }
     ],

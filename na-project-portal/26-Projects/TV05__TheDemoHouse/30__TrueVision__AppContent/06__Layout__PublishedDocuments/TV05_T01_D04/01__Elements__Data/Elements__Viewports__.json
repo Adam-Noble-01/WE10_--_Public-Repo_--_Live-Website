@@ -1,0 +1,334 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName" : "Elements__Viewports__.json",
+        "Meta__Kind"     : "viewport",
+        "Meta__Document" : "TV05_T01_D04"
+    },
+    "Elements__LayerSvg"  : {},
+    "Elements__Viewports" : [
+        {
+            "Viewport__Id"      : "Viewport_001",
+            "Viewport__Kind"    : "3d",
+            "Viewport__Name"    : "",
+            "Viewport__LayerId" : "Layer_001",
+            "Viewport__FrameMm" : {
+                "X"        : 10,
+                "Y"        : 11,
+                "WidthMm"  : 153.7,
+                "HeightMm" : 80.7
+            },
+            "Viewport__RotationDeg"      : 0,
+            "Viewport__ScaleDenominator" : 50,
+            "Viewport__SitePlan"         : false,
+            "Viewport__PictureRectMm"    : {
+                "X"        : 0,
+                "Y"        : 0,
+                "WidthMm"  : 153.7,
+                "HeightMm" : 80.7
+            },
+            "Viewport__BaseImage"    : true,
+            "Viewport__RasterOpaque" : true,
+            "Viewport__Rasters"      : [
+                {
+                    "Tier__Id"     : "Print",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Print__44c5826f5c.png",
+                    "Tier__PixelW" : 3074,
+                    "Tier__PixelH" : 1614
+                },
+                {
+                    "Tier__Id"     : "Tier03",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier03__Detail__44c5826f5c.webp",
+                    "Tier__PixelW" : 1844,
+                    "Tier__PixelH" : 968
+                },
+                {
+                    "Tier__Id"     : "Tier02",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier02__Read__44c5826f5c.webp",
+                    "Tier__PixelW" : 922,
+                    "Tier__PixelH" : 484
+                },
+                {
+                    "Tier__Id"     : "Tier01",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier01__Fit__44c5826f5c.webp",
+                    "Tier__PixelW" : 307,
+                    "Tier__PixelH" : 161
+                }
+            ],
+            "Viewport__FogMasks"   : [],
+            "Viewport__PointCloud" : null,
+            "Viewport__Vector"     : null,
+            "Viewport__SceneSvg"   : "",
+            "Viewport__FrameSvg"   : ""
+        },
+        {
+            "Viewport__Id"      : "Viewport_002",
+            "Viewport__Kind"    : "3d",
+            "Viewport__Name"    : "",
+            "Viewport__LayerId" : "Layer_001",
+            "Viewport__FrameMm" : {
+                "X"        : 169.7,
+                "Y"        : 11,
+                "WidthMm"  : 153.7,
+                "HeightMm" : 80.7
+            },
+            "Viewport__RotationDeg"      : 0,
+            "Viewport__ScaleDenominator" : 50,
+            "Viewport__SitePlan"         : false,
+            "Viewport__PictureRectMm"    : {
+                "X"        : 0,
+                "Y"        : 0,
+                "WidthMm"  : 153.7,
+                "HeightMm" : 80.7
+            },
+            "Viewport__BaseImage"    : true,
+            "Viewport__RasterOpaque" : true,
+            "Viewport__Rasters"      : [
+                {
+                    "Tier__Id"     : "Print",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_002__Print__07a810bf43.png",
+                    "Tier__PixelW" : 3074,
+                    "Tier__PixelH" : 1614
+                },
+                {
+                    "Tier__Id"     : "Tier03",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_002__Tier03__Detail__07a810bf43.webp",
+                    "Tier__PixelW" : 1844,
+                    "Tier__PixelH" : 968
+                },
+                {
+                    "Tier__Id"     : "Tier02",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_002__Tier02__Read__07a810bf43.webp",
+                    "Tier__PixelW" : 922,
+                    "Tier__PixelH" : 484
+                },
+                {
+                    "Tier__Id"     : "Tier01",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_002__Tier01__Fit__07a810bf43.webp",
+                    "Tier__PixelW" : 307,
+                    "Tier__PixelH" : 161
+                }
+            ],
+            "Viewport__FogMasks"   : [],
+            "Viewport__PointCloud" : null,
+            "Viewport__Vector"     : null,
+            "Viewport__SceneSvg"   : "",
+            "Viewport__FrameSvg"   : ""
+        },
+        {
+            "Viewport__Id"      : "Viewport_003",
+            "Viewport__Kind"    : "3d",
+            "Viewport__Name"    : "",
+            "Viewport__LayerId" : "Layer_001",
+            "Viewport__FrameMm" : {
+                "X"        : 10,
+                "Y"        : 101.7,
+                "WidthMm"  : 153.7,
+                "HeightMm" : 80.7
+            },
+            "Viewport__RotationDeg"      : 0,
+            "Viewport__ScaleDenominator" : 50,
+            "Viewport__SitePlan"         : false,
+            "Viewport__PictureRectMm"    : {
+                "X"        : 0,
+                "Y"        : 0,
+                "WidthMm"  : 153.7,
+                "HeightMm" : 80.7
+            },
+            "Viewport__BaseImage"    : true,
+            "Viewport__RasterOpaque" : true,
+            "Viewport__Rasters"      : [
+                {
+                    "Tier__Id"     : "Print",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_003__Print__9eed704470.png",
+                    "Tier__PixelW" : 3074,
+                    "Tier__PixelH" : 1614
+                },
+                {
+                    "Tier__Id"     : "Tier03",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_003__Tier03__Detail__9eed704470.webp",
+                    "Tier__PixelW" : 1844,
+                    "Tier__PixelH" : 968
+                },
+                {
+                    "Tier__Id"     : "Tier02",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_003__Tier02__Read__9eed704470.webp",
+                    "Tier__PixelW" : 922,
+                    "Tier__PixelH" : 484
+                },
+                {
+                    "Tier__Id"     : "Tier01",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_003__Tier01__Fit__9eed704470.webp",
+                    "Tier__PixelW" : 307,
+                    "Tier__PixelH" : 161
+                }
+            ],
+            "Viewport__FogMasks"   : [],
+            "Viewport__PointCloud" : null,
+            "Viewport__Vector"     : null,
+            "Viewport__SceneSvg"   : "",
+            "Viewport__FrameSvg"   : ""
+        },
+        {
+            "Viewport__Id"      : "Viewport_004",
+            "Viewport__Kind"    : "3d",
+            "Viewport__Name"    : "",
+            "Viewport__LayerId" : "Layer_001",
+            "Viewport__FrameMm" : {
+                "X"        : 169.7,
+                "Y"        : 101.7,
+                "WidthMm"  : 153.7,
+                "HeightMm" : 80.7
+            },
+            "Viewport__RotationDeg"      : 0,
+            "Viewport__ScaleDenominator" : 50,
+            "Viewport__SitePlan"         : false,
+            "Viewport__PictureRectMm"    : {
+                "X"        : 0,
+                "Y"        : 0,
+                "WidthMm"  : 153.7,
+                "HeightMm" : 80.7
+            },
+            "Viewport__BaseImage"    : true,
+            "Viewport__RasterOpaque" : true,
+            "Viewport__Rasters"      : [
+                {
+                    "Tier__Id"     : "Print",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_004__Print__b8c8c73422.png",
+                    "Tier__PixelW" : 3074,
+                    "Tier__PixelH" : 1614
+                },
+                {
+                    "Tier__Id"     : "Tier03",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_004__Tier03__Detail__b8c8c73422.webp",
+                    "Tier__PixelW" : 1844,
+                    "Tier__PixelH" : 968
+                },
+                {
+                    "Tier__Id"     : "Tier02",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_004__Tier02__Read__b8c8c73422.webp",
+                    "Tier__PixelW" : 922,
+                    "Tier__PixelH" : 484
+                },
+                {
+                    "Tier__Id"     : "Tier01",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_004__Tier01__Fit__b8c8c73422.webp",
+                    "Tier__PixelW" : 307,
+                    "Tier__PixelH" : 161
+                }
+            ],
+            "Viewport__FogMasks"   : [],
+            "Viewport__PointCloud" : null,
+            "Viewport__Vector"     : null,
+            "Viewport__SceneSvg"   : "",
+            "Viewport__FrameSvg"   : ""
+        },
+        {
+            "Viewport__Id"      : "Viewport_005",
+            "Viewport__Kind"    : "3d",
+            "Viewport__Name"    : "",
+            "Viewport__LayerId" : "Layer_001",
+            "Viewport__FrameMm" : {
+                "X"        : 10,
+                "Y"        : 192.4,
+                "WidthMm"  : 153.7,
+                "HeightMm" : 80.7
+            },
+            "Viewport__RotationDeg"      : 0,
+            "Viewport__ScaleDenominator" : 50,
+            "Viewport__SitePlan"         : false,
+            "Viewport__PictureRectMm"    : {
+                "X"        : 0,
+                "Y"        : 0,
+                "WidthMm"  : 153.7,
+                "HeightMm" : 80.7
+            },
+            "Viewport__BaseImage"    : true,
+            "Viewport__RasterOpaque" : true,
+            "Viewport__Rasters"      : [
+                {
+                    "Tier__Id"     : "Print",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_005__Print__ae749564e3.png",
+                    "Tier__PixelW" : 3074,
+                    "Tier__PixelH" : 1614
+                },
+                {
+                    "Tier__Id"     : "Tier03",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_005__Tier03__Detail__ae749564e3.webp",
+                    "Tier__PixelW" : 1844,
+                    "Tier__PixelH" : 968
+                },
+                {
+                    "Tier__Id"     : "Tier02",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_005__Tier02__Read__ae749564e3.webp",
+                    "Tier__PixelW" : 922,
+                    "Tier__PixelH" : 484
+                },
+                {
+                    "Tier__Id"     : "Tier01",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_005__Tier01__Fit__ae749564e3.webp",
+                    "Tier__PixelW" : 307,
+                    "Tier__PixelH" : 161
+                }
+            ],
+            "Viewport__FogMasks"   : [],
+            "Viewport__PointCloud" : null,
+            "Viewport__Vector"     : null,
+            "Viewport__SceneSvg"   : "",
+            "Viewport__FrameSvg"   : ""
+        },
+        {
+            "Viewport__Id"      : "Viewport_006",
+            "Viewport__Kind"    : "3d",
+            "Viewport__Name"    : "",
+            "Viewport__LayerId" : "Layer_001",
+            "Viewport__FrameMm" : {
+                "X"        : 169.7,
+                "Y"        : 192.4,
+                "WidthMm"  : 153.7,
+                "HeightMm" : 80.7
+            },
+            "Viewport__RotationDeg"      : 0,
+            "Viewport__ScaleDenominator" : 50,
+            "Viewport__SitePlan"         : false,
+            "Viewport__PictureRectMm"    : {
+                "X"        : 0,
+                "Y"        : 0,
+                "WidthMm"  : 153.7,
+                "HeightMm" : 80.7
+            },
+            "Viewport__BaseImage"    : true,
+            "Viewport__RasterOpaque" : true,
+            "Viewport__Rasters"      : [
+                {
+                    "Tier__Id"     : "Print",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_006__Print__7d932b5e72.png",
+                    "Tier__PixelW" : 3074,
+                    "Tier__PixelH" : 1614
+                },
+                {
+                    "Tier__Id"     : "Tier03",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_006__Tier03__Detail__7d932b5e72.webp",
+                    "Tier__PixelW" : 1844,
+                    "Tier__PixelH" : 968
+                },
+                {
+                    "Tier__Id"     : "Tier02",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_006__Tier02__Read__7d932b5e72.webp",
+                    "Tier__PixelW" : 922,
+                    "Tier__PixelH" : 484
+                },
+                {
+                    "Tier__Id"     : "Tier01",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_006__Tier01__Fit__7d932b5e72.webp",
+                    "Tier__PixelW" : 307,
+                    "Tier__PixelH" : 161
+                }
+            ],
+            "Viewport__FogMasks"   : [],
+            "Viewport__PointCloud" : null,
+            "Viewport__Vector"     : null,
+            "Viewport__SceneSvg"   : "",
+            "Viewport__FrameSvg"   : ""
+        }
+    ]
+}

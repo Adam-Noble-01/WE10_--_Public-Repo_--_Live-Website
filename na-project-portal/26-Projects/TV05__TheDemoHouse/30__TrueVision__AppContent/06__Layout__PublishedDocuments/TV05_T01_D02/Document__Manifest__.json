@@ -10,24 +10,24 @@
         "Document__Phase"         : "T01",
         "Document__Number"        : "D02",
         "Document__Name"          : "Front & Left Elevations",
-        "Document__Revision"      : "A",
-        "Document__Status"        : null,
+        "Document__Revision"      : "B",
+        "Document__Status"        : "PRELIMINARY",
         "Document__SourceSheetId" : "Sheet_003"
     },
     "PublishedDocument__Publish" : {
         "Publish__SchemaVersion"  : 1,
-        "Publish__AtIso"          : "2026-11-18T22:11:02.861Z",
-        "Publish__AtEpochMs"      : 1795039862861,
+        "Publish__AtIso"          : "2026-11-18T23:27:06.051Z",
+        "Publish__AtEpochMs"      : 1795044426051,
         "Publish__ByApp"          : "TrueVision3D Layout Editor",
         "Publish__ByAppVersion"   : "v2.176.0",
-        "Publish__RevisionAction" : "new",
-        "Publish__Archived"       : null
+        "Publish__RevisionAction" : "archived-and-rebuilt",
+        "Publish__Archived"       : "00__Archive__Revisions/TV05_T01_D02__Revision__A.zip"
     },
     "PublishedDocument__Files" : {
         "Files__Sheet" : {
             "File__Path"   : "Document__Sheet__.json",
-            "File__Bytes"  : 18569,
-            "File__Sha256" : "ede2a818fc"
+            "File__Bytes"  : 34799,
+            "File__Sha256" : "5711a81670"
         },
         "Files__Elements" : [
             {
@@ -37,8 +37,8 @@
                 ],
                 "File__Path"   : "01__Elements__Data/Elements__Dimensions__.json",
                 "File__Count"  : 11,
-                "File__Bytes"  : 23117,
-                "File__Sha256" : "a77cf3a4ac"
+                "File__Bytes"  : 23059,
+                "File__Sha256" : "21be5d55eb"
             },
             {
                 "File__Type"   : "annotation",
@@ -47,8 +47,16 @@
                 ],
                 "File__Path"   : "01__Elements__Data/Elements__Text__.json",
                 "File__Count"  : 4,
-                "File__Bytes"  : 3770,
-                "File__Sha256" : "d7d4fbc8cc"
+                "File__Bytes"  : 47045,
+                "File__Sha256" : "0ed78ee248"
+            },
+            {
+                "File__Type"   : "leader",
+                "File__Layers" : [],
+                "File__Path"   : "01__Elements__Data/Elements__Bubbles__.json",
+                "File__Count"  : 12,
+                "File__Bytes"  : 18129,
+                "File__Sha256" : "3c4a5e56a1"
             },
             {
                 "File__Type"   : "vector",
@@ -174,11 +182,11 @@
             }
         ],
         "Files__Pdf" : {
-            "File__Path"   : "Document__Print__6d700c310f.pdf",
-            "File__Bytes"  : 464516,
-            "File__Sha256" : "6d700c310f",
-            "File__Name"   : "TV05_T01_D02__FrontLeftElevations__A2__RevA__18-Nov-2026__.pdf"
+            "File__Path"   : "Document__Print__1102e90b80.pdf",
+            "File__Bytes"  : 497446,
+            "File__Sha256" : "1102e90b80",
+            "File__Name"   : "TV05_T01_D02__FrontLeftElevations__A2__RevB__18-Nov-2026__.pdf"
         },
-        "Files__TotalBytes" : 1091846
+        "Files__TotalBytes" : 1202352
     }
 }
