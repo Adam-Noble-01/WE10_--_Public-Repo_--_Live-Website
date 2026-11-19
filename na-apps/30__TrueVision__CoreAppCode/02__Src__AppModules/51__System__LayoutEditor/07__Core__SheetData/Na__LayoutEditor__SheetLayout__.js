@@ -35,6 +35,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Nov-2026 - Version 1.2.1 (TrueVision3D v2.189.2)
+// - EMBEDDED SHEETS. A sheet with Sheet__Embedded { WidthMm, HeightMm } is
+//   a drawing surface inside another app (IdeaVision's board layer and its
+//   scale canvases): its paper is exactly that size, with no margin, title
+//   block, border or notes margin (SolveEmbedded). A TrueVision sheet never
+//   carries the key, so nothing changes for one.
+//
 // 14-Sep-2026 - Version 1.2.0
 // - The notes margin: MarginRect is the column a sheet's Sheet__MarginNotes
 //   reserves down the right of the content area, to the top of the title
@@ -102,6 +109,41 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Paper of an Embedded Sheet, or Null
+    // ------------------------------------------------------------
+    // ADAM'S RULE (19-Nov-2026): IdeaVision draws with this Layout Editor, not
+    // with tools of its own - "any new scale drawing type or vector tools
+    // ALWAYS make them in the TrueVision layout editor codebase so there is a
+    // SSOT basically". Its board layer and its scale canvases are sheets of
+    // any size with no margin, border, title block or notes margin, and
+    // Sheet__Embedded { WidthMm, HeightMm } says so. A TrueVision sheet never
+    // has the key, so its layout is solved exactly as before.
+    // ------------------------------------------------------------
+    function Na__LeLayout__EmbeddedSize(sheet) {
+        const embedded = sheet ? sheet.Sheet__Embedded : null;
+        if (!embedded || typeof embedded !== 'object') return null;
+        const widthMm  = Number(embedded.WidthMm);
+        const heightMm = Number(embedded.HeightMm);
+        if (!Number.isFinite(widthMm) || widthMm <= 0 || !Number.isFinite(heightMm) || heightMm <= 0) return null;
+        return { WidthMm : widthMm, HeightMm : heightMm };
+    }
+    function Na__LeLayout__SolveEmbedded(size) {
+        const sheetSetup = Na__LeCfg__GetSheetSetup();
+        const whole      = { X : 0, Y : 0, WidthMm : size.WidthMm, HeightMm : size.HeightMm };
+        return {
+            Page              : { WidthMm : size.WidthMm, HeightMm : size.HeightMm, Orientation : (size.WidthMm >= size.HeightMm) ? 'landscape' : 'portrait', SizeKey : 'Embedded', Label : 'Embedded' },
+            Content           : whole,
+            TitleBlock        : { X : 0, Y : size.HeightMm, WidthMm : size.WidthMm, HeightMm : 0 },   // <-- None: a zero band at the foot, so anything that measures it finds nothing
+            Drawing           : { X : 0, Y : 0, WidthMm : size.WidthMm, HeightMm : size.HeightMm },
+            Margin            : null,
+            MarginMm          : 0,
+            TitleBlockStyle   : 'none',
+            ScreenPixelsPerMm : sheetSetup.screenPixelsPerMm
+        };
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Solve the Full Paper Layout for a Sheet Record
     // ------------------------------------------------------------
     // Returns:
@@ -116,6 +158,8 @@
     // drawn into it by the chrome.
     // ------------------------------------------------------------
     function Na__LeLayout__Solve(sheet) {
+        const embedded   = Na__LeLayout__EmbeddedSize(sheet);
+        if (embedded) return Na__LeLayout__SolveEmbedded(embedded);              // <-- A sheet inside another app (IdeaVision): its own paper, nothing on its edge
         const sheetSetup = Na__LeCfg__GetSheetSetup();
         const titleSetup = Na__LeCfg__GetTitleBlockSetup();
         const page       = Na__LeLayout__PaperSizeMm(sheet ? sheet.Sheet__PaperSize : null, sheet ? sheet.Sheet__Orientation : null);

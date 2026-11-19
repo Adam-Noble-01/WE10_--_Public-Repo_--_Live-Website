@@ -45,6 +45,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Nov-2026 - Version 1.14.1 (TrueVision3D v2.189.2)
+// - An embedded sheet (Sheet__Embedded: IdeaVision's board layer and scale
+//   canvases, solved as TitleBlockStyle 'none') gets no border and no title
+//   block. Its viewports' frames are still built, as on any sheet.
+//
 // 22-Sep-2026 - Version 1.14.0
 // - A HOLED POLYLINE (a vector with islands, from the vector tools' Boolean
 //   section). PushPolyline's extra takes holes - where each hole begins in
@@ -655,7 +660,9 @@
         const style    = Na__LeCfg__GetStyleSetup();
         const border   = Na__LeCfg__GetSheetSetup().borderStrokeMm;
 
-        if (layout.TitleBlockStyle === 'classic') {
+        if (layout.TitleBlockStyle === 'none') {
+            // AN EMBEDDED SHEET (Sheet__Embedded, solved by SheetLayout): nothing on the paper's edge
+        } else if (layout.TitleBlockStyle === 'classic') {
             if (settings.includeTitleBlock !== false) Na__LeTitleClassic__Build(list, layout, settings.fields || {}, style, Na__LeChrome__CachedAsset);
         } else {
             const content = layout.Content;

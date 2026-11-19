@@ -2,6 +2,104 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.189.4  -  19-Nov-2026
+### Embedded Sheets Carry Their Own Scale
+
+**What was wrong**
+- A sheet's scale (the "at scale" of typed sizes, dimensions and floor areas) is the scale its 2D viewports share,
+  and with none it falls back to the configured default, 1:50. IdeaVision's board is an embedded sheet with no
+  viewports, so a dimension drawn there (measured at scale, the default) read fifty times its length, and a size
+  typed into the Measurements box drew a fiftieth of it.
+
+**Now**
+- `Sheet__Embedded` may name `ScaleDenominator`: the embedded drawing's own scale. It is the sheet's scale
+  (`Na__LeDrawScale__SheetDenominator`), so typed sizes, dimensions and areas off any viewport follow it.
+  IdeaVision's board is 1:1; its Scale Drawing Canvases are 1:N, so they draw and measure in real millimetres.
+- A sheet without the key, every TrueVision sheet among them, is unchanged.
+
+**Checked**
+- IdeaVision's shell test: a dimension on the board now reads its board length (denominator 1).
+- TrueVision's own Node checks: the same 68 of 75 pass, and the same 7 predate this release (see v2.189.3).
+- Not checked: TrueVision's own Layout Editor in a browser. No service worker token bump: no import or export
+  changed.
+
+**Files**
+- Changed: `51__System__LayoutEditor/07__Core__SheetData/Na__LayoutEditor__DrawingScale__.js` 1.0.1;
+  `51__System__LayoutEditor/07__Core__SheetData/Na__LayoutEditor__SheetRecords__.js` 1.42.2.
+
+**Status:** uncommitted, waiting on Adam (NaWeb serves the live site). Made by IdeaVision's
+WORKER__TrueVisionLayoutEditor__Integrator.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.189.3  -  19-Nov-2026
+### The Text Tool: Its Typing Field Stays Open After the Click
+
+**What was wrong**
+- A click with the Text tool put "Text" on the sheet and opened its typing field, and the field closed again in the
+  same click: the browser's own focus move on the press went to the stage (it is focusable, tabindex 0), blurred the
+  field and committed the default "Text" before a key was typed. Every other placing press (vector tools, leaders,
+  rectangles, a selection) is already taken from the browser with preventDefault; the Text tool's was not.
+
+**Now**
+- The Text tool's press is taken from the browser too, so the field keeps the focus Place gave it and the first key
+  types into it. A double click on a text, the editing route, was never affected.
+
+**Checked**
+- IdeaVision's host of the Layout Editor in headless Edge (`87__Spike__LayoutEditorHost`), focus events logged: the
+  field focused during the press, then the stage took the focus back after `mousedown`. With the press taken, "Hello
+  board" typed and Enter left the text reading "Hello board".
+- TrueVision's own Node checks (`80__Testing__PrototypeEnvironment`, 19-Nov-2026): 68 of 75 pass, every one that
+  loads a changed module among them. The 7 that fail, fail the same way without this release:
+  - `LeaderlessNotes` (RB05's live project file) and `StoreyBand` (a storey build token): re-run against the
+    committed files, same failures;
+  - the five `Statement*` tests (RB05's live statements): they load none of the changed modules.
+- Not checked: TrueVision's own Layout Editor in a browser. No service worker token bump: no import or export
+  changed.
+
+**Files**
+- Changed: `51__System__LayoutEditor/30__System__SheetTools/Na__LayoutEditor__SheetTools__PointerPress__.js` 1.10.1.
+
+**Status:** uncommitted, waiting on Adam (NaWeb serves the live site). Made by IdeaVision's
+WORKER__TrueVisionLayoutEditor__Integrator.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.189.2  -  19-Nov-2026
+### Embedded Sheets: the Layout Editor as IdeaVision's Drawing Library
+
+**What Adam asked for** (building IdeaVision, his own whiteboard)
+- "DO NOT REINVENT THE WHEEL FOR THE 2D CANVAS DRAWING ALWAYS USE THE TRUEVISION 3D LAYOUT EDITOR DRAWING TOOLS AS A
+  LIBRARY OTHERWISE WE NEED TO MAINTAIN A SHIT LOAD OF CODE."
+- "TrueVision Code is always adaptable ... any new scale drawing type or vector tools ALWAYS make them in the
+  TrueVision layout editor codebase so there is a SSOT basically."
+
+**What was missing**
+- Every sheet was a sheet of paper: an A-size with a margin, a border and a title block. IdeaVision's board layer and
+  its scale canvases need a drawing surface of any size with nothing on its edge.
+
+**Now**
+- A sheet with `Sheet__Embedded { WidthMm, HeightMm }` is solved at exactly that size, with no margin, title block,
+  border or notes margin (`Na__LeLayout__SolveEmbedded`, TitleBlockStyle `none`). The chrome draws nothing on its
+  edge; its viewports' frames are built as on any sheet.
+- The normaliser keeps the key only when it names a real size.
+- A TrueVision sheet never carries the key, so no TrueVision sheet changes.
+
+**Checked**
+- IdeaVision's sync of the Layout Editor: `--check` (262 files byte for byte) and `--check-graph` (every import of
+  250 modules resolves and every imported name is exported).
+- IdeaVision's host spike in headless Edge (`87__Spike__LayoutEditorHost`): an embedded 600 x 400 mm sheet draws no
+  chrome element at all, the Draw tool still snaps a line exactly to a corner, and the record saves and reloads.
+- TrueVision's own Node checks: 68 of 75 pass, and the 7 failures predate this release (see v2.189.3, Checked).
+- Not checked: TrueVision's own Layout Editor in a browser. The change only acts when the new key is present.
+
+**Files**
+- Changed: `51__System__LayoutEditor/07__Core__SheetData/Na__LayoutEditor__SheetLayout__.js` 1.2.1;
+  `51__System__LayoutEditor/07__Core__SheetData/Na__LayoutEditor__SheetRecords__.js` 1.42.1;
+  `51__System__LayoutEditor/10__Core__SheetSurface/Na__LayoutEditor__SheetChrome__.js` 1.14.1.
+
+**Status:** uncommitted, waiting on Adam (NaWeb serves the live site). Made by IdeaVision's
+WORKER__TrueVisionLayoutEditor__Integrator.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.189.1  -  18-Nov-2026
 ### The Published Drawings Reader Pinches, Pans and Zooms Smoothly on a Tablet
 

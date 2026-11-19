@@ -17,6 +17,8 @@
 //   title block quotes. When they differ (the title block reads "As shown")
 //   it is the scale of the viewports covering the most paper, the sheet's
 //   main drawing; when there are none, it is the configured default (1:50).
+//   An EMBEDDED sheet (Sheet__Embedded, a sheet inside another app) that
+//   names its own ScaleDenominator is at that scale, whatever it holds.
 // - The two rules together keep a vector and a dimension in agreement. A
 //   line typed as 2500 over a 1:20 detail is drawn at 1:20, and a dimension
 //   placed over that detail measures it at 1:20, so it reads 2500 back; on a
@@ -37,6 +39,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Nov-2026 - Version 1.0.1 (TrueVision3D v2.189.4)
+// - An embedded sheet's own ScaleDenominator is its scale. IdeaVision's
+//   board, an embedded sheet with no viewports, fell back to the configured
+//   1:50, so a dimension measured at scale read fifty times its length and a
+//   typed size drew a fiftieth of it. Its scale canvases are drawn at 1:N the
+//   same way, so typed sizes, dimensions and areas there read real sizes.
+//
 // 14-Sep-2026 - Version 1.0.0
 // - Initial implementation: the viewport under a point, the sheet's scale,
 //   and the scale a dimension reads at.
@@ -77,6 +86,8 @@
     // most paper wins, and a tie goes to the finer scale.
     // ------------------------------------------------------------
     function Na__LeDrawScale__SheetDenominator(sheet) {
+        const embedded = sheet ? sheet.Sheet__Embedded : null;
+        if (embedded && Number.isFinite(embedded.ScaleDenominator) && embedded.ScaleDenominator > 0) return embedded.ScaleDenominator;   // <-- A sheet inside another app says its own scale: IdeaVision's board is 1:1, a scale canvas 1:N
         const viewports = (sheet && Array.isArray(sheet.Sheet__Viewports) ? sheet.Sheet__Viewports : []).filter(Na__LeDrawScale__IsScaled);
         if (!viewports.length) return Na__LeCfg__GetScaleSetup().defaultDenominator;
         const areas = new Map();

@@ -58,6 +58,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Nov-2026 - Version 1.10.1 (TrueVision3D v2.189.3)
+// - THE TEXT TOOL'S PRESS IS TAKEN FROM THE BROWSER (preventDefault), as every
+//   other placing press already was. Place opens the typing field and focuses
+//   it during the press; the browser's own focus move then ran (the stage is
+//   focusable, tabindex 0), blurred the field and so committed the default
+//   "Text" before a key was typed. Found by IdeaVision's host of the Layout
+//   Editor: in headless Edge the field was gone after every click, and with the
+//   press taken "Hello board" typed straight into it. A double click on a text
+//   (the editing route) was never affected: no press follows it.
+//
 // 23-Sep-2026 - Version 1.10.0
 // - A DRAG FROM A VIEWPORT THE PRESS WOULD NOT MOVE DRAWS A SELECTION BOX
 //   (ViewportHoldsStill), locked or not. Under Select such a press picked the
@@ -545,7 +555,7 @@
         if (wasEditing) Na__LeText__Commit();
 
         if (Na__LeTools__Editable) {
-            if (Na__LeTools__Tool === Na__LeTools__TOOL_TEXT)      { Na__LeText__Place(sheet, point, Na__LeTools__GetTextDefaults()); return; }
+            if (Na__LeTools__Tool === Na__LeTools__TOOL_TEXT)      { event.preventDefault(); Na__LeText__Place(sheet, point, Na__LeTools__GetTextDefaults()); return; }   // <-- Taken from the browser, whose own focus move on the press closed the field Place opens
             if (Na__LeTools__Tool === Na__LeTools__TOOL_DIMENSION) { Na__LeDim__Click(sheet, point, event.shiftKey, Na__LeTools__GetDimensionDefaults()); Na__LeMeasure__Refresh(); return; }
             if (Na__LeTools__Tool === Na__LeTools__TOOL_DRAW)      { Na__LeShape__Click(sheet, point, event.shiftKey, Na__LeTools__GetShapeDefaults()); Na__LeMeasure__Refresh(); return; }
 

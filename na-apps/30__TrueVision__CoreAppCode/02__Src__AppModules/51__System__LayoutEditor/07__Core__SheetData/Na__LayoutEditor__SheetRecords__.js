@@ -33,6 +33,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Nov-2026 - Version 1.42.2 (TrueVision3D v2.189.4)
+// - Sheet__Embedded keeps ScaleDenominator when it is a positive number: the
+//   embedded drawing's own scale (DrawingScale's sheet scale).
+//
+// 19-Nov-2026 - Version 1.42.1 (TrueVision3D v2.189.2)
+// - Sheet__Embedded { WidthMm, HeightMm } (a sheet inside another app,
+//   IdeaVision) is kept when it names a real size and dropped otherwise.
+//
 // 15-Nov-2026 - Version 1.42.0 (v2.185.0, from ValeVision 3D v2.85.0 and v2.88.0)
 // - A viewport's styles keep the Vegetation and Entourage ticks.
 //
@@ -1506,6 +1514,17 @@
         if (!sheet.Sheet__PaperSize || !sheetSetup.paperSizes[sheet.Sheet__PaperSize]) sheet.Sheet__PaperSize = sheetSetup.defaultPaperSize;
         if (sheet.Sheet__Orientation !== 'portrait') sheet.Sheet__Orientation = 'landscape';
         if (sheet.Sheet__TitleBlockStyle !== 'classic' && sheet.Sheet__TitleBlockStyle !== 'modern') sheet.Sheet__TitleBlockStyle = titleSetup.defaultStyle;
+        if (sheet.Sheet__Embedded !== undefined) {                               // <-- A sheet inside another app (IdeaVision): its own paper, no chrome (SheetLayout's EmbeddedSize)
+            const embedded = (sheet.Sheet__Embedded && typeof sheet.Sheet__Embedded === 'object') ? sheet.Sheet__Embedded : {};
+            const widthMm  = Number(embedded.WidthMm);
+            const heightMm = Number(embedded.HeightMm);
+            if (Number.isFinite(widthMm) && widthMm > 0 && Number.isFinite(heightMm) && heightMm > 0) {
+                const scale = Number(embedded.ScaleDenominator);
+                sheet.Sheet__Embedded = { WidthMm : widthMm, HeightMm : heightMm };
+                if (Number.isFinite(scale) && scale > 0) sheet.Sheet__Embedded.ScaleDenominator = scale;   // <-- The drawing's own scale, the sheet's scale in DrawingScale (1 on IdeaVision's board, 1:N in a scale canvas)
+            }
+            else delete sheet.Sheet__Embedded;
+        }
         if (sheet.Sheet__DrawingType !== Na__LeRec__DRAWING_SITEPLAN) delete sheet.Sheet__DrawingType;   // <-- Stored only for a site plan; no key is an architectural drawing
         if (!sheet.Sheet__Fields || typeof sheet.Sheet__Fields !== 'object') sheet.Sheet__Fields = {};
 
