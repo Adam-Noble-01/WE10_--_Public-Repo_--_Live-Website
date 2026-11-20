@@ -45,6 +45,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Nov-2026 - Version 1.5.0 (TrueVision3D v2.189.6)
+// - OpenField takes fontFamily and trackingMm; BeginEdit passes a text
+//   item's own face, letter spacing and line spacing (MarkupBridge 1.21.0),
+//   so the field is typed in the face the item is drawn in. A record
+//   without them opens exactly as before.
+//
 // 21-Sep-2026 - Version 1.4.0
 // - Place puts a new text item on the drawing grid while Grid Snap is on
 //   (F7, Na__LayoutEditor__DrawingGrid__): the click lands on the nearest
@@ -89,7 +95,7 @@
     import { Na__LeCfg__GetTextSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__LeGrid__SnapPoint } from '../27__System__DrawingGrid/Na__LayoutEditor__DrawingGrid__State__.js';   // <-- Grid Snap (F7): a leaf, the nearest grid point
     import { Na__LeSurface__GetElements, Na__LeSurface__GetPixelsPerMm } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
-    import { Na__LeMarkup__AnnotationBox, Na__LeMarkup__AnnotationRotationDeg, Na__LeMarkup__AnnotationCentre } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
+    import { Na__LeMarkup__AnnotationBox, Na__LeMarkup__AnnotationRotationDeg, Na__LeMarkup__AnnotationCentre, Na__LeMarkup__AnnotationLineMm, Na__LeMarkup__AnnotationFamily, Na__LeMarkup__AnnotationTrackingMm } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -120,7 +126,7 @@
     // ------------------------------------------------------------
     // spec: { xMm, yMm, widthMm, fontMm, weight, colour, align, value,
     //         multiline, commitOnEnter, lineHeightMm, rotateDeg, originXMm,
-    //         originYMm, onCommit(text), onCancel() }
+    //         originYMm, fontFamily, trackingMm, onCommit(text), onCancel() }
     // rotateDeg turns the field clockwise about the paper point originXMm,
     // originYMm - a turned text item's anchor - so it lies over the text.
     // multiline opens a text area. By default Enter starts a new line and
@@ -146,6 +152,8 @@
         input.style.fontWeight = String(spec.weight || 400);
         input.style.color      = spec.colour || '';
         input.style.textAlign  = spec.align || 'left';
+        if (typeof spec.fontFamily === 'string' && spec.fontFamily !== '') input.style.fontFamily = spec.fontFamily;
+        if (Number.isFinite(spec.trackingMm) && spec.trackingMm > 0) input.style.letterSpacing = (spec.trackingMm * ppm) + 'px';
         if (Number.isFinite(spec.rotateDeg) && spec.rotateDeg !== 0) {
             const ox = Number.isFinite(spec.originXMm) ? spec.originXMm - spec.xMm : 0;
             const oy = Number.isFinite(spec.originYMm) ? spec.originYMm - spec.yMm : 0;
@@ -213,13 +221,14 @@
         if (!item) return false;
         const bounds = Na__LeMarkup__AnnotationBox(item);                        // <-- Unturned: a turned item's field is turned to match
         const fontMm = item.Annotation__SizeMm;
-        const lineMm = fontMm * Na__LeCfg__GetTextSetup().lineSpacing;
+        const lineMm = Na__LeMarkup__AnnotationLineMm(fontMm, item);
         const extra  = fontMm * 6;                                               // <-- Room to type before the field needs to be wider
         const xMm    = item.Annotation__Align === 'center' ? bounds.X - (extra / 2)
                      : (item.Annotation__Align === 'right' ? bounds.X - extra : bounds.X);
         return Na__LeText__OpenField({
             xMm : xMm, yMm : bounds.Y, widthMm : bounds.WidthMm + extra, fontMm : fontMm,
             weight : item.Annotation__FontWeight, colour : item.Annotation__Colour, align : item.Annotation__Align, value : item.Annotation__Text,
+            fontFamily : Na__LeMarkup__AnnotationFamily(item), trackingMm : Na__LeMarkup__AnnotationTrackingMm(item),
             multiline : true, commitOnEnter : true, lineHeightMm : lineMm,
             rotateDeg : Na__LeMarkup__AnnotationRotationDeg(item), originXMm : item.Annotation__PosXMm, originYMm : item.Annotation__PosYMm,
             onCommit : (text) => {

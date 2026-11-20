@@ -45,6 +45,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Nov-2026 - Version 1.15.1 (TrueVision3D v2.189.7)
+// - The PDF painter hands a text run's FontFamily to PdfFonts.SetFont, so a
+//   run in a face the host registered prints in that face, not Open Sans.
+//
+// 20-Nov-2026 - Version 1.15.0 (TrueVision3D v2.189.6)
+// - MeasureTextMm takes an optional fontFamily, last: a run in a named face
+//   (a sheet annotation's Annotation__FontFamily) is measured by the browser
+//   in that face (MeasureInFace), since jsPDF holds only Open Sans. Every
+//   caller without it measures exactly as before. The PDF still prints such
+//   a run in Open Sans.
+//
 // 19-Nov-2026 - Version 1.14.1 (TrueVision3D v2.189.2)
 // - An embedded sheet (Sheet__Embedded: IdeaVision's board layer and scale
 //   canvases, solved as TitleBlockStyle 'none') gets no border and no title
@@ -226,6 +237,7 @@
     // MODULE VARIABLES | Measuring Document and Asset Cache
     // ------------------------------------------------------------
     let   Na__LeChrome__MeasureDoc = null;    // <-- jsPDF instance, false when unavailable
+    let   Na__LeChrome__FaceCanvas = null;    // <-- A 2D context measuring runs in a named typeface
     const Na__LeChrome__Assets     = new Map(); // <-- path -> data URL (or null while loading)
     // ------------------------------------------------------------
 
@@ -255,8 +267,8 @@
 
     // HELPER FUNCTION | Select the PDF Face for a Weight (Open Sans, else Helvetica)
     // ------------------------------------------------------------
-    function Na__LeChrome__ApplyPdfFont(doc, weight) {
-        if (!Na__LePdfFonts__SetFont(doc, weight)) {
+    function Na__LeChrome__ApplyPdfFont(doc, weight, fontFamily) {
+        if (!Na__LePdfFonts__SetFont(doc, weight, fontFamily)) {
             doc.setFont('helvetica', Na__LeChrome__PdfWeight(weight));
         }
     }
@@ -272,15 +284,42 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Measure a Run in a Named Typeface Through the Browser
+    // ------------------------------------------------------------
+    // jsPDF holds only Open Sans, so a run in another face (a sheet
+    // annotation's own Annotation__FontFamily) is measured by a canvas in the
+    // face the screen draws it in. Measured at 100 px and scaled, so the
+    // canvas's whole-pixel rounding does not show. null when there is no
+    // canvas (Node), and the caller measures as before.
+    // ------------------------------------------------------------
+    function Na__LeChrome__MeasureInFace(value, fontMm, weight, fontFamily) {
+        if (typeof document === 'undefined') return null;
+        if (!Na__LeChrome__FaceCanvas) {
+            try { Na__LeChrome__FaceCanvas = document.createElement('canvas').getContext('2d'); } catch (e) { Na__LeChrome__FaceCanvas = null; }
+        }
+        if (!Na__LeChrome__FaceCanvas) return null;
+        const numeric = (weight === 'bold') ? 700 : (typeof weight === 'number' ? weight : 400);
+        Na__LeChrome__FaceCanvas.font = numeric + ' 100px ' + fontFamily;
+        return (Na__LeChrome__FaceCanvas.measureText(value).width / 100) * fontMm;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Measure a Text Run in Paper Millimetres
     // ------------------------------------------------------------
     // trackingMm is counted here as well as painted, so a tracked run runs out of
-    // its cell at the same character on screen as it does on paper.
+    // its cell at the same character on screen as it does on paper. fontFamily
+    // is optional and last: given, the run is measured in that face by the
+    // browser; left out, every caller measures exactly as before.
     // ------------------------------------------------------------
-    function Na__LeChrome__MeasureTextMm(text, fontMm, weight, trackingMm) {
+    function Na__LeChrome__MeasureTextMm(text, fontMm, weight, trackingMm, fontFamily) {
         const value = String(text === undefined || text === null ? '' : text);
         if (value === '') return 0;
         const tracking = (typeof trackingMm === 'number' && trackingMm > 0) ? trackingMm * value.length : 0;
+        if (typeof fontFamily === 'string' && fontFamily !== '') {
+            const inFace = Na__LeChrome__MeasureInFace(value, fontMm, weight, fontFamily);
+            if (typeof inFace === 'number' && Number.isFinite(inFace)) return inFace + tracking;
+        }
         const doc = Na__LeChrome__MeasuringDoc();
         if (!doc) return (value.length * fontMm * 0.52) + tracking;
         try {
@@ -956,7 +995,7 @@
         }
         if (primitive.Kind === Na__LeChrome__KIND_TEXT) {
             const ink = Na__LeChrome__Rgb(primitive.Colour);
-            Na__LeChrome__ApplyPdfFont(doc, primitive.Weight);
+            Na__LeChrome__ApplyPdfFont(doc, primitive.Weight, primitive.FontFamily);   // <-- A host face the run names (PdfFonts 1.1.0), else Open Sans
             doc.setFontSize(primitive.FontMm / Na__LeChrome__MM_PER_POINT);
             doc.setTextColor(ink.R, ink.G, ink.B);
             const options = { align : primitive.Align === 'center' ? 'center' : (primitive.Align === 'right' ? 'right' : 'left'), baseline : 'alphabetic' };

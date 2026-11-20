@@ -33,6 +33,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Nov-2026 - Version 1.43.0 (TrueVision3D v2.189.6)
+// - NormaliseAnnotation keeps a text item's own Annotation__FontFamily (a
+//   non-empty font stack), Annotation__LineSpacing and Annotation__TrackingMm
+//   (positive numbers) and removes any that are not, so an unstyled record
+//   saves exactly as before.
+//
 // 19-Nov-2026 - Version 1.42.2 (TrueVision3D v2.189.4)
 // - Sheet__Embedded keeps ScaleDenominator when it is a positive number: the
 //   embedded drawing's own scale (DrawingScale's sheet scale).
@@ -1171,6 +1177,10 @@
         if ([ 'left', 'center', 'right' ].indexOf(item.Annotation__Align) === -1) item.Annotation__Align = 'left';
         if (item.Annotation__LeaderXMm === undefined) item.Annotation__LeaderXMm = null;
         if (item.Annotation__LeaderYMm === undefined) item.Annotation__LeaderYMm = null;
+        const family = item.Annotation__FontFamily;                                   // <-- The three below are stored only when set, so an unstyled record saves as before
+        if (typeof family !== 'string' || family.trim() === '') delete item.Annotation__FontFamily;
+        if (!(Number.isFinite(item.Annotation__LineSpacing) && item.Annotation__LineSpacing > 0)) delete item.Annotation__LineSpacing;
+        if (!(Number.isFinite(item.Annotation__TrackingMm) && item.Annotation__TrackingMm > 0)) delete item.Annotation__TrackingMm;
         return item;
     }
     // ------------------------------------------------------------

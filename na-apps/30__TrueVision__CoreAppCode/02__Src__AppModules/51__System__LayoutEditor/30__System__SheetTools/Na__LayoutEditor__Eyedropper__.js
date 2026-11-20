@@ -34,7 +34,8 @@
 //
 // WHAT TRAVELS AND WHAT DOES NOT:
 //
-//   TEXT        travels : size, weight, colour, alignment
+//   TEXT        travels : size, weight, colour, alignment, typeface, line
+//                         spacing and letter spacing (none is a real value)
 //               stays   : the words, the position, the leader, the layer
 //
 //   DIMENSION   travels : text size, colour, terminator, terminator size,
@@ -116,6 +117,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Nov-2026 - Version 1.10.0 (TrueVision3D v2.189.6)
+// - Text carries its typeface, line spacing and letter spacing
+//   (Annotation__FontFamily, __LineSpacing, __TrackingMm), each nullable
+//   with absent null, so a source in the sheet's own face puts a target back.
+//
 // 21-Sep-2026 - Version 1.9.0
 // - A dimension's Round up to 5 mm (Dimension__RoundUp) is a style trait: the
 //   dropper and Paste properties copy it with the decimals and the units, and
@@ -278,7 +284,10 @@
                 { patch : 'sizeMm',     field : 'Annotation__SizeMm'     },
                 { patch : 'fontWeight', field : 'Annotation__FontWeight' },
                 { patch : 'colour',     field : 'Annotation__Colour'     },
-                { patch : 'align',      field : 'Annotation__Align'      }
+                { patch : 'align',      field : 'Annotation__Align'      },
+                { patch : 'fontFamily',  field : 'Annotation__FontFamily',  nullable : true, absent : null },   // <-- No field is the sheet's own face: a real value to copy
+                { patch : 'lineSpacing', field : 'Annotation__LineSpacing', nullable : true, absent : null },   // <-- No field is Text LineSpacing
+                { patch : 'trackingMm',  field : 'Annotation__TrackingMm',  nullable : true, absent : null }    // <-- No field is no letter spacing
             ]
         },
         dimension : {

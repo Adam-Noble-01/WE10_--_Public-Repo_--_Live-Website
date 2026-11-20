@@ -37,6 +37,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Nov-2026 - Version 1.3.0 (TrueVision3D v2.189.6)
+// - UpdateAnnotation takes fontFamily, lineSpacing and trackingMm: a text
+//   item's own typeface, line spacing and letter spacing. null (or an empty
+//   face, or 0) removes the key, so the item is drawn as the sheet draws it.
+//
 // 22-Sep-2026 - Version 1.2.0
 // - DeleteDimension prunes the groups, as DeleteAnnotation does: a dimension
 //   can be a group's member now (Na__LayoutEditor__Groups__ 1.3.0), and one
@@ -174,6 +179,9 @@
         if (patch.leaderYMm !== undefined) item.Annotation__LeaderYMm = Number.isFinite(patch.leaderYMm) ? patch.leaderYMm : null;
         if (typeof patch.layerId === 'string') item.Annotation__LayerId = patch.layerId;
         if (Number.isFinite(patch.rotationDeg)) Na__LeModel__SetAnnotationRotation(item, patch.rotationDeg);
+        if (patch.fontFamily !== undefined)  item.Annotation__FontFamily  = patch.fontFamily;    // <-- null or '' is the sheet's own face: the normaliser removes the key
+        if (patch.lineSpacing !== undefined) item.Annotation__LineSpacing = patch.lineSpacing;
+        if (patch.trackingMm !== undefined)  item.Annotation__TrackingMm  = patch.trackingMm;
         Na__LeRec__NormaliseAnnotation(item, item.Annotation__LayerId);
         if (silent) { Na__LeModel__AssignDirty(true); return true; }
         Na__LeModel__Touch('annotation', sheet.Sheet__Id, itemId);

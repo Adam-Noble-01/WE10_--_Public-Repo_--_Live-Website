@@ -2,6 +2,87 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.189.7  -  20-Nov-2026
+### A PDF Prints Text in a Host's Own Typefaces
+
+Asked for from IdeaVision (20-Nov-2026): Mono and Handdrawn text must print in JetBrains Mono and Caveat, not Open
+Sans.
+
+**What was missing**
+- 2.189.6 let a text record name its own face, and the sheet drew it, but the PDF embedded only Open Sans, so every run
+  printed in Open Sans.
+
+**Now**
+- `Na__LePdfFonts__RegisterFace({ Family, Match, BasePath, Cuts })`: a host registers a typeface and its TTF cuts.
+  `EnsureLoaded` fetches them with Open Sans; `SetFont(doc, weight, cssFamily)` prints a run whose font stack names a
+  registered face in that face, at the nearest cut for its weight (Caveat has no light: it prints regular).
+- The chrome's PDF painter hands each text run's `FontFamily` to `SetFont`.
+- With no face registered (TrueVision itself), every PDF is exactly as before.
+
+**Files**
+- Changed: `60__Feature__PdfExport/Na__LayoutEditor__PdfFonts__.js` 1.1.0;
+  `10__Core__SheetSurface/Na__LayoutEditor__SheetChrome__.js` 1.15.1 (both under `51__System__LayoutEditor/`).
+
+**Status:** uncommitted, waiting on Adam (NaWeb serves the live site). Made from IdeaVision.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.189.6  -  20-Nov-2026
+### Text Can Carry Its Own Typeface, Line Spacing and Letter Spacing
+
+Adam, 20-Nov-2026 (IdeaVision): "Build a robust text formatting system ... Fonts, three options: Sans = Open Sans ...
+Mono ... Handdrawn = Caveat", with alignment, line height and letter spacing nested behind it. TrueVision first: the
+text record and its drawing are TrueVision's, so the record learns the keys here and IdeaVision only offers them.
+
+**What was missing**
+- A sheet annotation was always drawn in the sheet's face (Text FontFamily) at Text LineSpacing with no tracking. The
+  chrome could already draw a run in any face with letter spacing; the record had no way to ask.
+
+**Now**
+- Three optional keys on a sheet annotation, each stored only when set:
+  - `Annotation__FontFamily`: a CSS font stack the host supplies and loads;
+  - `Annotation__LineSpacing`: the line height as a multiple of the size;
+  - `Annotation__TrackingMm`: letter spacing in paper mm.
+- `Na__LeMarkup__PushAnnotation` draws with them; `AnnotationBox` measures with them, so the selection box, hit test
+  and inline editor follow. `MeasureTextMm` takes an optional face, measured by the browser (jsPDF holds only Open
+  Sans). `UpdateAnnotation` takes `fontFamily`, `lineSpacing` and `trackingMm`; the eyedropper carries all three.
+- A record without them draws, measures, saves and prints exactly as before. TrueVision's own panels do not offer
+  them yet.
+- Not done: Download PDF prints a run in another face in Open Sans (only Open Sans is embedded).
+
+**Files**
+- Changed: `15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js` 1.21.0;
+  `10__Core__SheetSurface/Na__LayoutEditor__SheetChrome__.js` 1.15.0;
+  `35__System__DrawingTools/Na__LayoutEditor__TextTool__.js` 1.5.0;
+  `07__Core__SheetData/Na__LayoutEditor__SheetModel__TextAndDimensions__.js` 1.3.0;
+  `07__Core__SheetData/Na__LayoutEditor__SheetRecords__.js` 1.43.0;
+  `30__System__SheetTools/Na__LayoutEditor__Eyedropper__.js` 1.10.0 (all under `51__System__LayoutEditor/`).
+
+**Status:** uncommitted, waiting on Adam (NaWeb serves the live site). Made from IdeaVision.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.189.5  -  20-Nov-2026
+### The Drawing Grid Can Be Set Out From an Origin
+
+Adam, 20-Nov-2026 (IdeaVision): "In drawing canvases ensure there is a x0,y0 axis and set out grid from that drawing
+canvas when working inside it, its grid should superseded and take priorirty over the whiteboards".
+
+**What was missing**
+- The drawing grid always started at the paper's top-left corner. IdeaVision's board sheet and its Scale Drawing
+  Canvases each have their own grid origin, so TrueVision's grid snap landed off the grid IdeaVision drew.
+
+**Now**
+- Two grid settings, `OriginXMm` and `OriginYMm` (paper mm, 0, 0 by default): the paper point the grid is set out
+  from. `Na__LeGrid__Nearest` counts steps from it, and the grid's points and lines are drawn from it. A host sets
+  them through `Na__LeGrid__Update`; Reset keeps them, as it keeps Show Grid and Grid Snap.
+- TrueVision itself never sets them, so every TrueVision sheet is unchanged.
+
+**Files**
+- Changed: `51__System__LayoutEditor/27__System__DrawingGrid/Na__LayoutEditor__DrawingGrid__State__.js` 1.0.1;
+  `51__System__LayoutEditor/27__System__DrawingGrid/Na__LayoutEditor__DrawingGrid__.js` 1.0.1.
+
+**Status:** uncommitted, waiting on Adam (NaWeb serves the live site). Made from IdeaVision.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.189.4  -  19-Nov-2026
 ### Embedded Sheets Carry Their Own Scale
 

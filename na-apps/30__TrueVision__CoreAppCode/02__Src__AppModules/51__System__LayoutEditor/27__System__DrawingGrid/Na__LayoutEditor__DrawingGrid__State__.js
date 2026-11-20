@@ -29,6 +29,9 @@
 //   coordinates start. The border sits 5 mm in, a whole number of
 //   millimetres, so on a 1 mm grid the border, the title block's outside
 //   corners and the notes margin all stand on grid points.
+// - A HOST MAY SET THE GRID OUT FROM ANOTHER PAPER POINT (OriginXMm,
+//   OriginYMm; 0, 0 by default). IdeaVision sets it to a scale drawing's
+//   x0,y0, so the grid runs through that drawing's own origin.
 // - REMEMBERED IN THIS BROWSER, like the Snap toggle and the raster level.
 //   The grid is a drawing aid, not part of the drawing: nothing here is
 //   written to a sheet, to the project or to R2, so it cannot reach the PDF,
@@ -54,6 +57,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Nov-2026 - Version 1.0.1 (TrueVision3D v2.189.5)
+// - OriginXMm and OriginYMm: the paper point the grid is set out from. The
+//   nearest grid point is counted from it. 0, 0 is the paper's corner, as before.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Initial implementation: LayOut's grid settings and their limits, the
 //   browser overrides, Show Grid and Grid Snap, the snap step and the nearest
@@ -94,7 +101,9 @@
         MinorDivisions : 10,
         MinorColour    : '#d6d5c9',
         ClipToMargins  : false,        // <-- Clip grid to page margins: off, the grid covers the whole paper
-        OnTop          : true          // <-- Draw grid on top: over the drawings, where it can be seen
+        OnTop          : true,         // <-- Draw grid on top: over the drawings, where it can be seen
+        OriginXMm      : 0,            // <-- The paper point the grid is set out from: the paper's corner
+        OriginYMm      : 0
     });
     const Na__LeGrid__BUILT_IN_LIMITS = Object.freeze({
         MajorMinMm     : 1,
@@ -151,6 +160,11 @@
             case 'MajorColour':
             case 'MinorColour':
                 return (typeof value === 'string' && /^#[0-9a-fA-F]{6}$/.test(value)) ? value.toLowerCase() : undefined;
+            case 'OriginXMm':
+            case 'OriginYMm': {
+                const mm = Number(value);
+                return (value === null || value === '' || !Number.isFinite(mm)) ? undefined : mm;
+            }
             default:
                 return undefined;                                                // <-- Not a grid setting at all
         }
@@ -251,14 +265,15 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Put Every Setting Back to the Config's, Keeping Show Grid and Grid Snap as They Are
+    // FUNCTION | Put Every Setting Back to the Config's, Keeping Show Grid, Grid Snap and the Origin as They Are
     // ------------------------------------------------------------
     // Reset is pressed with the grid in use, to get back to a 1 mm grid - not
-    // to make it vanish - so the two switches survive the reset.
+    // to make it vanish - so the two switches survive the reset. The origin is
+    // the host's, not a panel setting, so it survives too.
     // ------------------------------------------------------------
     function Na__LeGrid__Reset() {
         const now = Na__LeGrid__Get();
-        Na__LeGrid__Overrides = { Show : now.Show, Snap : now.Snap };
+        Na__LeGrid__Overrides = { Show : now.Show, Snap : now.Snap, OriginXMm : now.OriginXMm, OriginYMm : now.OriginYMm };
         Na__LeGrid__WriteOverrides();
         return Na__LeGrid__Get();
     }
@@ -326,17 +341,29 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | The Paper Point the Grid Is Set Out From
+    // ------------------------------------------------------------
+    function Na__LeGrid__Origin(settings) {
+        const s = settings || Na__LeGrid__Get();
+        return { x : Number.isFinite(s.OriginXMm) ? s.OriginXMm : 0, y : Number.isFinite(s.OriginYMm) ? s.OriginYMm : 0 };
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | The Grid Point Nearest a Paper Point
     // ------------------------------------------------------------
     // Always the NEAREST, at any distance: each axis rounds to the nearest
     // step on its own, which is what makes a 1 mm grid a 1 mm grid. stepMm is
-    // optional (the snap step when left out).
+    // optional (the snap step when left out). Steps are counted from the
+    // grid's origin.
     // ------------------------------------------------------------
     function Na__LeGrid__Nearest(pointMm, stepMm) {
-        const step = (Number.isFinite(stepMm) && stepMm > 0) ? stepMm : Na__LeGrid__StepMm();
+        const settings = Na__LeGrid__Get();
+        const step   = (Number.isFinite(stepMm) && stepMm > 0) ? stepMm : settings.SnapStepMm;
+        const origin = Na__LeGrid__Origin(settings);
         return {
-            x : Na__LeGrid__Round(Math.round(pointMm.x / step) * step),
-            y : Na__LeGrid__Round(Math.round(pointMm.y / step) * step)
+            x : Na__LeGrid__Round(origin.x + (Math.round((pointMm.x - origin.x) / step) * step)),
+            y : Na__LeGrid__Round(origin.y + (Math.round((pointMm.y - origin.y) / step) * step))
         };
     }
     // ------------------------------------------------------------
@@ -375,6 +402,7 @@
         Na__LeGrid__IsSnapping,
         Na__LeGrid__MinorMm,
         Na__LeGrid__StepMm,
+        Na__LeGrid__Origin,
         Na__LeGrid__Nearest,
         Na__LeGrid__SnapPoint
     };

@@ -65,6 +65,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Nov-2026 - Version 1.0.1 (TrueVision3D v2.189.5)
+// - Points and lines are set out from the grid's origin (OriginXMm,
+//   OriginYMm), the same point the snap counts from.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Initial implementation: the config, Show Grid and Grid Snap with their
 //   echoes, the panel's changes and Reset, and the overlay - points or
@@ -90,7 +94,8 @@
         Na__LeGrid__Reset,
         Na__LeGrid__IsShowing,
         Na__LeGrid__IsSnapping,
-        Na__LeGrid__MinorMm
+        Na__LeGrid__MinorMm,
+        Na__LeGrid__Origin
     } from './Na__LayoutEditor__DrawingGrid__State__.js';
     import {
         Na__LeSurface__ZOOM_EVENT,
@@ -373,7 +378,7 @@
         const dpr = (Number.isFinite(window.devicePixelRatio) && window.devicePixelRatio > 0) ? window.devicePixelRatio : 1;
         const key = [ zoom, ppm, dpr, layout.Page.WidthMm, layout.Page.HeightMm, bounds.x0, bounds.y0, bounds.x1, bounds.y1,
                       settings.Type, settings.ShowMajor, settings.MajorSpacingMm, settings.MajorColour,
-                      settings.ShowMinor, settings.MinorDivisions, settings.MinorColour, settings.OnTop ].join('|');
+                      settings.ShowMinor, settings.MinorDivisions, settings.MinorColour, settings.OnTop, settings.OriginXMm, settings.OriginYMm ].join('|');
         return { els : els, paperRect : paperRect, stageRect : stageRect, zoom : zoom, scale : scale, dpr : dpr, bounds : bounds,
                  view : (view.x1 > view.x0 && view.y1 > view.y0) ? view : null, key : key };
     }
@@ -406,10 +411,12 @@
 
     // HELPER FUNCTION | The Grid Positions Along One Axis Inside a Range
     // ------------------------------------------------------------
-    // Multiples of the step from the paper's corner, as indexes: first..last.
+    // Multiples of the step from the grid's origin, as indexes: first..last.
+    // The position of index i is originMm + i x stepMm.
     // ------------------------------------------------------------
-    function Na__LeGrid__Range(fromMm, toMm, stepMm) {
-        return { first : Math.ceil((fromMm / stepMm) - 1e-9), last : Math.floor((toMm / stepMm) + 1e-9) };
+    function Na__LeGrid__Range(fromMm, toMm, stepMm, originMm) {
+        const o = originMm || 0;
+        return { first : Math.ceil(((fromMm - o) / stepMm) - 1e-9), last : Math.floor(((toMm - o) / stepMm) + 1e-9) };
     }
     // ------------------------------------------------------------
 
@@ -443,14 +450,14 @@
     // ------------------------------------------------------------
     function Na__LeGrid__DrawPoints(ctx, plan) {
         const draw = (stepMm, sizePx, colour) => {
-            const cols = Na__LeGrid__Range(plan.view.x0, plan.view.x1, stepMm);
-            const rows = Na__LeGrid__Range(plan.view.y0, plan.view.y1, stepMm);
+            const cols = Na__LeGrid__Range(plan.view.x0, plan.view.x1, stepMm, plan.origin.x);
+            const rows = Na__LeGrid__Range(plan.view.y0, plan.view.y1, stepMm, plan.origin.y);
             if (cols.last < cols.first || rows.last < rows.first) return;
             const size = Math.max(1, Math.round(sizePx * plan.dpr));
             const xs   = [];
-            for (let i = cols.first; i <= cols.last; i++) xs.push(plan.toX(i * stepMm));
+            for (let i = cols.first; i <= cols.last; i++) xs.push(plan.toX(plan.origin.x + (i * stepMm)));
             const strip = Na__LeGrid__Strip(plan.width, size, xs, colour);
-            for (let j = rows.first; j <= rows.last; j++) ctx.drawImage(strip, 0, Math.round(plan.toY(j * stepMm) - (size / 2)));
+            for (let j = rows.first; j <= rows.last; j++) ctx.drawImage(strip, 0, Math.round(plan.toY(plan.origin.y + (j * stepMm)) - (size / 2)));
         };
         if (plan.minor) draw(plan.minorMm, plan.display.MinorPointPx, plan.settings.MinorColour);
         if (plan.major) draw(plan.majorMm, plan.display.MajorPointPx, plan.settings.MajorColour);   // <-- Over the minor point at the same place
@@ -465,15 +472,15 @@
     // ------------------------------------------------------------
     function Na__LeGrid__DrawLines(ctx, plan) {
         const draw = (stepMm, widthPx, colour, dash) => {
-            const cols  = Na__LeGrid__Range(plan.view.x0, plan.view.x1, stepMm);
-            const rows  = Na__LeGrid__Range(plan.view.y0, plan.view.y1, stepMm);
+            const cols  = Na__LeGrid__Range(plan.view.x0, plan.view.x1, stepMm, plan.origin.x);
+            const rows  = Na__LeGrid__Range(plan.view.y0, plan.view.y1, stepMm, plan.origin.y);
             const width = Math.max(1, Math.round(widthPx * plan.dpr));
             const half  = (width % 2) ? 0.5 : 0;
             const top   = plan.toY(plan.view.y0), bottom = plan.toY(plan.view.y1);
             const left  = plan.toX(plan.view.x0), right  = plan.toX(plan.view.x1);
             ctx.beginPath();
-            for (let i = cols.first; i <= cols.last; i++) { const x = Math.round(plan.toX(i * stepMm)) + half; ctx.moveTo(x, top); ctx.lineTo(x, bottom); }
-            for (let j = rows.first; j <= rows.last; j++) { const y = Math.round(plan.toY(j * stepMm)) + half; ctx.moveTo(left, y); ctx.lineTo(right, y); }
+            for (let i = cols.first; i <= cols.last; i++) { const x = Math.round(plan.toX(plan.origin.x + (i * stepMm))) + half; ctx.moveTo(x, top); ctx.lineTo(x, bottom); }
+            for (let j = rows.first; j <= rows.last; j++) { const y = Math.round(plan.toY(plan.origin.y + (j * stepMm))) + half; ctx.moveTo(left, y); ctx.lineTo(right, y); }
             ctx.lineWidth   = width;
             ctx.strokeStyle = colour;
             ctx.setLineDash(dash ? dash.map((n) => Math.max(1, Math.round(n * plan.dpr))) : []);
@@ -530,7 +537,7 @@
         ctx.clearRect(0, 0, width, height);
         const plan = {
             settings : settings, display : display, dpr : dpr, view : at.view, width : width,
-            majorMm : majorMm, minorMm : minorMm, major : major, minor : minor,
+            majorMm : majorMm, minorMm : minorMm, major : major, minor : minor, origin : Na__LeGrid__Origin(settings),
             toX : (mm) => (at.paperRect.left + (mm * at.scale) - left) * dpr,
             toY : (mm) => (at.paperRect.top  + (mm * at.scale) - top)  * dpr
         };

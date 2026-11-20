@@ -40,6 +40,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Nov-2026 - Version 1.21.0 (TrueVision3D v2.189.6)
+// - A sheet annotation may carry its own typeface, line spacing and letter
+//   spacing: Annotation__FontFamily (a CSS font stack), Annotation__LineSpacing
+//   (a multiple of the size) and Annotation__TrackingMm. AnnotationFamily,
+//   AnnotationLineMm (now exported, taking the item) and AnnotationTrackingMm
+//   read them; PushAnnotation draws with them and AnnotationBox measures with
+//   them, so the selection box, the hit test and the inline editor follow.
+//   A record without the keys draws and measures exactly as before. Asked
+//   for from IdeaVision's text formatting (Adam, 20-Nov-2026).
+//
 // 23-Sep-2026 - Version 1.20.0
 // - A dimension's own line weight and line style. DimensionStrokeMm reads
 //   Dimension__LinePt first, then the sheet's Dimension pt, then the config
@@ -414,10 +424,38 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Line Height of a Sheet Annotation, in Paper Millimetres
+    // FUNCTION | Line Height of a Sheet Annotation, in Paper Millimetres
     // ------------------------------------------------------------
-    function Na__LeMarkup__AnnotationLineMm(fontMm) {
-        return fontMm * Na__LeCfg__GetTextSetup().lineSpacing;
+    // The item's own Annotation__LineSpacing (a multiple of the size) when it
+    // carries one, else Text LineSpacing. A record without the key spaces its
+    // lines exactly as before.
+    // ------------------------------------------------------------
+    function Na__LeMarkup__AnnotationLineMm(fontMm, item) {
+        const own = item ? item.Annotation__LineSpacing : null;
+        const spacing = (typeof own === 'number' && Number.isFinite(own) && own > 0) ? own : Na__LeCfg__GetTextSetup().lineSpacing;
+        return fontMm * spacing;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Typeface a Sheet Annotation Is Drawn In (null: the Sheet's)
+    // ------------------------------------------------------------
+    // Annotation__FontFamily is a CSS font stack the host supplies and loads
+    // (IdeaVision's Sans, Mono and Handdrawn). null draws and measures the
+    // sheet's own face, Text FontFamily, exactly as before the key.
+    // ------------------------------------------------------------
+    function Na__LeMarkup__AnnotationFamily(item) {
+        const own = item ? item.Annotation__FontFamily : null;
+        return (typeof own === 'string' && own.trim() !== '') ? own : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | A Sheet Annotation's Letter Spacing, in Paper Millimetres
+    // ------------------------------------------------------------
+    function Na__LeMarkup__AnnotationTrackingMm(item) {
+        const own = item ? item.Annotation__TrackingMm : null;
+        return (typeof own === 'number' && Number.isFinite(own) && own > 0) ? own : 0;
     }
     // ------------------------------------------------------------
 
@@ -440,10 +478,12 @@
     function Na__LeMarkup__AnnotationBox(item) {
         const fontMm = item.Annotation__SizeMm;
         const lines  = Na__LeMarkup__AnnotationLines(item.Annotation__Text);
+        const family = Na__LeMarkup__AnnotationFamily(item);
+        const track  = Na__LeMarkup__AnnotationTrackingMm(item);
         let width = fontMm;
-        lines.forEach((line) => { width = Math.max(width, Na__LeChrome__MeasureTextMm(line, fontMm, item.Annotation__FontWeight)); });
+        lines.forEach((line) => { width = Math.max(width, Na__LeChrome__MeasureTextMm(line, fontMm, item.Annotation__FontWeight, track, family)); });
         const count  = Math.max(1, lines.length);
-        const height = (fontMm * Na__LeMarkup__CAP_HEIGHT) + ((count - 1) * Na__LeMarkup__AnnotationLineMm(fontMm)) + (fontMm * Na__LeMarkup__DESCENT);
+        const height = (fontMm * Na__LeMarkup__CAP_HEIGHT) + ((count - 1) * Na__LeMarkup__AnnotationLineMm(fontMm, item)) + (fontMm * Na__LeMarkup__DESCENT);
         const x = item.Annotation__PosXMm - (item.Annotation__Align === 'center' ? width / 2 : (item.Annotation__Align === 'right' ? width : 0));
         return { X : x, Y : item.Annotation__PosYMm - (fontMm * Na__LeMarkup__CAP_HEIGHT), WidthMm : width, HeightMm : height };
     }
@@ -737,12 +777,14 @@
             for (let i = 0; i < 8; i++) dot.push([ tipX + (Math.cos(i * Math.PI / 4) * r), tipY + (Math.sin(i * Math.PI / 4) * r) ]);
             Na__LeChrome__PushPolyline(list, dot, null, 0, item.Annotation__Colour, true);
         }
-        const lineMm = Na__LeMarkup__AnnotationLineMm(fontMm);
+        const lineMm = Na__LeMarkup__AnnotationLineMm(fontMm, item);
+        const family = Na__LeMarkup__AnnotationFamily(item) || textSetup.fontFamily;
+        const track  = Na__LeMarkup__AnnotationTrackingMm(item);
         Na__LeMarkup__AnnotationLines(item.Annotation__Text).forEach((line, i) => {
             const at = Na__LeMarkup__AnnotationFromLocal(item, item.Annotation__PosXMm, item.Annotation__PosYMm + (i * lineMm));
             Na__LeChrome__PushText(list, {
                 X : at.x, BaselineY : at.y, Text : line, FontMm : fontMm,
-                Weight : item.Annotation__FontWeight, Colour : item.Annotation__Colour, Align : item.Annotation__Align, RotateDeg : deg, FontFamily : textSetup.fontFamily
+                Weight : item.Annotation__FontWeight, Colour : item.Annotation__Colour, Align : item.Annotation__Align, RotateDeg : deg, FontFamily : family, TrackingMm : track
             });
         });
     }
@@ -1037,6 +1079,9 @@
         Na__LeMarkup__ImportFromScene,
         Na__LeMarkup__AnnotationBounds,
         Na__LeMarkup__AnnotationBox,
+        Na__LeMarkup__AnnotationLineMm,
+        Na__LeMarkup__AnnotationFamily,
+        Na__LeMarkup__AnnotationTrackingMm,
         Na__LeMarkup__AnnotationRotationDeg,
         Na__LeMarkup__AnnotationCorners,
         Na__LeMarkup__AnnotationCentre,
