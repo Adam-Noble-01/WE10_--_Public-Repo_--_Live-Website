@@ -56,6 +56,15 @@
         },
         {
             "path": ".."
+        },
+        {
+            "path": "../../04__Cloud__Repo__Na__ServerApp"
+        },
+        {
+            "path": "../../08__Cloud__Repo__AgentSkills__Private"
+        },
+        {
+            "path": "../../11__Cloud__Repo__IdeaSpace__Private"
         }
     ],
 	"settings": {

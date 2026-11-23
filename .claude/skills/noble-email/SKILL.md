@@ -72,6 +72,60 @@ states a wrong dimension is worse.
 
 10. **`N/A` in a table cell that does not apply.** Never an em dash or a blank.
 
+<!-- NA-DELEGATION-RULE v6, 18-Nov-2026: the same in every skill. Edit SKILLS__DelegationRule.md at the skills repo root, then run python check_skill_delegation.py --fix -->
+## Splitting Work: MANAGER, WORKER and ASSISTANT Sessions (CRITICAL)
+
+Adam, 18-Nov-2026: "THIS MUST BE ADHERED TO". By "sub agents" he always means forking your own chat.
+- **Never hand work to background subagents** (the Agent tool, Task or workflow fan-outs): they are "far too opaque".
+- **Every helper is a session** started with `start_session`. It shows in his sidebar, where he can watch and steer it.
+- The full rule is in his global CLAUDE.md, "Delegating Work".
+
+**Names by role, never arbitrary:** each session's title is `ROLE__<Piece>__<Specialism>`. Patel & Kerry 2948:
+
+```text
+MANAGER__WhitecardProject__PatelAndKerry
+    WORKER__ValeOrangery__3dTechnician
+    WORKER__HostDwelling__3dTechnician
+```
+
+| Role | Does | Starts as, model and effort |
+|---|---|---|
+| **MANAGER** | The session that forks. From then on it orchestrates and stops doing the work itself. Before delegating, it sizes each piece (how much work, how complex, what inputs are given) and sets the effort to match. It sets up each session and hands over its instructions. It checks quality, that the instructions were followed, and that nothing takes too long for its complexity. It records every session's lessons in the skills as they arrive, and keeps the ledger | Adam's own session, on its own model and effort |
+| **WORKER** | The boots on the ground: the modelling, drawing, coding or writing | A fork (`context: "fork"`). **Its effort comes from the MANAGER sizing the work before delegating** (Adam: "you need to acertain the amount and complexity of work before delegating"). An isolated piece with drawings provided (a dormer) takes `high`; a whole facade or mass, `xhigh`; the whole building or open-ended work, `max`. A fork inherits the MANAGER's effort, so call `set_session_effort` the moment it starts |
+| **ASSISTANT** | Research only: finds resources and checks other files | A `fresh` session with a full brief, on Sonnet at `medium` effort (set by its `model` and `effort`) |
+| **VALIDATOR** | Checks, never builds. It runs every gate script on each object a WORKER releases (collision, manifold, edges, grid, profile), keeps one shared error console, and sends each FAIL straight to the owner and the MANAGER. **Its FAIL can be waived only by Adam in his own words, never by the MANAGER.** UNVERIFIABLE counts as FAIL. **Non-obstructive (Adam, 19-Nov-2026: "Dont wait for him as its more stuff to go wrong, he just jump in if an error is found"):** nobody waits for it, it takes no claim and pauses no one; its checks are short, between writes, and it speaks only when it finds an error. Mandatory on every job with more than one WORKER, started with the first wave (Adam, 19-Nov-2026, after the Vero MANAGER accepted the collision check's FAILs and a 0.834 m3 entablature block shipped buried in a wall: "this should never have been ignored"; "The Validator is critical") | A `fresh` session on Sonnet at `medium` effort, titled `VALIDATOR__<WhatItChecks>__QualityControl`, with a full brief: the console path, the owners and their session ids, the checks |
+
+- **Handover:** each session's prompt states:
+  - its piece and what done looks like;
+  - what it owns and must not touch;
+  - the shared-state rules;
+  - the rhythm below.
+- **Rhythm:**
+  - Each session ends its turn at every milestone with a two- or three-line status.
+  - The MANAGER checks every claim itself (a note is not proof), replies with `SendMessage` to the session's id,
+    and gives Adam one line.
+  - Sessions send their lessons and Adam's decisions in their notes. They don't write lessons files themselves.
+    The MANAGER writes them into the skills at once, so each file has one writer (Adam: "Ensure the Manager Agent
+    knows to update the skills").
+  - Never quiet, never polling.
+  - One final report, with every question in one numbered list at the end.
+  - The sessions stay open for Adam.
+- **Ledger:** `D:\08__Cloud__Repo__AgentSkills__Private\MANAGER__Ledger.md`. The MANAGER reads it before starting
+  sessions. For each session it records the times, complexity, model, effort and result, good or bad.
+- **Playbook:** the MANAGER's method is the 3D skill's manager playbook, at
+  `D:\08__Cloud__Repo__AgentSkills__Private\10-mcp-sketchup-3d-modeling-expert\mcp-sketchup-3d-modeling-expert\references\manager-playbook.md`.
+  It has:
+  - the first five minutes;
+  - the brief template;
+  - milestones sent by SendMessage;
+  - the fair claim queue and the guards;
+  - recovering a hung SketchUp from its autosave;
+  - the checks, the benchmarks, and the mistakes already paid for.
+
+  Read it before forking, and add to it after every job. (Only the absolute path is given here: each skill's checker
+  reads a relative `references/...` path as one of its own files.)
+<!-- /NA-DELEGATION-RULE -->
+
 ## Paths
 
 | What | Where |
@@ -263,3 +317,13 @@ planning application one: structure, what changed, open points.
   increase, flood risk, TPOs, the heritage record, woodland clearance) and listed all
   seven questions for the council. Adam cut the lot: "you left me open with loads of
   cans of worms". Rule 9 now forbids it.
+
+## Images in This Skill (IMPORTANT)
+
+Adam, 13-Nov-2026: "save images in the skill folder itself so they are transmitted when i git push to my other pc and dont put all on one sheet sepearate them so they can be used in markdown documents like the lantern .md". Agents on his other PC have only what git carries.
+- **In this skill's `document-images/` (CRITICAL; Adam, 13-Nov-2026: "SkillRoot/document-images ... a bucket").** Every image a page here shows or learns from (an approved result, his markup, a worked example, a before and after) is saved in ONE folder, `<SkillRoot>/document-images/`: never in `assets/`, `images/` or a kit folder, never a job folder, the scratchpad, Temp, another skill or another repo. Git carries it to every machine. `assets/` is only for files a script puts into its OUTPUT (templates, a signature), never for the pages' pictures.
+- **One image per file, embedded where it is discussed,** by a relative link into the bucket: `![what it shows](document-images/name.png)` from SKILL.md, `../document-images/name.png` from `references/` (one `../` per folder down from the skill root). No contact sheets, and no image named in backticks without a link.
+- **Light:** photos and screenshots about 1600 px wide as JPEG or WebP; drawings and line work as PNG.
+- **Outputs are separate.** What you make for a job still goes to the job; this rule is for the skill's own pages.
+- **Email images stay hosted.** Images that go out in an email stay on the web, as now; only the skill's own pages follow this rule.
+- **Check:** `python check_skill_images.py "<this skill>"`, run from the skills repo root (the folder above this skill's real path that holds it). It fails on a broken, outside, unlinked or not-in-`document-images` image; `python migrate_skill_images.py "<this skill>"` moves stragglers into the bucket and relinks them.
