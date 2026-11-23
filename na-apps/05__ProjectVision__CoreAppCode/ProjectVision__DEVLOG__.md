@@ -6,6 +6,42 @@
 
 # -----------------------------------------------------------------------------
 
+## Project Vision - Version 0.5.5 - 23-Nov-2026
+
+### Added - IdeaVision, the fourth app: the client's presentation board from IdeaSpace
+
+#### Why
+- Adam, 23-Nov-2026: IdeaSpace now keeps a Workspace and one Presentation page per job, "and that presentation space
+  gets a client-facing URL that then gets exposed to ProjectVision on a new card ... We should put this immediately
+  after the admin app and, for all previous jobs, grey it out, but on Project SK02, amend the data to say true, and
+  then there is a Project Hub app that I use to update that so you can switch on and off access to the presentation
+  board". He presented this way in FigJam for a long time, with a separate client board.
+
+#### The card (`index.html`, `04__Style__AppStylesheets/StyleSheet__ProjectVisionApp__.css`)
+- A fourth card, IdeaVision ("Concept ideas & presentation board"), straight after Project Admin, in IdeaSpace's
+  red-orange (`--Pv_CardColor__IdeaVision`, #e15c3e) with a light-bulb icon.
+- Lit only while `subApps.ideaVision` is true; otherwise greyed out with Coming Soon, like the others. It opens
+  `ideaVisionUrl` from the master index, else `https://app.noble-architecture.com/ideaspace/present/<CODE>`; on
+  localhost, IdeaSpace's own `http://localhost:8100/present/<CODE>`.
+- The grid is four across (two between 721 and 900 px, one on a phone in portrait).
+
+#### The switch (Project Manager, master index, build)
+- `subApps.ideaVision` in `05__AppData/ProjectVision__MasterProjectIndex__Core__.json`: false for every project except
+  SK02, which is true with its `ideaVisionUrl`.
+- The Project Manager (Studio Shell) shows a fourth badge and toggle, I, after A. Saving it writes the master index
+  flag AND the project's own `40__IdeaVision__AppContent/IdeaVision__ProjectConfig__.json` (`clientAccess`,
+  `boardUrl`), because nothing on disk can say whether a client may see a board: the build script now reads that file
+  back (`read_idea_vision_config`) instead of resetting the flag, and lists the board's URL in the index only while it
+  is open. `ProjectVision__DevLauncher__Shared__.py` reports the same file as the I toggle's "on disk" state.
+- SK02 has the file, with `clientAccess` true.
+- REVOKING IS REAL: IdeaSpace reads this published master index (cached a minute) before it serves a client board, so
+  switching I off and publishing the website closes the link itself, not just the card.
+
+#### Checked
+- `ProjectVision__BuildScript__.py --dry-run-check`: SK02 Idea ON, every other project off.
+- `collect_dev_projects`: SK02 ideaVision indexed and on disk; RB05 off and off.
+- Not checked in a browser: the hub page itself. Nothing is published until Adam pushes the website.
+
 ## Project Vision - Version 0.5.4 - 19-Oct-2026
 
 ### Changed - The hub's PlanVision card opens the drawings published from TrueVision; legacy jobs keep PlanVision

@@ -82,6 +82,18 @@
                     <span class="pv-card__badge" id="pvBadgeAdmin"></span>
                 </a>
 
+                <!-- Card: IdeaVision - the client's presentation board from IdeaSpace (v0.5.5) -->
+                <a class="pv-card pv-card--ideavision" id="pvCardIdeaVision" href="#" data-subapp="ideaVision">
+                    <div class="pv-card__icon-area">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/>
+                        </svg>
+                    </div>
+                    <h2 class="pv-card__title">IdeaVision</h2>
+                    <p class="pv-card__description">Concept ideas &amp; presentation board</p>
+                    <span class="pv-card__badge" id="pvBadgeIdeaVision"></span>
+                </a>
+
                 <!-- Card: PlanVision -->
                 <a class="pv-card pv-card--planvision" id="pvCardPlanVision" href="#" data-subapp="planVision">
                     <div class="pv-card__icon-area">
@@ -174,6 +186,7 @@
         const elProjectName    = document.getElementById('pvProjectName');
 
         const elCardAdmin      = document.getElementById('pvCardAdmin');
+        const elCardIdeaVision = document.getElementById('pvCardIdeaVision');
         const elCardPlanVision = document.getElementById('pvCardPlanVision');
         const elCardTrueVision = document.getElementById('pvCardTrueVision');
         const elDevTools       = document.getElementById('pvDevTools');
@@ -181,6 +194,7 @@
         const elInviteStatus   = document.getElementById('pvGenerateInviteEmailStatus');
 
         const elBadgeAdmin      = document.getElementById('pvBadgeAdmin');
+        const elBadgeIdeaVision = document.getElementById('pvBadgeIdeaVision');
         const elBadgePlanVision = document.getElementById('pvBadgePlanVision');
         const elBadgeTrueVision = document.getElementById('pvBadgeTrueVision');
 
@@ -422,7 +436,16 @@
                 trueVisionUrl : trueVisionUrl
             });
 
+            // THE IDEAVISION CARD | The client's presentation board, served by IdeaSpace on
+            // Na-Server. Lit only while the Project Manager's I toggle is on for this
+            // project (subApps.ideaVision); IdeaSpace asks the same flag before it shows
+            // the board, so switching it off also closes the link itself.
+            const ideaVisionUrl = context.isLocalDev
+                ? 'http://localhost:8100/present/' + encodeURIComponent(projectCode)
+                : (projectData.ideaVisionUrl || ('https://app.noble-architecture.com/ideaspace/present/' + encodeURIComponent(projectCode)));
+
             configureCard(elCardAdmin,      elBadgeAdmin,      subApps.projectAdmin,  adminUrl);
+            configureCard(elCardIdeaVision, elBadgeIdeaVision, subApps.ideaVision === true, ideaVisionUrl);
             configureCard(elCardPlanVision, elBadgePlanVision, planVisionCard.route !== PlanVisionCard.ROUTES.none, planVisionCard.href);
             configureCard(elCardTrueVision, elBadgeTrueVision, subApps.trueVision,     trueVisionUrl);
             elCardPlanVision.dataset.route = planVisionCard.route;

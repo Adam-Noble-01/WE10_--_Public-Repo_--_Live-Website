@@ -246,6 +246,7 @@
 
             return [
                 ['A', 'projectAdmin', 'Project Admin'],
+                ['I', 'ideaVision',   'IdeaVision (the client''s presentation board)'],
                 ['P', 'planVision',   'PlanVision'],
                 ['T', 'trueVision',   'TrueVision']
             ].map(function(entry) {
@@ -282,6 +283,7 @@
 
             return '<div class="pm-apptoggles">' + [
                 ['A', 'projectAdmin', 'Project Admin'],
+                ['I', 'ideaVision',   'IdeaVision (the client''s presentation board)'],
                 ['P', 'planVision',   'PlanVision'],
                 ['T', 'trueVision',   'TrueVision']
             ].map(function(entry) {

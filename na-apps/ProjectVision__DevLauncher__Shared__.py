@@ -475,6 +475,20 @@ def _scan_portal_folders(repo_root):
     return discovered
 
 
+def _summarise_idea_vision(project_dir):
+    """IdeaVision (the client's presentation board, served by IdeaSpace on
+    Na-Server): open to the client only while the project's own config says
+    clientAccess true. Written by the Project Manager's I toggle (v0.5.5)."""
+    summary = {'onDisk': False, 'boardUrl': None}
+    if not project_dir:
+        return summary
+    config = _read_json_file(os.path.join(project_dir, '40__IdeaVision__AppContent', 'IdeaVision__ProjectConfig__.json'))
+    if isinstance(config, dict) and config.get('clientAccess') is True:
+        summary['onDisk']   = True
+        summary['boardUrl'] = config.get('boardUrl')
+    return summary
+
+
 def _describe_project(repo_root, project_code, project_name, project_folder,
                       project_year, indexed, indexed_sub_apps):
     """Merge master-index metadata with the on-disk content for one project."""
@@ -504,8 +518,11 @@ def _describe_project(repo_root, project_code, project_name, project_folder,
     sub_apps       = {}
     index_is_stale = False
 
+    idea = _summarise_idea_vision(lookup_dir)
+
     for key, on_disk in (
         ('projectAdmin', admin['onDisk']),
+        ('ideaVision',   idea['onDisk']),                                     # <-- v0.5.5: "on disk" is Adam's own switch in the project's IdeaVision config
         ('planVision',   plans['onDisk']),
         ('trueVision',   three['onDisk'])
     ):
@@ -519,7 +536,7 @@ def _describe_project(repo_root, project_code, project_name, project_folder,
             'available' : on_disk,
             'indexed'   : is_indexed,
             'onDisk'    : on_disk,
-            'url'       : _build_sub_app_url(key, project_code, project_folder, project_year) if on_disk else None
+            'url'       : (idea['boardUrl'] if key == 'ideaVision' else _build_sub_app_url(key, project_code, project_folder, project_year)) if on_disk else None
         }
 
     # RECENCY | createdDate is the primary "newest job" signal, lastModified the fallback

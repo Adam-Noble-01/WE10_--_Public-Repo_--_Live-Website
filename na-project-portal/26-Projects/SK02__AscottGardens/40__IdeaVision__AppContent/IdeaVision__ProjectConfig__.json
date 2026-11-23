@@ -1,0 +1,7 @@
+{
+    "app"          : "IdeaVision",
+    "description"  : "The client's presentation board: the one Presentation page of this project's IdeaSpace job, shown read only. The Project Hub's IdeaVision card opens it, and IdeaSpace serves it, only while clientAccess is true. The Project Manager's I toggle writes this file and the master index flag together.",
+    "clientAccess" : true,
+    "boardUrl"     : "https://app.noble-architecture.com/ideaspace/present/SK02",
+    "lastModified" : "23-Nov-2026"
+}

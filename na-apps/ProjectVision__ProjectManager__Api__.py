@@ -399,6 +399,30 @@ def _apply_quotation_fields(project_dir, fields, changes):
 # REGION | Master Index Maintenance
 # -----------------------------------------------------------------------------
 
+IDEAVISION_CONFIG_RELPATH = os.path.join('40__IdeaVision__AppContent', 'IdeaVision__ProjectConfig__.json')
+
+
+def _write_idea_vision_config(project_dir, client_access, board_url):
+    """
+    Keep the IdeaVision switch in the project itself, so the build script
+    preserves it (v0.5.5). Other keys in the file are kept.
+    """
+    config_path = os.path.join(project_dir, IDEAVISION_CONFIG_RELPATH)
+    config = _read_json(config_path) if os.path.isfile(config_path) else None
+    if not isinstance(config, dict):
+        config = {
+            'app'         : 'IdeaVision',
+            'description' : "The client's presentation board: the one Presentation page of this project's IdeaSpace job, shown read only. "
+                            "The Project Hub's IdeaVision card opens it, and IdeaSpace serves it, only while clientAccess is true. "
+                            "The Project Manager's I toggle writes this file and the master index flag together."
+        }
+    config['clientAccess'] = bool(client_access)
+    config['boardUrl']     = board_url
+    config['lastModified'] = datetime.now().strftime('%d-%b-%Y')
+    os.makedirs(os.path.dirname(config_path), exist_ok=True)
+    _write_json(config_path, config)
+
+
 def _update_master_index(old_code, new_entry):
     """
     Rewrite one project's entry in the master index so the gallery agrees with
@@ -424,6 +448,8 @@ def _update_master_index(old_code, new_entry):
             new_entry['subApps'] = sub_apps
 
         merged.update(new_entry)
+        if merged.get('ideaVisionUrl') is None:
+            merged.pop('ideaVisionUrl', None)                                  # <-- v0.5.5: the client board's address is listed only while it is open
         projects[merged['projectCode']] = merged
 
     _write_json(MASTER_INDEX_PATH, index_data)
@@ -861,7 +887,7 @@ def manager_edit(project_code):
         supplied = fields['subApps']
         flags    = {}
 
-        for key in ('projectAdmin', 'planVision', 'trueVision'):
+        for key in ('projectAdmin', 'planVision', 'trueVision', 'ideaVision'):
             if key in supplied:
                 flags[key] = bool(supplied[key])
 
@@ -872,6 +898,21 @@ def manager_edit(project_code):
                 'status' : 'set',
                 'detail' : ', '.join(f"{key}={'on' if value else 'off'}" for key, value in flags.items())
                            + '  (recomputed from disk on the next build)'
+            })
+
+        # IDEAVISION | The client's presentation board (IdeaSpace on Na-Server).
+        # Nothing on disk says whether the client may see it, so the choice is
+        # kept in the project's own 40__IdeaVision__AppContent config: the build
+        # reads it back instead of resetting the flag, and IdeaSpace checks the
+        # published master index flag before it serves the board.
+        if 'ideaVision' in flags and working_dir and os.path.isdir(working_dir):
+            board_url = 'https://app.noble-architecture.com/ideaspace/present/' + new_code
+            _write_idea_vision_config(working_dir, flags['ideaVision'], board_url)
+            index_entry['ideaVisionUrl'] = board_url if flags['ideaVision'] else None
+            performed.append({
+                'step'   : 'ideaVision',
+                'status' : 'written',
+                'detail' : ('Client board open: ' + board_url) if flags['ideaVision'] else 'Client board closed. Publish the website for it to take effect.'
             })
 
     if _update_master_index(project['projectCode'], index_entry):

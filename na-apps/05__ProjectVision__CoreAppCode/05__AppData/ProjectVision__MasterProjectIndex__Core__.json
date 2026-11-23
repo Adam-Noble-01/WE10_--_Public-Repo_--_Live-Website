@@ -9,7 +9,8 @@
             "subApps": {
                 "projectAdmin": false,
                 "planVision": true,
-                "trueVision": false
+                "trueVision": false,
+                "ideaVision": false
             },
             "planVisionDrawings": 32
         },
@@ -21,7 +22,8 @@
             "subApps": {
                 "projectAdmin": false,
                 "planVision": false,
-                "trueVision": false
+                "trueVision": false,
+                "ideaVision": false
             },
             "planVisionDrawings": 0
         },
@@ -33,7 +35,8 @@
             "subApps": {
                 "projectAdmin": false,
                 "planVision": false,
-                "trueVision": false
+                "trueVision": false,
+                "ideaVision": false
             },
             "planVisionDrawings": 0
         },
@@ -45,7 +48,8 @@
             "subApps": {
                 "projectAdmin": false,
                 "planVision": false,
-                "trueVision": false
+                "trueVision": false,
+                "ideaVision": false
             },
             "planVisionDrawings": 0
         },
@@ -57,7 +61,8 @@
             "subApps": {
                 "projectAdmin": true,
                 "planVision": true,
-                "trueVision": true
+                "trueVision": true,
+                "ideaVision": false
             },
             "planVisionDrawings": 0
         },
@@ -69,7 +74,8 @@
             "subApps": {
                 "projectAdmin": true,
                 "planVision": true,
-                "trueVision": true
+                "trueVision": true,
+                "ideaVision": false
             },
             "planVisionDrawings": 8
         },
@@ -81,7 +87,8 @@
             "subApps": {
                 "projectAdmin": true,
                 "planVision": true,
-                "trueVision": true
+                "trueVision": true,
+                "ideaVision": false
             },
             "planVisionDrawings": 15
         },
@@ -93,7 +100,8 @@
             "subApps": {
                 "projectAdmin": true,
                 "planVision": true,
-                "trueVision": true
+                "trueVision": true,
+                "ideaVision": false
             },
             "planVisionDrawings": 0
         },
@@ -105,7 +113,8 @@
             "subApps": {
                 "projectAdmin": true,
                 "planVision": true,
-                "trueVision": true
+                "trueVision": true,
+                "ideaVision": false
             },
             "planVisionDrawings": 12
         },
@@ -117,7 +126,8 @@
             "subApps": {
                 "projectAdmin": true,
                 "planVision": true,
-                "trueVision": true
+                "trueVision": true,
+                "ideaVision": false
             },
             "planVisionDrawings": 0
         },
@@ -129,7 +139,8 @@
             "subApps": {
                 "projectAdmin": true,
                 "planVision": true,
-                "trueVision": true
+                "trueVision": true,
+                "ideaVision": false
             },
             "planVisionDrawings": 0
         },
@@ -141,7 +152,8 @@
             "subApps": {
                 "projectAdmin": true,
                 "planVision": true,
-                "trueVision": true
+                "trueVision": true,
+                "ideaVision": false
             },
             "planVisionDrawings": 8
         },
@@ -153,7 +165,8 @@
             "subApps": {
                 "projectAdmin": true,
                 "planVision": true,
-                "trueVision": true
+                "trueVision": true,
+                "ideaVision": false
             },
             "planVisionDrawings": 0
         },
@@ -165,9 +178,11 @@
             "subApps": {
                 "projectAdmin": true,
                 "planVision": true,
-                "trueVision": true
+                "trueVision": true,
+                "ideaVision": true
             },
-            "planVisionDrawings": 0
+            "planVisionDrawings": 0,
+            "ideaVisionUrl": "https://app.noble-architecture.com/ideaspace/present/SK02"
         },
         "TV05": {
             "projectCode": "TV05",
@@ -177,7 +192,8 @@
             "subApps": {
                 "projectAdmin": true,
                 "planVision": true,
-                "trueVision": true
+                "trueVision": true,
+                "ideaVision": false
             },
             "planVisionDrawings": 0
         }

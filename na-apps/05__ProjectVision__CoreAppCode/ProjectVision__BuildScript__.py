@@ -240,11 +240,39 @@ def detect_sub_app_availability(project_path):
     true_vision_dir = os.path.join(project_path, '30__TrueVision__AppContent')
     true_vision_has_content = dir_has_real_content(true_vision_dir)
 
+    idea_vision = read_idea_vision_config(project_path)
+
     return {
         'projectAdmin' : admin_config_exists,
         'planVision'   : plan_vision_has_content,
         'trueVision'   : true_vision_has_content,
+        'ideaVision'   : bool(idea_vision and idea_vision.get('clientAccess') is True),   # <-- v0.5.5: Adam's own switch, kept in the project, never guessed from content
     }
+
+
+IDEAVISION_CONFIG_RELPATH = os.path.join('40__IdeaVision__AppContent', 'IdeaVision__ProjectConfig__.json')
+
+
+def read_idea_vision_config(project_path):
+    """Read 40__IdeaVision__AppContent/IdeaVision__ProjectConfig__.json if it exists.
+
+    IdeaVision is the client's presentation board, served by IdeaSpace on
+    Na-Server. Whether the client may see it is Adam's choice, not something on
+    disk shows, so the Project Manager's I toggle writes clientAccess here (and
+    the master index flag): the build keeps that choice instead of resetting it.
+    """
+    config_path = os.path.join(project_path, IDEAVISION_CONFIG_RELPATH)
+
+    if not os.path.isfile(config_path):
+        return None
+
+    try:
+        with open(config_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        return data if isinstance(data, dict) else None
+    except (json.JSONDecodeError, OSError) as e:
+        print(f'  [WARNING] Failed to read IdeaVision config: {config_path} ({e})')
+        return None
 
 
 # =============================================================================
@@ -264,6 +292,8 @@ def build_master_index(all_projects):
             'subApps'            : proj['subApps'],
             'planVisionDrawings' : proj.get('planVisionDrawings', 0),   # <-- Legacy PlanVision drawings on disk: 0 sends the hub's PlanVision card to TrueVision's published drawings only
         }
+        if proj.get('ideaVisionUrl'):
+            projects_dict[proj['projectCode']]['ideaVisionUrl'] = proj['ideaVisionUrl']   # <-- v0.5.5: only while the client may see the board
 
     return {
         'buildTimestamp' : datetime.now(timezone.utc).isoformat(),
@@ -1146,7 +1176,7 @@ def print_summary(all_projects, warnings):
         print('=' * 78)
         return
 
-    header = f'  {"Code":<6} {"Year":<6} {"Name":<24} {"Admin":<8} {"Plan":<8} {"3D":<8}'
+    header = f'  {"Code":<6} {"Year":<6} {"Name":<24} {"Admin":<8} {"Plan":<8} {"3D":<8} {"Idea":<8}'
     print(header)
     print('  ' + '-' * 74)
 
@@ -1156,9 +1186,10 @@ def print_summary(all_projects, warnings):
         plan_count = proj.get('planVisionDrawings', 0)
         plan_mark  = str(plan_count) if (sa['planVision'] and plan_count) else '-'   # <-- Legacy PlanVision drawings: '-' leaves the hub card to TrueVision's published drawings
         tv_mark    = 'YES' if sa['trueVision']   else '-'
+        idea_mark  = 'ON' if sa.get('ideaVision') else '-'
 
         print(f'  {proj["projectCode"]:<6} {proj["projectYear"]:<6} '
-              f'{proj["projectName"]:<24} {admin_mark:<8} {plan_mark:<8} {tv_mark:<8}')
+              f'{proj["projectName"]:<24} {admin_mark:<8} {plan_mark:<8} {tv_mark:<8} {idea_mark:<8}')
 
     print('  ' + '-' * 74)
     print(f'  Total: {len(all_projects)} project(s)')
@@ -1244,6 +1275,9 @@ def main():
             proj['projectName']        = project_name
             proj['subApps']            = sub_apps
             proj['planVisionDrawings'] = count_planvision_drawings(proj['folderPath'])   # <-- For every project: the master index is always written whole
+            idea_vision = read_idea_vision_config(proj['folderPath'])
+            if sub_apps['ideaVision'] and idea_vision.get('boardUrl'):
+                proj['ideaVisionUrl'] = idea_vision['boardUrl']               # <-- The hub's IdeaVision card opens this; IdeaSpace checks the flag again before it serves
             all_projects.append(proj)
 
     target_projects = all_projects

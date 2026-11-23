@@ -48,6 +48,7 @@
         --Pv_CardShadowHover           : 0 8px 28px rgba(0, 0, 0, 0.12);
 
         --Pv_CardColor__Admin          : #5b8ea5;
+        --Pv_CardColor__IdeaVision     : #e15c3e;                              /* <-- IdeaSpace's red-orange heading colour (v0.5.5) */
         --Pv_CardColor__PlanVision     : #3b6e8f;
         --Pv_CardColor__TrueVision     : #172b3a;
     }
@@ -224,7 +225,7 @@
 
     .pv-card-grid {
         display                            : grid;
-        grid-template-columns              : repeat(3, 1fr);
+        grid-template-columns              : repeat(4, 1fr);                     /* <-- Four apps since v0.5.5: Admin, IdeaVision, PlanVision, TrueVision */
         gap                                : var(--Pv_SpacingLg);
         width                              : 100%;
     }
@@ -269,6 +270,10 @@
 
     .pv-card--admin::before {
         background                         : var(--Pv_CardColor__Admin);
+    }
+
+    .pv-card--ideavision::before {
+        background                         : var(--Pv_CardColor__IdeaVision);
     }
 
     .pv-card--planvision::before {
@@ -331,6 +336,10 @@
 
     .pv-card--admin .pv-card__icon-area {
         background                         : var(--Pv_CardColor__Admin);
+    }
+
+    .pv-card--ideavision .pv-card__icon-area {
+        background                         : var(--Pv_CardColor__IdeaVision);
     }
 
     .pv-card--planvision .pv-card__icon-area {
@@ -591,7 +600,7 @@
     @media (min-width: 721px) and (max-width: 900px) {
 
         .pv-card-grid {
-            grid-template-columns          : repeat(3, 1fr);
+            grid-template-columns          : repeat(2, 1fr);
             gap                            : var(--Pv_SpacingMd);
         }
     }
