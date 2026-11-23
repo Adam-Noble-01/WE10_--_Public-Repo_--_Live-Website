@@ -48,7 +48,7 @@
 //   read them; PushAnnotation draws with them and AnnotationBox measures with
 //   them, so the selection box, the hit test and the inline editor follow.
 //   A record without the keys draws and measures exactly as before. Asked
-//   for from IdeaVision's text formatting (Adam, 20-Nov-2026).
+//   for from IdeaSpace's text formatting (Adam, 20-Nov-2026).
 //
 // 23-Sep-2026 - Version 1.20.0
 // - A dimension's own line weight and line style. DimensionStrokeMm reads
@@ -441,7 +441,7 @@
     // FUNCTION | The Typeface a Sheet Annotation Is Drawn In (null: the Sheet's)
     // ------------------------------------------------------------
     // Annotation__FontFamily is a CSS font stack the host supplies and loads
-    // (IdeaVision's Sans, Mono and Handdrawn). null draws and measures the
+    // (IdeaSpace's Sans, Mono and Handdrawn). null draws and measures the
     // sheet's own face, Text FontFamily, exactly as before the key.
     // ------------------------------------------------------------
     function Na__LeMarkup__AnnotationFamily(item) {

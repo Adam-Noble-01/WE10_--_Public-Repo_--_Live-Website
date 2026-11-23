@@ -37,7 +37,7 @@
 // DEVELOPMENT LOG:
 // 19-Nov-2026 - Version 1.2.1 (TrueVision3D v2.189.2)
 // - EMBEDDED SHEETS. A sheet with Sheet__Embedded { WidthMm, HeightMm } is
-//   a drawing surface inside another app (IdeaVision's board layer and its
+//   a drawing surface inside another app (IdeaSpace's board layer and its
 //   scale canvases): its paper is exactly that size, with no margin, title
 //   block, border or notes margin (SolveEmbedded). A TrueVision sheet never
 //   carries the key, so nothing changes for one.
@@ -111,7 +111,7 @@
 
     // HELPER FUNCTION | The Paper of an Embedded Sheet, or Null
     // ------------------------------------------------------------
-    // ADAM'S RULE (19-Nov-2026): IdeaVision draws with this Layout Editor, not
+    // ADAM'S RULE (19-Nov-2026): IdeaSpace draws with this Layout Editor, not
     // with tools of its own - "any new scale drawing type or vector tools
     // ALWAYS make them in the TrueVision layout editor codebase so there is a
     // SSOT basically". Its board layer and its scale canvases are sheets of
@@ -159,7 +159,7 @@
     // ------------------------------------------------------------
     function Na__LeLayout__Solve(sheet) {
         const embedded   = Na__LeLayout__EmbeddedSize(sheet);
-        if (embedded) return Na__LeLayout__SolveEmbedded(embedded);              // <-- A sheet inside another app (IdeaVision): its own paper, nothing on its edge
+        if (embedded) return Na__LeLayout__SolveEmbedded(embedded);              // <-- A sheet inside another app (IdeaSpace): its own paper, nothing on its edge
         const sheetSetup = Na__LeCfg__GetSheetSetup();
         const titleSetup = Na__LeCfg__GetTitleBlockSetup();
         const page       = Na__LeLayout__PaperSizeMm(sheet ? sheet.Sheet__PaperSize : null, sheet ? sheet.Sheet__Orientation : null);

@@ -32,7 +32,7 @@
 // DEVELOPMENT LOG:
 // 20-Nov-2026 - Version 1.1.0 (TrueVision3D v2.189.7)
 // - Host faces: RegisterFace({ Family, Match, BasePath, Cuts }) adds a
-//   typeface a host loads (IdeaVision's JetBrains Mono and Caveat).
+//   typeface a host loads (IdeaSpace's JetBrains Mono and Caveat).
 //   EnsureLoaded fetches its cuts with Open Sans; SetFont takes the run's CSS
 //   font stack, optional and last, and a stack naming a registered face
 //   prints in it (the nearest cut for the weight). With no face registered,
@@ -174,7 +174,7 @@
     // family a run's FontFamily stack must name, e.g. 'JetBrains Mono'),
     // BasePath (folder URL of the files), Cuts: [{ Style: 'light' | 'normal'
     // | 'bold', FileName }] }. TrueVision registers none, so its own PDFs are
-    // exactly as before; a host (IdeaVision's text faces) registers its own.
+    // exactly as before; a host (IdeaSpace's text faces) registers its own.
     // ------------------------------------------------------------
     function Na__LePdfFonts__RegisterFace(face) {
         if (!face || !face.Family || !face.Match || !Array.isArray(face.Cuts) || !face.Cuts.length) return false;

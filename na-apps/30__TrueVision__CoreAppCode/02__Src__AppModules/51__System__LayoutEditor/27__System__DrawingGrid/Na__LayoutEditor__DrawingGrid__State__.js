@@ -30,7 +30,7 @@
 //   millimetres, so on a 1 mm grid the border, the title block's outside
 //   corners and the notes margin all stand on grid points.
 // - A HOST MAY SET THE GRID OUT FROM ANOTHER PAPER POINT (OriginXMm,
-//   OriginYMm; 0, 0 by default). IdeaVision sets it to a scale drawing's
+//   OriginYMm; 0, 0 by default). IdeaSpace sets it to a scale drawing's
 //   x0,y0, so the grid runs through that drawing's own origin.
 // - REMEMBERED IN THIS BROWSER, like the Snap toggle and the raster level.
 //   The grid is a drawing aid, not part of the drawing: nothing here is

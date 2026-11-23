@@ -40,7 +40,7 @@
 //
 // DEVELOPMENT LOG:
 // 19-Nov-2026 - Version 1.0.1 (TrueVision3D v2.189.4)
-// - An embedded sheet's own ScaleDenominator is its scale. IdeaVision's
+// - An embedded sheet's own ScaleDenominator is its scale. IdeaSpace's
 //   board, an embedded sheet with no viewports, fell back to the configured
 //   1:50, so a dimension measured at scale read fifty times its length and a
 //   typed size drew a fiftieth of it. Its scale canvases are drawn at 1:N the
@@ -87,7 +87,7 @@
     // ------------------------------------------------------------
     function Na__LeDrawScale__SheetDenominator(sheet) {
         const embedded = sheet ? sheet.Sheet__Embedded : null;
-        if (embedded && Number.isFinite(embedded.ScaleDenominator) && embedded.ScaleDenominator > 0) return embedded.ScaleDenominator;   // <-- A sheet inside another app says its own scale: IdeaVision's board is 1:1, a scale canvas 1:N
+        if (embedded && Number.isFinite(embedded.ScaleDenominator) && embedded.ScaleDenominator > 0) return embedded.ScaleDenominator;   // <-- A sheet inside another app says its own scale: IdeaSpace's board is 1:1, a scale canvas 1:N
         const viewports = (sheet && Array.isArray(sheet.Sheet__Viewports) ? sheet.Sheet__Viewports : []).filter(Na__LeDrawScale__IsScaled);
         if (!viewports.length) return Na__LeCfg__GetScaleSetup().defaultDenominator;
         const areas = new Map();

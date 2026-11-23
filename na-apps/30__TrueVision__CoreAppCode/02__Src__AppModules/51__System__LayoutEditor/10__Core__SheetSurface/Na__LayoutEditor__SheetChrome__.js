@@ -57,7 +57,7 @@
 //   a run in Open Sans.
 //
 // 19-Nov-2026 - Version 1.14.1 (TrueVision3D v2.189.2)
-// - An embedded sheet (Sheet__Embedded: IdeaVision's board layer and scale
+// - An embedded sheet (Sheet__Embedded: IdeaSpace's board layer and scale
 //   canvases, solved as TitleBlockStyle 'none') gets no border and no title
 //   block. Its viewports' frames are still built, as on any sheet.
 //

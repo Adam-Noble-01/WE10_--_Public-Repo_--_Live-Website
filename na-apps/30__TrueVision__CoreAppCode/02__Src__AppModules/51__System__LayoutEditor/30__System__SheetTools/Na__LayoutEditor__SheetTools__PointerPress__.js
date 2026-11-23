@@ -63,7 +63,7 @@
 //   other placing press already was. Place opens the typing field and focuses
 //   it during the press; the browser's own focus move then ran (the stage is
 //   focusable, tabindex 0), blurred the field and so committed the default
-//   "Text" before a key was typed. Found by IdeaVision's host of the Layout
+//   "Text" before a key was typed. Found by IdeaSpace's host of the Layout
 //   Editor: in headless Edge the field was gone after every click, and with the
 //   press taken "Hello board" typed straight into it. A double click on a text
 //   (the editing route) was never affected: no press follows it.
