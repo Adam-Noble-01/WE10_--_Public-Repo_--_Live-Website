@@ -2,8 +2,8 @@
     "invoices": [
         {
             "invoiceRef": "INV-SK02-2026-001",
-            "invoiceDate": "09-Nov-2026",
-            "dueDate": "16-Nov-2026",
+            "invoiceDate": "01-Dec-2026",
+            "dueDate": "08-Dec-2026",
             "status": "unpaid",
             "projectAddress": "",
             "projectDescription": "Concept Design Services - Two Storey Side Extension on the corner side with a First Floor Rear Projection, Single Storey Rear Extension across the full width of the house replacing the Existing Conservatory to form an open plan Kitchen and Dining Room, conversion of the Existing Garage, a remodelled Entrance Hall and Staircase, a wider Lounge, and a new Boundary Fence along the road.",
@@ -26,12 +26,12 @@
             },
             "personalNote": "Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.",
             "createdDate": "09/11/2026, 18:23:10",
-            "lastModified": "09/11/2026, 18:26:01"
+            "lastModified": "23/11/2026, 13:15:26"
         },
         {
             "invoiceRef": "INV-SK02-2026-002",
-            "invoiceDate": "09-Nov-2026",
-            "dueDate": "16-Nov-2026",
+            "invoiceDate": "01-Dec-2026",
+            "dueDate": "08-Dec-2026",
             "status": "unpaid",
             "projectAddress": "",
             "projectDescription": "Third party pass-through cost - Ordnance Survey mapping data for 32 Ascott Gardens.",
@@ -54,7 +54,7 @@
             },
             "personalNote": "Thank you for your business. We hope you are satisfied with the service received from Noble Architecture.",
             "createdDate": "09/11/2026, 18:26:01",
-            "lastModified": "09/11/2026, 18:26:01"
+            "lastModified": "23/11/2026, 13:15:30"
         }
     ]
 }
