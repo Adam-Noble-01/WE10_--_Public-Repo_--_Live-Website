@@ -69,10 +69,6 @@
             "Camera__DefaultMisc__Fov": 45
         }
     },
-    "Navmode__EnabledModes": {
-        "Navmode__EnabledModes__Walk": true,
-        "Navmode__EnabledModes__Fly": true
-    },
     "PresentationMode__SavedCameraScenes": {
         "PresentationMode__SavedCameraScenes__Description": "Optional per-project saved camera scenes for Presentation Mode. Camera position and orbit target values are integer millimetres; rotations and FOV use the same format as Camera__DefaultPosition. Scenes are split into named Groups; Scene Order restarts at 1 within each group. A scene with PresentationMode__Scene__LayoutEditorOnly set true is available to the Layout Editor and the Dev menu but is hidden from the viewer carousel; the key is omitted when false. A scene may carry PresentationMode__Scene__Lighting, its own sun and fill light, holding only the settings that differ from the app's default lighting; the key is omitted when the scene uses the default.",
         "PresentationMode__SavedCameraScenes__Enabled": true,
@@ -1716,6 +1712,15 @@
                 "PresentationMode__Scene__Order": 4
             }
         ]
+    },
+    "Navmode__EnabledModes": {
+        "Navmode__EnabledModes__Walk": true,
+        "Navmode__EnabledModes__Fly": true
+    },
+    "Navmode__FovOverrides": {
+        "Navmode__FovOverrides__Description": "Per-project default camera FOVs (vertical degrees) overriding the master app config defaults.",
+        "Navmode__FovOverrides__WalkDeg": 61.93,
+        "Navmode__FovOverrides__FlyDeg": 61.93
     },
     "LayoutEditor__DrawingsData": {
         "LayoutEditor__DrawingsData__Description": "TrueVision-owned drawing definitions: floor plans, elevations and sections with their markup, and Layout Editor sheets. Distances are integer millimetres.",
@@ -6629,10 +6634,5 @@
         "LayoutEditor__DrawingsData__CommonClient": "Demi Molverson",
         "LayoutEditor__DrawingsData__CommonSiteAddress": "The Demo House, 5 Sample Street, Fauxbridge, Testshire TE5 0DM",
         "LayoutEditor__DrawingsData__SavedIso": "2026-11-18T23:24:56.355Z"
-    },
-    "Navmode__FovOverrides": {
-        "Navmode__FovOverrides__Description": "Per-project default camera FOVs (vertical degrees) overriding the master app config defaults.",
-        "Navmode__FovOverrides__WalkDeg": 61.93,
-        "Navmode__FovOverrides__FlyDeg": 61.93
     }
 }
