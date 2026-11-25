@@ -26,12 +26,12 @@
     },
 
     "LayoutEditor__DrawingGrid__Limits": {
-        "Limits__Description"  : "What the panel's boxes accept. A spacing out of range is pulled into it.",
-        "Limits__MajorMinMm"   : 1,
+        "Limits__Description"  : "What the panel's boxes accept. A spacing out of range is pulled into it. The major minimum is 0.001 mm of paper so a drawing canvas can snap to 1 mm of real length at 1:500 (IdeaSpace v0.0.43).",
+        "Limits__MajorMinMm"   : 0.001,
         "Limits__MajorMaxMm"   : 200,
         "Limits__DivisionsMin" : 1,
         "Limits__DivisionsMax" : 50,
-        "Limits__MinorMinMm"   : 0.25
+        "Limits__MinorMinMm"   : 0.001
     },
 
     "LayoutEditor__DrawingGrid__Display": {
