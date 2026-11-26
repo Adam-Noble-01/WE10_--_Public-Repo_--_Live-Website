@@ -168,7 +168,9 @@ byte as they were. Nothing was saved, and the write guard stopped no request.
 **Not checked:** a real mouse (the tips were driven by pointer events), a phone or tablet, the real GPU, the Parametric
 Element's (i) with a tile picked, every other panel's (i) by hover.
 
-**Status:** uncommitted, waiting on Adam (NaWeb serves the live site).
+**Status:** live on Adam's word ("Commit and push"). Committed on `main` in `416cbfc3` with v2.189.8 and v2.189.10,
+and pushed. GitHub Pages deployed it at 15:35 UTC, and at 15:36 the live tool icons, panel host, strip, tab strip, an
+icon and the service worker were byte for byte the commit's.
 
 # ---------------------------------------------------------
 ## TrueVision3D v2.189.8  -  26-Nov-2026
