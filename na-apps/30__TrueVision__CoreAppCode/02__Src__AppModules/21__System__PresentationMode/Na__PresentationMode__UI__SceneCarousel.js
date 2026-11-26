@@ -36,6 +36,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Nov-2026 - Version 1.3.2 (v2.189.10)
+// - A scenes-loaded re-dispatch with skipCameraApply keeps the scene the
+//   carousel was on, for the same project folder and while that scene still
+//   exists, and shows its group; only a fresh load or a gone scene falls
+//   back to the default. Every editor save re-dispatches, and since the
+//   editor's fields save themselves each edit would have moved the highlight
+//   to the default card while the camera stayed where it was. Ported from
+//   ValeVision3D's carousel 1.4.1.
+//
 // 15-Nov-2026 - Version 1.3.1 (v2.186.0)
 // - NavigateToScene does nothing while the body carries na-model-streaming:
 //   from the first look until the last tier of the model is in. A scene may be
@@ -91,7 +100,8 @@
         Na__PresentationMode__ProjectJson__GetSceneById,
         Na__PresentationMode__ProjectJson__ResolveThumbnailUrl,
         Na__PresentationMode__ProjectJson__SetActiveSceneId,
-        Na__PresentationMode__ProjectJson__GetActiveSceneId
+        Na__PresentationMode__ProjectJson__GetActiveSceneId,
+        Na__PresentationMode__ProjectJson__GetActiveProjectFolder
     } from './Na__PresentationMode__ProjectJson__SceneData.js';
     // ------------------------------------------------------------
 
@@ -693,10 +703,27 @@
             const yearCode        = detail.year || null;
             const skipCameraApply = detail.skipCameraApply === true;
 
+            // THE SCENE ON SHOW BEFORE THIS | Read first: SetActiveConfig clears it
+            const Na__PreviousSceneId     = Na__PresentationMode__ProjectJson__GetActiveSceneId();
+            const Na__PreviousProjectFold = Na__PresentationMode__ProjectJson__GetActiveProjectFolder();
+
             Na__PresentationMode__ProjectJson__SetActiveConfig(sceneConfig, projectFolder, yearCode); // <-- Store in data layer
 
             // SET DEFAULT SCENE
             const defaultScene = Na__PresentationMode__ProjectJson__GetDefaultScene(sceneConfig);
+
+            // KEEP A STILL-VALID SCENE ON A MID-EDIT RE-DISPATCH
+            // ------------------------------------------------------------
+            // The same reasoning as the group below: every dev-editor save
+            // re-dispatches this event, and resetting to the default scene
+            // each time moved the highlight off the card the camera was still
+            // showing. Kept only for the same project folder (SketchUp scene
+            // ids such as su_scene_1 repeat across projects) and only while it
+            // exists.
+            // ------------------------------------------------------------
+            const Na__KeptScene = (skipCameraApply && Na__PreviousSceneId && Na__PreviousProjectFold === projectFolder)
+                ? Na__PresentationMode__ProjectJson__GetSceneById(sceneConfig, Na__PreviousSceneId)
+                : null;
 
             // RESOLVE OPENING GROUP | The group holding the default scene, so
             // the opening camera position always has its own thumbnail visible
@@ -711,13 +738,22 @@
             const Na__GroupStillValid = Na__PresentationMode__SceneGroups__GetEnabledGroups(sceneConfig)
                 .some(group => group.PresentationMode__Group__Id === Na__CurrentGroupId);
 
-            if (!Na__GroupStillValid) {
+            if (Na__KeptScene) {
+                // THE KEPT SCENE'S OWN GROUP | So its card is in the strip, even
+                // when the edit was the Group dropdown moving it
+                const Na__KeptGroupId = Na__PresentationMode__SceneGroups__ResolveSceneGroupId(Na__KeptScene, sceneConfig);
+                if (Na__KeptGroupId && Na__KeptGroupId !== Na__CurrentGroupId) {
+                    Na__PresentationMode__SceneGroups__SetActiveGroupId(Na__KeptGroupId);
+                }
+            } else if (!Na__GroupStillValid) {
                 Na__PresentationMode__SceneGroups__SetActiveGroupId(
                     Na__PresentationMode__SceneGroups__ResolveOpeningGroupId(defaultScene, sceneConfig)
                 );
             }
 
-            if (defaultScene) {
+            if (Na__KeptScene) {
+                Na__PresentationMode__ProjectJson__SetActiveSceneId(Na__PreviousSceneId);   // <-- The card the camera is still showing
+            } else if (defaultScene) {
                 Na__PresentationMode__ProjectJson__SetActiveSceneId(defaultScene.PresentationMode__Scene__Id);
                 if (!skipCameraApply) {
                     Na__PresentationMode__Camera__ApplySceneCameraState(camera, controls, defaultScene); // <-- Jump to default scene

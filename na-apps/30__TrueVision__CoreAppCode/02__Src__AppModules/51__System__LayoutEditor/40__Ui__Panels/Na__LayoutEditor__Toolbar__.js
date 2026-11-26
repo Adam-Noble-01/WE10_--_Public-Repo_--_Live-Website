@@ -6,13 +6,20 @@
 // NAMESPACE  : Na__LeToolbar
 // MODULE     : Layout Editor - Toolbar
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : The strip above the stage: tools, raster, save and Download PDF
+// PURPOSE    : The strip above the stage: tools, raster, save and Download PDF, every one an icon
+//              with a hover tip
 // CREATED    : 09-Sep-2026
 //
 // DESCRIPTION:
 // - Tool buttons (Select, Text, Dimension) and Save exist only when the
 //   session can edit; the Raster list and Download PDF are for everyone, so
 //   a web viewer can read a sheet and take the PDF away.
+// - EVERY TOOL, TOGGLE AND ACTION IS AN ICON (Adam, 26-Nov-2026: "removing text based tooling
+//   replacing with svg icons and hover over tooltips ... reduce overwheling cluttler"). The word
+//   a button used to show is its aria-label and the name in its tip; its old hover text gives
+//   the tip's key and instructions (Na__LayoutEditor__ToolTip__.js). The icons are
+//   Na__LayoutEditor__ToolIcons__.js's. What is happening now (the dropper's and the open
+//   container's lines), the sheet's name and a viewer's read-only note stay words.
 // - Undo, Redo, Zoom to Fit and the zoom readout have no buttons here: they
 //   are keys (Ctrl+Z, Ctrl+Y, and the key map's zoom bindings), and Zoom to
 //   fit is on the right-click menu as well.
@@ -32,6 +39,21 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Nov-2026 - Version 1.24.1 (TrueVision3D v2.189.9)
+// - ICONS AND HOVER TIPS IN PLACE OF WORDS. Every tool, toggle and action on the strip shows
+//   its icon (the contract's name, 01__AppAssets__TrueVision/UiIcons__MenuIcons__LayoutEditor)
+//   and tells its name, key and instructions in the one Layout Editor tip; the words it showed
+//   are its aria-label. The Raster and Vector words are icons before their lists; Save keeps
+//   its amber unsaved state; the snap caret is the SnapOptions chevron. The groups are split
+//   by thin rules: pick and move, annotate, draw, match and place, the drafting toggles. The
+//   re-read words of the toggles now go to their tips (Na__LeToolbar__Words), never into the
+//   button, which would wipe its icon. Adam, 26-Nov-2026: "Upgrade UI ... removing text based
+//   tooling replacing with svg icons and hover over tooltips".
+// - THE OUTPUT AT THE RIGHT-HAND END, one strip layout in both apps (the job's contract
+//   v0.0.5): a spacer after the hint lines, then [Raster, Vector] | [Save Sheets, Download PDF,
+//   Share], a viewer's read-only note just before that group. The spacer's rule is the shared
+//   Na__LayoutEditor__Styles__ToolIcons__.css's, as ValeVision's strip uses it.
+//
 // 29-Sep-2026 - Version 1.24.0
 // - SHARE after Download PDF: the link that opens the drawing on screen,
 //   read-only, on any device - the same link the web viewer's Share hands
@@ -220,6 +242,8 @@
     import { Na__LeAxes__CHANGED_EVENT, Na__LeAxes__IsOn, Na__LeAxes__Toggle, Na__LeAxes__Label } from '../33__System__DrawingAxes/Na__LayoutEditor__DrawingAxes__.js';
     import { Na__LeImgIns__Pick } from '../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Insert__.js';   // <-- The Image button: pictures onto the sheet
     import { Na__LeImgCfg__Label } from '../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Setup__.js';
+    import { Na__LeIcon__Put, Na__LeIcon__Make } from './Na__LayoutEditor__ToolIcons__.js';                       // <-- Every button on the strip is an icon
+    import { Na__LeTip__Set, Na__LeTip__Hide, Na__LeTip__FromTitle } from './Na__LayoutEditor__ToolTip__.js';   // <-- ... and its words are its hover tip
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -238,6 +262,16 @@
     let Na__LeToolbar__Busy      = false;
     // ------------------------------------------------------------
 
+    // MODULE CONSTANTS | The Hover Texts Used When a Config Has None
+    // ------------------------------------------------------------
+    // The sync once read these back from each button's title; a button with a
+    // tip has no title, so they are kept here once.
+    // ------------------------------------------------------------
+    const Na__LeToolbar__GRID_TITLE     = 'Show grid (F6): points every millimetre across the whole sheet, heavier every 10 mm. Never printed.';
+    const Na__LeToolbar__GRIDSNAP_TITLE = 'Grid snap (F7): every point placed or dragged lands on the nearest grid point.';
+    const Na__LeToolbar__AXES_TITLE     = 'Drawing Axes Overlay (F9): a red horizontal and a green vertical line through the cursor, run out to the edges of the sheet, as SketchUp draws its red and green axes. Never printed.';
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -245,22 +279,53 @@
 // REGION | Building
 // -----------------------------------------------------------------------------
 
-    // HELPER FUNCTION | A Toolbar Button
+    // HELPER FUNCTION | A Toolbar Button: Its Icon, Its Name and Its Hover Tip
     // ------------------------------------------------------------
-    function Na__LeToolbar__Button(text, name, title, onClick) {
+    // icon : the contract's icon name. The button's old word becomes its
+    // aria-label, so anything that finds it by name still does, and the name
+    // in its tip; its old hover text gives the tip's key and instructions.
+    // key  : a key the hover text does not name (Save's Ctrl+S).
+    // ------------------------------------------------------------
+    function Na__LeToolbar__Button(text, name, title, onClick, icon, key) {
         const button = document.createElement('button');
-        button.type        = 'button';
-        button.className   = 'na-le-toolbar__btn';
-        button.textContent = text;
-        button.title       = title || text;
+        button.type      = 'button';
+        button.className = 'na-le-toolbar__btn';
         button.setAttribute('data-na-toolbar', name);
+        if (icon) {
+            Na__LeIcon__Put(button, icon, text);
+            Na__LeToolbar__Words(button, text, title, key);
+        } else {
+            button.textContent = text;
+            button.title       = title || text;
+        }
         button.addEventListener('click', onClick);
         return button;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Give a Button (or a List, or a Label) Its Name and Tip
+    // ------------------------------------------------------------
+    // Runs on every sync, so it writes nothing that has not changed: the tip
+    // module keeps the words and only rewrites a tip that is on screen.
+    // ------------------------------------------------------------
+    function Na__LeToolbar__Words(element, word, title, key) {
+        if (!element) return;
+        const source = word + '\n' + (title || '') + '\n' + (key || '');          // <-- As ValeVision's twin: nothing is rewritten while the words are the same
+        if (element.getAttribute('data-na-tip-source') === source) return;
+        element.setAttribute('data-na-tip-source', source);
+        if (word) element.setAttribute('aria-label', word);
+        Na__LeTip__Set(element, Na__LeTip__FromTitle(word, title || word, key));
     }
     function Na__LeToolbar__Gap() {
         const gap = document.createElement('span');
         gap.className = 'na-le-toolbar__gap';
         return gap;
+    }
+    function Na__LeToolbar__Spacer() {
+        const spacer = document.createElement('span');
+        spacer.className = 'na-le-toolbar__spacer';                             // <-- Takes the free width, so the output group sits at the right-hand end
+        return spacer;
     }
     // ------------------------------------------------------------
 
@@ -283,13 +348,12 @@
             // the object snap config can land after the toolbar is built.
             const snapText  = Na__LeOsnap__Label('Toggle', Na__LeCfg__GetLabel('SnapToggle', 'Snap'));
             const snapTitle = Na__LeOsnap__Label('ToggleTitle', 'Object snap (F3): new points, dragged points and moved items land on the corners, middles, crossings and perpendiculars of the drawing and of everything drawn on the sheet. The arrow beside it chooses which.');
-            if (snap.textContent !== snapText) snap.textContent = snapText;
-            if (snap.title !== snapTitle) snap.title = snapTitle;
+            Na__LeToolbar__Words(snap, snapText, snapTitle);                     // <-- Into its tip: written into the button they would wipe its icon
         }
         const snapMenu = Na__LeToolbar__Root.querySelector('[data-na-toolbar="snap-menu"]');
         if (snapMenu) {
             const menuTitle = Na__LeOsnap__Label('MenuButtonTitle', 'Snap options: which kinds of point are found, and which kinds of object they are found on');
-            if (snapMenu.title !== menuTitle) { snapMenu.title = menuTitle; snapMenu.setAttribute('aria-label', menuTitle); }
+            Na__LeToolbar__Words(snapMenu, menuTitle.split(':')[0].trim(), menuTitle);   // <-- Its name is the hover text's lead, "Snap options"
         }
         const ortho = Na__LeToolbar__Root.querySelector('[data-na-toolbar="ortho"]');
         if (ortho) {
@@ -300,8 +364,7 @@
             // they differ, because this sync runs often.
             const orthoText  = Na__LeOrtho__Label('Toggle', 'Ortho');
             const orthoTitle = Na__LeOrtho__Label('ToggleTitle', 'Ortho Mode (F8): restricts the cursor to horizontal and vertical from the last point. Hold Shift to draw one at an angle.');
-            if (ortho.textContent !== orthoText) ortho.textContent = orthoText;
-            if (ortho.title !== orthoTitle) ortho.title = orthoTitle;
+            Na__LeToolbar__Words(ortho, orthoText, orthoTitle);
         }
         const draft = Na__LeToolbar__Root.querySelector('[data-na-toolbar="draft"]');
         if (draft) {
@@ -312,22 +375,18 @@
             // sync runs often.
             const text  = Na__LeDraft__Label('Toggle', 'Draft');
             const title = Na__LeDraft__Label('ToggleTitle', 'Draft mode (K): only the vector linework, every line a hairline, no fills and no raster pictures.');
-            if (draft.textContent !== text) draft.textContent = text;
-            if (draft.title !== title) draft.title = title;
+            Na__LeToolbar__Words(draft, text, title);
         }
         // GRID AND GRID SNAP | Lit while on; the words re-read, because the grid
         // config can land after the toolbar is built, and written only when
         // they differ.
-        [ [ 'grid', Na__LeGrid__IsShowing(), 'ToolbarGrid', 'Grid', 'ToolbarGridTitle' ],
-          [ 'grid-snap', Na__LeGrid__IsSnapping(), 'ToolbarSnap', 'Grid Snap', 'ToolbarSnapTitle' ] ].forEach((entry) => {
+        [ [ 'grid', Na__LeGrid__IsShowing(), 'ToolbarGrid', 'Grid', 'ToolbarGridTitle', Na__LeToolbar__GRID_TITLE ],
+          [ 'grid-snap', Na__LeGrid__IsSnapping(), 'ToolbarSnap', 'Grid Snap', 'ToolbarSnapTitle', Na__LeToolbar__GRIDSNAP_TITLE ] ].forEach((entry) => {
             const button = Na__LeToolbar__Root.querySelector('[data-na-toolbar="' + entry[0] + '"]');
             if (!button) return;
             button.classList.toggle('na-le-toolbar__btn--active', entry[1]);
             button.setAttribute('aria-pressed', String(entry[1]));
-            const words = Na__LeGrid__Label(entry[2], entry[3]);
-            const title = Na__LeGrid__Label(entry[4], button.title);
-            if (button.textContent !== words) button.textContent = words;
-            if (button.title !== title) button.title = title;
+            Na__LeToolbar__Words(button, Na__LeGrid__Label(entry[2], entry[3]), Na__LeGrid__Label(entry[4], entry[5]));
         });
         // DRAWING AXES OVERLAY | Lit while on; the words re-read, because the
         // axes config can land after the toolbar is built, and written only
@@ -336,10 +395,7 @@
         if (axes) {
             axes.classList.toggle('na-le-toolbar__btn--active', Na__LeAxes__IsOn());
             axes.setAttribute('aria-pressed', String(Na__LeAxes__IsOn()));
-            const axesText  = Na__LeAxes__Label('Toggle', 'Axes');
-            const axesTitle = Na__LeAxes__Label('ToggleTitle', axes.title);
-            if (axes.textContent !== axesText) axes.textContent = axesText;
-            if (axes.title !== axesTitle) axes.title = axesTitle;
+            Na__LeToolbar__Words(axes, Na__LeAxes__Label('Toggle', 'Axes'), Na__LeAxes__Label('ToggleTitle', Na__LeToolbar__AXES_TITLE));
         }
         const raster = Na__LeToolbar__Root.querySelector('[data-na-toolbar="raster"]');
         if (raster && raster.value !== Na__LeRaster__Get()) raster.value = Na__LeRaster__Get();
@@ -426,7 +482,7 @@
         Na__LeToolbar__Editable  = !!(options && options.editable);
         Na__LeToolbar__ShowToast = (options && options.showToast) || null;
         const root = document.createElement('div');
-        root.className = 'na-le-toolbar';
+        root.className = 'na-le-toolbar na-le-toolbar--icons';
 
         const name = document.createElement('span');
         name.className = 'na-le-toolbar__name';
@@ -435,25 +491,29 @@
 
         if (Na__LeToolbar__Editable) {
             [ [ Na__LeTools__TOOL_SELECT, Na__LeCfg__GetLabel('ToolSelect', 'Select'),
-                  Na__LeCfg__GetLabel('ToolSelectTitle', 'Select (V or space): click to pick, drag from bare paper to box-select. Picking text, a vector, a leader\'s bubble or a group picks the Move tool up too, so the next drag moves it. Double-click a group, a vector or a dimension to edit inside it, or text to type in it. Press M to move a viewport or a dimension.') ],
+                  Na__LeCfg__GetLabel('ToolSelectTitle', 'Select (V or space): click to pick, drag from bare paper to box-select. Picking text, a vector, a leader\'s bubble or a group picks the Move tool up too, so the next drag moves it. Double-click a group, a vector or a dimension to edit inside it, or text to type in it. Press M to move a viewport or a dimension.'), 'Select' ],
               [ Na__LeTools__TOOL_MOVE, Na__LeCfg__GetLabel('ToolMove', 'Move'),
-                  Na__LeCfg__GetLabel('ToolMoveTitle', 'Move tool (M): drag to move whatever is under the pointer. It comes up by itself when Select picks text, a vector, a leader\'s bubble or a group, and goes back to Select when you click anything else. Viewports and dimensions only move once M is pressed, so a drawing is never shifted by accident; Escape goes back to Select.') ],
-              [ Na__LeTools__TOOL_TEXT, Na__LeCfg__GetLabel('ToolText', 'Text'), 'Place text (T)' ],
-              [ Na__LeTools__TOOL_LEADER, Na__LeCfg__GetLabel('ToolLeader', 'Leader'), Na__LeCfg__GetLabel('ToolLeaderTitle', 'Place a leader (E): click the point it marks, then where its note or bubble goes - or drag from one to the other.') ],
-              [ Na__LeTools__TOOL_DIMENSION, Na__LeCfg__GetLabel('ToolDimension', 'Dimension'), Na__LeCfg__GetLabel('ToolDimensionTitle', 'Place a dimension in three clicks (D): start, end, then where the line sits. Hold Shift while placing the line for a horizontal or vertical dimension.') ],
-              [ Na__LeTools__TOOL_DRAW, Na__LeCfg__GetLabel('ToolDraw', 'Draw'), 'Draw lines and polygons: click points, click the first point to close, Enter to finish (L)' ],
-              [ Na__LeTools__TOOL_RECT, Na__LeCfg__GetLabel('ToolRectangle', 'Rectangle'), Na__LeCfg__GetLabel('ToolRectangleTitle', 'Draw a rectangle (R): click one corner then the opposite corner, or drag from one to the other. Shift keeps it square, Esc abandons it.') ],
-              [ Na__LeVec__TOOL_CIRCLE, Na__LeVecCfg__Label('ToolCircle', 'Circle'), Na__LeVecCfg__Label('ToolCircleTitle', 'Circle (C): click the centre, then the radius - or drag from one to the other. Type a radius (1500), a diameter (3000d) or a number of sides (6s) and press Enter; typed straight after it lands, it resizes that circle.') ],
-              [ Na__LeVec__TOOL_ARC, Na__LeVecCfg__Label('ToolArc', 'Arc'), Na__LeVecCfg__Label('ToolArcTitle', 'Arc (Shift+A): as set in the Vector Tools panel - 2 Point draws start, end, then the bulge. Type the bulge, or a radius (750r), and press Enter.') ],
-              [ Na__LeTools__TOOL_AREA, Na__LeCfg__GetLabel('ToolFloorArea', 'Floor Area'), Na__LeCfg__GetLabel('ToolFloorAreaTitle', 'Measure a room (A): draw round it and click the first corner again to close - or switch to rectangles in the Floor Areas panel. It lands on the Floor Areas layer, named and coloured, with its area written in the middle of it.') ],
-              [ Na__LeTools__TOOL_EYEDROP, Na__LeCfg__GetLabel('ToolEyedropper', 'Eyedropper'), Na__LeCfg__GetLabel('ToolEyedropperTitle', 'Match properties (B): click the object to copy FROM, then each object to copy ONTO. Alt+click picks a new source, Esc finishes.') ] ].forEach((entry) => {
+                  Na__LeCfg__GetLabel('ToolMoveTitle', 'Move tool (M): drag to move whatever is under the pointer. It comes up by itself when Select picks text, a vector, a leader\'s bubble or a group, and goes back to Select when you click anything else. Viewports and dimensions only move once M is pressed, so a drawing is never shifted by accident; Escape goes back to Select.'), 'Move' ],
+              [ Na__LeTools__TOOL_TEXT, Na__LeCfg__GetLabel('ToolText', 'Text'), 'Place text (T)', 'Text' ],
+              [ Na__LeTools__TOOL_LEADER, Na__LeCfg__GetLabel('ToolLeader', 'Leader'), Na__LeCfg__GetLabel('ToolLeaderTitle', 'Place a leader (E): click the point it marks, then where its note or bubble goes - or drag from one to the other.'), 'Leader' ],
+              [ Na__LeTools__TOOL_DIMENSION, Na__LeCfg__GetLabel('ToolDimension', 'Dimension'), Na__LeCfg__GetLabel('ToolDimensionTitle', 'Place a dimension in three clicks (D): start, end, then where the line sits. Hold Shift while placing the line for a horizontal or vertical dimension.'), 'Dimension' ],
+              [ Na__LeTools__TOOL_DRAW, Na__LeCfg__GetLabel('ToolDraw', 'Draw'), 'Draw lines and polygons: click points, click the first point to close, Enter to finish (L)', 'Draw' ],
+              [ Na__LeTools__TOOL_RECT, Na__LeCfg__GetLabel('ToolRectangle', 'Rectangle'), Na__LeCfg__GetLabel('ToolRectangleTitle', 'Draw a rectangle (R): click one corner then the opposite corner, or drag from one to the other. Shift keeps it square, Esc abandons it.'), 'Rectangle' ],
+              [ Na__LeVec__TOOL_CIRCLE, Na__LeVecCfg__Label('ToolCircle', 'Circle'), Na__LeVecCfg__Label('ToolCircleTitle', 'Circle (C): click the centre, then the radius - or drag from one to the other. Type a radius (1500), a diameter (3000d) or a number of sides (6s) and press Enter; typed straight after it lands, it resizes that circle.'), 'Circle' ],
+              [ Na__LeVec__TOOL_ARC, Na__LeVecCfg__Label('ToolArc', 'Arc'), Na__LeVecCfg__Label('ToolArcTitle', 'Arc (Shift+A): as set in the Vector Tools panel - 2 Point draws start, end, then the bulge. Type the bulge, or a radius (750r), and press Enter.'), 'Arc' ],
+              [ Na__LeTools__TOOL_AREA, Na__LeCfg__GetLabel('ToolFloorArea', 'Floor Area'), Na__LeCfg__GetLabel('ToolFloorAreaTitle', 'Measure a room (A): draw round it and click the first corner again to close - or switch to rectangles in the Floor Areas panel. It lands on the Floor Areas layer, named and coloured, with its area written in the middle of it.'), 'FloorArea' ],
+              [ Na__LeTools__TOOL_EYEDROP, Na__LeCfg__GetLabel('ToolEyedropper', 'Eyedropper'), Na__LeCfg__GetLabel('ToolEyedropperTitle', 'Match properties (B): click the object to copy FROM, then each object to copy ONTO. Alt+click picks a new source, Esc finishes.'), 'Eyedropper' ] ].forEach((entry) => {
                 // The eyedropper arms through its own call so the button behaves
                 // exactly as the B key does: with something selected it comes up
                 // already loaded from that selection. Shift+click is Shift+B, the
                 // palette.
                 // ------------------------------------
                 const pick   = (event) => (entry[0] !== Na__LeTools__TOOL_EYEDROP ? Na__LeTools__SetTool(entry[0]) : ((event && event.shiftKey) ? Na__LeTools__ArmPalette() : Na__LeTools__ArmEyedropper()));
-                const button = Na__LeToolbar__Button(entry[1], 'tool-' + entry[0], entry[2], pick);
+                // THE GROUPS, split by a thin rule: pick and move; annotate; draw;
+                // match and place. Icons need less air than words, but a row of
+                // twenty squares reads only in groups.
+                if (entry[0] === Na__LeTools__TOOL_TEXT || entry[0] === Na__LeTools__TOOL_DRAW || entry[0] === Na__LeTools__TOOL_EYEDROP) root.appendChild(Na__LeToolbar__Gap());
+                const button = Na__LeToolbar__Button(entry[1], 'tool-' + entry[0], entry[2], pick, entry[3]);
                 button.setAttribute('data-na-tool', entry[0]);
                 root.appendChild(button);
             });
@@ -462,7 +522,8 @@
             // with Move picked up - and dragging files onto the sheet does
             // the same without the button.
             // ------------------------------------
-            root.appendChild(Na__LeToolbar__Button(Na__LeImgCfg__Label('ToolImage', 'Image'), 'image', Na__LeImgCfg__Label('ToolImageTitle', 'Place a picture (CGI, photograph) on this sheet. You can also drag picture files straight onto the sheet.'), () => Na__LeImgIns__Pick()));
+            root.appendChild(Na__LeToolbar__Button(Na__LeImgCfg__Label('ToolImage', 'Image'), 'image', Na__LeImgCfg__Label('ToolImageTitle', 'Place a picture (CGI, photograph) on this sheet. You can also drag picture files straight onto the sheet.'), () => Na__LeImgIns__Pick(), 'Image'));
+            root.appendChild(Na__LeToolbar__Gap());                                // <-- Then the drafting toggles, a group of their own
             // SNAP, AND ITS ARROW | AutoCAD's status bar button: a click switches
             // object snap (F3), the arrow beside it drops the snap options - the
             // running modes, each with a picture of what it finds, and the kinds
@@ -472,8 +533,9 @@
             // ------------------------------------
             const snapSplit = document.createElement('span');
             snapSplit.className = 'na-le-toolbar__split';
-            snapSplit.appendChild(Na__LeToolbar__Button(Na__LeOsnap__Label('Toggle', Na__LeCfg__GetLabel('SnapToggle', 'Snap')), 'snap', Na__LeOsnap__Label('ToggleTitle', 'Object snap (F3)'), () => Na__LeOsnap__Toggle()));
-            const snapCaret = Na__LeToolbar__Button('', 'snap-menu', Na__LeOsnap__Label('MenuButtonTitle', 'Snap options'), () => Na__LeOsnap__ToggleMenu(snapCaret));
+            snapSplit.appendChild(Na__LeToolbar__Button(Na__LeOsnap__Label('Toggle', Na__LeCfg__GetLabel('SnapToggle', 'Snap')), 'snap', Na__LeOsnap__Label('ToggleTitle', 'Object snap (F3)'), () => Na__LeOsnap__Toggle(), 'Snap'));
+            const snapCaretTitle = Na__LeOsnap__Label('MenuButtonTitle', 'Snap options');
+            const snapCaret = Na__LeToolbar__Button(snapCaretTitle.split(':')[0].trim(), 'snap-menu', snapCaretTitle, () => Na__LeOsnap__ToggleMenu(snapCaret), 'SnapOptions');
             snapCaret.classList.add('na-le-toolbar__btn--caret');
             snapCaret.setAttribute('aria-haspopup', 'menu');
             snapCaret.setAttribute('aria-expanded', 'false');
@@ -482,23 +544,23 @@
             // DRAFT | K, as in LayOut: a view of the sheet, not a setting of it,
             // so it sits with the other toggles and is lit while it is on.
             // ------------------------------------
-            root.appendChild(Na__LeToolbar__Button(Na__LeDraft__Label('Toggle', 'Draft'), 'draft', Na__LeDraft__Label('ToggleTitle', 'Draft mode (K): only the vector linework, every line a hairline, no fills and no raster pictures.'), () => Na__LeDraft__Toggle()));
+            root.appendChild(Na__LeToolbar__Button(Na__LeDraft__Label('Toggle', 'Draft'), 'draft', Na__LeDraft__Label('ToggleTitle', 'Draft mode (K): only the vector linework, every line a hairline, no fills and no raster pictures.'), () => Na__LeDraft__Toggle(), 'Draft'));
             // GRID AND GRID SNAP | F6 and F7, SketchUp LayOut's Show Grid and
             // Grid Snap: two switches, as there, each lit while it is on.
             // ------------------------------------
-            root.appendChild(Na__LeToolbar__Button(Na__LeGrid__Label('ToolbarGrid', 'Grid'), 'grid', Na__LeGrid__Label('ToolbarGridTitle', 'Show grid (F6): points every millimetre across the whole sheet, heavier every 10 mm. Never printed.'), () => Na__LeGrid__ToggleShow()));
-            root.appendChild(Na__LeToolbar__Button(Na__LeGrid__Label('ToolbarSnap', 'Grid Snap'), 'grid-snap', Na__LeGrid__Label('ToolbarSnapTitle', 'Grid snap (F7): every point placed or dragged lands on the nearest grid point.'), () => Na__LeGrid__ToggleSnap()));
+            root.appendChild(Na__LeToolbar__Button(Na__LeGrid__Label('ToolbarGrid', 'Grid'), 'grid', Na__LeGrid__Label('ToolbarGridTitle', Na__LeToolbar__GRID_TITLE), () => Na__LeGrid__ToggleShow(), 'Grid'));
+            root.appendChild(Na__LeToolbar__Button(Na__LeGrid__Label('ToolbarSnap', 'Grid Snap'), 'grid-snap', Na__LeGrid__Label('ToolbarSnapTitle', Na__LeToolbar__GRIDSNAP_TITLE), () => Na__LeGrid__ToggleSnap(), 'GridSnap'));
             // ORTHO | F8, as in AutoCAD: a way of drawing, lit while it is on,
             // like AutoCAD's Ortho Mode button on its status bar.
             // ------------------------------------
-            root.appendChild(Na__LeToolbar__Button(Na__LeOrtho__Label('Toggle', 'Ortho'), 'ortho', Na__LeOrtho__Label('ToggleTitle', 'Ortho Mode (F8): restricts the cursor to horizontal and vertical from the last point. Hold Shift to draw one at an angle.'), () => Na__LeOrtho__Toggle()));
+            root.appendChild(Na__LeToolbar__Button(Na__LeOrtho__Label('Toggle', 'Ortho'), 'ortho', Na__LeOrtho__Label('ToggleTitle', 'Ortho Mode (F8): restricts the cursor to horizontal and vertical from the last point. Hold Shift to draw one at an angle.'), () => Na__LeOrtho__Toggle(), 'Ortho'));
             // AXES | F9, the key after Ortho's: the Drawing Axes Overlay,
             // SketchUp's red and green axes carried by the cursor out to the
             // edges of the sheet, lit while it is on, like the grid and Ortho
             // beside it. One short word on the strip; the full name opens its
             // hover text.
             // ------------------------------------
-            root.appendChild(Na__LeToolbar__Button(Na__LeAxes__Label('Toggle', 'Axes'), 'axes', Na__LeAxes__Label('ToggleTitle', 'Drawing Axes Overlay (F9): a red horizontal and a green vertical line through the cursor, run out to the edges of the sheet, as SketchUp draws its red and green axes. Never printed.'), () => Na__LeAxes__Toggle()));
+            root.appendChild(Na__LeToolbar__Button(Na__LeAxes__Label('Toggle', 'Axes'), 'axes', Na__LeAxes__Label('ToggleTitle', Na__LeToolbar__AXES_TITLE), () => Na__LeAxes__Toggle(), 'Axes'));
 
             // EYEDROPPER HINT | What the dropper is holding and what to do next.
             // It lives beside the tool buttons because that is where the eye
@@ -519,17 +581,23 @@
             scopeHint.setAttribute('data-na-toolbar', 'scope-hint');
             scopeHint.hidden = true;
             root.appendChild(scopeHint);
-            root.appendChild(Na__LeToolbar__Gap());
         }
+        root.appendChild(Na__LeToolbar__Spacer());                               // <-- The output at the right-hand end, as ValeVision's strip has it
+        root.appendChild(Na__LeToolbar__Gap());
 
         // RASTER | The working resolution of the viewport pictures; the PDF ignores it
+        // The word before the list is the Raster icon; the icon and the list
+        // carry the same tip, and the list is named Raster for screen readers.
+        const rasterWord  = Na__LeCfg__GetLabel('RasterLabel', 'Raster');
+        const rasterTitle = Na__LeCfg__GetLabel('RasterTitle', 'Working resolution of the viewport pictures on screen. The PDF always exports at High.');
         const rasterLabel = document.createElement('span');
-        rasterLabel.className   = 'na-le-toolbar__label';
-        rasterLabel.textContent = Na__LeCfg__GetLabel('RasterLabel', 'Raster');
+        rasterLabel.className = 'na-le-toolbar__label na-le-icon-label';
+        rasterLabel.appendChild(Na__LeIcon__Make('Raster', rasterWord));
+        Na__LeToolbar__Words(rasterLabel, rasterWord, rasterTitle);
         root.appendChild(rasterLabel);
         const raster = document.createElement('select');
         raster.className = 'na-le-toolbar__select';
-        raster.title     = Na__LeCfg__GetLabel('RasterTitle', 'Working resolution of the viewport pictures on screen. The PDF always exports at High.');
+        Na__LeToolbar__Words(raster, rasterWord, rasterTitle);
         raster.setAttribute('data-na-toolbar', 'raster');
         Na__LeRaster__LEVELS.forEach((level) => {
             const option = document.createElement('option');
@@ -545,13 +613,16 @@
         // on: clean against fast. A control of its own, beside Raster and not
         // part of it, because Raster renders every viewport picture again when
         // it changes and this renders nothing: it can be flicked mid-task.
+        const vectorWord  = Na__LeCfg__GetLabel('VectorLabel', 'Vector');
+        const vectorTitle = Na__LeCfg__GetLabel('VectorTitle', 'How the drawings\' linework is drawn while you work. High: always the cleanest, and a heavy plan is slow to dimension. Medium: fast while you edit, clean again a moment after you stop. Low: fastest, always a touch soft. Nothing is re-rendered when this changes, and the PDF ignores it.');
         const vectorLabel = document.createElement('span');
-        vectorLabel.className   = 'na-le-toolbar__label';
-        vectorLabel.textContent = Na__LeCfg__GetLabel('VectorLabel', 'Vector');
+        vectorLabel.className = 'na-le-toolbar__label na-le-icon-label';
+        vectorLabel.appendChild(Na__LeIcon__Make('VectorQuality', vectorWord));
+        Na__LeToolbar__Words(vectorLabel, vectorWord, vectorTitle);
         root.appendChild(vectorLabel);
         const vector = document.createElement('select');
         vector.className = 'na-le-toolbar__select';
-        vector.title     = Na__LeCfg__GetLabel('VectorTitle', 'How the drawings\' linework is drawn while you work. High: always the cleanest, and a heavy plan is slow to dimension. Medium: fast while you edit, clean again a moment after you stop. Low: fastest, always a touch soft. Nothing is re-rendered when this changes, and the PDF ignores it.');
+        Na__LeToolbar__Words(vector, vectorWord, vectorTitle);
         vector.setAttribute('data-na-toolbar', 'vector');
         Na__LeVectorQ__LEVELS.forEach((level) => {
             const option = document.createElement('option');
@@ -565,20 +636,20 @@
         root.appendChild(Na__LeToolbar__Gap());
 
         if (Na__LeToolbar__Editable) {
-            root.appendChild(Na__LeToolbar__Button(Na__LeCfg__GetLabel('SaveSheets', 'Save Sheets'), 'save', Na__LeCfg__GetLabel('SaveSheetsTitle', 'Save every sheet to the project, and sync the project specification when it has changes'), () => { void Na__LeToolbar__Save(); }));
+            root.appendChild(Na__LeToolbar__Button(Na__LeCfg__GetLabel('SaveSheets', 'Save Sheets'), 'save', Na__LeCfg__GetLabel('SaveSheetsTitle', 'Save every sheet to the project, and sync the project specification when it has changes'), () => { void Na__LeToolbar__Save(); }, 'SaveSheets', 'Ctrl+S'));
         } else {
             const note = document.createElement('span');
             note.className   = 'na-le-toolbar__note';
             note.textContent = Na__LeCfg__GetLabel('ReadOnlyNote', 'Read-only on the web build.');
             root.appendChild(note);
         }
-        root.appendChild(Na__LeToolbar__Button(Na__LeCfg__GetLabel('DownloadPdf', 'Download PDF'), 'pdf', 'Export this sheet as a PDF at paper size', () => { void Na__LeToolbar__Pdf(); }));
+        root.appendChild(Na__LeToolbar__Button(Na__LeCfg__GetLabel('DownloadPdf', 'Download PDF'), 'pdf', 'Export this sheet as a PDF at paper size', () => { void Na__LeToolbar__Pdf(); }, 'DownloadPdf'));
         // SHARE | Beside the PDF, as the web viewer's is: a link that opens the
         // drawing on screen, read-only, on any device (66__Feature__DocumentSharing).
         const share = Na__LeToolbar__Button(Na__LeCfg__GetLabel('ShareDrawing', 'Share'), 'share', Na__LeCfg__GetLabel('ShareDrawingTitle', 'A link that opens this drawing, read-only, on any device - the live site\'s, never this machine\'s'), () => {
             const sheet = Na__LeModel__GetActiveSheet();
             if (sheet) Na__LeShareUi__Open(share, { kind : 'drawing', sheetId : sheet.Sheet__Id });
-        });
+        }, 'Share');
         root.appendChild(share);
 
         container.appendChild(root);
@@ -598,6 +669,7 @@
     // ------------------------------------------------------------
     function Na__LeToolbar__Unmount() {
         Na__LeOsnap__CloseMenu();                                                // <-- The snap options hang off a button that is about to go
+        Na__LeTip__Hide();                                                       // <-- So might a tip
         if (Na__LeToolbar__Listeners) {
             [ Na__LeTools__CHANGED_EVENT, Na__LeModel__CHANGED_EVENT, Na__LeOsnap__CHANGED_EVENT, Na__LeRaster__CHANGED_EVENT, Na__LeDrop__CHANGED_EVENT, Na__LeScope__CHANGED_EVENT, Na__LeSpec__CHANGED_EVENT, Na__LeDraft__CHANGED_EVENT, Na__LeGrid__CHANGED_EVENT ].forEach((name) => window.removeEventListener(name, Na__LeToolbar__Listeners));
         }

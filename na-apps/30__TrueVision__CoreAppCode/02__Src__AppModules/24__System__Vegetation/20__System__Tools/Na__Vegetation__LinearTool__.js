@@ -61,6 +61,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Nov-2026 - Version 1.6.1 (ValeVision3D v2.99.3, TrueVision3D v2.189.8)
+// - The instruction note is gone: the same words are the tooltip of an (i) (Adam, 26-Nov-2026:
+//   "do the same with TrueVision same princple applies", after ValeVision 3D v2.99.3: "no
+//   overwhelming notes in the UI"; ../../22__System__SceneAssets/Na__SceneAssets__InfoTip__.js).
+//   The line on how to draw shows while a path is being drawn.
+//
 // 12-Nov-2026 - Version 1.6.0 (ValeVision3D v2.97.0)
 // - A standard palette chosen in the Mix sets the path's plant scale and spacing to its own.
 //
@@ -98,6 +104,7 @@
         Na__VegPath__SetPlantScale
     } from '../01__Core__Engine/Na__Vegetation__PathModel__.js';
     import { Na__VegData__NextUid, Na__VegData__NextStrokeUid, Na__VegData__FindPath } from '../02__Core__Data/Na__Vegetation__SceneData__.js';
+    import { Na__SceneInfo__Tip } from '../../22__System__SceneAssets/Na__SceneAssets__InfoTip__.js';
     import {
         Na__VegRun__GetSceneData,
         Na__VegRun__SyncPlants,
@@ -801,14 +808,16 @@
             const draw = Na__VegShell__Button('Draw New Path', 'na-veg-btn--strong', Na__VegLinear__StartDrawing);
             draw.id = 'naVegetationLinearDraw';
             drawRow.appendChild(draw);
+            drawRow.appendChild(Na__SceneInfo__Tip(selected
+                ? 'Drag a grip to move a point, click the line to add one, Delete on a grip to take it out.'
+                : 'Click a path on the model to edit it. These rows are what the next path starts from.', 'How to use the Line Tool'));
+            drawRow.classList.add('na-scene-info-row');
         }
         body.appendChild(drawRow);
 
-        body.appendChild(Na__VegShell__El('p', 'na-veg-panel__hint', state.drawingUid
-            ? 'Click along the planter. Outlines show the plants the next click adds, and they grow as you go. Enter or a double click finishes, Backspace takes back a point.'
-            : (selected
-                ? 'Drag a grip to move a point, click the line to add one, Delete on a grip to take it out.'
-                : 'Click a path on the model to edit it. These rows are what the next path starts from.')));
+        if (state.drawingUid) {                                                // <-- While drawing, what the clicks do stays in view: the rest is the (i)'s
+            body.appendChild(Na__VegShell__El('p', 'na-veg-panel__hint', 'Click along the planter. Outlines show the plants the next click adds, and they grow as you go. Enter or a double click finishes, Backspace takes back a point.'));
+        }
 
         if (selected) {
             body.appendChild(Na__VegShell__El('div', 'na-veg-panel__section', 'This path'));

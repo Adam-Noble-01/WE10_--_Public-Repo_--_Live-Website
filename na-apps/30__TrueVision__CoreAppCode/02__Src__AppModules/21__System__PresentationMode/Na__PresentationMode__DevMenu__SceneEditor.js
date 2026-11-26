@@ -6,13 +6,21 @@
 // NAMESPACE  : Na__PresentationMode
 // MODULE     : PresentationMode - Dev Menu Scene Editor
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : Localhost-only scene editor inside the Dev Tools menu for
-//              creating, editing, and saving Presentation Mode saved scenes
+// PURPOSE    : Localhost-only scene editor, opened from the Dev Tools menu into
+//              a panel of its own, for creating, editing, and saving
+//              Presentation Mode saved scenes
 // CREATED    : 21-Jun-2026
 //
 // DESCRIPTION:
 // - Gated behind Na__DevGate__IsAuthoringEnabled(); invisible on hosted builds.
-// - Renders a scene list inside the static #naPmDevEditorPanel container.
+// - Renders inside the static #naPmDevEditorPanel container (declared in the
+//   Dev Tools section of Index.html), which Initialize moves into a panel of
+//   its own docked on the left, or in a window of its own on another screen
+//   (Na__PresentationMode__DevMenu__SceneManagerShell__): Add Scene From
+//   Camera and the save state in the panel's bar, one tab per scene group
+//   with the group's camera at the end of the tabs, that group's scene rows,
+//   then two folds - Scene Groups (the group editor module) and All Scenes
+//   (the batch walks, Export JSON and Clear All Scenes).
 //
 // - ONE SCENE IS OPEN AT A TIME. Every other row is a folded header strip.
 //   This is the central idea of the panel and the answer to its one real
@@ -27,23 +35,30 @@
 //   the panel folds every group but that scene's, opens that one row and
 //   scrolls to it. The row you are looking at is the scene you are looking at.
 //
-// - Per-scene controls: a thumbnail of the scene as it was last saved, Name,
-//   Group, an FOV slider with live lens-mm readout and the move-speed value
-//   box beside it, then Advanced (collapsed): Position, Navigation Mode,
-//   Easing, layer-switch timing, the layout-editor-only flag and the Lighting
-//   subsection (built by Na__PresentationMode__DevMenu__SceneLightingRows__).
+// - A folded row reads: the scene's small picture, #N and its name, a FLY or
+//   WALK chip for its navigation mode and a LAYOUT chip when the viewer never
+//   sees it. Open: a thumbnail of the scene as it was last saved, Name, Group,
+//   the Nav Mode switch (Orbit | Walk | Fly), an FOV slider with live lens-mm
+//   readout and the move-speed value box beside it, then Advanced (collapsed):
+//   Position, Easing, layer-switch timing, the layout-editor-only flag and the
+//   Lighting subsection (built by Na__PresentationMode__DevMenu__SceneLightingRows__).
 // - Per-scene reordering: drag the grip handle, or use the up/down arrows in
 //   the row header, or type a position in Advanced. Order is rewritten as a
 //   clean 1..N sequence after every move and saved immediately.
-// - Per-scene actions: Preview (fly there), Update Scene (recapture, behind a
-//   confirmation) and Delete.
-// - Per-group action: a camera button beside each group heading downloads an
-//   image of every scene in that group - Download All Images, cut down to the
+// - Per-scene actions: Go To Scene (fly there) and Update Scene (recapture,
+//   behind a confirmation that names the mode it will keep); Delete under a
+//   rule below them.
+// - EVERY CHANGE SAVES ITSELF. A field is written a moment after it settles,
+//   without a rebuild; the Nav Mode switch is written at once and, on the
+//   scene on screen, switches the view as well. Save All To Project is gone:
+//   nothing waits for it. Every write goes through one queue, in order.
+// - Per-group action: the camera at the end of the tabs downloads an image of
+//   every scene in the group on show - Download All Images, cut down to the
 //   one group, for the model where the whole project is too long a job.
-// - Global controls: a square + at the top of the panel and a full-width Add
-//   Scene From Camera below it; Save All To Project; Update All Thumbnails;
-//   Download All Images; Export JSON. Clear All Scenes is kept apart under a
-//   rule and gated behind typing the word CLEAR.
+// - Global controls: Add Scene From Camera in the panel's bar; Update All
+//   Thumbnails, Download All Images and Export JSON in the All Scenes fold,
+//   where Clear All Scenes is kept apart under a rule and gated behind typing
+//   the word CLEAR.
 // - Saving writes the PresentationMode__SavedCameraScenes block straight to R2
 //   (TrueVision__ProjectData__.json) via the na-truevision-api Worker, and
 //   uploads thumbnail WebPs to R2 - no GitHub push required.
@@ -56,6 +71,37 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Nov-2026 - Version 1.5.2 (TrueVision v2.189.10)
+// - THE NAV MODE FIX, as ValeVision3D's v2.99.4. Adam, of ValeVision 3D:
+//   "Updating scenes navigation mode does not do anything, it reverts back to
+//   orbit mode and fails despiite showing a fake update toast"; of TrueVision,
+//   which had the same fault: "Fix and new panel". The switch wrote only the
+//   working copy; the one press that seemed to save it, Update Scene,
+//   captured the viewport's own mode (orbit) over it, wrote that to R2 and
+//   said "saved". The switch now saves on the press (SaveNavigationMode) and,
+//   on the scene on screen, switches the view to that mode, so the toolbar's
+//   Orbit | Walk | Fly changes with it. Update Scene's question names the
+//   mode it will keep, and says when the carousel is on another scene.
+// - Its own panel (SceneManagerShell__ 0.0.1), docked on the left or popped
+//   out into a window of its own on another screen. The editor never looks
+//   the panel up by id (GetPanel), gives every dialog the panel's document,
+//   and repeats each toast in the panel's bar (Say).
+// - Group tabs in place of the fold-down group headings, the group's camera
+//   at the end of the tabs, the batch tools folded under All Scenes, the row
+//   of the scene on screen marked, a small picture and a mode chip on every
+//   folded row, Go To Scene for Preview, Delete under a rule.
+// - Field edits save themselves (QueueEditSave, no rebuild); every write goes
+//   through one queue (SaveToR2) and paints the save state in the bar. Save
+//   All To Project and the square + are gone.
+// - A commit of its own no longer rebuilds the panel through the
+//   scenes-loaded event (detail.source); each action rebuilds when it needs to.
+// - A commit keeps the carousel's scene (CommitWorkingScenes carries the
+//   active id across SetActiveConfig; the carousel 1.3.2 keeps it), so a save
+//   no longer moves the highlight to the default card.
+// - Ported from ValeVision3D's SceneEditor 1.5.2 and SceneRowBuilders 1.4.1;
+//   TrueVision keeps its own R2 save, layer timing (which saves itself too)
+//   and per-group camera.
+//
 // 19-Oct-2026 - Version 1.5.1 (TrueVision v2.175.1)
 // - A block that holds authored scenes is always switched on when it is
 //   committed or saved, as the block this editor makes for a first scene is.
@@ -144,6 +190,8 @@
         Na__PresentationMode__ProjectJson__GetActiveConfig,
         Na__PresentationMode__ProjectJson__SetActiveConfig,
         Na__PresentationMode__ProjectJson__GetActiveSceneId,
+        Na__PresentationMode__ProjectJson__SetActiveSceneId,
+        Na__PresentationMode__ProjectJson__GetSceneById,
         Na__PresentationMode__ProjectJson__ResolveThumbnailUrl,
         Na__PresentationMode__ProjectJson__LAYOUT_ONLY_KEY,
         Na__PresentationMode__ProjectJson__SCHEMA_DESCRIPTION
@@ -219,10 +267,12 @@
     } from './Na__PresentationMode__DevMenu__GroupEditor__.js';
     // ------------------------------------------------------------
 
-    // MODULE IMPORTS | Camera Scene Transition (capture + build)
+    // MODULE IMPORTS | Camera Scene Transition (capture + build, the mode a scene lands in)
     // ------------------------------------------------------------
     import {
-        Na__PresentationMode__Camera__BuildSceneCameraJson
+        Na__PresentationMode__Camera__BuildSceneCameraJson,
+        Na__PresentationMode__Camera__ResolveSceneNavigationMode,
+        Na__PresentationMode__Camera__IsTransitioning
     } from './Na__PresentationMode__Camera__SceneTransition.js';
     // ------------------------------------------------------------
 
@@ -250,6 +300,7 @@
     import { Na__ElevData__SCENE_ELEV_ID } from '../45__System__ElevationViews/Na__Elevation__ProjectJson__Data__.js';
     import {
         Na__DrawView__GetKind,
+        Na__DrawView__IsActive,
         Na__DrawView__KIND_ELEVATION
     } from '../40__System__DrawingViewCore/Na__DrawView__ActiveView__.js';
     // ------------------------------------------------------------
@@ -274,12 +325,32 @@
     import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderLoop__Invalidation.js';
     // ------------------------------------------------------------
 
-    // MODULE IMPORTS | Navigation Mode Queries (per-scene mode authoring)
+    // MODULE IMPORTS | Navigation Modes (per-scene mode authoring, and the Nav Mode switch on the scene on screen)
+    // @delegate: ../10__NavigationAndCameras/Na__NavigationModes__Switcher.js
     // ------------------------------------------------------------
     import {
         Na__NavigationModes__GetActiveMode,
-        Na__NavigationModes__IsModeAvailable
+        Na__NavigationModes__IsModeAvailable,
+        Na__NavigationModes__SwitchToMode
     } from '../10__NavigationAndCameras/Na__NavigationModes__Switcher.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | The Panel of Its Own, Docked on the Left or in Its Own Window
+    // @delegate: ./Na__PresentationMode__DevMenu__SceneManagerShell__.js
+    // ------------------------------------------------------------
+    import {
+        Na__PmShell__Initialize,
+        Na__PmShell__Open,
+        Na__PmShell__Close,
+        Na__PmShell__IsOpen,
+        Na__PmShell__IsInWindow,
+        Na__PmShell__Focus,
+        Na__PmShell__SetCount,
+        Na__PmShell__SetStatus,
+        Na__PmShell__Say,
+        Na__PmShell__GetPanel,
+        Na__PmShell__GetDocument
+    } from './Na__PresentationMode__DevMenu__SceneManagerShell__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Per-Scene Lighting (Advanced > Lighting, and the capture Update Scene makes)
@@ -337,6 +408,18 @@
     ];
     // ------------------------------------------------------------
 
+
+    // MODULE CONSTANTS | The Panel's Words, and How Saves Are Made
+    // ------------------------------------------------------------
+    const Na__PmDev__PANEL_TITLE        = 'Presentation Scenes';             // <-- The Dev Tools row's own words
+    const Na__PmDev__COMMIT_SOURCE      = 'presentation-scenes-editor';      // <-- detail.source on its own scenes-loaded: no rebuild from the event
+    const Na__PmDev__EDIT_SAVE_DELAY_MS = 600;                               // <-- A field is written this long after it settles
+    const Na__PmDev__HOW_TO             = 'Pick a card in the carousel, or a scene here, to open it. Every change saves to R2 as you make it. '
+                                        + 'Nav Mode is how the carousel shows the scene; on the scene you are looking at it switches the view as well. '
+                                        + 'Update Scene puts the live view into the scene: camera, FOV, model layers, navigation mode, lighting and thumbnail. '
+                                        + 'Drag the handle or use the arrows to reorder a group.';
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -357,7 +440,22 @@
     // ------------------------------------------------------------
     let Na__PmDev__DragSceneId       = null;         // <-- Scene id currently being dragged, null when idle
     const Na__PmDev__AdvancedOpenIds = new Set();    // <-- Scene ids whose Advanced section is expanded (survives re-render)
-    const Na__PmDev__OpenGroupIds    = new Set();    // <-- Group ids whose scene list is unfolded; empty = all folded on open
+    let   Na__PmDev__ShownGroupId    = null;         // <-- The group tab on show; survives rebuilds (null: the carousel's group, else the first)
+    let   Na__PmDev__AllScenesOpen   = false;        // <-- The All Scenes fold; survives rebuilds
+    // ------------------------------------------------------------
+
+
+    // MODULE VARIABLES | The Save Queue
+    // ------------------------------------------------------------
+    // ONE WRITE AT A TIME. Each save sends the whole scenes block to R2, so
+    // two in flight could land in the wrong order and the older one would
+    // win. They are chained, and the bar shows Saving... until the last one
+    // is back.
+    // ------------------------------------------------------------
+    let Na__PmDev__SaveChain      = Promise.resolve();
+    let Na__PmDev__SavesInFlight  = 0;
+    let Na__PmDev__LastSaveFailed = false;
+    let Na__PmDev__EditSaveTimer  = 0;               // <-- A settled field waiting to be written
     // ------------------------------------------------------------
 
 
@@ -459,17 +557,29 @@
             config.PresentationMode__SavedCameraScenes__DefaultSceneId = updatedScenes[0]?.PresentationMode__Scene__Id || null;
         }
 
+        // THE SCENE ON SHOW SURVIVES THE COMMIT | SetActiveConfig clears it, and
+        // the carousel keeps a still-valid one only if it is still there to read
+        const activeId = Na__PresentationMode__ProjectJson__GetActiveSceneId();
         const ctx = Na__CfApi__GetProjectContext();
         Na__PresentationMode__ProjectJson__SetActiveConfig(config, ctx.projectFolder, ctx.yearCode); // <-- Re-register updated config
+        if (activeId && Na__PresentationMode__ProjectJson__GetSceneById(config, activeId)) {
+            Na__PresentationMode__ProjectJson__SetActiveSceneId(activeId);   // <-- Looked up after the hooks, so a synced scene counts too
+        }
 
         // LIVE UI REFRESH | Re-dispatch the scenes event (or cleared event when empty)
+        // ------------------------------------------------------------
+        // source marks it as this editor's own, so its listener below does not
+        // rebuild the panel: a field that saves itself must keep its caret,
+        // and every action that changes the rows rebuilds them itself.
+        // ------------------------------------------------------------
         if (updatedScenes.length > 0) {
             window.dispatchEvent(new CustomEvent('na-presentation-mode-scenes-loaded', {
                 detail : {
                     sceneConfig   : config,
                     projectFolder : ctx.projectFolder,
                     year          : ctx.yearCode,
-                    skipCameraApply: true                                    // <-- Don't jump camera mid-edit
+                    skipCameraApply: true,                                   // <-- Don't jump camera mid-edit
+                    source        : Na__PmDev__COMMIT_SOURCE
                 }
             }));
         } else {
@@ -654,7 +764,7 @@
             Na__PmDev__DragSceneId = null;
             row.classList.remove('is-dragging');
             row.draggable = false;                                           // <-- Re-arm: handle must be grabbed again
-            const panel = document.getElementById('naPmDevEditorPanel');
+            const panel = Na__PmDev__GetPanel();                             // <-- In whichever window the rows are
             if (panel) {
                 panel.querySelectorAll('.na-pm-dev__scene-row')
                      .forEach(Na__PmDev__ClearDropIndicators);               // <-- Clear any stale indicator
@@ -742,19 +852,26 @@
     // when the flight lands), and re-rendering the panel there would throw
     // away any half-typed name and re-fetch every thumbnail for the privilege.
     //
-    // Every group's rows ARE in the document already - a folded group is a
-    // hidden container, not an absent one - so folding is entirely a matter of
-    // which elements carry is-open.
+    // Every group's rows ARE in the document already - a group whose tab is
+    // not picked is a hidden container, not an absent one - so folding is
+    // entirely a matter of which elements carry is-open.
+    //
+    // It also marks the row of the scene the carousel is on (is-on-screen),
+    // so a row opened by hand that is NOT the view in front of you says so
+    // before its Update Scene is pressed, and points the camera at the end
+    // of the tabs at the group on show.
     // ------------------------------------------------------------
     function Na__PmDev__ApplyFocusToDom(shouldScroll) {
-        const panel = document.getElementById('naPmDevEditorPanel');
+        const panel = Na__PmDev__GetPanel();
         if (!panel) return;
 
+        const activeId = Na__PresentationMode__ProjectJson__GetActiveSceneId();
         let focusedRow = null;
 
         panel.querySelectorAll('.na-pm-dev__scene-row').forEach((row) => {
             const isFocused = row.dataset.sceneId === Na__PmDev__FocusedSceneId;
             row.classList.toggle('is-open', isFocused);
+            row.classList.toggle('is-on-screen', Boolean(activeId) && row.dataset.sceneId === activeId);
 
             const header = row.querySelector('.na-pm-dev__scene-header');
             if (header) header.setAttribute('aria-expanded', String(isFocused));
@@ -762,36 +879,72 @@
             if (isFocused) focusedRow = row;
         });
 
+        // ONE GROUP ON SHOW | Its tab lit, its rows shown, its camera ready
+        const shownId = Na__PmDev__ResolveShownGroupId();
         panel.querySelectorAll('.na-pm-dev__group-scenes').forEach((body) => {
-            const isOpen = Na__PmDev__OpenGroupIds.has(body.dataset.groupId);
-            body.classList.toggle('is-open', isOpen);
-
-            // The heading sits inside a row now, beside its camera button, so
-            // it is reached through the row rather than being the sibling.
-            const headingRow = body.previousElementSibling;
-            const heading    = headingRow ? headingRow.querySelector('.na-pm-dev__group-heading') : null;
-            if (heading) heading.setAttribute('aria-expanded', String(isOpen));
+            body.classList.toggle('is-open', body.dataset.groupId === shownId);
         });
+        panel.querySelectorAll('.na-pm-dev__tab').forEach((tab) => {
+            const isShown = tab.dataset.groupId === shownId;
+            tab.classList.toggle('is-active', isShown);
+            tab.setAttribute('aria-selected', String(isShown));
+        });
+        const cameraBtn = panel.querySelector('.na-pm-dev__tabs .na-pm-dev__group-camera-btn');
+        if (cameraBtn) Na__PmDev__PaintGroupCameraButton(cameraBtn, shownId);
 
-        if (focusedRow && shouldScroll !== false) {
+        if (focusedRow && shouldScroll !== false && focusedRow.offsetParent) {
             focusedRow.scrollIntoView({ block : 'nearest' });                // <-- Instant: this fires mid-flight, a smooth scroll would still be travelling
         }
     }
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Which Group's Tab Is on Show?
+    // ------------------------------------------------------------
+    // The one picked, while it is still an enabled group; else the group the
+    // carousel is showing; else the first. Null on an ungrouped project.
+    // ------------------------------------------------------------
+    function Na__PmDev__ResolveShownGroupId() {
+        const config = Na__PresentationMode__ProjectJson__GetActiveConfig();
+        const groups = Na__PresentationMode__SceneGroups__IsEnabled()
+            ? Na__PresentationMode__SceneGroups__GetEnabledGroups(config)
+            : [];
+        if (groups.length === 0) return null;
+
+        const ids = groups.map((group) => group.PresentationMode__Group__Id);
+        if (Na__PmDev__ShownGroupId && ids.indexOf(Na__PmDev__ShownGroupId) !== -1) return Na__PmDev__ShownGroupId;
+
+        const carouselGroupId = Na__PresentationMode__SceneGroups__GetActiveGroupId();
+        if (carouselGroupId && ids.indexOf(carouselGroupId) !== -1) return carouselGroupId;
+
+        return ids[0];
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Show One Group's Tab
+    // ------------------------------------------------------------
+    // Only the panel's list changes: the camera and the carousel stay as they
+    // are. The open row stays open, out of sight, until another is opened.
+    // ------------------------------------------------------------
+    function Na__PmDev__ShowGroup(groupId) {
+        Na__PmDev__ShownGroupId = groupId || null;
+        Na__PmDev__ApplyFocusToDom(false);
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Open Exactly One Scene and Fold Everything Else
     // ------------------------------------------------------------
-    // Opening a scene also opens ITS group and closes the others, because a
-    // scene focused inside a folded group would be a row nobody can see -
-    // which is indistinguishable from the focus not having happened.
+    // Opening a scene also shows ITS group's tab, because a scene focused in
+    // a group that is not on show would be a row nobody can see - which is
+    // indistinguishable from the focus not having happened.
     // ------------------------------------------------------------
     function Na__PmDev__FocusScene(sceneId, shouldScroll) {
         Na__PmDev__FocusedSceneId = sceneId || null;
 
         const groupId = Na__PmDev__ResolveGroupIdForSceneId(sceneId);
-        Na__PmDev__OpenGroupIds.clear();
-        if (groupId) Na__PmDev__OpenGroupIds.add(groupId);
+        if (groupId) Na__PmDev__ShownGroupId = groupId;
 
         Na__PmDev__ApplyFocusToDom(shouldScroll);
     }
@@ -869,7 +1022,10 @@
 
     // HELPER FUNCTION | Build the FOV Slider Row, With Move Speed Beside It
     // ------------------------------------------------------------
-    function Na__PmDev__BuildFovRow(scene, onFovChange, onMoveSpeedChange) {
+    // onFovChange runs on every movement (the live viewport preview);
+    // onFovCommit once the slider is let go, which is when it is saved.
+    // ------------------------------------------------------------
+    function Na__PmDev__BuildFovRow(scene, onFovChange, onMoveSpeedChange, onFovCommit) {
         const currentFov  = (scene.PresentationMode__Scene__CameraPosition
             && scene.PresentationMode__Scene__CameraPosition.Camera__DefaultMisc
             && scene.PresentationMode__Scene__CameraPosition.Camera__DefaultMisc.Camera__DefaultMisc__Fov)
@@ -902,6 +1058,10 @@
             const lenMm = Math.round(Na__PmDev__FovToFocalMm(fov));
             valueDisplay.textContent = `${fov.toFixed(1)}\u00B0 / ${lenMm}mm`;               // <-- Live readout
             onFovChange(fov);
+        });
+
+        slider.addEventListener('change', () => {
+            if (typeof onFovCommit === 'function') onFovCommit(parseFloat(slider.value)); // <-- Let go: keep it
         });
 
         row.appendChild(label);
@@ -996,10 +1156,14 @@
 
     // HELPER FUNCTION | Build the Per-Scene Navigation Mode Toggle Row
     // ------------------------------------------------------------
-    // Rendered as a segmented button group rather than a dropdown so the four
+    // Rendered as a segmented button group rather than a dropdown so the three
     // states read at a glance.  Modes the loaded model does not enable are
     // shown disabled rather than hidden, so the authoring UI stays stable
     // across projects and explains why a mode is unavailable.
+    //
+    // A press is saved at once: onChange hands it to the editor, which writes
+    // it to R2 and, on the scene on screen, switches the view to it too. A
+    // press on the mode already lit does nothing.
     // ------------------------------------------------------------
     function Na__PmDev__BuildNavigationModeRow(scene, onChange) {
         const stored      = scene[Na__PmDev__KEY__NAVIGATION_MODE];
@@ -1041,6 +1205,7 @@
             btn.setAttribute('aria-pressed', String(isActive));
 
             btn.addEventListener('click', () => {
+                if (btn.classList.contains('is-active')) return;            // <-- Already this mode: nothing to save
                 buttons.forEach((other) => {
                     const nowActive = other === btn;
                     other.classList.toggle('is-active', nowActive);
@@ -1104,7 +1269,7 @@
     // real scenes with real cameras and they belong in the project; they just
     // do not belong in a strip of thumbnails somebody is browsing. Ticked, the
     // scene keeps its place here and in the Layout Editor's viewport picker,
-    // stays reachable through Preview, and leaves the carousel.
+    // stays reachable through Go To Scene, and leaves the carousel.
     // ------------------------------------------------------------
     function Na__PmDev__BuildLayoutOnlyRow(scene, onChange) {
         const isLayoutOnly = scene[Na__PmDev__KEY__LAYOUT_EDITOR_ONLY] === true;
@@ -1183,6 +1348,39 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Build the Small Picture a Folded Row Leads With
+    // ------------------------------------------------------------
+    // Decorative, inside the title button: the row is found by its picture
+    // before its name is read. Lazy, so the rows of a group not on show cost
+    // nothing until their tab is picked. Hidden on the open row, which shows
+    // the full-size picture just below.
+    // ------------------------------------------------------------
+    function Na__PmDev__BuildMiniThumb(scene) {
+        const frame = document.createElement('span');
+        frame.className = 'na-pm-dev__mini-thumb';
+        frame.setAttribute('aria-hidden', 'true');
+
+        const thumbUrl = Na__PresentationMode__ProjectJson__ResolveThumbnailUrl(scene);
+        if (!thumbUrl) {
+            frame.classList.add('na-pm-dev__mini-thumb--empty');
+            return frame;
+        }
+
+        const img = document.createElement('img');
+        img.src      = thumbUrl;
+        img.alt      = '';
+        img.loading  = 'lazy';
+        img.decoding = 'async';
+        img.addEventListener('error', () => {
+            img.remove();                                                    // <-- Stored path, no image (yet)
+            frame.classList.add('na-pm-dev__mini-thumb--empty');
+        });
+        frame.appendChild(img);
+        return frame;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Build a Single Scene Editor Row
     // ------------------------------------------------------------
     // A FOLDED ROW IS A HEADER AND NOTHING ELSE. The body - every field and
@@ -1236,10 +1434,31 @@
         arrow.setAttribute('aria-hidden', 'true');
         titleBtn.appendChild(arrow);
 
+        titleBtn.appendChild(Na__PmDev__BuildMiniThumb(scene));             // <-- A folded row is found by its picture first
+
         const titleEl = document.createElement('strong');
         titleEl.className   = 'na-pm-dev__scene-title';
         titleEl.textContent = `#${rowIndex + 1} - ${scene.PresentationMode__Scene__Name || sceneId}`;
         titleBtn.appendChild(titleEl);
+
+        // MODE CHIP | Only for a mode that is not the default, like LAYOUT
+        // ------------------------------------------------------------
+        // A column of folded rows can then be read without opening one: FLY
+        // or WALK says how the carousel shows the scene. setMode repaints it
+        // when the Nav Mode switch below moves.
+        // ------------------------------------------------------------
+        const modeChip = document.createElement('span');
+        modeChip.className = 'na-pm-dev__scene-badge na-pm-dev__scene-badge--mode';
+        titleBtn.appendChild(modeChip);
+
+        const setMode = (mode) => {
+            const isFreeLook = (mode === 'walk' || mode === 'fly');
+            const label      = Na__PmDev__GetModeLabel(mode);
+            modeChip.hidden      = !isFreeLook;
+            modeChip.textContent = isFreeLook ? label.toUpperCase() : '';
+            modeChip.title       = isFreeLook ? 'The carousel shows this scene in ' + label + ' mode' : '';
+        };
+        setMode(Na__PresentationMode__Camera__ResolveSceneNavigationMode(scene));
 
         // LAYOUT-ONLY BADGE | Readable on a FOLDED row, which is the only
         // place it can do its job: telling you at a glance which of twenty
@@ -1305,6 +1524,9 @@
             scene.PresentationMode__Scene__Name = nameInput.value;          // <-- Update working copy directly
             titleEl.textContent = `#${rowIndex + 1} - ${nameInput.value || sceneId}`;
         });
+        nameInput.addEventListener('change', () => {
+            onMutate('edit', scene);                                        // <-- Typed and left: saved, no rebuild
+        });
         nameRow.appendChild(nameLabel);
         nameRow.appendChild(nameInput);
         identityFields.appendChild(nameRow);
@@ -1324,6 +1546,21 @@
 
         identity.appendChild(identityFields);
         body.appendChild(identity);
+
+        // NAV MODE SWITCH | Out of Advanced, and saved the moment it is pressed
+        // ------------------------------------------------------------
+        // It decides how every viewer sees the scene, so it is not an advanced
+        // setting. Orbit is the absent key, so older scenes read as orbit.
+        // ------------------------------------------------------------
+        body.appendChild(Na__PmDev__BuildNavigationModeRow(scene, (newMode) => {
+            if (newMode === 'walk' || newMode === 'fly') {
+                scene[Na__PmDev__KEY__NAVIGATION_MODE] = newMode;
+            } else {
+                delete scene[Na__PmDev__KEY__NAVIGATION_MODE];              // <-- Omit key when orbit; absent already means orbit
+            }
+            setMode(Na__PresentationMode__Camera__ResolveSceneNavigationMode(scene));
+            onMutate('navmode', scene);                                     // <-- The editor saves it and, on screen, switches the view
+        }));
 
         // FOV SLIDER | With the move speed value box on the same line
         body.appendChild(Na__PmDev__BuildFovRow(
@@ -1345,14 +1582,18 @@
             },
             (newMs) => {
                 scene.PresentationMode__Scene__TransitionTimeToNextSceneMs = newMs;
+                onMutate('edit', scene);                                    // <-- A typed time is kept
+            },
+            () => {
+                onMutate('edit', scene);                                    // <-- The slider let go: the FOV is kept
             }
         ));
 
         // ADVANCED SECTION | Collapsed by default to keep each row readable
         // ------------------------------------------------------------
         // Holds the settings that are set once and rarely revisited: exact
-        // position, navigation mode, easing curve, layer-switch timing,
-        // whether the viewer sees this scene at all, and its lighting. Open/closed state is
+        // position, easing curve, layer-switch timing, whether the viewer sees
+        // this scene at all, and its lighting. Open/closed state is
         // remembered across panel rebuilds so a reorder or a save does not
         // collapse the section the user is working in.
         // ------------------------------------------------------------
@@ -1412,18 +1653,10 @@
         orderRow.appendChild(orderInput);
         advancedBody.appendChild(orderRow);
 
-        // NAVIGATION MODE TOGGLES
-        advancedBody.appendChild(Na__PmDev__BuildNavigationModeRow(scene, (newMode) => {
-            if (newMode === 'orbit') {
-                delete scene[Na__PmDev__KEY__NAVIGATION_MODE];              // <-- Omit key when orbit; absent already means orbit
-            } else {
-                scene[Na__PmDev__KEY__NAVIGATION_MODE] = newMode;
-            }
-        }));
-
         // EASING DROPDOWN
         advancedBody.appendChild(Na__PmDev__BuildEasingRow(scene, (newEasing) => {
             scene.PresentationMode__Scene__TransitionEasing = newEasing;
+            onMutate('edit', scene);                                        // <-- Saved, no rebuild
         }));
 
         // LAYER TIMING TOGGLE (before vs after camera move)
@@ -1433,15 +1666,16 @@
             } else {
                 delete scene[Na__PmDev__KEY__VISIBILITY_BEFORE_CAMERA];    // <-- Omit key when default (after move)
             }
+            onMutate('edit', scene);                                        // <-- Saved, no rebuild
         }));
 
         // LAYOUT EDITOR ONLY TOGGLE
         // ------------------------------------------------------------
-        // Saved the instant it is toggled, unlike its neighbours in Advanced.
-        // Those change how a scene BEHAVES when you arrive at it; this one
-        // changes whether the scene is in the carousel at all, and a flag
-        // whose whole effect is "the strip looks different now" has to make
-        // the strip look different now or you cannot tell it worked.
+        // Saved the instant it is toggled, like every field now, and with a
+        // rebuild: it changes whether the scene is in the carousel at all,
+        // and a flag whose whole effect is "the strip looks different now"
+        // has to make the strip look different now or you cannot tell it
+        // worked.
         // ------------------------------------------------------------
         advancedBody.appendChild(Na__PmDev__BuildLayoutOnlyRow(scene, (layoutOnly) => {
             if (layoutOnly) {
@@ -1456,9 +1690,9 @@
         // LIGHTING SUBSECTION | This scene's own sun and fill light
         // ------------------------------------------------------------
         // Rotation, Height, Sun, Ambient and Shadows, previewed live in the
-        // viewport as they move. Like Nav Mode and Easing they edit the working
-        // copy; unlike them the subsection has its own Save Lighting, because
-        // "preview, then keep" is the whole gesture. Null for a drawing card.
+        // viewport as they move. The one part of a row that does not save by
+        // itself: it has its own Save Lighting, because "preview, then keep"
+        // is the whole gesture. Null for a drawing card.
         // @delegate: ./Na__PresentationMode__DevMenu__SceneLightingRows__.js
         // ------------------------------------------------------------
         const lightingSection = Na__PresentationMode__DevMenu__BuildSceneLightingSection(scene, () => {
@@ -1471,16 +1705,16 @@
         advanced.appendChild(advancedBody);
         body.appendChild(advanced);
 
-        // ACTION BUTTONS ROW
+        // ACTION BUTTONS ROW | Go To Scene, then Update Scene, the main action on the right
         const actionsRow = document.createElement('div');
         actionsRow.className = 'na-pm-dev__actions';
 
-        // PREVIEW | Go and look at it
+        // GO TO SCENE | Go and look at it
         const previewBtn = document.createElement('button');
         previewBtn.type        = 'button';
         previewBtn.className   = 'na-pm-dev__btn';
-        previewBtn.textContent = 'Preview';
-        previewBtn.title       = 'Fly the viewport to this scene without changing anything';
+        previewBtn.textContent = 'Go To Scene';
+        previewBtn.title       = 'Fly the viewport to this scene, in its own navigation mode, without changing anything';
         previewBtn.addEventListener('click', previewScene);
         actionsRow.appendChild(previewBtn);
 
@@ -1521,19 +1755,23 @@
         if (drawingKind) {
             updateBtn.disabled = true;
             updateBtn.title    = 'This is a ' + drawingKind.label + ' scene. Its camera is set by the '
-                               + drawingKind.panel + ' panel, not by the live 3D view - use Preview and '
+                               + drawingKind.panel + ' panel, not by the live 3D view - use Go To Scene and '
                                + 'Save Thumbnail there instead.';
         }
 
         updateBtn.addEventListener('click', async () => {
             if (updateBtn.disabled) return;
 
+            // THE QUESTION SAYS WHICH MODE IT KEEPS. Update Scene keeps the
+            // viewport's navigation mode, which is how a scene set to Fly
+            // came back as Orbit: the question now says so before anything
+            // is overwritten, and says when the carousel is on another scene.
             const sceneName = scene.PresentationMode__Scene__Name || sceneId;
-            const confirmed = await Na__PresentationMode__DevMenu__Confirm({
+            const confirmed = await Na__PmDev__Confirm({
                 title         : 'Overwrite "' + sceneName + '"?',
                 message       : 'This replaces the scene\'s saved camera, field of view, layer visibility, navigation '
                               + 'mode, lighting and thumbnail with whatever the viewport is showing right now, and writes it to '
-                              + 'R2. There is no undo.',
+                              + 'R2.' + Na__PmDev__DescribeUpdate(scene) + ' There is no undo.',
                 confirmLabel  : 'Overwrite Scene',
                 cancelLabel   : 'Cancel',
                 isDestructive : true
@@ -1544,8 +1782,8 @@
             updateBtn.textContent = 'Updating...';
             try {
                 Na__PmDev__FocusedSceneId = sceneId;                        // <-- Come back to this row after the rebuild
-                await Na__PmDev__CaptureLiveViewIntoScene(scene);           // <-- Camera + visibility + nav mode + thumbnail
-                await onMutate('update', scene);                            // <-- Normalise, commit, save to R2, rebuild panel
+                const captured = await Na__PmDev__CaptureLiveViewIntoScene(scene);   // <-- Camera + visibility + nav mode + thumbnail
+                if (captured) await onMutate('update', scene, captured);   // <-- Normalise, commit, save to R2, rebuild panel
             } finally {
                 updateBtn.disabled    = false;                              // <-- Panel usually rebuilds over this; safe either way
                 updateBtn.textContent = 'Update Scene';
@@ -1553,16 +1791,30 @@
         });
         actionsRow.appendChild(updateBtn);
 
-        // DELETE | Pushed to the right so it is never the button beside the
-        // one you meant to press.
+        body.appendChild(actionsRow);
+
+        // UNDER THE RULE | Delete, on its own, away from Update Scene. It asks first.
+        const foot = document.createElement('div');
+        foot.className = 'na-pm-dev__row-foot';
+
+        const footRule = document.createElement('hr');
+        footRule.className = 'na-pm-dev__rule';
+        foot.appendChild(footRule);
+
+        const footActions = document.createElement('div');
+        footActions.className = 'na-pm-dev__foot-actions';
+
         const deleteBtn = document.createElement('button');
         deleteBtn.type        = 'button';
         deleteBtn.className   = 'na-pm-dev__btn na-pm-dev__btn--danger na-pm-dev__btn--trailing';
         deleteBtn.textContent = 'Delete';
+        deleteBtn.title       = 'Delete this scene from the project (asks first)';
         deleteBtn.addEventListener('click', () => onMutate('delete', scene));
-        actionsRow.appendChild(deleteBtn);
+        footActions.appendChild(deleteBtn);
 
-        body.appendChild(actionsRow);
+        foot.appendChild(footActions);
+        body.appendChild(foot);
+
         wrapper.appendChild(body);
         return wrapper;
     }
@@ -1599,6 +1851,9 @@
     // ------------------------------------------------------------
     // The render and the upload both live in the thumbnail module now, so a
     // scene, a floor plan and an elevation are all captured the same way.
+    //
+    // Quiet when it works: the press that asked for it says so in its own
+    // words. A failed upload still says so. Resolves true when it uploaded.
     // ------------------------------------------------------------
     async function Na__PmDev__RegenerateThumbnail(scene) {
         const sceneId = scene.PresentationMode__Scene__Id;
@@ -1607,14 +1862,14 @@
             const result = await Na__PresentationMode__Thumbnail__CaptureAndUpload(sceneId);
             if (result.ok) {
                 scene.PresentationMode__Scene__ThumbnailUrl = result.relUrl;  // <-- Store project-relative path
-                if (Na__PmDev__ShowToast) Na__PmDev__ShowToast(`Thumbnail saved to R2: ${result.relUrl}`);
-            } else {
-                if (Na__PmDev__ShowToast) Na__PmDev__ShowToast(`Thumbnail upload failed: ${result.error}`, true);
+                return true;
             }
+            if (Na__PmDev__ShowToast) Na__PmDev__ShowToast(`Thumbnail upload failed: ${result.error}`, true);
         } catch (error) {
             console.error('[TrueVision3D] Thumbnail regeneration error:', error);
             if (Na__PmDev__ShowToast) Na__PmDev__ShowToast('Thumbnail error - see console.', true);
         }
+        return false;
     }
     // ------------------------------------------------------------
 
@@ -1650,7 +1905,9 @@
     // two can never drift into capturing different subsets - which is exactly
     // what happened while three separate buttons each owned part of it.
     //
-    // Does NOT commit or save; the caller owns persistence.
+    // Does NOT commit or save; the caller owns persistence. Returns false when
+    // there was nothing to capture, else { thumbnailSaved }, so the caller's
+    // message can say when the picture did not make it.
     // ------------------------------------------------------------
     async function Na__PmDev__CaptureLiveViewIntoScene(scene) {
         if (!Na__PmDev__Camera) return false;
@@ -1669,8 +1926,106 @@
         Na__PmDev__CaptureLiveNavigationMode(scene);                         // <-- A view framed in fly is a fly scene
         Na__SceneLighting__CaptureIntoScene(scene);                          // <-- The light the thumbnail is about to be rendered in; no block when it is the default
 
-        await Na__PmDev__RegenerateThumbnail(scene);                         // <-- Render + upload WebP, sets ThumbnailUrl
-        return true;
+        const thumbnailSaved = await Na__PmDev__RegenerateThumbnail(scene);  // <-- Render + upload WebP, sets ThumbnailUrl
+        return { thumbnailSaved : thumbnailSaved === true };
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | The Nav Mode Switch (saved on the press, shown on the scene on screen)
+// -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | The Words for a Navigation Mode
+    // ------------------------------------------------------------
+    function Na__PmDev__GetModeLabel(mode) {
+        const option = Na__PmDev__NAV_MODE_OPTIONS.find((opt) => opt.value === mode);
+        return option ? option.label : 'Orbit';                              // <-- Anything else is orbit, as the flight reads it
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Show a Scene's Navigation Mode at Once, When It Is the One on Screen
+    // ------------------------------------------------------------
+    // "On screen" is the scene the carousel last went to. The switch goes
+    // through the same registered toggles the toolbar and a scene's landing
+    // use, so the toolbar's Orbit | Walk | Fly changes with it, and an Update
+    // Scene pressed next captures the mode the switch shows.
+    //
+    // Left alone while a drawing holds the view (its camera is the drawing's)
+    // and during a flight (which lands in the mode it set off for).
+    //
+    // Returns true when the live view is in the scene's mode afterwards.
+    // @delegate: ../10__NavigationAndCameras/Na__NavigationModes__Switcher.js
+    // ------------------------------------------------------------
+    function Na__PmDev__ApplyNavModeToViewport(scene) {
+        if (!Na__PmDev__Camera || !scene) return false;
+        if (Na__PresentationMode__ProjectJson__GetActiveSceneId() !== scene.PresentationMode__Scene__Id) return false;
+        if (Na__DrawView__IsActive() || Na__PresentationMode__Camera__IsTransitioning()) return false;
+
+        const mode = Na__PresentationMode__Camera__ResolveSceneNavigationMode(scene);
+        if (mode === Na__NavigationModes__GetActiveMode()) return true;
+
+        Na__NavigationModes__SwitchToMode(mode);                             // <-- Orbit releases walk or fly; walk and fly start where the camera is
+        return Na__NavigationModes__GetActiveMode() === mode;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Keep a Scene's New Navigation Mode: Save It, and Show It
+    // ------------------------------------------------------------
+    // THE BUG THIS FIXES (Adam, 26-Nov-2026, of ValeVision 3D, which TrueVision
+    // shared): "Updating scenes navigation mode does not do anything, it
+    // reverts back to orbit mode and fails despiite showing a fake update
+    // toast". The switch wrote the working copy and nothing saved it, so the
+    // only press that seemed to was Update Scene - which captures the
+    // viewport's own mode, orbit, over the switch, writes that to R2 and says
+    // "saved". The switch's press is now the save, and the toast says what
+    // was kept.
+    // ------------------------------------------------------------
+    async function Na__PmDev__SaveNavigationMode(scene) {
+        const name  = scene.PresentationMode__Scene__Name || scene.PresentationMode__Scene__Id;
+        const label = Na__PmDev__GetModeLabel(Na__PresentationMode__Camera__ResolveSceneNavigationMode(scene));
+
+        Na__PmDev__ApplyNavModeToViewport(scene);                            // <-- The scene on screen switches with it
+
+        Na__PmDev__CommitWorkingScenes(Na__PmDev__WorkingScenes);           // <-- The carousel lands in it from now on
+        const saved = await Na__PmDev__SaveToR2(Na__PmDev__WorkingScenes, true);
+
+        if (saved && Na__PmDev__ShowToast) {
+            Na__PmDev__ShowToast('"' + name + '" now opens in ' + label + '. Saved to R2.');
+        }
+        return saved;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Words Update Scene's Question Adds About Mode and Place
+    // ------------------------------------------------------------
+    // Update Scene keeps the viewport's navigation mode, so when that is not
+    // the mode the scene opens in now, the question says so before anything
+    // is overwritten. It also says when the carousel is on another scene:
+    // the commonest way to overwrite the wrong one.
+    // ------------------------------------------------------------
+    function Na__PmDev__DescribeUpdate(scene) {
+        const liveRaw   = Na__NavigationModes__GetActiveMode();
+        const liveMode  = (liveRaw === 'walk' || liveRaw === 'fly') ? liveRaw : 'orbit';
+        const savedMode = Na__PresentationMode__Camera__ResolveSceneNavigationMode(scene);
+        const liveLabel = Na__PmDev__GetModeLabel(liveMode);
+
+        let words = (liveMode === savedMode)
+            ? ' It will still open in ' + liveLabel + '.'
+            : ' It will open in ' + liveLabel + ', not ' + Na__PmDev__GetModeLabel(savedMode) + ' as it does now.';
+
+        const activeId = Na__PresentationMode__ProjectJson__GetActiveSceneId();
+        if (activeId && activeId !== scene.PresentationMode__Scene__Id) {
+            const active = Na__PresentationMode__ProjectJson__GetSceneById(Na__PresentationMode__ProjectJson__GetActiveConfig(), activeId);
+            const activeName = (active && active.PresentationMode__Scene__Name) || activeId;
+            words += ' The carousel is on "' + activeName + '", not this scene.';
+        }
+        return words;
     }
     // ------------------------------------------------------------
 
@@ -1681,12 +2036,124 @@
 // REGION | R2 Save (read-merge-write)
 // -----------------------------------------------------------------------------
 
-    // FUNCTION | Save the PresentationMode Block to R2 (TrueVision__ProjectData__.json)
+    // HELPER FUNCTION | A Toast for Problems Only
     // ------------------------------------------------------------
-    async function Na__PmDev__SaveToR2(updatedScenes) {
+    // Handed to the writes whose success the caller announces in words of its
+    // own ('"Exterior 01" now opens in Fly. Saved to R2.'), so one press never
+    // stacks two or three toasts saying different things.
+    // ------------------------------------------------------------
+    function Na__PmDev__ToastProblemsOnly(message, isError) {
+        if (isError === true && Na__PmDev__ShowToast) Na__PmDev__ShowToast(message, true);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Save the Working Scenes to R2, One at a Time
+    // ------------------------------------------------------------
+    // Every write the panel makes comes through here: chained behind the one
+    // before it, painting Saving... in the bar while any is out, and All
+    // changes saved or Not saved when the last is back. quiet keeps the
+    // success toast back for a caller that says something more exact.
+    // Resolves true when this one saved.
+    // ------------------------------------------------------------
+    function Na__PmDev__SaveToR2(updatedScenes, quiet) {
+        const toast = (quiet === true) ? Na__PmDev__ToastProblemsOnly : Na__PmDev__ShowToast;
+        const run   = () => Na__PmDev__WriteToR2(updatedScenes, toast);
+
+        Na__PmDev__CancelQueuedSave();                                       // <-- Any write carries a field already committed
+        Na__PmDev__SavesInFlight += 1;
+        Na__PmShell__SetStatus('saving');
+
+        const result = Na__PmDev__SaveChain.then(run, run);
+        Na__PmDev__SaveChain = result.then(() => {}, () => {});              // <-- A failure never jams the queue
+
+        return result.then(
+            (saved) => saved === true,
+            (error) => {
+                console.error('[TrueVision3D] Presentation scenes save failed:', error);
+                if (Na__PmDev__ShowToast) Na__PmDev__ShowToast('Save failed - see console.', true);
+                return false;
+            }
+        ).then((saved) => {
+            Na__PmDev__SavesInFlight  = Math.max(0, Na__PmDev__SavesInFlight - 1);
+            Na__PmDev__LastSaveFailed = !saved;
+            if (Na__PmDev__SavesInFlight === 0 && !Na__PmDev__EditSaveTimer) {
+                Na__PmShell__SetStatus(Na__PmDev__LastSaveFailed ? 'failed' : 'saved');
+            }
+            return saved;
+        });
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Scenes the Live Config Holds Now
+    // ------------------------------------------------------------
+    // What a delayed save writes. After this editor's commit it IS the
+    // working array; if another module (a drawing's own panel) has put a new
+    // array in since, that one already holds this editor's committed edits,
+    // and writing the working array instead would undo its change. Synced
+    // SketchUp scenes in it are never written: the API client strips them.
+    // ------------------------------------------------------------
+    function Na__PmDev__GetLiveScenes() {
+        const config = Na__PresentationMode__ProjectJson__GetActiveConfig();
+        const scenes = config && config.PresentationMode__SavedCameraScenes__Scenes;
+        return Array.isArray(scenes) ? scenes : Na__PmDev__WorkingScenes;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | A Field Has Settled: Commit It Now, Write It in a Moment
+    // ------------------------------------------------------------
+    // THE FIELDS SAVE THEMSELVES (26-Nov-2026). Name, FOV, Move, Easing and
+    // the layer timing edited only the working copy, which Save All To
+    // Project wrote, and any rebuild before that press threw the edit away.
+    // The commit happens at once (the carousel's card shows a new name
+    // straight away, and a rebuild now reads the edit back from the config);
+    // the write waits a moment so a run of nudges is one save. No rebuild, so
+    // the caret stays put.
+    // ------------------------------------------------------------
+    function Na__PmDev__QueueEditSave() {
+        Na__PmDev__CommitWorkingScenes(Na__PmDev__WorkingScenes);
+        window.clearTimeout(Na__PmDev__EditSaveTimer);
+        Na__PmShell__SetStatus('pending');
+        Na__PmDev__EditSaveTimer = window.setTimeout(() => {
+            Na__PmDev__EditSaveTimer = 0;
+            Na__PmDev__SaveToR2(Na__PmDev__GetLiveScenes(), true);
+        }, Na__PmDev__EDIT_SAVE_DELAY_MS);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Drop a Waiting Field Save (a fuller save is about to carry it)
+    // ------------------------------------------------------------
+    function Na__PmDev__CancelQueuedSave() {
+        if (!Na__PmDev__EditSaveTimer) return;
+        window.clearTimeout(Na__PmDev__EditSaveTimer);
+        Na__PmDev__EditSaveTimer = 0;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Write a Waiting Field Save Now (the panel is closing, the page is going)
+    // ------------------------------------------------------------
+    function Na__PmDev__FlushQueuedSave() {
+        if (!Na__PmDev__EditSaveTimer) return Promise.resolve(true);
+        Na__PmDev__CancelQueuedSave();
+        return Na__PmDev__SaveToR2(Na__PmDev__GetLiveScenes(), true);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Write the PresentationMode Block to R2 (TrueVision__ProjectData__.json)
+    // ------------------------------------------------------------
+    // Only ever called by the queue above. toast is the app's toast, or the
+    // problems-only one for a caller that announces its own success.
+    // ------------------------------------------------------------
+    async function Na__PmDev__WriteToR2(updatedScenes, toast) {
+        const say = (typeof toast === 'function') ? toast : null;
         const ctx = Na__CfApi__GetProjectContext();
         if (!ctx.projectFolder) {
-            if (Na__PmDev__ShowToast) Na__PmDev__ShowToast('No project loaded.', true);
+            if (say) say('No project loaded.', true);
             return false;
         }
 
@@ -1705,11 +2172,11 @@
         });
 
         if (result.ok) {
-            if (Na__PmDev__ShowToast) Na__PmDev__ShowToast(`Presentation scenes saved to R2 (${ctx.projectFolder}).`);
+            if (say) say(`Presentation scenes saved to R2 (${ctx.projectFolder}).`);
             return true;
         }
 
-        if (Na__PmDev__ShowToast) Na__PmDev__ShowToast(`Save failed: ${result.error}`, true);
+        if (say) say(`Save failed: ${result.error}`, true);
         return false;
     }
     // ------------------------------------------------------------
@@ -1721,37 +2188,69 @@
 // REGION | Editor Panel Render
 // -----------------------------------------------------------------------------
 
-    // HELPER FUNCTION | Build a Collapsible Group Heading for the Scene List
+    // HELPER FUNCTION | The Editor's Own Element, Wherever It Is
     // ------------------------------------------------------------
-    // The heading is the fold control for its group. Groups start folded, so
-    // the panel opens as a short list of group names rather than every scene on
-    // the project expanded at once - on a model with twenty-plus views the
-    // unfolded panel was unusable to navigate.
+    // NEVER LOOKED UP BY ID IN THIS PAGE: in its own window the panel is in
+    // that window's document, where this page's getElementById cannot see
+    // it. The shell holds the element itself.
+    // @delegate: ./Na__PresentationMode__DevMenu__SceneManagerShell__.js
     // ------------------------------------------------------------
-    function Na__PmDev__BuildGroupHeading(groupName, sceneCount, isOpen) {
-        const heading = document.createElement('button');
-        heading.type      = 'button';
-        heading.className = 'na-pm-dev__group-heading';
-        heading.title     = groupName;                                       // <-- A long name is cut short with an ellipsis; this is where it can still be read
-        heading.setAttribute('aria-expanded', String(isOpen));
+    function Na__PmDev__GetPanel() {
+        return Na__PmShell__GetPanel() || document.getElementById('naPmDevEditorPanel');
+    }
+    // ------------------------------------------------------------
 
-        const arrow = document.createElement('span');
-        arrow.className = 'na-pm-dev__group-heading-arrow';
-        arrow.innerHTML = '&#9662;';                                          // <-- Rotates via CSS on aria-expanded
-        arrow.setAttribute('aria-hidden', 'true');
-        heading.appendChild(arrow);
+
+    // HELPER FUNCTION | The Panel's Dialogs Open Where the Panel Is
+    // ------------------------------------------------------------
+    // In its own window a dialog built into this page would appear on the
+    // other screen, with the window it came from waiting on it unseen, so
+    // every dialog this editor asks for is given the panel's document.
+    // @delegate: ./Na__PresentationMode__DevMenu__Modal__.js
+    // ------------------------------------------------------------
+    function Na__PmDev__Confirm(options) {
+        return Na__PresentationMode__DevMenu__Confirm({ ...options, hostDocument : Na__PmShell__GetDocument() });
+    }
+
+    function Na__PmDev__ConfirmTyped(options) {
+        return Na__PresentationMode__DevMenu__ConfirmTyped({ ...options, hostDocument : Na__PmShell__GetDocument() });
+    }
+
+    function Na__PmDev__OpenProgress(options) {
+        return Na__PresentationMode__DevMenu__OpenProgress({ ...options, hostDocument : Na__PmShell__GetDocument() });
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Build One Group Tab for the Scene List
+    // ------------------------------------------------------------
+    // ONE GROUP AT A TIME, AS THE CAROUSEL SHOWS THEM. The fold-down group
+    // headings stacked every group's name, count and rows down one column, so
+    // the scene you wanted sat under the scenes you did not. A tab shows one
+    // group's rows; reordering and dragging never cross a group anyway, and
+    // the Group dropdown still moves a scene between them.
+    // ------------------------------------------------------------
+    function Na__PmDev__BuildGroupTab(groupName, groupId, sceneCount) {
+        const tab = document.createElement('button');
+        tab.type            = 'button';
+        tab.className       = 'na-pm-dev__tab';
+        tab.dataset.groupId = groupId;
+        tab.title           = groupName + ': ' + Na__PresentationMode__SceneGroups__FormatViewCount(sceneCount);
+        tab.setAttribute('role', 'tab');
+        tab.setAttribute('aria-selected', 'false');
 
         const nameEl = document.createElement('span');
-        nameEl.className   = 'na-pm-dev__group-heading-name';
+        nameEl.className   = 'na-pm-dev__tab-name';
         nameEl.textContent = groupName;
-        heading.appendChild(nameEl);
+        tab.appendChild(nameEl);
 
         const countEl = document.createElement('span');
-        countEl.className   = 'na-pm-dev__group-heading-count';
-        countEl.textContent = Na__PresentationMode__SceneGroups__FormatViewCount(sceneCount);
-        heading.appendChild(countEl);
+        countEl.className   = 'na-pm-dev__tab-count';
+        countEl.textContent = String(sceneCount);
+        tab.appendChild(countEl);
 
-        return heading;
+        tab.addEventListener('click', () => Na__PmDev__ShowGroup(groupId));
+        return tab;
     }
     // ------------------------------------------------------------
 
@@ -1792,36 +2291,53 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Build the Camera Button That Exports One Group's Images
+    // HELPER FUNCTION | Build the Camera Button That Exports the Shown Group's Images
     // ------------------------------------------------------------
-    // A SIBLING OF THE HEADING, NEVER A CHILD. The heading is itself a button
-    // (the fold control) and a button inside a button is invalid markup, so
-    // the two sit side by side in a row and a press on the camera can never
-    // also fold the group.
-    //
+    // ONE BUTTON, AT THE END OF THE TABS, for the group on show. A tab is a
+    // button and a button inside a button is invalid markup, so the camera
+    // sits beside them in the strip, never in a tab. The group is read when
+    // it is pressed, never when it was drawn: picking a tab re-points it
+    // (PaintGroupCameraButton, from the focus pass) without a rebuild.
+    // ------------------------------------------------------------
+    function Na__PmDev__BuildGroupCameraButton() {
+        const cameraBtn = document.createElement('button');
+        cameraBtn.type      = 'button';
+        cameraBtn.className = 'na-pm-dev__group-camera-btn';
+        cameraBtn.appendChild(Na__PmDev__BuildCameraGlyph());
+
+        cameraBtn.addEventListener('click', () => {
+            if (cameraBtn.disabled) return;
+            const groupId = Na__PmDev__ResolveShownGroupId();
+            if (groupId) Na__PmDev__DownloadGroupImages(groupId);
+        });
+        return cameraBtn;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Point the Camera Button at One Group
+    // ------------------------------------------------------------
     // DISABLED, WITH THE REASON IN ITS HOVER TEXT, when the group holds nothing
     // the walk can visit - an empty group, or one of floor plan and elevation
-    // scenes only. Every group still carries the button so the headings stay
-    // one kind of thing; a missing button would read as a different kind of
-    // group rather than an empty one.
+    // scenes only. It stays in the strip either way, so the strip keeps its
+    // shape from tab to tab.
     // ------------------------------------------------------------
-    function Na__PmDev__BuildGroupCameraButton(groupId, groupName, scenesInGroup) {
-        const walkable = Na__PresentationMode__DevMenu__PartitionBatchScenes(scenesInGroup).eligible.length;
+    function Na__PmDev__PaintGroupCameraButton(cameraBtn, groupId) {
+        const config    = Na__PresentationMode__ProjectJson__GetActiveConfig();
+        const group     = Na__PresentationMode__SceneGroups__GetEnabledGroups(config)
+            .find(g => g.PresentationMode__Group__Id === groupId);
+        const groupName = group ? (group.PresentationMode__Group__Name || groupId) : '';
+        const walkable  = group
+            ? Na__PresentationMode__DevMenu__PartitionBatchScenes(Na__PmDev__GetWorkingScenesInGroup(groupId)).eligible.length
+            : 0;
 
         const hint = walkable > 0
             ? 'Download an image of each scene in "' + groupName + '", at the current Image Export settings'
             : 'No 3D scenes in "' + groupName + '" to export';
 
-        const cameraBtn = document.createElement('button');
-        cameraBtn.type      = 'button';
-        cameraBtn.className = 'na-pm-dev__group-camera-btn';
-        cameraBtn.title     = hint;
-        cameraBtn.disabled  = walkable === 0;
+        cameraBtn.title    = hint;
+        cameraBtn.disabled = walkable === 0;
         cameraBtn.setAttribute('aria-label', hint);
-        cameraBtn.appendChild(Na__PmDev__BuildCameraGlyph());
-
-        cameraBtn.addEventListener('click', () => Na__PmDev__DownloadGroupImages(groupId));
-        return cameraBtn;
     }
     // ------------------------------------------------------------
 
@@ -1843,15 +2359,15 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Render the Scene Rows, Clustered Under Their Group Headings
+    // FUNCTION | Render the Scene Rows, One Group's Tab at a Time
     // ------------------------------------------------------------
     // The displayed #N is the scene's position WITHIN its group, matching the
     // per-group Order that is written to the project JSON and the position the
     // carousel shows. Reorder arrows disable at each group's own edges, since
     // reordering never crosses a group boundary.
     //
-    // An ungrouped project falls through to one flat, unheaded list numbered
-    // 1..N, exactly as the panel looked before this feature existed.
+    // An ungrouped project falls through to one flat, untabbed list numbered
+    // 1..N, exactly as the panel looked before groups existed.
     // ------------------------------------------------------------
     function Na__PmDev__RenderSceneRowsGroupedByGroup(panel, onMutate) {
         const config = Na__PresentationMode__ProjectJson__GetActiveConfig();
@@ -1872,179 +2388,132 @@
             return;
         }
 
-        // GROUPED PROJECT | A fold-down heading, then that group's own run of rows
+        // GROUPED PROJECT | A tab per group and the camera, then each group's own run of rows
+        // (only the shown group's run is visible; the focus pass decides which)
+        const tabs = document.createElement('div');
+        tabs.className = 'na-pm-dev__tabs';
+        tabs.setAttribute('role', 'tablist');
+        tabs.setAttribute('aria-label', 'Scene groups');
+        panel.appendChild(tabs);
+
         groups.forEach((group) => {
             const groupId   = group.PresentationMode__Group__Id;
             const groupName = group.PresentationMode__Group__Name || groupId;
             const inGroup   = Na__PmDev__GetWorkingScenesInGroup(groupId);
 
-            const isOpen  = Na__PmDev__OpenGroupIds.has(groupId);            // <-- Folded unless the author opened it
-            const heading = Na__PmDev__BuildGroupHeading(groupName, inGroup.length, isOpen);
-
-            // HEADING ROW | The fold control, and the group's camera beside it
-            const headingRow = document.createElement('div');
-            headingRow.className = 'na-pm-dev__group-heading-row';
-            headingRow.appendChild(heading);
-            headingRow.appendChild(Na__PmDev__BuildGroupCameraButton(groupId, groupName, inGroup));
+            tabs.appendChild(Na__PmDev__BuildGroupTab(groupName, groupId, inGroup.length));
 
             const body = document.createElement('div');
             body.className        = 'na-pm-dev__group-scenes';
-            body.dataset.groupId  = groupId;                                 // <-- The focus pass folds by this
-            body.classList.toggle('is-open', isOpen);
+            body.dataset.groupId  = groupId;                                 // <-- The focus pass shows and hides by this
+            body.setAttribute('role', 'tabpanel');
 
-            heading.addEventListener('click', () => {
-                const willOpen = !body.classList.contains('is-open');
-                body.classList.toggle('is-open', willOpen);
-                heading.setAttribute('aria-expanded', String(willOpen));
-                if (willOpen) {
-                    Na__PmDev__OpenGroupIds.add(groupId);                    // <-- Survives the rebuild after a reorder or save
-                } else {
-                    Na__PmDev__OpenGroupIds.delete(groupId);
-                }
-            });
+            if (inGroup.length === 0) {
+                const empty = document.createElement('p');
+                empty.className   = 'na-pm-dev__empty';
+                empty.textContent = 'No scenes in this group yet.';
+                body.appendChild(empty);
+            }
 
-            panel.appendChild(headingRow);
             inGroup.forEach((scene, index) => appendRow(body, scene, index, inGroup.length));
             panel.appendChild(body);
         });
+
+        tabs.appendChild(Na__PmDev__BuildGroupCameraButton());               // <-- Last in the strip; the focus pass points it at the shown group
     }
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Rebuild the Entire Scene Editor Panel
+    // FUNCTION | The One Mutation Handler Shared by Every Row
     // ------------------------------------------------------------
-    function Na__PmDev__RenderEditorPanel() {
-        const panel = document.getElementById('naPmDevEditorPanel');
-        if (!panel) return;
+    // Every action ends the same way - renumber, commit, write to R2,
+    // rebuild - so that tail lives in exactly one place. Only the mutation
+    // itself differs. 'update' arrives with the scene already recaptured by
+    // Na__PmDev__CaptureLiveViewIntoScene, and detail is what that returned.
+    // A field edit and the Nav Mode switch are the two that end early: they
+    // save without a rebuild.
+    // ------------------------------------------------------------
+    async function Na__PmDev__HandleRowMutation(action, targetScene, detail) {
+        const sceneId   = targetScene.PresentationMode__Scene__Id;
+        const sceneName = targetScene.PresentationMode__Scene__Name || sceneId;
 
-        panel.innerHTML = '';                                                // <-- Clear and rebuild
-
-        // SCENE GROUPS SECTION | Collapsible, at the very top of this panel
-        // ------------------------------------------------------------
-        // The group editor owns everything inside this container. It mutates
-        // the shared live config and raises its changed event, which this
-        // module answers below with the one normalise -> commit -> save path.
-        // @delegate: ./Na__PresentationMode__DevMenu__GroupEditor__.js
-        // ------------------------------------------------------------
-        // PANEL HEAD | The group editor, and a square + beside it
-        // ------------------------------------------------------------
-        // The + is the same action as Add Scene From Camera at the foot of the
-        // panel, put where it takes no travel to reach. On a project with
-        // twenty scenes the button that makes the twenty-first was three
-        // screens of scrolling away from the view you had just framed, which
-        // made adding a scene feel like a chore in a panel that exists to make
-        // adding scenes easy. Two doors into one room, by design.
-        // ------------------------------------------------------------
-        const panelHead = document.createElement('div');
-        panelHead.className = 'na-pm-dev__panel-head';
-
-        const groupContainer = document.createElement('div');
-        groupContainer.className = 'na-pm-dev__group-container';
-        panelHead.appendChild(groupContainer);
-
-        const quickAddBtn = document.createElement('button');
-        quickAddBtn.type        = 'button';
-        quickAddBtn.className   = 'na-pm-dev__square-btn';
-        quickAddBtn.textContent = '+';
-        quickAddBtn.title       = 'Add a new scene from the current camera position';
-        quickAddBtn.setAttribute('aria-label', 'Add a new scene from the current camera position');
-        quickAddBtn.addEventListener('click', () => Na__PmDev__AddSceneFromCamera());
-        panelHead.appendChild(quickAddBtn);
-
-        panel.appendChild(panelHead);
-        Na__PresentationMode__DevMenu__RenderGroupEditor(groupContainer, Na__PmDev__ShowToast);
-
-        // SORT ONCE INTO THE WORKING ARRAY so array index == displayed position.
-        // Every reorder operation below works on array position, so the array
-        // and the panel must agree before any row is built. The sort is
-        // group-aware, so a group's scenes always form one unbroken run.
-        Na__PmDev__WorkingScenes = Na__PmDev__SortScenesByOrder(Na__PmDev__GetWorkingScenes());
-        Na__PmDev__NormaliseSceneOrder(Na__PmDev__WorkingScenes);            // <-- Collapse to a clean 1..N inside each group
-
-        // ONE MUTATION HANDLER shared by every row
-        // ------------------------------------------------------------
-        // Every action ends the same way - renumber, commit, write to R2,
-        // rebuild - so that tail lives in exactly one place. Only the mutation
-        // itself differs. 'update' arrives with the scene already recaptured by
-        // Na__PmDev__CaptureLiveViewIntoScene.
-        // ------------------------------------------------------------
-        const Na__PmDev__HandleRowMutation = async (action, targetScene) => {
-            if (action === 'delete') {
-                const sceneName = targetScene.PresentationMode__Scene__Name || targetScene.PresentationMode__Scene__Id;
-                const ok = await Na__PresentationMode__DevMenu__Confirm({
-                    title         : 'Delete "' + sceneName + '"?',
-                    message       : 'The scene is removed from the project and the change is written to R2. There is no undo.',
-                    confirmLabel  : 'Delete Scene',
-                    cancelLabel   : 'Cancel',
-                    isDestructive : true
-                });
-                if (!ok) return;
-                Na__PmDev__WorkingScenes = Na__PmDev__WorkingScenes.filter(
-                    s => s.PresentationMode__Scene__Id !== targetScene.PresentationMode__Scene__Id
-                );                                                           // <-- Normalise below closes the gap it leaves
-                if (Na__PmDev__FocusedSceneId === targetScene.PresentationMode__Scene__Id) {
-                    Na__PmDev__FocusedSceneId = null;                        // <-- Never hold focus on a scene that no longer exists
-                }
-            } else if (action !== 'update' && action !== 'regroup' && action !== 'flag' && action !== 'lighting') {
-                return;                                                      // <-- Unknown action, do nothing ('lighting': the row already wrote it to the working copy)
-            }
-
-            Na__PmDev__NormaliseSceneOrder(Na__PmDev__WorkingScenes);        // <-- Renumber 1..N inside each affected group
-            Na__PmDev__CommitWorkingScenes(Na__PmDev__WorkingScenes);        // <-- Refresh carousel + selector bar
-            await Na__PmDev__SaveToR2(Na__PmDev__WorkingScenes);
-            Na__PmDev__RenderEditorPanel();                                  // <-- Rows may have moved between group blocks
-        };
-
-        if (Na__PmDev__WorkingScenes.length === 0) {
-            const empty = document.createElement('p');
-            empty.className   = 'na-pm-dev__empty';
-            empty.textContent = 'No scenes defined. Add a scene below.';
-            panel.appendChild(empty);
-        } else {
-            Na__PmDev__RenderSceneRowsGroupedByGroup(panel, Na__PmDev__HandleRowMutation);
+        if (action === 'edit') {
+            Na__PmDev__FocusedSceneId = sceneId;
+            Na__PmDev__QueueEditSave();                                      // <-- Committed now, written in a moment
+            return;
         }
 
-        // GLOBAL ACTION BUTTONS
-        // ------------------------------------------------------------
-        // A TWO-COLUMN GRID, not a wrapping row. Six buttons of six different
-        // widths wrapped into a ragged block where nothing lined up with
-        // anything and the pairing was accidental - which button sat next to
-        // Clear All Scenes depended on the panel's width. A grid pairs them on
-        // purpose: make and save on the first line, the two batch walks on the
-        // second, export on its own.
-        // ------------------------------------------------------------
-        const globalActions = document.createElement('div');
-        globalActions.className = 'na-pm-dev__global-actions';
+        if (action === 'navmode') {
+            Na__PmDev__FocusedSceneId = sceneId;
+            await Na__PmDev__SaveNavigationMode(targetScene);
+            return;
+        }
 
-        // ADD NEW SCENE | Spans both columns: it is the primary action here
+        if (action === 'delete') {
+            const ok = await Na__PmDev__Confirm({
+                title         : 'Delete "' + sceneName + '"?',
+                message       : 'The scene is removed from the project and the change is written to R2. There is no undo.',
+                confirmLabel  : 'Delete Scene',
+                cancelLabel   : 'Cancel',
+                isDestructive : true
+            });
+            if (!ok) return;
+            Na__PmDev__WorkingScenes = Na__PmDev__WorkingScenes.filter(
+                s => s.PresentationMode__Scene__Id !== sceneId
+            );                                                               // <-- Normalise below closes the gap it leaves
+            if (Na__PmDev__FocusedSceneId === sceneId) {
+                Na__PmDev__FocusedSceneId = null;                            // <-- Never hold focus on a scene that no longer exists
+            }
+        } else if (action !== 'update' && action !== 'regroup' && action !== 'flag' && action !== 'lighting') {
+            return;                                                          // <-- Unknown action, do nothing ('lighting': the row already wrote it to the working copy)
+        }
+
+        Na__PmDev__NormaliseSceneOrder(Na__PmDev__WorkingScenes);            // <-- Renumber 1..N inside each affected group
+        Na__PmDev__CommitWorkingScenes(Na__PmDev__WorkingScenes);            // <-- Refresh carousel + selector bar
+
+        // AN UPDATE SAYS WHAT IT KEPT, IN ITS OWN WORDS: the mode it will open
+        // in, and when the picture did not upload.
+        const isUpdate = (action === 'update');
+        const saved    = await Na__PmDev__SaveToR2(Na__PmDev__WorkingScenes, isUpdate);
+        if (isUpdate && saved && Na__PmDev__ShowToast) {
+            const thumbnailSaved = !(detail && detail.thumbnailSaved === false);
+            const modeLabel      = Na__PmDev__GetModeLabel(Na__PresentationMode__Camera__ResolveSceneNavigationMode(targetScene));
+            Na__PmDev__ShowToast('"' + sceneName + '" updated and saved to R2. It opens in ' + modeLabel + '.'
+                + (thumbnailSaved ? '' : ' Its thumbnail did not upload, so its card keeps the old picture.'), !thumbnailSaved);
+        }
+        Na__PmDev__RenderEditorPanel();                                      // <-- Rows may have moved between group blocks
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Build the Add Scene From Camera Button for the Panel's Bar
+    // ------------------------------------------------------------
+    // THE MAIN ACTION, WHERE IT TAKES NO TRAVEL TO REACH. It used to be at the
+    // foot of the list, three screens of scrolling from the view just framed
+    // on a twenty-scene project, with a square + at the top as a second door.
+    // Now it is one labelled button in the bar, which never scrolls away.
+    // ------------------------------------------------------------
+    function Na__PmDev__BuildAddSceneButton() {
         const addBtn = document.createElement('button');
         addBtn.type        = 'button';
-        addBtn.className   = 'na-pm-dev__btn na-pm-dev__btn--primary na-pm-dev__btn--wide';
+        addBtn.className   = 'na-pm-dev__btn na-pm-dev__btn--primary na-pm-dev__btn--add';
         addBtn.textContent = '+ Add Scene From Camera';
-        addBtn.title       = 'Capture the current camera, layers, navigation mode and lighting as a new scene';
+        addBtn.title       = 'Capture the current camera, layers, navigation mode and lighting as a new scene, '
+                           + 'in the group the carousel is showing';
         addBtn.addEventListener('click', () => Na__PmDev__AddSceneFromCamera());
-        globalActions.appendChild(addBtn);
+        return addBtn;
+    }
+    // ------------------------------------------------------------
 
-        // SAVE ALL
-        const saveAllBtn = document.createElement('button');
-        saveAllBtn.type        = 'button';
-        saveAllBtn.className   = 'na-pm-dev__btn';
-        saveAllBtn.textContent = 'Save All To Project';
-        saveAllBtn.title       = 'Write every in-row edit to R2 in one save';
-        saveAllBtn.addEventListener('click', async () => {
-            Na__PmDev__CommitWorkingScenes(Na__PmDev__WorkingScenes);       // <-- Include all in-row edits + refresh UI
-            await Na__PmDev__SaveToR2(Na__PmDev__WorkingScenes);
-        });
-        globalActions.appendChild(saveAllBtn);
 
-        // EXPORT JSON
-        const exportBtn = document.createElement('button');
-        exportBtn.type        = 'button';
-        exportBtn.className   = 'na-pm-dev__btn';
-        exportBtn.textContent = 'Export JSON';
-        exportBtn.title       = 'Download this project\'s PresentationMode block as a JSON file';
-        exportBtn.addEventListener('click', () => Na__PmDev__ExportJson());
-        globalActions.appendChild(exportBtn);
+    // HELPER FUNCTION | Build the All Scenes Buttons
+    // ------------------------------------------------------------
+    // A TWO-COLUMN GRID, not a wrapping row, so the pairing is on purpose:
+    // the two batch walks on the first line, export on its own.
+    // ------------------------------------------------------------
+    function Na__PmDev__BuildGlobalActions() {
+        const globalActions = document.createElement('div');
+        globalActions.className = 'na-pm-dev__global-actions';
 
         // UPDATE ALL THUMBNAILS
         const thumbsBtn = document.createElement('button');
@@ -2064,21 +2533,36 @@
         imagesBtn.addEventListener('click', () => Na__PmDev__DownloadAllImages());
         globalActions.appendChild(imagesBtn);
 
-        panel.appendChild(globalActions);
+        // EXPORT JSON | On its own line: it changes nothing
+        const exportBtn = document.createElement('button');
+        exportBtn.type        = 'button';
+        exportBtn.className   = 'na-pm-dev__btn na-pm-dev__btn--wide';
+        exportBtn.textContent = 'Export JSON';
+        exportBtn.title       = 'Download this project\'s PresentationMode block as a JSON file';
+        exportBtn.addEventListener('click', () => Na__PmDev__ExportJson());
+        globalActions.appendChild(exportBtn);
 
-        // THE ONE BUTTON THAT CAN LOSE THE PROJECT'S SCENES
-        // ------------------------------------------------------------
-        // Kept below a rule, on its own, with nothing beside it. It used to
-        // share a wrapping row with Export JSON, which meant the distance
-        // between "download a backup" and "delete everything" was however the
-        // panel happened to wrap that day. The rule is there to be crossed
-        // deliberately; the section is deliberately not labelled, because a
-        // heading reading DANGER over one button is noise - the isolation and
-        // the typed word already say it.
-        // ------------------------------------------------------------
+        return globalActions;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Build the Clear All Scenes Line
+    // ------------------------------------------------------------
+    // THE ONE BUTTON THAT CAN LOSE THE PROJECT'S SCENES. Kept below a rule,
+    // on its own, with nothing beside it. It used to share a wrapping row
+    // with Export JSON, which meant the distance between "download a backup"
+    // and "delete everything" was however the panel happened to wrap that
+    // day. The rule is there to be crossed deliberately; the line is
+    // deliberately not labelled, because a heading reading DANGER over one
+    // button is noise - the isolation and the typed word already say it.
+    // ------------------------------------------------------------
+    function Na__PmDev__BuildDangerActions() {
+        const wrap = document.createElement('div');
+
         const dangerRule = document.createElement('hr');
         dangerRule.className = 'na-pm-dev__rule';
-        panel.appendChild(dangerRule);
+        wrap.appendChild(dangerRule);
 
         const dangerActions = document.createElement('div');
         dangerActions.className = 'na-pm-dev__danger-actions';
@@ -2091,7 +2575,93 @@
         clearBtn.addEventListener('click', () => Na__PmDev__ClearAllScenes());
         dangerActions.appendChild(clearBtn);
 
-        panel.appendChild(dangerActions);
+        wrap.appendChild(dangerActions);
+        return wrap;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Build the All Scenes Fold (batch walks, export, clear)
+    // ------------------------------------------------------------
+    // FOLDED, BELOW THE LIST. Everything in it acts on every scene at once and
+    // is used a few times a project, so none of it earns a place beside the
+    // scene being edited. Its fold is remembered across rebuilds. Save All To
+    // Project is gone: every change saves as it is made, and the bar says so.
+    // ------------------------------------------------------------
+    function Na__PmDev__BuildAllScenesSection() {
+        const section = document.createElement('div');
+        section.className = 'na-pm-dev__fold';
+
+        const toggle = document.createElement('button');
+        toggle.type      = 'button';
+        toggle.className = 'na-pm-dev__fold-toggle';
+        toggle.setAttribute('aria-expanded', String(Na__PmDev__AllScenesOpen));
+        toggle.innerHTML = 'All Scenes <span class="na-pm-dev__advanced-arrow">&#9662;</span>';
+
+        const body = document.createElement('div');
+        body.className = 'na-pm-dev__fold-body';
+        body.classList.toggle('is-open', Na__PmDev__AllScenesOpen);
+
+        toggle.addEventListener('click', () => {
+            Na__PmDev__AllScenesOpen = !body.classList.contains('is-open');
+            body.classList.toggle('is-open', Na__PmDev__AllScenesOpen);
+            toggle.setAttribute('aria-expanded', String(Na__PmDev__AllScenesOpen));
+        });
+
+        body.appendChild(Na__PmDev__BuildGlobalActions());
+        body.appendChild(Na__PmDev__BuildDangerActions());
+
+        section.appendChild(toggle);
+        section.appendChild(body);
+        return section;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Rebuild the Entire Scene Editor Panel
+    // ------------------------------------------------------------
+    function Na__PmDev__RenderEditorPanel() {
+        const panel = Na__PmDev__GetPanel();
+        if (!panel) return;
+
+        panel.innerHTML = '';                                                // <-- Clear and rebuild
+
+        // SCENE GROUPS SECTION | Rendered first, placed last
+        // ------------------------------------------------------------
+        // The group editor seeds the default groups into the live config on
+        // its first render, and the tabs below read them, so it is drawn
+        // before the list. It goes at the foot of the panel, folded: groups
+        // are set up once a project and edited rarely after.
+        //
+        // The group editor owns everything inside this container. It mutates
+        // the shared live config and raises its changed event, which this
+        // module answers with the one normalise -> commit -> save path.
+        // @delegate: ./Na__PresentationMode__DevMenu__GroupEditor__.js
+        // ------------------------------------------------------------
+        const groupContainer = document.createElement('div');
+        groupContainer.className = 'na-pm-dev__group-container';
+        Na__PresentationMode__DevMenu__RenderGroupEditor(groupContainer, Na__PmDev__ShowToast);
+
+        // SORT ONCE INTO THE WORKING ARRAY so array index == displayed position.
+        // Every reorder operation below works on array position, so the array
+        // and the panel must agree before any row is built. The sort is
+        // group-aware, so a group's scenes always form one unbroken run.
+        Na__PmDev__WorkingScenes = Na__PmDev__SortScenesByOrder(Na__PmDev__GetWorkingScenes());
+        Na__PmDev__NormaliseSceneOrder(Na__PmDev__WorkingScenes);            // <-- Collapse to a clean 1..N inside each group
+        Na__PmShell__SetCount(Na__PmDev__WorkingScenes.length);
+
+        if (Na__PmDev__WorkingScenes.length === 0) {
+            const empty = document.createElement('p');
+            empty.className   = 'na-pm-dev__empty';
+            empty.textContent = 'No scenes yet. Frame a view, then Add Scene From Camera.';
+            panel.appendChild(empty);
+        } else {
+            Na__PmDev__RenderSceneRowsGroupedByGroup(panel, Na__PmDev__HandleRowMutation);
+        }
+
+        // BELOW THE LIST | Two folds: the groups, and what acts on every scene
+        panel.appendChild(groupContainer);
+        panel.appendChild(Na__PmDev__BuildAllScenesSection());
 
         Na__PmDev__ApplyFocusToDom(false);                                  // <-- Restore the open row after any rebuild
     }
@@ -2184,13 +2754,15 @@
 
         Na__PmDev__CommitWorkingScenes(Na__PmDev__WorkingScenes);          // <-- Updates config + live UI refresh
 
-        const saved = await Na__PmDev__SaveToR2(Na__PmDev__WorkingScenes); // <-- Auto-persist to R2
+        const saved = await Na__PmDev__SaveToR2(Na__PmDev__WorkingScenes, true); // <-- Auto-persist to R2; the toast below says it
         Na__PmDev__FocusScene(sceneId, true);                               // <-- Open it and scroll to it
         Na__PmDev__RenderEditorPanel();                                     // <-- Rebuild panel to show new row
         Na__PmDev__ApplyFocusToDom(true);                                   // <-- Scroll the freshly built row into view
 
         if (saved && Na__PmDev__ShowToast) {
-            Na__PmDev__ShowToast(`Scene "${newScene.PresentationMode__Scene__Name}" added and saved to R2.`);
+            const thumbnailSaved = captured.thumbnailSaved !== false;
+            Na__PmDev__ShowToast(`Scene "${newScene.PresentationMode__Scene__Name}" added and saved to R2.`
+                + (thumbnailSaved ? '' : ' Its thumbnail did not upload, so its card has no picture yet.'), !thumbnailSaved);
         }
     }
     // ------------------------------------------------------------
@@ -2230,7 +2802,7 @@
     async function Na__PmDev__ClearAllScenes() {
         const sceneCount = Na__PmDev__WorkingScenes.length;
 
-        const confirmed = await Na__PresentationMode__DevMenu__ConfirmTyped({
+        const confirmed = await Na__PmDev__ConfirmTyped({
             title         : 'Delete all ' + sceneCount + ' scenes?',
             message       : 'Every Presentation Mode scene on this project is deleted and the empty block is written '
                           + 'to R2. Any drawing sheet viewport pointing at one of these scenes loses what it was '
@@ -2244,7 +2816,7 @@
 
         Na__PmDev__WorkingScenes  = [];                                      // <-- Empty the shared array
         Na__PmDev__FocusedSceneId = null;
-        Na__PmDev__OpenGroupIds.clear();
+        Na__PmDev__ShownGroupId   = null;
         Na__PmDev__CommitWorkingScenes(Na__PmDev__WorkingScenes);
         await Na__PmDev__SaveToR2(Na__PmDev__WorkingScenes);
         Na__PmDev__RenderEditorPanel();
@@ -2329,7 +2901,7 @@
         if (!partition) return;
 
         const total = partition.eligible.length;
-        const confirmed = await Na__PresentationMode__DevMenu__Confirm({
+        const confirmed = await Na__PmDev__Confirm({
             title         : 'Re-render ' + total + ' thumbnails?',
             message       : 'Every 3D scene is visited in turn, re-rendered at thumbnail size and uploaded to R2, '
                           + 'replacing the thumbnail it has now. The viewport moves while this runs and returns to '
@@ -2343,7 +2915,7 @@
         });
         if (!confirmed) return;
 
-        const progress = Na__PresentationMode__DevMenu__OpenProgress({
+        const progress = Na__PmDev__OpenProgress({
             title         : 'Updating thumbnails',
             message       : 'Walking every scene in turn.',
             initialStatus : 'Starting...'
@@ -2402,7 +2974,7 @@
         if (!partition) return;
 
         const total = partition.eligible.length;
-        const confirmed = await Na__PresentationMode__DevMenu__Confirm({
+        const confirmed = await Na__PmDev__Confirm({
             title         : 'Export ' + total + (total === 1 ? ' image' : ' images')
                           + (scope ? ' from "' + groupName + '"?' : '?'),
             message       : (scope ? 'Every 3D scene in this group is' : 'Every 3D scene is')
@@ -2419,7 +2991,7 @@
         });
         if (!confirmed) return;
 
-        const progress = Na__PresentationMode__DevMenu__OpenProgress({
+        const progress = Na__PmDev__OpenProgress({
             title         : 'Exporting images',
             message       : scope
                 ? 'Rendering each scene in "' + groupName + '" at the current export settings.'
@@ -2508,37 +3080,70 @@
 
         Na__PmDev__Camera    = camera;
         Na__PmDev__Controls  = controls;
-        Na__PmDev__ShowToast = showToast;
+        Na__PmDev__ShowToast = (message, isError) => {                      // <-- In its own window the toast is on the other screen, so the bar says it too
+            if (typeof showToast === 'function') showToast(message, isError);
+            Na__PmShell__Say(message, isError === true);
+        };
 
         Na__PresentationMode__DevMenu__SetBatchContext(camera, controls);    // <-- The batch walks with the same camera this panel edits
 
         const menuItem  = document.getElementById('naPmDevEditorItem');     // <-- Dev menu wrapper li
         const toggleBtn = document.getElementById('naPmDevEditorToggle');   // <-- Open/close button
-        const panel     = document.getElementById('naPmDevEditorPanel');    // <-- Content container
+        const panel     = document.getElementById('naPmDevEditorPanel');    // <-- Content container (moved into its own panel below)
 
         if (!menuItem || !toggleBtn || !panel) return;
 
         menuItem.style.display = '';                                         // <-- Reveal the dev section
 
+        // ITS OWN PANEL | Out of the Dev Tools list, docked on the left
+        // ------------------------------------------------------------
+        // The Dev Tools row stays as the switch. The panel stays open while
+        // the carousel and the model are used, and closes with its own Close.
+        // @delegate: ./Na__PresentationMode__DevMenu__SceneManagerShell__.js
+        // ------------------------------------------------------------
+        const shell = Na__PmShell__Initialize({
+            panel,
+            toggleButton : toggleBtn,
+            title        : Na__PmDev__PANEL_TITLE,
+            infoText     : Na__PmDev__HOW_TO,
+            toast        : Na__PmDev__ShowToast,
+            onClose      : () => { Na__PmDev__FlushQueuedSave(); }          // <-- A field still waiting is written now
+        });
+        if (shell && shell.barMain) shell.barMain.appendChild(Na__PmDev__BuildAddSceneButton());
+
         toggleBtn.addEventListener('click', () => {
-            const isOpen = panel.classList.contains('is-open');
-            panel.classList.toggle('is-open', !isOpen);
-            toggleBtn.setAttribute('aria-expanded', String(!isOpen));
-
-            if (!isOpen) {
-                // OPEN ON THE SCENE THE VIEWPORT IS ALREADY SHOWING. Opening
-                // the panel is almost always the second half of "this view
-                // needs changing", so it starts pointed at that view rather
-                // than at a wall of folded group names.
-                Na__PmDev__FocusedSceneId = Na__PresentationMode__ProjectJson__GetActiveSceneId();
-
-                Na__PmDev__RenderEditorPanel();                            // <-- Rebuild on each open so data is fresh
-                Na__PmDev__FocusScene(Na__PmDev__FocusedSceneId, true);    // <-- Unfold that scene's group and scroll to it
+            if (Na__PmShell__IsOpen()) {
+                if (Na__PmShell__IsInWindow()) {
+                    Na__PmShell__Focus();                                   // <-- On another screen: bring it forward, never shut it from here
+                    return;
+                }
+                Na__PmShell__Close();
+                return;
             }
+
+            // OPEN ON THE SCENE THE VIEWPORT IS ALREADY SHOWING. Opening
+            // the panel is almost always the second half of "this view
+            // needs changing", so it starts pointed at that view rather
+            // than at a list to search.
+            Na__PmDev__FocusedSceneId = Na__PresentationMode__ProjectJson__GetActiveSceneId();
+
+            Na__PmShell__Open();                                            // <-- Docked, or in its own window when that is where it was last
+            Na__PmDev__RenderEditorPanel();                                 // <-- Rebuild on each open so data is fresh
+            Na__PmDev__FocusScene(Na__PmDev__FocusedSceneId, true);         // <-- Show that scene's group and scroll to it
         });
 
-        // RE-RENDER WHEN SCENES LOAD (project switch during same session)
-        window.addEventListener('na-presentation-mode-scenes-loaded', () => {
+        // A FIELD STILL WAITING WHEN THE PAGE GOES | Best effort: write it now
+        window.addEventListener('pagehide', () => { Na__PmDev__FlushQueuedSave(); });
+
+        // RE-RENDER WHEN SCENES LOAD (project switch, a drawing's own card)
+        // ------------------------------------------------------------
+        // Not for this editor's own commits (detail.source): each of its
+        // actions rebuilds when it needs to, and a field that saves itself
+        // must keep its caret.
+        // ------------------------------------------------------------
+        window.addEventListener('na-presentation-mode-scenes-loaded', (event) => {
+            const detail = event.detail || {};
+            if (detail.source === Na__PmDev__COMMIT_SOURCE) return;
             if (panel.classList.contains('is-open')) {
                 Na__PmDev__RenderEditorPanel();                            // <-- Refresh if panel already open
             }
@@ -2561,7 +3166,11 @@
         window.addEventListener(Na__PresentationMode__UI__SCENE_ACTIVE_EVENT, (event) => {
             if (!panel.classList.contains('is-open')) return;              // <-- Nothing rendered to fold
             const sceneId = event.detail && event.detail.sceneId;
-            if (!sceneId || sceneId === Na__PmDev__FocusedSceneId) return; // <-- Already there; do not re-scroll mid-flight
+            if (!sceneId) return;
+            if (sceneId === Na__PmDev__FocusedSceneId) {
+                Na__PmDev__ApplyFocusToDom(false);                          // <-- Already there: only the on-screen mark moves, no re-scroll mid-flight
+                return;
+            }
             Na__PmDev__FocusScene(sceneId, true);
         });
 

@@ -56,6 +56,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Nov-2026 - Version 1.12.1 (TrueVision3D v2.189.9)
+// - THE RASTER NOTE IS IN THE (i) on the section header bar (Na__LePanels__SectionInfo), not a
+//   paragraph under the Raster list; "Select a viewport on the sheet." stays, as it says what to do now.
+//   Adam, 26-Nov-2026: "Aim reduce overwheling cluttler of Layout Editor", and his rule of the
+//   same day: no overwhelming notes in the UI, the information in hover tooltips.
+//
 // 19-Oct-2026 - Version 1.12.0 (TrueVision v2.177.0)
 // - Add custom scale, under the Scale buttons. It opens a small form under
 //   the row - 1:, the number, Add, Cancel; Enter adds, Escape cancels - and
@@ -178,6 +184,7 @@
         Na__LePanels__FillSelect,
         Na__LePanels__Button,
         Na__LePanels__Note,
+        Na__LePanels__SectionInfo,
         Na__LePanels__Refresh
     } from './Na__LayoutEditor__PanelHost__.js';
     import { Na__LeVp2d__Describe, Na__LeVp2d__CentreOnDrawing } from '../20__System__Viewports/Na__LayoutEditor__Viewport2d__.js';
@@ -642,7 +649,7 @@
             value : level, label : Na__LeCfg__GetLabel('Raster' + level.charAt(0).toUpperCase() + level.slice(1), level.charAt(0).toUpperCase() + level.slice(1))
         })), Na__LeRaster__Get());
         body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('RasterGlobal', 'Raster (all sheets)'), raster));
-        body.appendChild(Na__LePanels__Note(Na__LeCfg__GetLabel('RasterNote', 'Global working resolution of every viewport picture. The PDF always exports at High.')));
+        Na__LePanels__SectionInfo(body, 'viewport-raster-note', Na__LeCfg__GetLabel('RasterNote', 'Global working resolution of every viewport picture. The PDF always exports at High.'));   // <-- Standing help: in the (i)
 
         const edit = document.createElement('div');
         edit.className = 'na-le-block';

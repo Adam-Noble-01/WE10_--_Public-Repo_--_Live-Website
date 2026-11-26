@@ -30,6 +30,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Nov-2026 - Version 1.1.1 (TrueVision3D v2.189.9)
+// - THE NOTHING-SELECTED HELP IS IN THE (i) on the section header bar (Na__LePanels__SectionInfo),
+//   not a paragraph over the Image button; the soft-picture and many-selected lines stay.
+//   Adam, 26-Nov-2026: "Aim reduce overwheling cluttler of Layout Editor", and his rule of the
+//   same day: no overwhelming notes in the UI, the information in hover tooltips.
+//
 // 21-Sep-2026 - Version 1.1.0
 // - Pixels shows the original's size beside the stored one; the note under
 //   Prints at knows about print-size storage (Na__LeImgPub__HasSource).
@@ -54,7 +60,8 @@
         Na__LePanels__Row,
         Na__LePanels__Input,
         Na__LePanels__Button,
-        Na__LePanels__Note
+        Na__LePanels__Note,
+        Na__LePanels__SectionInfo
     } from '../40__Ui__Panels/Na__LayoutEditor__PanelHost__.js';
     import { Na__LeModel__GetActiveSheet, Na__LeModel__GetShapeById, Na__LeModel__GetSelectionItems, Na__LeModel__UpdateShape, Na__LeModel__IsLayerLocked } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeImgGeo__Rect, Na__LeImgGeo__RectPoints, Na__LeImgGeo__PrintDpi } from './Na__LayoutEditor__SheetImages__Geometry__.js';
@@ -125,9 +132,7 @@
     // ------------------------------------------------------------
     function Na__LePanelImages__Build(body) {
         const L = Na__LeImgCfg__Label;
-        const none = Na__LePanels__Note(L('PanelNone', 'Select a picture on the sheet to see its file, its print resolution and its frame. Drag picture files onto the sheet, or use the Image button, to place one.'));
-        none.setAttribute('data-na-img-part', 'none');
-        body.appendChild(none);
+        Na__LePanels__SectionInfo(body, 'images-help', L('PanelNone', 'Select a picture on the sheet to see its file, its print resolution and its frame. Drag picture files onto the sheet, or use the Image button, to place one.'));
 
         const one = document.createElement('div');
         one.setAttribute('data-na-img-part', 'one');
@@ -177,7 +182,6 @@
         const count  = picked.shapes.length;
         const part   = (name) => body.querySelector('[data-na-img-part="' + name + '"]');
         const value  = (name) => body.querySelector('[data-na-img-value="' + name + '"]');
-        part('none').hidden    = count > 0;
         part('one').hidden     = count !== 1;
         part('many').hidden    = count < 2;
         part('frame').hidden   = count < 1;

@@ -55,6 +55,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Nov-2026 - Version 1.5.1 (ValeVision3D v2.99.3, TrueVision3D v2.189.8)
+// - The instruction note is gone: the same words are the tooltip of an (i) (Adam, 26-Nov-2026:
+//   "do the same with TrueVision same princple applies", after ValeVision 3D v2.99.3: "no
+//   overwhelming notes in the UI"; ../../22__System__SceneAssets/Na__SceneAssets__InfoTip__.js).
+//
 // 17-Nov-2026 - Version 1.5.0 (ValeVision3D v2.99.0, TrueVision3D v2.189.0)
 // - A standard palette with a brush of its own sets the brush's density and minimum spacing to
 //   it, at its plant scale, in place of scaling the brush's own.
@@ -130,6 +135,7 @@
         Na__VegTools__Repaint
     } from './Na__Vegetation__ToolHost__.js';
     import { Na__VegPick__AtPointer, Na__VegPick__Under } from './Na__Vegetation__SurfacePick__.js';
+    import { Na__SceneInfo__Tip } from '../../22__System__SceneAssets/Na__SceneAssets__InfoTip__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -514,8 +520,9 @@
             state.erase = value === 'erase';
             Na__VegTools__Repaint();
         }).row);
+        mode.appendChild(Na__SceneInfo__Tip('Drag on the model to paint. Hold Alt to erase. The middle button orbits while this is open, and the wheel zooms. Escape stops brushing.', 'How to use the Brush Tool'));
+        mode.classList.add('na-scene-info-row');
         body.appendChild(mode);
-        body.appendChild(Na__VegShell__El('p', 'na-veg-panel__hint', 'Drag on the model to paint. Hold Alt to erase. The middle button orbits while this is open, and the wheel zooms. Escape stops brushing.'));
 
         body.appendChild(Na__VegShell__El('div', 'na-veg-panel__section', 'Palette'));
         const mix = Na__VegShell__El('div', '');

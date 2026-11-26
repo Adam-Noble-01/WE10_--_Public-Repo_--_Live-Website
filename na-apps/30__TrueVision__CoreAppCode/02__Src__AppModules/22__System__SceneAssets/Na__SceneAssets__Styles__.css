@@ -27,6 +27,9 @@
  * -----------------------------------------------------------------------------
  *
  * DEVELOPMENT LOG:
+ * 26-Nov-2026 - Version 1.1.1-tv.1 (TrueVision3D v2.189.8)
+ * - The (i) info icon and its delayed hover tooltip, from ValeVision 3D v2.99.3.
+ *
  * 06-Nov-2026 - Version 1.1.0 (ValeVision3D v2.91.0)
  * - The panel on the left as dropdown sections (Na__SceneAssets__Hub__.js). The tab and Create New
  *   Vegetation fold rules stay for now, though nothing draws them.
@@ -358,6 +361,73 @@
 
     .na-scene-hub__body[hidden] {
         display                            : none;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | The (i) Info Icon and Its Tooltip (Na__SceneAssets__InfoTip__.js)
+ * ----------------------------------------------------------------------------- */
+
+    .na-scene-info-row {
+        flex-wrap                          : nowrap;                            /* <-- The (i) stays on its row */
+    }
+
+    .na-scene-info {
+        position                           : relative;                          /* <-- Anchor for the tooltip */
+        flex                               : 0 0 auto;
+        display                            : inline-flex;
+        margin-left                        : auto;                              /* <-- At the right end of its row, whatever else is on it */
+    }
+
+    .na-scene-info__button {
+        display                            : inline-flex;
+        align-items                        : center;
+        justify-content                    : center;
+        width                              : 26px;
+        height                             : 26px;
+        padding                            : 0;
+        border                             : none;
+        border-radius                      : 13px;
+        background                         : transparent;
+        color                              : #172b3a;
+        opacity                            : 0.7;
+        cursor                             : help;
+    }
+
+    .na-scene-info__button:hover,
+    .na-scene-info__button:focus-visible {
+        opacity                            : 1;
+        background                         : rgba(23, 43, 58, 0.06);
+    }
+
+    .na-scene-info__tip {
+        position                           : absolute;
+        top                                : calc(100% + 6px);
+        right                              : 0;                                 /* <-- Opens leftwards, inside the panel */
+        width                              : 230px;
+        padding                            : 7px 10px;
+        border-radius                      : 5px;
+        background-color                   : rgba(23, 43, 58, 0.92);
+        color                              : #ffffff;
+        font-family                        : 'Open Sans', sans-serif;
+        font-size                          : 11.5px;
+        font-weight                        : 400;
+        line-height                        : 1.45;
+        white-space                        : normal;
+        pointer-events                     : none;
+        opacity                            : 0;
+        visibility                         : hidden;
+        transition                         : opacity 0.12s ease 0s, visibility 0s linear 0.12s;
+        z-index                            : 20;
+    }
+
+    .na-scene-info:hover .na-scene-info__tip,
+    .na-scene-info__button:focus-visible + .na-scene-info__tip {
+        opacity                            : 1;
+        visibility                         : visible;
+        transition                         : opacity 0.12s ease 0.35s, visibility 0s linear 0.35s;   /* <-- A short hover delay, so passing over it shows nothing */
     }
 
 /* endregion ------------------------------------------------------------------- */

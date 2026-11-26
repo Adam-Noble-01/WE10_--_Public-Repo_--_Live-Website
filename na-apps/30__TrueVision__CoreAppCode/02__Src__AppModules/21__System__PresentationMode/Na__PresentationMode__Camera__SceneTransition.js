@@ -36,6 +36,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Nov-2026 - Scene Mode Exported (v2.189.10)
+// - ResolveSceneNavigationMode is exported, so the Presentation Scenes
+//   editor's Nav Mode switch puts the scene on screen into exactly the mode
+//   a flight to it would land in, and names that mode in its messages.
+//   Nothing in this module changed behaviour.
+//
 // 28-Sep-2026 - Per-Scene Lighting (v2.161.0, ported from ValeVision3D v2.71.0)
 // - ApplySceneCameraState lights the model the way the scene asks, with the
 //   layers, before the navigation mode is entered.
@@ -687,7 +693,8 @@
         Na__PresentationMode__Camera__ApplySceneCameraState,
         Na__PresentationMode__Camera__AnimateToScene,
         Na__PresentationMode__Camera__CancelCurrentTransition,
-        Na__PresentationMode__Camera__IsTransitioning
+        Na__PresentationMode__Camera__IsTransitioning,
+        Na__PresentationMode__Camera__ResolveSceneNavigationMode      // <-- The mode a scene lands in (the editor's Nav Mode switch)
     };
     // ------------------------------------------------------------
 

@@ -42,6 +42,22 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Nov-2026 - Version 1.6.1 (TrueVision3D v2.189.9)
+// - EVERY SECTION HEADER HAS ITS ICON: triangle, a 16 px icon, then the words, which stay.
+//   Adam, 26-Nov-2026: "Add icons to each of these too for easy identifcation but these have
+//   icon and the text". One table, Na__LePanels__SECTION_ICONS, maps a section's key to its
+//   icon's name; the paths are literal in Na__LayoutEditor__ToolIcons__.js (IdeaSpace's sync
+//   reads them). The icon is aria-hidden: the header is still named by its words. The same
+//   change as ValeVision's twin (its rows word for word), with TrueVision's own two rows:
+//   point-cloud-tools PointCloud and scene-sync SceneSync, as the designer named them.
+// - Na__LePanels__SectionInfo: a section's standing notes go into one small (i) at the
+//   right end of its header bar, its tip the Layout Editor's one hover tip
+//   (Na__LayoutEditor__ToolTip__.js), instead of paragraphs in its body. Kept by key, so a
+//   panel with two notes has one (i); a sibling of the header button, never inside it,
+//   so a press on it never folds the section. Adam, 26-Nov-2026: "Aim reduce overwheling
+//   cluttler of Layout Editor", and his rule of the same day: no overwhelming notes in
+//   the UI, the information in hover tooltips.
+//
 // 21-Sep-2026 - Version 1.6.0
 // - Every colour input made by Na__LePanels__Input is handed to the Colour
 //   Palette (54__Feature__ColourPalette), so every colour field in every
@@ -111,6 +127,8 @@
     // MODULE IMPORTS | The Colour Palette (a leaf feature: it imports nothing of the editor's)
     // ------------------------------------------------------------
     import { Na__ColourPalette__Attach } from '../../54__Feature__ColourPalette/Na__ColourPalette__.js';
+    import { Na__LeTip__Info, Na__LeTip__SetInfo } from './Na__LayoutEditor__ToolTip__.js';   // <-- A section's standing notes, in its (i)
+    import { Na__LeIcon__Make } from './Na__LayoutEditor__ToolIcons__.js';                    // <-- A section header's icon
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -119,6 +137,41 @@
 // -----------------------------------------------------------------------------
 // REGION | Module Constants and State
 // -----------------------------------------------------------------------------
+
+    // MODULE CONSTANTS | Each Section's Icon, by the Section's Key
+    // ------------------------------------------------------------
+    // Contract v0.0.6: a section about a tool reuses that tool's icon; the
+    // rest have their own. Every name is in Na__LayoutEditor__ToolIcons__.js's
+    // table, with its literal path. A key not here has no icon.
+    // ------------------------------------------------------------
+    const Na__LePanels__SECTION_ICONS = {
+        'sheet'                   : 'Sheet',
+        'layers'                  : 'Layers',
+        'styles'                  : 'RenderComposites',
+        'modellayers'             : 'ModelLayers',
+        'siteplan-composites'     : 'SitePlan',
+        'drawing-grid'            : 'Grid',
+        'margin'                  : 'MarginNotes',
+        'scrapbook-specification' : 'SpecificationScrapbook',
+        'viewport'                : 'Viewport',
+        'text'                    : 'Text',
+        'leaders'                 : 'Leader',
+        'dimensions'              : 'Dimension',
+        'shapes'                  : 'Vectors',
+        'vector-tools'            : 'VectorTools',
+        'images'                  : 'Image',
+        'patterns'                : 'Patterns',
+        'floor-areas'             : 'FloorArea',
+        'point-cloud-tools'       : 'PointCloud',
+        'scene-sync'              : 'SceneSync',
+        'parametric-element'      : 'ParametricElement',
+        'scrapbook'               : 'Scrapbook',
+        'scrapbook-custom'        : 'ScrapbookCustom',
+        'scrapbook-parametric'    : 'ParametricScrapbook'
+    };
+    const Na__LePanels__InfoParts = new WeakMap();                              // <-- section element -> Map of its (i)'s parts, by key
+    // ------------------------------------------------------------
+
 
     // MODULE CONSTANTS | Storage Keys and CSS Properties
     // ------------------------------------------------------------
@@ -422,6 +475,11 @@
         header.className = 'na-le-section__header';
         header.innerHTML = '<span class="na-le-section__chevron" aria-hidden="true"></span><span class="na-le-section__title"></span>';
         header.querySelector('.na-le-section__title').textContent = spec.title || spec.id;
+        if (Object.prototype.hasOwnProperty.call(Na__LePanels__SECTION_ICONS, spec.id)) {
+            const icon = Na__LeIcon__Make(Na__LePanels__SECTION_ICONS[spec.id], '');   // <-- No letters in a header while its file is missing: CSS hides it
+            icon.classList.add('na-le-section__icon');
+            header.insertBefore(icon, header.querySelector('.na-le-section__title'));
+        }
 
         const body = document.createElement('div');
         body.className = 'na-le-section__body';
@@ -711,6 +769,45 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | A Section's Standing Notes, in the (i) of Its Header Bar
+    // ------------------------------------------------------------
+    // body  : the section's body (or any element inside the section).
+    // key   : which note this is, so each panel can set, change or clear its
+    //         own without touching another's; the parts are joined in the order
+    //         they were first set.
+    // text  : the note; empty clears that part. No parts left hides the (i).
+    // label : what the tip's head and a screen reader call it (default: the
+    //         section's title).
+    // How to use a section goes here; what is happening now, or what is
+    // selected, stays a visible line.
+    // ------------------------------------------------------------
+    function Na__LePanels__SectionInfo(body, key, text, label) {
+        const root = (body && typeof body.closest === 'function') ? body.closest('.na-le-section') : null;
+        if (!root) return null;
+        let parts = Na__LePanels__InfoParts.get(root);
+        if (!parts) { parts = new Map(); Na__LePanels__InfoParts.set(root, parts); }
+        const words = String(text || '').trim();
+        if (words) parts.set(key, words);
+        else parts.delete(key);
+        const joined = Array.from(parts.values()).join(' ');
+        const titleEl = root.querySelector('.na-le-section__title');
+        const title   = label || (titleEl ? titleEl.textContent : '');
+        let info = root.querySelector(':scope > .na-le-info--section');
+        if (!info && !joined) return null;
+        if (!info) {
+            info = Na__LeTip__Info(joined, title);
+            info.classList.add('na-le-info--section');
+            const header = root.querySelector(':scope > .na-le-section__header');
+            root.insertBefore(info, header ? header.nextSibling : root.firstChild);   // <-- Beside the header button, never in it: a press on it must not fold the section
+            root.classList.add('na-le-section--has-info');
+        }
+        Na__LeTip__SetInfo(info, joined, title);
+        root.classList.toggle('na-le-section--has-info', !!joined);
+        return info;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | A Labelled Slider, Its Typable Value and Its Reading
     // ------------------------------------------------------------
     // A div rather than the label row: a label hands a click on its caption to
@@ -868,6 +965,7 @@
         Na__LePanels__FillSelect,
         Na__LePanels__Button,
         Na__LePanels__Note,
+        Na__LePanels__SectionInfo,
         Na__LePanels__LinkedPairRow,
         Na__LePanels__ShowLink,
         Na__LePanels__SliderRow,

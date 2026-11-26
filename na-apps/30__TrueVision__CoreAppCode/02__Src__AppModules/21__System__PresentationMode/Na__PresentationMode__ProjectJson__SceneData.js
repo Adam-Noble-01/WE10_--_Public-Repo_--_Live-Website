@@ -32,6 +32,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Nov-2026 - Version 1.2.1 (TrueVision3D v2.189.10)
+// - GetActiveProjectFolder: the folder the active config was adopted for,
+//   so the carousel keeps its scene across a mid-edit re-dispatch of the
+//   same project and never across a project switch.
+//
 // 19-Oct-2026 - Version 1.2.0 (Scene Sync, v2.174.0)
 // - RegisterConfigHook: a hook runs on every config SetActiveConfig adopts,
 //   the load's and each Presentation Scenes editor commit's. Scene Sync puts
@@ -378,6 +383,17 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Get the Project Folder the Active Config Belongs To
+    // ------------------------------------------------------------
+    // For the carousel, which keeps the scene it is on across a re-dispatch
+    // of the same project only: SketchUp scene ids repeat across projects.
+    // ------------------------------------------------------------
+    function Na__PresentationMode__ProjectJson__GetActiveProjectFolder() {
+        return Na__PresentationMode__ActiveProjectFolder;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Set Currently Active Scene Id
     // ------------------------------------------------------------
     function Na__PresentationMode__ProjectJson__SetActiveSceneId(sceneId) {
@@ -488,6 +504,7 @@
         Na__PresentationMode__ProjectJson__SetActiveConfig,
         Na__PresentationMode__ProjectJson__RegisterConfigHook,
         Na__PresentationMode__ProjectJson__GetActiveConfig,
+        Na__PresentationMode__ProjectJson__GetActiveProjectFolder,
         Na__PresentationMode__ProjectJson__SetActiveSceneId,
         Na__PresentationMode__ProjectJson__GetActiveSceneId,
         Na__PresentationMode__ProjectJson__GetSortedScenes,

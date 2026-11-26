@@ -56,6 +56,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Nov-2026 - Version 1.0.1 (TrueVision3D v2.189.9)
+// - THE INTRO IS IN THE MARGIN NOTES (i) on the section header bar (Na__LePanels__SectionInfo),
+//   not a paragraph under the rule; Loading, None and Nothing ticked yet stay, as they say how
+//   things stand.
+//   Adam, 26-Nov-2026: "Aim reduce overwheling cluttler of Layout Editor", and his rule of the
+//   same day: no overwhelming notes in the UI, the information in hover tooltips.
+//
 // 22-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -79,7 +86,8 @@
         Na__LePanels__IsEditable,
         Na__LePanels__Row,
         Na__LePanels__Input,
-        Na__LePanels__Note
+        Na__LePanels__Note,
+        Na__LePanels__SectionInfo
     } from '../40__Ui__Panels/Na__LayoutEditor__PanelHost__.js';
     // ------------------------------------------------------------
 
@@ -164,7 +172,7 @@
         const rule = document.createElement('hr');
         rule.className = 'na-le-rule';
         section.appendChild(rule);
-        section.appendChild(Na__LePanels__Note(L('LeaderlessIntro', 'Tick a group to list all of its notes on this sheet, bubble or no bubble. Ticked groups print first, before the notes the bubbles link to, top of the stack first: drag a group by its grip to move it.')));
+        Na__LePanels__SectionInfo(body, 'leaderless-intro', L('LeaderlessIntro', 'Tick a group to list all of its notes on this sheet, bubble or no bubble. Ticked groups print first, before the notes the bubbles link to, top of the stack first: drag a group by its grip to move it.'));
         const lists = document.createElement('div');
         lists.setAttribute('data-na-block', 'leaderless-lists');
         section.appendChild(lists);

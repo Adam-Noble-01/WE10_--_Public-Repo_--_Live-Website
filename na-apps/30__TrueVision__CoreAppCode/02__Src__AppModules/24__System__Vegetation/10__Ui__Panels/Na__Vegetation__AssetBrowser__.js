@@ -70,6 +70,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Nov-2026 - Version 1.5.1-tv.1 (TrueVision3D v2.189.8, with ValeVision3D v2.99.3's 1.5.1)
+// - The instruction note is gone: the same words are the tooltip of an (i) (Adam, 26-Nov-2026:
+//   "do the same with TrueVision same princple applies", after ValeVision 3D v2.99.3: "no
+//   overwhelming notes in the UI"; ../../22__System__SceneAssets/Na__SceneAssets__InfoTip__.js).
+//   The line under the slider shows only while a card is armed or a plant is being moved.
+//
 // 17-Nov-2026 - Version 1.5.0-tv.1 (TrueVision3D v2.189.0, with ValeVision3D v2.99.0's 1.5.0)
 // - A card for a plant whose blades grow from inside it (bush.bladesUnder: stems, a grass) paints
 //   every blade first, the furthest first, each its fill then its lines, then the balls' fill
@@ -128,6 +134,7 @@
         Na__SceneChanges__Draw
     } from '../../22__System__SceneAssets/Na__SceneAssets__ChangesPanel__.js';
     import { Na__SceneHub__Create } from '../../22__System__SceneAssets/Na__SceneAssets__Hub__.js';
+    import { Na__SceneInfo__Tip } from '../../22__System__SceneAssets/Na__SceneAssets__InfoTip__.js';
     import { Na__VegPath__SetPlantScale } from '../01__Core__Engine/Na__Vegetation__PathModel__.js';
     import { Na__VegLib__LoadCatalogue, Na__VegLib__LoadAsset, Na__VegLib__PinAsset } from '../02__Core__Data/Na__Vegetation__Library__.js';
     import {
@@ -421,7 +428,8 @@
         if (!state.hintEl) return;
         if (state.armedId) state.hintEl.textContent = 'Click the model to drop one. Escape or the card again to stop.';
         else if (state.moving) state.hintEl.textContent = 'Click the model where this plant should go. Escape cancels.';
-        else state.hintEl.textContent = 'Click a card, then click the model to drop one. Draw Path draws a path of only that plant, as a hedge is. + adds it to the palette the tools draw from.';
+        else state.hintEl.textContent = '';
+        state.hintEl.hidden = !state.armedId && !state.moving;            // <-- Only while something waits for the model: the rest is the (i)'s
     }
     // ------------------------------------------------------------
 
@@ -1117,6 +1125,8 @@
             Na__VegCards__DrawCards();
         }, 'Filter by keyword');
         finding.appendChild(funnel);
+        finding.appendChild(Na__SceneInfo__Tip('Click a card, then click the model to drop one. Draw Path draws a path of only that plant, as a hedge is. + adds it to the palette the tools draw from.', 'How to place plants'));
+        finding.classList.add('na-scene-info-row');
         holder.appendChild(finding);
 
         if (state.chipsOpen) {

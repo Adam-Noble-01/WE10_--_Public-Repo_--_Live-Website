@@ -34,14 +34,28 @@
 //   Both stop propagation, so a key pressed at a dialog never also reaches the
 //   app's hotkeys behind it.
 //
+// - WHERE IT OPENS (1.2.1): options.hostDocument, default this page. A panel
+//   in a window of its own on another screen passes its window's document,
+//   so the dialog, its backdrop and its keys are where the person is
+//   looking. One shell per document: asking in another document builds it
+//   there.
+//
 // INTEGRATION:
-// - Consumed by Na__PresentationMode__DevMenu__SceneEditor.js and
-//   Na__PresentationMode__DevMenu__BatchOps__.js.
+// - Consumed by Na__PresentationMode__DevMenu__SceneEditor.js,
+//   Na__PresentationMode__DevMenu__BatchOps__.js and (since 1.2.1) the group
+//   editor's two prompts; the Scene Manager Shell calls CloseActiveDialog.
 // - Styles live in 03__Style__AppStylesheets/Na__PresentationMode__Styles__SceneCarousel__.css.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Nov-2026 - Version 1.2.1 (TrueVision3D v2.189.10)
+// - options.hostDocument on every dialog: the shell, its backdrop and its
+//   key listener go in that document. Without it nothing changes. For the
+//   Presentation Scenes panel in its own window (ValeVision3D's 1.2.1).
+// - CloseActiveDialog exported: a window closing under an open dialog makes
+//   it answer no, so the press that asked is never left waiting.
+//
 // 22-Sep-2026 - Version 1.2.0
 // - Confirm takes `altLabel` (and `altIsDestructive`): a third button between
 //   Cancel and Confirm that settles the dialog with the string 'alt'. A dialog
@@ -97,26 +111,35 @@
     // in the document and no dialog can inherit a stray listener from the one
     // before it.
     // ------------------------------------------------------------
-    function Na__PmDevModal__EnsureShell() {
-        if (Na__PmDevModal__Root && document.body.contains(Na__PmDevModal__Root)) return Na__PmDevModal__Root;
+    function Na__PmDevModal__EnsureShell(hostDocument) {
+        const host = hostDocument || document;                               // <-- A panel in its own window passes its window's document
+        if (Na__PmDevModal__Root && Na__PmDevModal__Root.ownerDocument === host && host.body.contains(Na__PmDevModal__Root)) {
+            return Na__PmDevModal__Root;
+        }
 
-        const root = document.createElement('div');
+        const existing = host.getElementById(Na__PmDevModal__ROOT_ID);       // <-- Built there before, while another document had the dialog
+        if (existing) {
+            Na__PmDevModal__Root = existing;
+            return existing;
+        }
+
+        const root = host.createElement('div');
         root.id        = Na__PmDevModal__ROOT_ID;
         root.className = 'na-pm-modal';
         root.setAttribute('aria-hidden', 'true');
 
-        const backdrop = document.createElement('div');
+        const backdrop = host.createElement('div');
         backdrop.className = 'na-pm-modal__backdrop';
         root.appendChild(backdrop);
 
-        const card = document.createElement('div');
+        const card = host.createElement('div');
         card.className = 'na-pm-modal__card';
         card.setAttribute('role', 'dialog');
         card.setAttribute('aria-modal', 'true');
         root.appendChild(card);
 
-        document.body.appendChild(root);
-        Na__PmDevModal__Root = root;
+        host.body.appendChild(root);
+        Na__PmDevModal__Root = root;                                         // <-- The latest shell; a shell left in a closed window goes with it
         return root;
     }
     // ------------------------------------------------------------
@@ -129,6 +152,19 @@
             Na__PmDevModal__ActiveClose(result);                             // <-- Resolves the pending promise
         }
         Na__PmDevModal__ActiveClose = null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Answer No to the Open Dialog, When It Is in That Document
+    // ------------------------------------------------------------
+    // For a window closing under its own dialog: the press that asked would
+    // otherwise wait for ever. A dialog in any other document is left alone.
+    // ------------------------------------------------------------
+    function Na__PmDevModal__CloseActiveIn(hostDocument) {
+        if (!Na__PmDevModal__Root || typeof Na__PmDevModal__ActiveClose !== 'function') return;
+        if (hostDocument && Na__PmDevModal__Root.ownerDocument !== hostDocument) return;
+        Na__PmDevModal__CloseActive(false);
     }
     // ------------------------------------------------------------
 
@@ -221,7 +257,8 @@
 
         Na__PmDevModal__CloseActive(false);                                  // <-- Never stack two dialogs
 
-        const root = Na__PmDevModal__EnsureShell();
+        const host = opts.hostDocument || document;
+        const root = Na__PmDevModal__EnsureShell(host);
         const card = root.querySelector('.na-pm-modal__card');
         card.innerHTML = '';
 
@@ -231,7 +268,7 @@
             const backdrop = root.querySelector('.na-pm-modal__backdrop');
 
             const Na__PmDevModal__SettleDialog = (result) => {
-                document.removeEventListener('keydown', onKeyDown, true);
+                host.removeEventListener('keydown', onKeyDown, true);
                 if (backdrop) backdrop.removeEventListener('click', onBackdrop);
 
                 root.classList.remove('is-open');
@@ -297,7 +334,7 @@
             root.classList.add('is-open');
             root.setAttribute('aria-hidden', 'false');
 
-            document.addEventListener('keydown', onKeyDown, true);            // <-- Capture phase: we see the key first
+            host.addEventListener('keydown', onKeyDown, true);                // <-- Capture phase: we see the key first
             if (backdrop) backdrop.addEventListener('click', onBackdrop);
 
             Na__PmDevModal__ActiveClose = Na__PmDevModal__SettleDialog;
@@ -379,7 +416,8 @@
 
         Na__PmDevModal__CloseActive(false);
 
-        const root = Na__PmDevModal__EnsureShell();
+        const host = opts.hostDocument || document;
+        const root = Na__PmDevModal__EnsureShell(host);
         const card = root.querySelector('.na-pm-modal__card');
         card.innerHTML = '';
 
@@ -445,10 +483,10 @@
             stopBtn.disabled     = true;
             stopBtn.textContent  = 'Stopping...';
         };
-        document.addEventListener('keydown', onKeyDown, true);
+        host.addEventListener('keydown', onKeyDown, true);
 
         const closeDialog = () => {
-            document.removeEventListener('keydown', onKeyDown, true);
+            host.removeEventListener('keydown', onKeyDown, true);
             root.classList.remove('is-open');
             root.setAttribute('aria-hidden', 'true');
             card.innerHTML = '';
@@ -513,7 +551,8 @@
     export {
         Na__PmDevModal__Confirm      as Na__PresentationMode__DevMenu__Confirm,
         Na__PmDevModal__ConfirmTyped as Na__PresentationMode__DevMenu__ConfirmTyped,
-        Na__PmDevModal__OpenProgress as Na__PresentationMode__DevMenu__OpenProgress
+        Na__PmDevModal__OpenProgress as Na__PresentationMode__DevMenu__OpenProgress,
+        Na__PmDevModal__CloseActiveIn as Na__PresentationMode__DevMenu__CloseActiveDialog  // <-- A window closing under its open dialog: it answers no
     };
     // ------------------------------------------------------------
 

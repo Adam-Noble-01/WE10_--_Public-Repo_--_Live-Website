@@ -38,6 +38,7 @@ v2.185.0 (15-Nov-2026); everything below is ValeVision's.
 | `Na__SceneAssets__Api__.js` | `Na__SceneApi` | The four routes. Never rejects: every call resolves to `{ ok, error, ... }` |
 | `Na__SceneAssets__ChangesPanel__.js` | `Na__SceneChanges` | The Changes section each panel draws, the who line on a row, the icons |
 | `Na__SceneAssets__Hub__.js` | `Na__SceneHub` | The Vegetation and Entourage panels' dropdown sections, in the manner of Tools & Settings: one open at a time, each made when it opens and taken down when it folds (v2.91.0) |
+| `Na__SceneAssets__InfoTip__.js` | `Na__SceneInfo` | The (i) info icon whose delayed hover tooltip holds a panel's or tool's standing instructions, so no paragraph of notes shows (Adam, 26-Nov-2026: "no overwhelming notes in the UI"). Put it at the right end of a row (v2.189.8, from ValeVision 3D) |
 | `Na__SceneAssets__Styles__.css` | | Icons on rows, who did what, the panel's dropdown sections (the old tab and fold rules stay, unused) |
 
 Each system's data module (`Na__EntData`, `Na__VegData`) calls the routes and keeps the object, and each system's shell brings the picture, the undo steps and the panels into line when the server's answer changes it (`AfterReplaced`).

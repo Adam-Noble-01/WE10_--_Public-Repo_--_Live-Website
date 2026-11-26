@@ -31,6 +31,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Nov-2026 - Version 1.0.1 (TrueVision3D v2.189.9)
+// - THE HELP IS IN THE (i) on the section header bar (Na__LePanels__SectionInfo), not a paragraph
+//   under the scenes; the status and selected lines stay, as they say what is happening.
+//   Adam, 26-Nov-2026: "Aim reduce overwheling cluttler of Layout Editor", and his rule of the
+//   same day: no overwhelming notes in the UI, the information in hover tooltips.
+//
 // 19-Oct-2026 - Version 1.0.0
 // - Initial implementation (Scene Sync, TrueVision v2.174.0).
 //
@@ -74,6 +80,7 @@
         Na__LePanels__OnControl,
         Na__LePanels__Button,
         Na__LePanels__Note,
+        Na__LePanels__SectionInfo,
         Na__LePanels__Refresh,
         Na__LePanels__IsEditable,
         Na__LePanels__GetContext
@@ -242,9 +249,8 @@
         const selected = block('selected', Na__LePanels__Note(''));
         selected.classList.add('na-le-ss__selected');
         block('scenes', document.createElement('div'));
-        const help = block('help', Na__LePanels__Note(Na__LePanelSs__Label('SceneSyncHelp',
-            'Scenes are switched on, and kept in step, in TrueVision Sync\'s Scene Sync tab in SketchUp. Changes arrive with each sync, when the project is next opened.')));
-        help.classList.add('na-le-ss__help');
+        Na__LePanels__SectionInfo(body, 'scene-sync-help', Na__LePanelSs__Label('SceneSyncHelp',   // <-- Standing help: in the (i)
+            'Scenes are switched on, and kept in step, in TrueVision Sync\'s Scene Sync tab in SketchUp. Changes arrive with each sync, when the project is next opened.'));
     }
     // ------------------------------------------------------------
 

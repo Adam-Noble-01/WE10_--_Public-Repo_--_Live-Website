@@ -28,6 +28,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Nov-2026 - Version 1.1.1 (TrueVision3D v2.189.9)
+// - THE INTRO IS IN THE (i) on the section header bar (Na__LePanels__SectionInfo), not a paragraph
+//   over the controls; the status line under them stays, as it says what is selected.
+//   Adam, 26-Nov-2026: "Aim reduce overwheling cluttler of Layout Editor", and his rule of the
+//   same day: no overwhelming notes in the UI, the information in hover tooltips.
+//
 // 21-Sep-2026 - Version 1.1.0
 // - Line pt and Line colour for the layer's hatch, under Rotation deg, and a
 //   Standard button that shows once either is set - the same two controls, with
@@ -62,7 +68,8 @@
         Na__LePanels__FillSelect,
         Na__LePanels__Input,
         Na__LePanels__Button,
-        Na__LePanels__Note
+        Na__LePanels__Note,
+        Na__LePanels__SectionInfo
     } from '../40__Ui__Panels/Na__LayoutEditor__PanelHost__.js';
     import {
         Na__LeModel__CHANGED_EVENT,
@@ -154,9 +161,8 @@
         // THE LIBRARY NOW HOLDS BUILDING HATCHES TOO (Construction Materials), and
         // those go on a drawn vector, which this panel does not set - so the
         // intro says where that is done instead of leaving the tiles a dead end.
-        const intro = Na__LePanels__Note(Na__LeCfg__GetLabel('PatternsIntro',
+        Na__LePanels__SectionInfo(body, 'patterns-intro', Na__LeCfg__GetLabel('PatternsIntro',   // <-- Standing help: in the (i)
             'Repeating hatches. On a site plan viewport a layer is hatched from the tag standards by default; change it here for this viewport only. A drawn vector takes its hatch in the Vectors panel: tick Hatch there and choose the pattern.'));
-        body.appendChild(intro);
 
         const layerRow = Na__LePanels__Row(Na__LeCfg__GetLabel('PatternsLayer', 'Layer'), Na__LePanels__Select('patterns-layer', [], ''));
         layerRow.setAttribute('data-na-block', 'patterns-layer-row');

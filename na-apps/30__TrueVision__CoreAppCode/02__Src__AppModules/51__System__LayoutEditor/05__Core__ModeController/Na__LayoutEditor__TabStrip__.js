@@ -62,6 +62,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Nov-2026 - Version 2.0.1 (TrueVision3D v2.189.9)
+// - AN ICON IN FRONT OF EVERY TAB'S WORDS, which stay: 3D Model (Model3d), Drawings (the
+//   set square, Drawings), Specification, Document Register (DocumentRegister) and Design
+//   Statements (DesignStatements), from Na__LayoutEditor__ToolIcons__.js. Adam, 26-Nov-2026:
+//   "Add icons infront of the text on these to make them easier to see at a glance, use the
+//   setquare graphic for drawings that we already have". The icon is aria-hidden and shows
+//   nothing while its file is missing, so a tab is never blank or lettered; the caret, the
+//   active, hover, menu-open and unsynced states and every hover text are as they were.
+//
 // 23-Sep-2026 - Version 2.0.0
 // - THE COMPACT STRIP, from Adam's mockup and his order: 3D Model | Drawings
 //   | Specification | Document Register | Design Statements. One tab per
@@ -159,6 +168,7 @@
         Na__LeMode__OpenStatements
     } from './Na__LayoutEditor__ModeController__.js';
     import { Na__LeSpec__CHANGED_EVENT, Na__LeSpec__IsDirty } from '../50__Feature__Specification/Na__LayoutEditor__SpecData__.js';
+    import { Na__LeIcon__Make } from '../40__Ui__Panels/Na__LayoutEditor__ToolIcons__.js';   // <-- The icon in front of each tab's words (a leaf module: it imports nothing)
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -201,11 +211,16 @@
 
     // HELPER FUNCTION | One Tab Button
     // ------------------------------------------------------------
-    function Na__LeTabs__Tab(text, active, onClick, modifier) {
+    function Na__LeTabs__Tab(text, active, onClick, modifier, icon) {
         const button = document.createElement('button');
         button.type        = 'button';
         button.className   = 'na-le-tabs__tab' + (active ? ' na-le-tabs__tab--active' : '') + (modifier ? ' ' + modifier : '');
         button.textContent = text;
+        if (icon) {
+            const mark = Na__LeIcon__Make(icon, '');                             // <-- No letters while its file is missing: the stylesheet hides it
+            mark.classList.add('na-le-tabs__icon');
+            button.insertBefore(mark, button.firstChild);                        // <-- In front of the words, which stay
+        }
         button.setAttribute('aria-pressed', String(!!active));
         button.addEventListener('click', onClick);
         return button;
@@ -319,10 +334,10 @@
         if (!visible) { Na__LeTabs__CloseMenu(false); Na__LeTabs__SyncArrows(); return; }
 
         // 3D MODEL | Leaves the editor
-        Na__LeTabs__Scroller.appendChild(Na__LeTabs__Tab(Na__LeCfg__GetLabel('ModelTab', '3D Model'), !Na__LeMode__IsActive(), () => Na__LeMode__Leave(), 'na-le-tabs__tab--model'));
+        Na__LeTabs__Scroller.appendChild(Na__LeTabs__Tab(Na__LeCfg__GetLabel('ModelTab', '3D Model'), !Na__LeMode__IsActive(), () => Na__LeMode__Leave(), 'na-le-tabs__tab--model', 'Model3d'));
 
         // DRAWINGS | The menu of every drawing; the open tab while a sheet is up
-        const drawings = Na__LeTabs__Tab(Na__LeCfg__GetLabel('DrawingsTab', 'Drawings'), onSheet, () => Na__LeTabs__ToggleMenu(drawings), 'na-le-tabs__tab--drawings');
+        const drawings = Na__LeTabs__Tab(Na__LeCfg__GetLabel('DrawingsTab', 'Drawings'), onSheet, () => Na__LeTabs__ToggleMenu(drawings), 'na-le-tabs__tab--drawings', 'Drawings');
         drawings.setAttribute('aria-haspopup', 'menu');
         drawings.setAttribute('aria-expanded', 'false');
         drawings.setAttribute('aria-controls', Na__LeTabs__MENU_ID);
@@ -344,19 +359,19 @@
         // SPECIFICATION | Every drawing note of the project, over the sheet; amber while unsynced
         const unsynced = Na__LeSpec__IsDirty();
         const spec = Na__LeTabs__Tab(Na__LeCfg__GetLabel('SpecificationTab', 'Specification'), view === Na__LeMode__VIEW_SPEC, () => Na__LeMode__OpenSpecification(),
-            'na-le-tabs__tab--specification' + (unsynced ? ' na-le-tabs__tab--unsynced' : ''));   // <-- The dot rule is the specification's own (Styles__Specification__)
+            'na-le-tabs__tab--specification' + (unsynced ? ' na-le-tabs__tab--unsynced' : ''), 'Specification');   // <-- The dot rule is the specification's own (Styles__Specification__)
         spec.title = unsynced
             ? Na__LeCfg__GetLabel('SpecificationTabUnsynced', 'Project Specification - changes kept in this browser, not yet synced')
             : Na__LeCfg__GetLabel('SpecificationTabTitle', 'Every drawing note of the project, grouped and numbered');
         Na__LeTabs__Scroller.appendChild(spec);
 
         // DOCUMENT REGISTER | The pack's numbers, revisions and status
-        const register = Na__LeTabs__Tab(Na__LeCfg__GetLabel('RegisterTab', 'Document Register'), view === Na__LeMode__VIEW_REGISTER, () => Na__LeMode__OpenRegister(), 'na-le-tabs__tab--register');
+        const register = Na__LeTabs__Tab(Na__LeCfg__GetLabel('RegisterTab', 'Document Register'), view === Na__LeMode__VIEW_REGISTER, () => Na__LeMode__OpenRegister(), 'na-le-tabs__tab--register', 'DocumentRegister');
         register.title = Na__LeCfg__GetLabel('RegisterTabTitle', 'Every drawing of the project - its number, revision and status, and the revision notes');
         Na__LeTabs__Scroller.appendChild(register);
 
         // DESIGN STATEMENTS | The written documents
-        const statements = Na__LeTabs__Tab(Na__LeCfg__GetLabel('StatementsTab', 'Design Statements'), view === Na__LeMode__VIEW_STATEMENT, () => Na__LeMode__OpenStatements(), 'na-le-tabs__tab--statement');
+        const statements = Na__LeTabs__Tab(Na__LeCfg__GetLabel('StatementsTab', 'Design Statements'), view === Na__LeMode__VIEW_STATEMENT, () => Na__LeMode__OpenStatements(), 'na-le-tabs__tab--statement', 'DesignStatements');
         statements.title = Na__LeCfg__GetLabel('StatementsTabTitle', 'The written documents of this project - the pre-application statement, the design and access statement');
         Na__LeTabs__Scroller.appendChild(statements);
 

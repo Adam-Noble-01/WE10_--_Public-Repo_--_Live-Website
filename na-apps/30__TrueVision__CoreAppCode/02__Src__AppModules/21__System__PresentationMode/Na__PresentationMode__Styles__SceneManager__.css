@@ -1,0 +1,822 @@
+/* =============================================================================
+ * TRUEVISION3D - PRESENTATION MODE - SCENE MANAGER PANEL STYLES
+ * =============================================================================
+ *
+ * FILE       : Na__PresentationMode__Styles__SceneManager__.css
+ * NAMESPACE  : TrueVision3D
+ * MODULE     : PresentationMode - Dev Menu Scene Manager
+ * AUTHOR     : Adam Noble - Noble Architecture
+ * PURPOSE    : The Presentation Scenes panel, docked on the left or in a
+ *              window of its own: its frame, the group tabs, the scene rows,
+ *              the folds below them
+ * CREATED    : 26-Nov-2026
+ *
+ * DESCRIPTION:
+ * - Added to the page by Na__PresentationMode__DevMenu__SceneManagerShell__.js
+ *   when an authoring page starts the editor, so no reader fetches it.
+ * - EVERYTHING IS SCOPED TO #naPmSceneManager. The scene rows keep their old
+ *   na-pm-dev__ classes, which the Project Lighting, Floor Plan and Elevation
+ *   dev panels share; scoping leaves those panels exactly as they were.
+ * - The asset panels' look (white, navy, 13 px Open Sans, 12 px radius), so
+ *   the left-hand panels read as one family. Sits at their z-index, under the
+ *   app's dropdown menus, so a menu opened over it still comes in front.
+ *
+ * -----------------------------------------------------------------------------
+ *
+ * PORT NOTE:
+ * - Ported from   : ValeVision3D 21__System__PresentationMode/Na__PresentationMode__Styles__SceneManager__.css 0.0.2 (v2.99.5)
+ * - Ported on     : 26-Nov-2026 for TrueVision3D v2.189.10
+ * - Parity        : adapted
+ * - Divergences   : TrueVision's Nav Mode switch is .na-pm-dev__toggle-group / .na-pm-dev__toggle
+ *                   (ValeVision's is .na-pm-dev__segmented); the group's camera button sits at
+ *                   the end of the tab strip; ValeVision's cross-section capture row is not here.
+ * - Back-port     : none.
+ *
+ * -----------------------------------------------------------------------------
+ *
+ * DEVELOPMENT LOG:
+ * 26-Nov-2026 - Version 0.0.1 (TrueVision3D v2.189.10)
+ * - Initial build, ported from ValeVision 3D.
+ *
+ * ============================================================================= */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Tokens and the Frame
+ * ----------------------------------------------------------------------------- */
+
+    #naPmSceneManager {
+        --na-pm-ink                        : #172b3a;
+        --na-pm-muted                      : #5c6b78;
+        --na-pm-rule                       : rgba(23, 43, 58, 0.12);
+        --na-pm-field                      : rgba(23, 43, 58, 0.22);
+        --na-pm-wash                       : #f5f7f9;
+        --na-pm-blue                       : #1a7fc4;
+        --na-pm-blue-wash                  : #e8f2fa;
+        --na-pm-red                        : #b3261e;
+        --na-pm-amber                      : #a15c00;
+
+        position                           : fixed;
+        top                                : calc(var(--Vale_HeaderHeight, 60px) + var(--Vale_LayoutTabStripHeight, 0px) + 66px);  /* <-- Clear of the panel handle under the logo, as the asset panels are */
+        left                               : 12px;
+        bottom                             : 60px;                     /* <-- Clear of the corner badge on the testing server */
+        width                              : 392px;
+        max-width                          : calc(100vw - 24px);
+        display                            : flex;
+        flex-direction                     : column;
+        background                         : #ffffff;
+        border                             : 1px solid rgba(23, 43, 58, 0.08);
+        border-radius                      : 12px;
+        box-shadow                         : 0 4px 16px rgba(0, 0, 0, 0.14);
+        color                              : var(--na-pm-ink);
+        font-family                        : 'Open Sans', 'Segoe UI', sans-serif;
+        font-size                          : 13px;
+        z-index                            : 950;
+        overflow                           : hidden;
+        box-sizing                         : border-box;
+    }
+
+    #naPmSceneManager[hidden] {
+        display                            : none;
+    }
+
+    #naPmSceneManager *,
+    #naPmSceneManager *::before {
+        box-sizing                         : border-box;
+    }
+
+    /* The panel is for a computer, as the asset panels are */
+    @media (max-width: 768px) {
+        #naPmSceneManager {
+            display                        : none;
+        }
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Head, Bar and Scroll
+ * ----------------------------------------------------------------------------- */
+
+    #naPmSceneManager .na-pm-manager__head {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 8px;
+        padding                            : 10px 12px;
+        border-bottom                      : 1px solid var(--na-pm-rule);
+    }
+
+    #naPmSceneManager .na-pm-manager__title {
+        flex                               : 1 1 auto;
+        min-width                          : 0;
+        margin                             : 0;
+        padding                            : 0;
+        border                             : none;
+        background                         : none;
+        color                              : inherit;
+        font                               : inherit;
+        font-size                          : 14px;
+        font-weight                        : 600;
+        text-align                         : left;
+        white-space                        : nowrap;
+        overflow                           : hidden;
+        text-overflow                      : ellipsis;
+        cursor                             : pointer;
+    }
+
+    #naPmSceneManager .na-pm-manager__title::before {
+        content                            : '\25BE';                  /* <-- The title folds the panel */
+        display                            : inline-block;
+        width                              : 14px;
+        color                              : var(--na-pm-muted);
+    }
+
+    /* Pop Out (docked) or Dock (in its own window), then Close */
+    #naPmSceneManager .na-pm-manager__head-btn {
+        flex                               : 0 0 auto;
+        padding                            : 4px 8px;
+        border                             : 1px solid transparent;
+        border-radius                      : 6px;
+        background                         : none;
+        color                              : var(--na-pm-muted);
+        font                               : inherit;
+        font-size                          : 12px;
+        cursor                             : pointer;
+    }
+
+    #naPmSceneManager .na-pm-manager__head-btn:hover {
+        background                         : var(--na-pm-wash);
+        color                              : var(--na-pm-ink);
+    }
+
+    #naPmSceneManager .na-pm-manager__head-btn[hidden] {
+        display                            : none;
+    }
+
+    #naPmSceneManager .na-pm-manager__popout,
+    #naPmSceneManager .na-pm-manager__dock {
+        border-color                       : var(--na-pm-rule);
+        color                              : var(--na-pm-ink);
+    }
+
+    #naPmSceneManager .na-pm-manager__bar {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 10px;
+        padding                            : 8px 12px;
+        border-bottom                      : 1px solid var(--na-pm-rule);
+    }
+
+    #naPmSceneManager .na-pm-manager__bar-main {
+        display                            : flex;
+        flex                               : 1 1 auto;
+        min-width                          : 0;
+    }
+
+    #naPmSceneManager .na-pm-manager__status {
+        flex                               : 0 0 auto;
+        color                              : var(--na-pm-muted);
+        font-size                          : 12px;
+        white-space                        : nowrap;
+    }
+
+    #naPmSceneManager .na-pm-manager__status.is-saving {
+        color                              : var(--na-pm-amber);       /* <-- Amber: on its way, not a problem */
+    }
+
+    #naPmSceneManager .na-pm-manager__status.is-failed {
+        color                              : var(--na-pm-red);
+        font-weight                        : 600;
+    }
+
+    /* A toast repeated in the bar of its own window: the words may be long */
+    #naPmSceneManager .na-pm-manager__status.is-said {
+        color                              : var(--na-pm-ink);
+    }
+
+    #naPmSceneManager.na-pm-manager--window .na-pm-manager__status {
+        flex                               : 0 1 auto;
+        min-width                          : 0;
+        overflow                           : hidden;
+        text-overflow                      : ellipsis;
+    }
+
+    #naPmSceneManager .na-pm-manager__scroll {
+        flex                               : 1 1 auto;
+        min-height                         : 0;
+        padding                            : 10px 12px 14px;
+        overflow-y                         : auto;
+        overscroll-behavior                : contain;
+        scrollbar-width                    : thin;
+    }
+
+    #naPmSceneManager.na-pm-manager--folded {
+        bottom                             : auto;
+    }
+
+    #naPmSceneManager.na-pm-manager--folded .na-pm-manager__title::before {
+        content                            : '\25B8';
+    }
+
+    #naPmSceneManager.na-pm-manager--folded .na-pm-manager__bar,
+    #naPmSceneManager.na-pm-manager--folded .na-pm-manager__scroll {
+        display                            : none;
+    }
+
+    #naPmSceneManager.na-pm-manager--folded .na-pm-manager__head {
+        border-bottom                      : none;
+    }
+
+    /* ITS OWN WINDOW | The panel fills it: no float, no shadow, no corner.
+       A window is narrow, and the phone rule above would hide it. */
+    #naPmSceneManager.na-pm-manager--window {
+        top                                : 0;
+        left                               : 0;
+        right                              : 0;
+        bottom                             : 0;
+        width                              : auto;
+        max-width                          : none;
+        border                             : none;
+        border-radius                      : 0;
+        box-shadow                         : none;
+    }
+
+    @media (max-width: 768px) {
+        #naPmSceneManager.na-pm-manager--window:not([hidden]) {
+            display                        : flex;
+        }
+    }
+
+    #naPmSceneManager.na-pm-manager--window .na-pm-manager__title {
+        cursor                             : default;
+    }
+
+    #naPmSceneManager.na-pm-manager--window .na-pm-manager__title::before {
+        content                            : none;                     /* <-- No fold in a window: its own minimise does that */
+    }
+
+    /* THE EDITOR'S OWN ELEMENT, OUT OF THE DROPDOWN: its dropdown-panel wash,
+       padding and 60vh inner scroll go; this panel's scroll is the only one. */
+    #naPmSceneManager #naPmDevEditorPanel {
+        margin                             : 0;
+        padding                            : 0;
+        background                         : none;
+        border-radius                      : 0;
+        max-height                         : none;
+        overflow                           : visible;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Buttons, Fields and Labels
+ * ----------------------------------------------------------------------------- */
+
+    #naPmSceneManager .na-pm-dev__btn {
+        padding                            : 6px 10px;
+        border                             : 1px solid var(--na-pm-rule);
+        border-radius                      : 6px;
+        background                         : #ffffff;
+        color                              : var(--na-pm-ink);
+        font                               : inherit;
+        font-size                          : 12.5px;
+        line-height                        : 1.25;
+        cursor                             : pointer;
+    }
+
+    #naPmSceneManager .na-pm-dev__btn:hover:not(:disabled) {
+        background                         : #f2f5f8;
+    }
+
+    #naPmSceneManager .na-pm-dev__btn:disabled {
+        opacity                            : 0.45;
+        cursor                             : default;
+    }
+
+    /* The main action of its row is solid navy, on the right */
+    #naPmSceneManager .na-pm-dev__btn--primary,
+    #naPmSceneManager .na-pm-dev__btn--primary:hover:not(:disabled) {
+        border-color                       : var(--na-pm-ink);
+        background                         : var(--na-pm-ink);
+        color                              : #ffffff;
+        font-weight                        : 600;
+    }
+
+    #naPmSceneManager .na-pm-dev__btn--danger {
+        border-color                       : rgba(179, 38, 30, 0.35);
+        background                         : #ffffff;
+        color                              : var(--na-pm-red);
+    }
+
+    #naPmSceneManager .na-pm-dev__btn--danger:hover:not(:disabled) {
+        background                         : #fff4f2;
+    }
+
+    #naPmSceneManager .na-pm-dev__btn--add {
+        width                              : 100%;
+        padding                            : 7px 12px;
+        font-size                          : 13px;
+    }
+
+    #naPmSceneManager .na-pm-dev__label {
+        min-width                          : 64px;
+        color                              : var(--na-pm-muted);
+        font-size                          : 12px;
+    }
+
+    #naPmSceneManager .na-pm-dev__input,
+    #naPmSceneManager .na-pm-dev__select {
+        min-width                          : 0;                        /* <-- A long name never pushes the field past the panel's edge */
+        padding                            : 4px 7px;
+        border                             : 1px solid var(--na-pm-field);
+        border-radius                      : 6px;
+        background                         : #ffffff;
+        color                              : var(--na-pm-ink);
+        font                               : inherit;
+        font-size                          : 13px;
+    }
+
+    #naPmSceneManager .na-pm-dev__select {
+        flex                               : 1 1 auto;
+        width                              : 100%;
+    }
+
+    #naPmSceneManager .na-pm-dev__input:focus,
+    #naPmSceneManager .na-pm-dev__select:focus {
+        outline                            : 2px solid rgba(26, 127, 196, 0.35);
+        outline-offset                     : 0;
+        border-color                       : var(--na-pm-blue);
+    }
+
+    #naPmSceneManager .na-pm-dev__row {
+        gap                                : 8px;
+        margin-bottom                      : 8px;
+    }
+
+    #naPmSceneManager .na-pm-dev__empty {
+        margin                             : 10px 0;
+        padding                            : 14px 8px;
+        border                             : 1px dashed var(--na-pm-rule);
+        border-radius                      : 8px;
+        color                              : var(--na-pm-muted);
+        font-size                          : 12px;
+        text-align                         : center;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Group Tabs, and the Group's Camera at the End of Them
+ * ----------------------------------------------------------------------------- */
+
+    #naPmSceneManager .na-pm-dev__tabs {
+        display                            : flex;
+        flex-wrap                          : wrap;
+        align-items                        : center;
+        gap                                : 6px;
+        padding-bottom                     : 10px;
+        margin-bottom                      : 2px;
+        border-bottom                      : 1px solid var(--na-pm-rule);
+    }
+
+    #naPmSceneManager .na-pm-dev__tab {
+        display                            : inline-flex;
+        align-items                        : center;
+        gap                                : 7px;
+        max-width                          : 100%;
+        padding                            : 5px 10px;
+        border                             : 1px solid var(--na-pm-rule);
+        border-radius                      : 999px;
+        background                         : #ffffff;
+        color                              : var(--na-pm-ink);
+        font                               : inherit;
+        font-size                          : 12.5px;
+        cursor                             : pointer;
+    }
+
+    #naPmSceneManager .na-pm-dev__tab:hover:not(.is-active) {
+        background                         : var(--na-pm-wash);
+    }
+
+    #naPmSceneManager .na-pm-dev__tab.is-active {
+        border-color                       : var(--na-pm-ink);
+        background                         : var(--na-pm-ink);
+        color                              : #ffffff;
+    }
+
+    #naPmSceneManager .na-pm-dev__tab-name {
+        overflow                           : hidden;
+        text-overflow                      : ellipsis;
+        white-space                        : nowrap;
+    }
+
+    #naPmSceneManager .na-pm-dev__tab-count {
+        flex                               : 0 0 auto;
+        min-width                          : 18px;
+        padding                            : 0 5px;
+        border-radius                      : 9px;
+        background                         : rgba(23, 43, 58, 0.08);
+        font-size                          : 11px;
+        line-height                        : 16px;
+        text-align                         : center;
+    }
+
+    #naPmSceneManager .na-pm-dev__tab.is-active .na-pm-dev__tab-count {
+        background                         : rgba(255, 255, 255, 0.22);
+    }
+
+    /* THE GROUP'S CAMERA | One button, at the end of the tabs, for the group
+       on show: an image of each of its scenes at the Image Export settings */
+    #naPmSceneManager .na-pm-dev__tabs .na-pm-dev__group-camera-btn {
+        margin-left                        : auto;
+        width                              : 30px;
+        height                             : 28px;
+        border                             : 1px solid var(--na-pm-rule);
+        border-radius                      : 6px;
+        background                         : #ffffff;
+        color                              : var(--na-pm-ink);
+    }
+
+    #naPmSceneManager .na-pm-dev__tabs .na-pm-dev__group-camera-btn:hover:not(:disabled) {
+        background                         : var(--na-pm-wash);
+    }
+
+    #naPmSceneManager .na-pm-dev__tabs .na-pm-dev__group-camera-btn:disabled {
+        opacity                            : 0.4;
+        cursor                             : default;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Scene Rows: the Folded Strip
+ * ----------------------------------------------------------------------------- */
+
+    #naPmSceneManager .na-pm-dev__scene-row {
+        margin                             : 0;
+        padding                            : 4px 0;
+        border-top                         : 1px solid var(--na-pm-rule);
+        border-radius                      : 0;
+    }
+
+    #naPmSceneManager .na-pm-dev__group-scenes > .na-pm-dev__scene-row:first-child,
+    #naPmSceneManager .na-pm-dev__scene-row.is-open,
+    #naPmSceneManager .na-pm-dev__scene-row.is-open + .na-pm-dev__scene-row {
+        border-top-color                   : transparent;
+    }
+
+    #naPmSceneManager .na-pm-dev__scene-header {
+        gap                                : 6px;
+        margin                             : 0;
+        padding                            : 2px 0;
+    }
+
+    #naPmSceneManager .na-pm-dev__scene-title-btn {
+        gap                                : 8px;
+        padding                            : 3px 0;
+    }
+
+    #naPmSceneManager .na-pm-dev__scene-title {
+        font-size                          : 13px;
+        font-weight                        : 600;
+        color                              : var(--na-pm-ink);
+    }
+
+    #naPmSceneManager .na-pm-dev__mini-thumb {
+        flex                               : 0 0 auto;
+        width                              : 48px;
+        height                             : 32px;
+        overflow                           : hidden;
+        border                             : 1px solid var(--na-pm-rule);
+        border-radius                      : 4px;
+        background                         : var(--na-pm-wash);
+    }
+
+    /* Open, the row shows the full-size picture just below: one is enough */
+    #naPmSceneManager .na-pm-dev__scene-row.is-open .na-pm-dev__mini-thumb {
+        display                            : none;
+    }
+
+    #naPmSceneManager .na-pm-dev__mini-thumb img {
+        display                            : block;
+        width                              : 100%;
+        height                             : 100%;
+        object-fit                         : cover;
+    }
+
+    #naPmSceneManager .na-pm-dev__scene-badge {
+        padding                            : 1px 6px;
+        border-radius                      : 4px;
+        font-size                          : 10px;
+        line-height                        : 15px;
+    }
+
+    #naPmSceneManager .na-pm-dev__scene-badge[hidden] {
+        display                            : none;
+    }
+
+    #naPmSceneManager .na-pm-dev__scene-badge--mode {
+        border-color                       : rgba(26, 127, 196, 0.30);
+        background                         : var(--na-pm-blue-wash);
+        color                              : var(--na-pm-blue);
+    }
+
+    #naPmSceneManager .na-pm-dev__reorder-btn {
+        width                              : 24px;
+        height                             : 24px;
+        border-color                       : var(--na-pm-rule);
+        border-radius                      : 5px;
+        background                         : #ffffff;
+        color                              : var(--na-pm-muted);
+    }
+
+    #naPmSceneManager .na-pm-dev__drag-handle {
+        padding                            : 0 2px;
+        font-size                          : 15px;
+    }
+
+    /* THE SCENE ON SCREEN | A blue edge on the row of the carousel's scene,
+       so a row opened by hand that is not the view in front of you shows it */
+    #naPmSceneManager .na-pm-dev__scene-row.is-on-screen > .na-pm-dev__scene-header {
+        box-shadow                         : inset 3px 0 0 var(--na-pm-blue);
+        padding-left                       : 6px;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Scene Rows: the Open Card
+ * ----------------------------------------------------------------------------- */
+
+    #naPmSceneManager .na-pm-dev__scene-row.is-open {
+        margin                             : 6px 0;
+        padding                            : 6px 10px 10px;
+        border                             : 1px solid var(--na-pm-rule);
+        border-radius                      : 10px;
+        background                         : var(--na-pm-wash);
+    }
+
+    #naPmSceneManager .na-pm-dev__scene-row.is-open > .na-pm-dev__scene-header {
+        padding-bottom                     : 6px;
+        border-bottom                      : 1px solid var(--na-pm-rule);
+    }
+
+    #naPmSceneManager .na-pm-dev__scene-body {
+        padding-top                        : 10px;
+    }
+
+    #naPmSceneManager .na-pm-dev__identity {
+        gap                                : 10px;
+        margin-bottom                      : 10px;
+    }
+
+    #naPmSceneManager .na-pm-dev__thumb {
+        width                              : 96px;
+        height                             : 64px;
+        border-color                       : var(--na-pm-rule);
+        border-radius                      : 6px;
+        background                         : #ffffff;
+    }
+
+    #naPmSceneManager .na-pm-dev__identity .na-pm-dev__label {
+        min-width                          : 42px;
+    }
+
+    #naPmSceneManager .na-pm-dev__identity .na-pm-dev__row {
+        margin-bottom                      : 6px;
+    }
+
+    /* Nav Mode: Orbit | Walk | Fly across the row, the lit one in navy */
+    #naPmSceneManager .na-pm-dev__toggle-group {
+        overflow                           : hidden;
+        border                             : 1px solid var(--na-pm-field);
+        border-radius                      : 6px;
+        background                         : #ffffff;
+    }
+
+    #naPmSceneManager .na-pm-dev__toggle,
+    #naPmSceneManager .na-pm-dev__toggle:first-child,
+    #naPmSceneManager .na-pm-dev__toggle:last-child {
+        padding                            : 5px 0;
+        border                             : none;
+        border-left                        : 1px solid var(--na-pm-field);
+        border-radius                      : 0;
+        background                         : #ffffff;
+        color                              : var(--na-pm-ink);
+        font                               : inherit;
+        font-size                          : 12.5px;
+    }
+
+    #naPmSceneManager .na-pm-dev__toggle:first-child {
+        border-left                        : none;
+    }
+
+    #naPmSceneManager .na-pm-dev__toggle:hover:not(:disabled):not(.is-active) {
+        background                         : var(--na-pm-wash);
+    }
+
+    #naPmSceneManager .na-pm-dev__toggle.is-active,
+    #naPmSceneManager .na-pm-dev__toggle.is-active + .na-pm-dev__toggle {
+        border-left-color                  : var(--na-pm-field);
+    }
+
+    #naPmSceneManager .na-pm-dev__toggle.is-active {
+        background                         : var(--na-pm-ink);
+        color                              : #ffffff;
+        font-weight                        : 600;
+    }
+
+    #naPmSceneManager .na-pm-dev__slider-row--fov {
+        gap                                : 6px;
+        margin-bottom                      : 4px;
+    }
+
+    #naPmSceneManager .na-pm-dev__slider-row--fov .na-pm-dev__label {
+        min-width                          : 64px;
+    }
+
+    #naPmSceneManager .na-pm-dev__slider-row--fov .na-pm-dev__value {
+        font-size                          : 11.5px;
+        color                              : var(--na-pm-muted);
+    }
+
+    #naPmSceneManager .na-pm-dev__inline-label,
+    #naPmSceneManager .na-pm-dev__inline-suffix {
+        font-size                          : 11.5px;
+        color                              : var(--na-pm-muted);
+    }
+
+    #naPmSceneManager .na-pm-dev__input--tiny {
+        width                              : 40px;
+        max-width                          : 40px;
+        padding                            : 3px 4px;
+        font-size                          : 12.5px;
+    }
+
+    #naPmSceneManager .na-pm-dev__advanced {
+        margin-top                         : 6px;
+    }
+
+    #naPmSceneManager .na-pm-dev__advanced-toggle {
+        font-size                          : 12px;
+        color                              : var(--na-pm-muted);
+    }
+
+    #naPmSceneManager .na-pm-dev__advanced-body {
+        padding                            : 8px 0 2px 10px;
+        border-left-color                  : var(--na-pm-rule);
+    }
+
+    #naPmSceneManager .na-pm-dev__input--short {
+        max-width                          : 64px;
+    }
+
+    #naPmSceneManager .na-pm-dev__checkbox-label {
+        font-size                          : 12.5px;
+        color                              : var(--na-pm-ink);
+    }
+
+    #naPmSceneManager .na-pm-dev__lighting-title {
+        font-size                          : 11px;
+    }
+
+    #naPmSceneManager .na-pm-dev__input--lighting {
+        width                              : 48px;
+        max-width                          : 48px;
+    }
+
+    #naPmSceneManager .na-pm-dev__lighting-status {
+        font-size                          : 11.5px;
+    }
+
+    /* Go To Scene | Update Scene: two equal halves, the main action right */
+    #naPmSceneManager .na-pm-dev__scene-body .na-pm-dev__actions {
+        display                            : grid;
+        grid-template-columns              : 1fr 1fr;
+        gap                                : 8px;
+        margin-top                         : 12px;
+    }
+
+    #naPmSceneManager .na-pm-dev__rule {
+        margin                             : 12px 0 10px;
+        border-top-color                   : var(--na-pm-rule);
+    }
+
+    /* Under the rule: Delete, on the right, on its own */
+    #naPmSceneManager .na-pm-dev__foot-actions {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 8px;
+    }
+
+    #naPmSceneManager .na-pm-dev__foot-actions .na-pm-dev__btn {
+        width                              : auto;
+    }
+
+    #naPmSceneManager .na-pm-dev__foot-actions .na-pm-dev__btn--trailing {
+        margin-left                        : auto;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | The Folds Below the List: Scene Groups and All Scenes
+ * ----------------------------------------------------------------------------- */
+
+    #naPmSceneManager .na-pm-dev__group-container {
+        margin                             : 14px 0 0;
+    }
+
+    #naPmSceneManager .na-pm-dev__group-section {
+        padding-bottom                     : 0;
+        border-bottom                      : none;
+    }
+
+    #naPmSceneManager .na-pm-dev__group-toggle,
+    #naPmSceneManager .na-pm-dev__fold-toggle {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 6px;
+        width                              : 100%;
+        padding                            : 10px 0 8px;
+        border                             : none;
+        border-top                         : 1px solid var(--na-pm-rule);
+        background                         : none;
+        color                              : var(--na-pm-muted);
+        font                               : inherit;
+        font-size                          : 11px;
+        font-weight                        : 600;
+        letter-spacing                     : 0.05em;
+        text-transform                     : uppercase;
+        text-align                         : left;
+        cursor                             : pointer;
+    }
+
+    #naPmSceneManager .na-pm-dev__group-toggle:hover,
+    #naPmSceneManager .na-pm-dev__fold-toggle:hover {
+        color                              : var(--na-pm-ink);
+    }
+
+    #naPmSceneManager .na-pm-dev__fold-toggle[aria-expanded="true"] .na-pm-dev__advanced-arrow {
+        transform                          : rotate(180deg);
+    }
+
+    #naPmSceneManager .na-pm-dev__group-body,
+    #naPmSceneManager .na-pm-dev__fold-body {
+        padding                            : 2px 0 8px;
+        border-left                        : none;
+    }
+
+    #naPmSceneManager .na-pm-dev__fold-body {
+        display                            : none;
+    }
+
+    #naPmSceneManager .na-pm-dev__fold-body.is-open {
+        display                            : block;
+    }
+
+    /* Group rows: the name takes the room, so it can be read */
+    #naPmSceneManager .na-pm-dev__group-row {
+        gap                                : 6px;
+        margin-bottom                      : 6px;
+    }
+
+    #naPmSceneManager .na-pm-dev__group-name {
+        flex                               : 1 1 auto;
+        min-width                          : 0;
+    }
+
+    #naPmSceneManager .na-pm-dev__group-count {
+        min-width                          : 58px;
+        text-align                         : center;
+        font-size                          : 11px;
+    }
+
+    #naPmSceneManager .na-pm-dev__global-actions {
+        display                            : grid;
+        grid-template-columns              : 1fr 1fr;
+        gap                                : 8px;
+        margin-top                         : 0;
+        padding-top                        : 0;
+        border-top                         : none;
+    }
+
+    #naPmSceneManager .na-pm-dev__global-actions .na-pm-dev__btn {
+        width                              : 100%;
+    }
+
+    #naPmSceneManager .na-pm-dev__global-actions .na-pm-dev__btn--wide {
+        grid-column                        : 1 / -1;
+    }
+
+    #naPmSceneManager .na-pm-dev__danger-actions {
+        justify-content                    : flex-end;
+    }
+
+/* endregion ------------------------------------------------------------------- */

@@ -48,6 +48,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Nov-2026 - Version 1.3.1 (TrueVision3D v2.189.9)
+// - THE LAYERS NOTE IS IN THE (i) on the section header bar (Na__LePanels__SectionInfo), not a
+//   paragraph under the list.
+//   Adam, 26-Nov-2026: "Aim reduce overwheling cluttler of Layout Editor", and his rule of the
+//   same day: no overwhelming notes in the UI, the information in hover tooltips.
+//
 // 23-Sep-2026 - Version 1.3.0
 // - The On / Off button is red while the layer is Off (na-le-btn--eye
 //   is-off, aria-pressed), and the Ref button's faint blue becomes the lock's
@@ -106,7 +112,8 @@
         Na__LePanels__IsEditable,
         Na__LePanels__Button,
         Na__LePanels__Select,
-        Na__LePanels__Note
+        Na__LePanels__Note,
+        Na__LePanels__SectionInfo
     } from './Na__LayoutEditor__PanelHost__.js';
     // ------------------------------------------------------------
 
@@ -392,7 +399,7 @@
             foot.appendChild(Na__LePanels__Button(Na__LeCfg__GetLabel('DeleteLayer', 'Delete selected type'), 'layer-delete', 'na-le-btn--danger'));
             body.appendChild(foot);
         }
-        body.appendChild(Na__LePanels__Note(Na__LeCfg__GetLabel('LayersNote', 'Top of the list draws frontmost. Types are tags for filtering; any layer can hold anything. Ref makes a reference layer: shown and printed, but nothing on it can be selected or snapped to.')));
+        Na__LePanels__SectionInfo(body, 'layers-note', Na__LeCfg__GetLabel('LayersNote', 'Top of the list draws frontmost. Types are tags for filtering; any layer can hold anything. Ref makes a reference layer: shown and printed, but nothing on it can be selected or snapped to.'));
     }
     // ------------------------------------------------------------
 

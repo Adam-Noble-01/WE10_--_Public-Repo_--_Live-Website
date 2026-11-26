@@ -1,0 +1,294 @@
+/* ================================================================= */
+/* TRUEVISION3D - LAYOUT EDITOR - TOOL ICONS AND TOOL TIP STYLES      */
+/* ================================================================= */
+/*                                                                   */
+/* FILE       : Na__LayoutEditor__Styles__ToolIcons__.css            */
+/* MODULE     : Layout Editor - Tool Icons                           */
+/* AUTHOR     : Adam Noble - Noble Architecture                      */
+/* PURPOSE    : The icon buttons of the strip and the Vector Tools   */
+/*              section, the one hover tip, and the (i) of a panel   */
+/* CREATED    : 26-Nov-2026                                          */
+/*                                                                   */
+/* NOTES:                                                            */
+/* - Linked by Na__LayoutEditor__ToolIcons__.js on first use, as the */
+/*   Vector Tools panel links its own sheet: nothing to register in  */
+/*   the loader's list.                                              */
+/* - An icon is a CSS mask over currentColor, so it takes the        */
+/*   button's colour in every state: idle navy, lit blue, white on a */
+/*   solid lit panel button, faded when disabled.                    */
+/* - Two-class selectors on purpose: they win over the buttons' own  */
+/*   one-class rules whichever sheet the page loaded last.           */
+/* - The tip's look is IdeaSpace's (.ids-tooltip, v0.0.44).          */
+/* - ValeVision3D has the same sheet; only the banner differs.       */
+/*                                                                   */
+/* DEVELOPMENT LOG:                                                  */
+/* 26-Nov-2026 - Version 0.0.3 (TrueVision3D v2.189.9)                */
+/* - The top tabs' 16 px icon in front of their words (contract      */
+/*   v0.0.8).                                                        */
+/*                                                                   */
+/* 26-Nov-2026 - Version 0.0.2 (TrueVision3D v2.189.9)                */
+/* - The strip's spacer and its shorter rules between groups; the    */
+/*   section headers' 16 px icons; the section (i) at the right-hand  */
+/*   end of its header (contract v0.0.5 and v0.0.6).                 */
+/*                                                                   */
+/* 26-Nov-2026 - Version 0.0.1 (TrueVision3D v2.189.9)                */
+/* - Initial build.                                                  */
+/*                                                                   */
+/* ================================================================= */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Icon                                               */
+/* ----------------------------------------------------------------- */
+
+.na-le-icon {
+    display                            : inline-block;
+    flex                               : 0 0 auto;
+    width                              : 18px;
+    height                             : 18px;
+    background-color                   : currentColor;
+    -webkit-mask                       : var(--na-le-icon-url) center / contain no-repeat;
+    mask                               : var(--na-le-icon-url) center / contain no-repeat;
+    pointer-events                     : none;
+}
+
+/* AN ICON WHOSE FILE IS NOT ON DISK YET shows the first letters of its */
+/* button's old word, so the button is never blank.                     */
+
+.na-le-icon.na-le-icon--missing {
+    width                              : auto;
+    height                             : auto;
+    background-color                   : transparent;
+    -webkit-mask                       : none;
+    mask                               : none;
+    font-size                          : 0.66rem;
+    font-weight                        : 600;
+    line-height                        : 1;
+    letter-spacing                     : 0.01em;
+}
+
+.na-le-icon.na-le-icon--missing::after {
+    content                            : attr(data-na-le-icon-fallback);
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Icon Buttons                                           */
+/* ----------------------------------------------------------------- */
+
+/* A 28 PX SQUARE round an 18 px glyph, on the strip and in the Vector  */
+/* Tools section alike. The buttons keep their own borders, fills and  */
+/* lit and attention states: only their size and padding change.       */
+
+.na-le-toolbar__btn.na-le-icon-button,
+.na-le-vectools__btn.na-le-icon-button {
+    display                            : inline-flex;
+    align-items                        : center;
+    justify-content                    : center;
+    flex                               : 0 0 auto;
+    width                              : 28px;
+    height                             : 28px;
+    padding                            : 0;
+}
+
+/* THE RASTER ICON stands in for the word before its list: a label, not */
+/* a button, so it has no border and no hover.                         */
+
+.na-le-toolbar__label.na-le-icon-label {
+    display                            : inline-flex;
+    align-items                        : center;
+    justify-content                    : center;
+    width                              : 22px;
+    height                             : 28px;
+    color                              : #6c757d;
+    cursor                             : default;
+}
+
+/* THE STRIP'S GROUPS sit closer than before: icons need less air than  */
+/* words to read apart.                                                */
+
+.na-le-toolbar.na-le-toolbar--icons {
+    gap                                : 4px;
+}
+
+/* THE OUTPUT AT THE RIGHT-HAND END: the spacer takes the free width, so  */
+/* Raster, Save Sheets and Download PDF sit at the end of the strip.     */
+
+.na-le-toolbar--icons .na-le-toolbar__spacer {
+    flex                               : 1 1 auto;
+    min-width                          : 0;
+}
+
+/* THE RULES BETWEEN GROUPS are as tall as an icon, not the whole strip, */
+/* so the groups read as groups without fencing every button.            */
+
+.na-le-toolbar--icons .na-le-toolbar__gap {
+    align-self                         : center;
+    height                             : 20px;
+    margin                             : 0 3px;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Tip                                                */
+/* ----------------------------------------------------------------- */
+
+.na-le-tip {
+    position                           : fixed;
+    left                               : 0;
+    top                                : 0;
+    max-width                          : 260px;
+    padding                            : 6px 9px 7px;
+    border-radius                      : 8px;
+    background                         : rgba(23, 43, 58, 0.94);
+    color                              : #ffffff;
+    font-family                        : 'Open Sans', sans-serif;
+    font-size                          : 12px;
+    font-weight                        : 400;
+    line-height                        : 1.4;
+    box-shadow                         : 0 2px 8px rgba(23, 43, 58, 0.18);
+    pointer-events                     : none;
+    opacity                            : 0;
+    transform                          : translateY(2px);
+    transition                         : opacity 120ms ease-out, transform 120ms ease-out;
+    z-index                            : 10000;                       /* <-- Above the editor's menus (1200) and its veils */
+}
+
+.na-le-tip.na-le-tip--shown {
+    opacity                            : 1;
+    transform                          : none;
+}
+
+.na-le-tip__head {
+    display                            : flex;
+    align-items                        : baseline;
+    gap                                : 8px;
+}
+
+.na-le-tip__name {
+    font-weight                        : 600;
+}
+
+.na-le-tip__key {
+    margin-left                        : auto;
+    padding                            : 0 5px;
+    border-radius                      : 4px;
+    background                         : rgba(255, 255, 255, 0.14);
+    font-size                          : 11px;
+    white-space                        : nowrap;
+}
+
+.na-le-tip__help {
+    margin-top                         : 2px;
+    color                              : rgba(255, 255, 255, 0.82);
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Section Headers                                        */
+/* ----------------------------------------------------------------- */
+
+/* Adam, 26-Nov-2026: "Add icons to each of these too for easy          */
+/* identifcation but these have icon and the text". Triangle, a 16 px   */
+/* icon, then the words; the header's gap spaces them. An icon whose    */
+/* file is not there yet shows nothing, never letters, in a header.     */
+
+.na-le-section__header .na-le-icon.na-le-section__icon {
+    width                              : 16px;
+    height                             : 16px;
+}
+
+.na-le-section__header .na-le-icon.na-le-section__icon.na-le-icon--missing {
+    display                            : none;
+}
+
+/* THE SECTION (i) sits at the right-hand end of its header bar, beside */
+/* the header rather than inside it (the header is a button, and a click */
+/* on an (i) inside it would fold the section). It shows folded too.     */
+
+.na-le-section.na-le-section--has-info {
+    position                           : relative;
+}
+
+.na-le-section--has-info > .na-le-section__header {
+    padding-right                      : 34px;
+}
+
+.na-le-section > .na-le-info.na-le-info--section {
+    position                           : absolute;
+    top                                : 6px;
+    right                              : 8px;
+    margin-left                        : 0;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Top Tabs                                           */
+/* ----------------------------------------------------------------- */
+
+/* Adam, 26-Nov-2026: "Add icons infront of the text on these to make   */
+/* them easier to see at a glance". A 16 px icon in front of a tab's    */
+/* words; nothing at all while its file is missing.                    */
+
+.na-le-tabs__tab .na-le-icon.na-le-tabs__icon {
+    width                              : 16px;
+    height                             : 16px;
+    margin-right                       : 6px;
+    vertical-align                     : -3px;
+}
+
+.na-le-tabs__tab .na-le-icon.na-le-tabs__icon.na-le-icon--missing {
+    display                            : none;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The (i)                                                */
+/* ----------------------------------------------------------------- */
+
+/* The placed assets' (i) (.na-scene-info__button), so every (i) in the */
+/* app looks the same; its tip is the one above.                       */
+
+.na-le-info {
+    display                            : inline-flex;
+    align-items                        : center;
+    justify-content                    : center;
+    flex                               : 0 0 auto;
+    width                              : 22px;
+    height                             : 22px;
+    margin-left                        : auto;
+    padding                            : 0;
+    border                             : none;
+    border-radius                      : 11px;
+    background                         : transparent;
+    color                              : #172b3a;
+    opacity                            : 0.7;
+    cursor                             : help;
+}
+
+.na-le-info:hover,
+.na-le-info:focus-visible {
+    opacity                            : 1;
+    background                         : rgba(23, 43, 58, 0.06);
+}
+
+.na-le-info[hidden] {
+    display                            : none;
+}
+
+.na-le-info .na-le-icon {
+    width                              : 16px;
+    height                             : 16px;
+}
+
+/* endregion ------------------------------------------------------- */

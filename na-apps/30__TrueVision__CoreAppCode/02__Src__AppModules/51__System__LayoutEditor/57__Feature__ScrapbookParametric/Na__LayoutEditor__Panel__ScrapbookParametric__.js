@@ -53,6 +53,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Nov-2026 - Version 1.8.1 (TrueVision3D v2.189.9)
+// - THE QR, INFILL AND LEGEND NOTES ARE IN THE (i) on the section header bar
+//   (Na__LePanels__SectionInfo), each set while its kind is picked and cleared when not, not
+//   paragraphs in their blocks.
+//   Adam, 26-Nov-2026: "Aim reduce overwheling cluttler of Layout Editor", and his rule of the
+//   same day: no overwhelming notes in the UI, the information in hover tooltips.
+//
 // 29-Sep-2026 - Version 1.8.0
 // - The Site Plan Legend: registered with the others, its link module
 //   attached beside the viewport link, and the hatch library's marks handed
@@ -136,7 +143,8 @@
         Na__LePanels__Select,
         Na__LePanels__FillSelect,
         Na__LePanels__Button,
-        Na__LePanels__Note
+        Na__LePanels__Note,
+        Na__LePanels__SectionInfo
     } from '../40__Ui__Panels/Na__LayoutEditor__PanelHost__.js';
     import {
         Na__LeParam__STATUS_FAILED,
@@ -683,9 +691,6 @@
         widthNote.setAttribute('data-na-param', 'qr-width-note');
         portal.appendChild(widthNote);
         portal.appendChild(Na__LePanels__Row(L('PropsQrProject', 'Project name'), Na__LePanels__Input('text', 'param-qr-project', { maxlength : 80, placeholder : L('PropsQrProjectAuto', 'Automatic') })));
-        const qrCode = Na__LePanels__Note(L('PropsQrCode', 'The code is this project\'s own, and is the same one the title block prints. It fills itself in - there is nothing to choose.'));
-        qrCode.setAttribute('data-na-param', 'qr-code-note');
-        portal.appendChild(qrCode);
         body.appendChild(portal);
 
         // THE AREA SCHEDULE'S OWN | Shown for a schedule and for nothing else.
@@ -738,7 +743,6 @@
         infillSize.setAttribute('data-na-param', 'infill-size-note');
         infill.appendChild(infillSize);
         infill.appendChild(Na__LePanels__Row(L('PropsInfillTextSize', 'Text size (mm)'), Na__LePanels__Input('number', 'param-infill-size', { min : 0.8, max : 12, step : 0.1 })));
-        infill.appendChild(Na__LePanels__Note(L('PropsInfillKept', 'Anything restyled inside the group - a colour, a line weight, the dashes - is kept when it is rebuilt.')));
         body.appendChild(infill);
 
         // THE SITE PLAN LEGEND'S OWN | Shown for a legend and for nothing else.
@@ -760,8 +764,6 @@
         legend.appendChild(Na__LePanels__Row(L('PropsLegendTextSize', 'Type size (mm)'), Na__LePanels__Input('number', 'param-legend-text', { min : 0.8, max : 12, step : 0.1 })));
         legend.appendChild(Na__LePanels__Row(L('PropsLegendSwatchW', 'Swatch width (mm)'), Na__LePanels__Input('number', 'param-legend-swatch-w', { min : 2, max : 40, step : 0.5 })));
         legend.appendChild(Na__LePanels__Row(L('PropsLegendSwatchH', 'Swatch height (mm)'), Na__LePanels__Input('number', 'param-legend-swatch-h', { min : 1.5, max : 30, step : 0.5 })));
-        const legendRowsNote = Na__LePanels__Note(L('PropsLegendRowsNote', 'Every wash, hatch and line the site plans show inside their frames - location plans only when the sheet has no other, since they grey all but the red line and the proposal. Untick one to leave it off the legend.'));
-        legend.appendChild(legendRowsNote);
         const legendRows = document.createElement('div');
         legendRows.setAttribute('data-na-param', 'legend-rows');
         legend.appendChild(legendRows);
@@ -815,6 +817,10 @@
         part('infill-block').hidden = !isInfill;
         part('legend-block').hidden = !isLegend;
         part('link-row').hidden    = !linkable;                                 // <-- An element that is never tied to a drawing is shown no cable to tie
+        // STANDING HELP FOR THE KIND PICKED, in the section's (i), not a paragraph in its block
+        Na__LePanels__SectionInfo(body, 'param-qr', isPortal ? L('PropsQrCode', 'The code is this project\'s own, and is the same one the title block prints. It fills itself in - there is nothing to choose.') : '');
+        Na__LePanels__SectionInfo(body, 'param-infill', isInfill ? L('PropsInfillKept', 'Anything restyled inside the group - a colour, a line weight, the dashes - is kept when it is rebuilt.') : '');
+        Na__LePanels__SectionInfo(body, 'param-legend', isLegend ? L('PropsLegendRowsNote', 'Every wash, hatch and line the site plans show inside their frames - location plans only when the sheet has no other, since they grey all but the red line and the proposal. Untick one to leave it off the legend.') : '');
         if (isTitle)  Na__LePanelParam__RefreshTitle(body, picked, usable);
         if (isPortal) Na__LePanelParam__RefreshPortal(body, picked, usable);
         if (isArea)   Na__LePanelParam__RefreshSchedule(body, picked, usable);

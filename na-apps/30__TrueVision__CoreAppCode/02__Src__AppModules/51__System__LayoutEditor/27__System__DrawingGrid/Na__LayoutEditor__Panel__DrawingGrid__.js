@@ -39,6 +39,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Nov-2026 - Version 1.0.1 (TrueVision3D v2.189.9)
+// - THE SCREEN-ONLY NOTE IS IN THE (i) on the section header bar (Na__LePanels__SectionInfo), not a
+//   paragraph under Options; the spacing readout stays a line, as it reads the settings now.
+//   Adam, 26-Nov-2026: "Aim reduce overwheling cluttler of Layout Editor", and his rule of the
+//   same day: no overwhelming notes in the UI, the information in hover tooltips.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Initial implementation: LayOut's grid controls, the spacing readout, the
 //   screen-only note and Reset.
@@ -70,7 +76,8 @@
         Na__LePanels__Input,
         Na__LePanels__Select,
         Na__LePanels__Button,
-        Na__LePanels__Note
+        Na__LePanels__Note,
+        Na__LePanels__SectionInfo
     } from '../40__Ui__Panels/Na__LayoutEditor__PanelHost__.js';
     // ------------------------------------------------------------
 
@@ -151,7 +158,7 @@
         body.appendChild(Na__LePanelGrid__Heading(L('Options', 'Options')));
         body.appendChild(Na__LePanelGrid__Toggle(L('ClipToMargins', 'Clip grid to page margins'), 'grid-clip', 'Draw the grid inside the sheet border only. Off, it covers the whole paper.'));
         body.appendChild(Na__LePanelGrid__Toggle(L('OnTop', 'Draw grid on top'), 'grid-ontop', 'Draw the grid over the drawings, so it can be seen anywhere. Off, it is drawn on the paper under them and shows only where the paper is bare.'));
-        body.appendChild(Na__LePanels__Note(L('ScreenOnly', 'Screen only: the grid is never printed or exported, and nothing here is saved into a sheet. These settings are remembered in this browser.')));
+        Na__LePanels__SectionInfo(body, 'grid-screen-only', L('ScreenOnly', 'Screen only: the grid is never printed or exported, and nothing here is saved into a sheet. These settings are remembered in this browser.'));   // <-- Standing help: in the (i)
         body.appendChild(Na__LePanels__Button(L('Reset', 'Reset grid'), 'grid-reset'));
     }
     // ------------------------------------------------------------

@@ -45,6 +45,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Nov-2026 - Version 1.2.2 (TrueVision3D v2.189.9)
+// - THE INTRO, THE NEW-AREAS NOTE AND THE SCHEDULES NOTE ARE IN THE (i) on the section header bar
+//   (Na__LePanels__SectionInfo), not paragraphs; the drawing line stays, as it says what to do now.
+//   Adam, 26-Nov-2026: "Aim reduce overwheling cluttler of Layout Editor", and his rule of the
+//   same day: no overwhelming notes in the UI, the information in hover tooltips.
+//
 // 22-Sep-2026 - Version 1.2.1
 // - Measure this shape is hidden for a vector with holes (the vector tools'
 //   Boolean section): a room is one outline.
@@ -84,6 +90,7 @@
         Na__LePanels__FillSelect,
         Na__LePanels__Button,
         Na__LePanels__Note,
+        Na__LePanels__SectionInfo,
         Na__LePanels__SliderRow,
         Na__LePanels__ShowSlider,
         Na__LePanels__GetContext
@@ -223,7 +230,7 @@
     function Na__LePanelArea__Build(body) {
         const L = Na__LeArea__Label;
 
-        body.appendChild(Na__LePanelArea__Part(Na__LePanels__Note(L('PanelIntro', 'Draw round a room to measure it.')), 'intro'));
+        Na__LePanels__SectionInfo(body, 'area-intro', L('PanelIntro', 'Draw round a room to measure it.'));   // <-- Standing help: in the (i)
 
         // THE LAYER | One switch for the whole overlay, which is how it is
         // meant to be worked: drawn once, hidden, brought back to move a corner
@@ -293,7 +300,7 @@
         fresh.appendChild(Na__LePanels__SliderRow(L('Opacity', 'Opacity'), 'area-new-opacity'));
         fresh.appendChild(Na__LePanelArea__OutlineRow('area-new-stroked'));
         fresh.appendChild(Na__LePanels__Row(L('LabelShows', 'Label shows'), Na__LePanels__Select('area-new-label', [], '')));
-        fresh.appendChild(Na__LePanels__Note(L('DefaultsNote', '')));
+        Na__LePanels__SectionInfo(body, 'area-defaults', L('DefaultsNote', ''));
         body.appendChild(fresh);
 
         // THE INDEX | Every room on the sheet, under its group, with the totals
@@ -313,7 +320,7 @@
         // put where somebody who has just measured a floor is looking
         body.appendChild(Na__LePanelArea__Part(Na__LePanels__Note(L('TablesHeading', 'Schedules')), 'tables-heading'));
         body.lastChild.classList.add('na-le-note--heading');
-        body.appendChild(Na__LePanelArea__Part(Na__LePanels__Note(L('TablesNote', '')), 'tables-note'));
+        Na__LePanels__SectionInfo(body, 'area-tables', L('TablesNote', ''));
         const tables = document.createElement('div');
         tables.className = 'na-le-bar';
         tables.appendChild(Na__LePanels__Button(L('InsertSchedule', 'Insert area schedule'), 'area-insert-schedule', ''));

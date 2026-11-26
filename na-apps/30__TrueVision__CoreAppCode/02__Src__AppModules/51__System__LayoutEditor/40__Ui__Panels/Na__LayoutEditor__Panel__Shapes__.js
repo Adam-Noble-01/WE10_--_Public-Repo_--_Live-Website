@@ -60,6 +60,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Nov-2026 - Version 1.9.1 (TrueVision3D v2.189.9)
+// - THE EITHER-OR NOTE IS IN THE (i) on the section header bar (Na__LePanels__SectionInfo), set
+//   while a fill is possible and cleared when not, as the paragraph was shown and hidden.
+//   Adam, 26-Nov-2026: "Aim reduce overwheling cluttler of Layout Editor", and his rule of the
+//   same day: no overwhelming notes in the UI, the information in hover tooltips.
+//
 // 21-Sep-2026 - Version 1.9.0
 // - The hatch block gains Pattern line pt and Pattern colour, under Pattern
 //   deg, and a Standard button that shows once either is set. The boxes show
@@ -159,6 +165,7 @@
         Na__LePanels__FillSelect,
         Na__LePanels__Button,
         Na__LePanels__Note,
+        Na__LePanels__SectionInfo,
         Na__LePanels__SliderRow,
         Na__LePanels__ShowSlider
     } from './Na__LayoutEditor__PanelHost__.js';
@@ -301,9 +308,7 @@
         const hatchNote = Na__LePanels__Note('');
         hatchNote.setAttribute('data-na-block', 'shape-hatch-note');
         body.appendChild(hatchNote);
-        const either = Na__LePanels__Note(Na__LeCfg__GetLabel('ShapeEitherNote', 'Edges and fill are either or: switching one off switches the other on, so a shape always shows.'));
-        either.setAttribute('data-na-block', 'either');
-        body.appendChild(either);
+        body.setAttribute('data-na-either-note', Na__LeCfg__GetLabel('ShapeEitherNote', 'Edges and fill are either or: switching one off switches the other on, so a shape always shows.'));   // <-- Standing help: the refresh puts it in the (i) while a fill is possible
         // THE DRAW AND AXIS INSTRUCTIONS ARE NOT PRINTED HERE ANY MORE. Two
         // paragraphs of prose pushed the actual controls off the top of a
         // short panel, and they are reference material read once - they live
@@ -455,7 +460,7 @@
         Na__LePanels__ShowSlider(body, 'shape-edge-opacity', percent(edgeOpacity), percent(edgeOpacity) + '%');
         Na__LeDash__RefreshRows(body, Object.assign({ stroked : values.stroked }, Na__LePanelShapes__Dash()));
         Na__LeGrad__RefreshRows(body, Object.assign({ canFill : canFill }, Na__LePanelShapes__Gradient()));
-        body.querySelector('[data-na-block="either"]').hidden = !canFill;
+        Na__LePanels__SectionInfo(body, 'shape-either', canFill ? body.getAttribute('data-na-either-note') : '');
         const picked = Na__LeModel__GetSelectionItems().length;
         body.querySelector('[data-na-block="note"]').textContent = selected
             ? Na__LeCfg__GetLabel('ShapeSelectedNote', 'Editing the selected shape.')

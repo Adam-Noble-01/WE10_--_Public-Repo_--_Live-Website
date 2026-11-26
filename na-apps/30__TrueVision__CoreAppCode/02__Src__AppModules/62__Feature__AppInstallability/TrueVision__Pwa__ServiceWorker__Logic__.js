@@ -34,6 +34,26 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Nov-2026 - Version 1.22.2
+// - Token BUMPED to 2026-11-26-02 for v2.189.10 (the Presentation Scenes panel of its own
+//   and the Nav Mode fix). The carousel imports a new export from the scene data
+//   (GetActiveProjectFolder) and the editor new ones from the scene transition and the
+//   dialogs: a warm client pairing a new carousel with an old cached scene data module
+//   would fail the import, and the carousel with it.
+// - The panel's stylesheet (Na__PresentationMode__Styles__SceneManager__.css) joins the
+//   shell precache list: the panel's shell injects it on first use, so precached, the
+//   token governs it.
+//
+// 26-Nov-2026 - Version 1.22.1
+// - Token BUMPED to 2026-11-26-01 for v2.189.9 (the Layout Editor's icons and hover tips).
+//   The strip, the Vector Tools panel, the panel host and eleven panels import new exports
+//   (Na__LeIcon__Put, Na__LeTip__Set, Na__LePanels__SectionInfo): a warm client pairing a new
+//   panel with an old cached panel host would fail the import, and the editor with it.
+// - The icons' stylesheet (Na__LayoutEditor__Styles__ToolIcons__.css) joins the shell
+//   precache list: the icon module injects it on first use, like the Vector Tools sheet, so
+//   precached, the token governs it. The icons themselves are fetched by the stylesheet's
+//   masks and cached at runtime like the editor's other pictures.
+//
 // 18-Nov-2026 - Version 1.22.0
 // - Token BUMPED to 2026-11-18-01 for v2.189.1 (the published drawings reader's
 //   touch controls). The web viewer imports a new export from its drawings
@@ -810,7 +830,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-11-18-01';                                                        // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-11-26-02';                                                        // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id
@@ -899,6 +919,8 @@
         // The Vector Tools panel injects its own sheet on first use, for the same
         // reason: precached, the token governs it.
         '02__Src__AppModules/51__System__LayoutEditor/37__System__VectorTools/Na__LayoutEditor__Styles__VectorTools__.css',
+        // And the tool icons' sheet, injected by Na__LayoutEditor__ToolIcons__.js (v2.189.9).
+        '02__Src__AppModules/51__System__LayoutEditor/40__Ui__Panels/Na__LayoutEditor__Styles__ToolIcons__.css',
         // So does the drawing's Specification tab - and its sheet now draws the
         // row editor and the located row's halo.
         '02__Src__AppModules/51__System__LayoutEditor/58__Feature__ScrapbookSpecification/Na__LayoutEditor__Styles__ScrapbookSpecification__.css',
@@ -906,7 +928,9 @@
         // precached, the token governs them too.
         '02__Src__AppModules/24__System__Vegetation/10__Ui__Panels/Na__Vegetation__Styles__Panels__.css',
         '02__Src__AppModules/28__System__Entourage/10__Ui__Panels/Na__Entourage__Styles__Panels__.css',
-        '02__Src__AppModules/22__System__SceneAssets/Na__SceneAssets__Styles__.css'
+        '02__Src__AppModules/22__System__SceneAssets/Na__SceneAssets__Styles__.css',
+        // And the Presentation Scenes panel's, injected by its shell on first use (v2.189.10).
+        '02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__Styles__SceneManager__.css'
     ];
     // ------------------------------------------------------------
 

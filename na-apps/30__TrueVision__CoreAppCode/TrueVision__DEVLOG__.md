@@ -2,6 +2,215 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.189.10  -  26-Nov-2026
+### Presentation Scenes Has a Panel of Its Own That Can Pop Out Onto Another Screen, and a Scene's Navigation Mode Saves the Moment It Is Set
+
+Adam, 26-Nov-2026, of ValeVision 3D's same editor: "it really sucks badly take a look, its a mess, make the UI more
+usable", "Updating scenes navigation mode does not do anything, it reverts back to orbit mode and fails despiite
+showing a fake update toast", and "a seperate dedicated window on a second screen would be great". Asked "Is the same
+update made to TrueVision3D?" (it was not, and TrueVision had the same faults), he said: "Fix and new panel".
+
+**What was wrong**
+- The Nav Mode switch (Orbit | Walk | Fly, inside Advanced) changed only the editor's working copy. Nothing saved it
+  but Save All To Project, and the press that looked as if it did, Update Scene, recaptured the viewport's own mode
+  (Orbit, unless you were flying) over it, wrote that to R2 and said so. A scene set to Fly opened in Orbit every
+  time, and the toolbar's Orbit | Walk | Fly never moved.
+- Name, FOV, Move speed, Easing and the layer timing also changed only the working copy: any rebuild before Save All
+  To Project (a reorder, a regroup, a drawing's own card) threw the edit away.
+- Every editor commit put the carousel back on the project's default scene, so the highlight left the card the camera
+  was still showing.
+- The editor sat inside the Dev Tools list, in a 60vh scroll of its own between a dozen other sections: every group a
+  fold-down heading, Add Scene twice (a square + and a button at the foot), Delete beside Update Scene, and Update All
+  Thumbnails, Download All Images and Clear All Scenes always on show.
+
+**Now**
+- **The Nav Mode switch saves the moment it is pressed.** On the scene the carousel is on, it switches the view too,
+  through the toggles the toolbar uses, so the toolbar changes with it. The toast says what was kept ("3D | North
+  East" now opens in Fly. Saved to R2.). A press on the lit mode does nothing.
+- **Update Scene's question names the mode it will keep** ("It will still open in Fly.", or "It will open in Orbit,
+  not Fly as it does now.") and says when the carousel is on another scene. Its toast says the mode, and says when the
+  thumbnail did not upload.
+- **Every field saves itself:** Name and Move when you leave them, FOV when the slider is let go, Easing and the layer
+  timing when they change. Each is committed at once (the carousel card takes a new name straight away) and written to
+  R2 600 ms later, without a rebuild, so the caret stays put. One queue writes in order; the bar says Saving..., All
+  changes saved, or Not saved in red. Save All To Project is gone.
+- **The carousel keeps its scene** across the editor's own reloads of the same project.
+- **A panel of its own.** Dev Tools > Presentation Scenes opens it docked on the left, in the Vegetation and
+  Entourage panels' look (one panel a side with them), and it stays open while the carousel and the model are used.
+  Head: the title (folds the panel), Pop Out, Close. Bar: + Add Scene From Camera, the save state, and an (i) with how
+  it works.
+- **Pop Out** moves the panel into a window of its own. On Chrome and Edge the window goes to the screen beside this
+  one (the browser asks once to manage windows on all displays), and opens where it was left after that; Dock brings
+  it back, and the choice is kept for the Dev Tools row. Dialogs open in the window, toasts repeat in its bar, and it
+  closes with the page.
+- **One tab per scene group** with its count, and the group's camera at the end of the tabs (an image of each scene in
+  the group on show). A folded row shows the scene's small picture, #N and its name, a FLY or WALK chip and the LAYOUT
+  chip; the scene on screen has a blue edge. An open row: thumbnail, Name, Group, Nav Mode (out of Advanced), FOV and
+  Move, Advanced (Position, Easing, layer timing, layout editor only, Lighting), Go To Scene | Update Scene, and
+  Delete under a rule.
+- Below the list, two folds: Scene Groups (the group editor, whose two questions are the Dev menu's own dialog now,
+  not the browser's) and All Scenes (Update All Thumbnails, Download All Images, Export JSON, and Clear All Scenes
+  under a rule).
+
+**Files** (under `02__Src__AppModules/`)
+- New, ported from ValeVision 3D v2.99.5: `21__System__PresentationMode/Na__PresentationMode__DevMenu__SceneManagerShell__.js`
+  0.0.1 (`Na__PmShell`), `21__System__PresentationMode/Na__PresentationMode__Styles__SceneManager__.css` 0.0.1,
+  `70__System__DevTools/Na__DevTools__PopOutWindow__.js` 0.0.1 (`Na__DevWin`).
+- Changed, in `21__System__PresentationMode/`: `Na__PresentationMode__DevMenu__SceneEditor.js` 1.5.2;
+  `Na__PresentationMode__DevMenu__Modal__.js` 1.2.1 (`hostDocument`, `CloseActiveDialog`);
+  `Na__PresentationMode__DevMenu__GroupEditor__.js` 1.0.1; `Na__PresentationMode__UI__SceneCarousel.js` 1.3.2;
+  `Na__PresentationMode__ProjectJson__SceneData.js` 1.2.1 (`GetActiveProjectFolder`);
+  `Na__PresentationMode__Camera__SceneTransition.js` (exports `ResolveSceneNavigationMode`).
+- `62__Feature__AppInstallability/TrueVision__Pwa__ServiceWorker__Logic__.js` 1.22.2: the token, and the panel's
+  stylesheet in the shell precache list.
+- The panel's (i) is v2.189.8's `22__System__SceneAssets/Na__SceneAssets__InfoTip__.js`, still uncommitted: the two
+  go together. Index.html is unchanged: the Dev Tools row and `#naPmDevEditorPanel` stay, and the editor moves the
+  panel out on start.
+
+**Service worker token:** `2026-11-26-02` (was `2026-11-26-01`).
+
+**Tested** on the MCP sandbox (port 8642, JW02, authoring, 1600 x 900, headless Edge): `tv3d_check` passes (its one
+known false fail only) and ESLint finds no undeclared name. The panel opens docked from Dev Tools on the carousel's
+scene, with the tabs Exterior 3D Views 4 and Floor Plans 2 and the camera for the group on show. Fly on the scene on
+screen put the view in Fly and lit the toolbar's Fly, and the sandbox's R2 copy holds the scene's `fly`; Orbit put it
+back. A new name committed at once (the carousel card took it) and saved itself. Update Scene asked "It will still
+open in Fly." and Cancel changed nothing. The Floor Plans tab showed its two plans with the camera off ("No 3D scenes
+in "Floor Plans" to export"). Pop Out moved the panel into a standards-mode window; Delete there asked in the window,
+and Dock answered it no and brought the panel back open. A fresh page opened in Fly on the scene saved as Fly. With
+the carousel on the second scene (not the default), Fly and a rename each saved and the carousel stayed on that card;
+a row opened by hand saved its own Fly and left the on-screen mark on the carousel's scene, and its Update question
+said "It will still open in Orbit. The carousel is on "3D | North East", not this scene." Switching Floor Plans off
+in Scene Groups asked in the Dev menu's dialog, and Cancel put the tick back and wrote nothing. At 460 x 820 with the
+window class on, the panel fills the window and every row fits.
+
+**Not tested:** a real browser's window (headless runs under the MCP's request guard, which stalls a script-opened
+window's requests, so its stylesheets never load there: proved apart, the same window loads them without the guard),
+placement on another screen and the permission prompt, a real GPU, a phone (the panel is hidden there, as the asset
+panels are).
+
+**Status:** uncommitted, waiting on Adam (NaWeb serves the live site).
+
+# ---------------------------------------------------------
+## TrueVision3D v2.189.9  -  26-Nov-2026
+### The Layout Editor's Tools Are Icons With Hover Tips, Its Tabs and Section Headers Carry Icons, and Standing Notes Live in an (i)
+
+Adam, 26-Nov-2026, with a screenshot of ValeVision 3D's Layout Editor and its tool strip ringed: "Upgrade UI for both
+ValeVision 3D and TrueVision 3D Specfically removing text based tooling replacing with svg icons and hover over
+tooltips, see the IdeaSpace Project, that has much nicer icons and i bet already has dozens of SVGs we can use. Aim
+reduce overwheling cluttler of Layout Editor In ValeVision 3D and TrueVision 3D". Then, of the right-hand panel's
+section headers: "Add icons to each of these too for easy identifcation but these have icon and the text". Of the
+top tabs: "Add icons infront of the text on these to make them easier to see at a glance, use the setquare graphic
+for drawings that we already have". And his
+rule of the same day: "no overwhelming notes in the UI, info is tghere if you need it by hoveer over intuitivie
+tooltips".
+
+**What was wrong**
+- The strip above the sheet was 21 word buttons and two worded lists. At 1920 px it ran off the right-hand end, so
+  Vector, Save Sheets, Download PDF and Share could not be seen without scrolling the strip.
+- The Vector Tools section was 17 word buttons, the section headers were words alone, and nine panels each spent
+  paragraphs on standing instructions.
+
+**Now**
+- **Every tool, toggle and action on the strip is an icon** in the house line style (most reused from IdeaSpace's
+  toolbar, the rest drawn to match). From the left: the sheet's name, then Select, Move | Text, Leader, Dimension |
+  Draw, Rectangle, Circle, Arc, Floor Area | Eyedropper, Image | Snap with its options chevron, Draft, Grid, Grid Snap,
+  Ortho, Axes, and the live hint lines. Then, at the right-hand end: the Raster and Vector icons before their lists |
+  Save Sheets, Download PDF, Share. ValeVision 3D's strip has the same layout. The strip now fits at 1920 px.
+- **One hover tip for the whole editor**, IdeaSpace's: the name and key after a short rest, the instructions a moment
+  later, from each button's own config words (so nothing was rewritten). The keyboard reaches it; no button shows two
+  tips; each button's old word is its aria-label.
+- Toggles are lit while on, as before; Save keeps its amber unsaved state; the dropper's and the open container's
+  lines, the sheet's name and a viewer's read-only note are still words.
+- **The Vector Tools section** is three rows of icons (Draw, Edit, Boolean) under the same small headings, lit as
+  before, each with its tip.
+- **Every top tab has an icon in front of its words**, which stay: 3D Model, Drawings (the set square we already had,
+  redrawn at this family's weight), Specification, Document Register, Design Statements. The Drawings caret, the
+  active, hover and unsynced states and the hover texts are as they were.
+- **Every section header carries its icon:** the triangle, a 16 px icon, then its words, which stay. A section about a
+  tool shares the tool's icon (Text, Leaders, Dimensions, Images, Floor Areas, Drawing Grid); the rest have their own.
+- **Standing notes are in an (i)** at the right-hand end of a section's header bar: Drawing Grid, Margin Notes,
+  Drawing Layers, Viewport, Vectors, Images, Patterns, Floor Areas, SketchUp Scenes, and a Parametric Element's QR,
+  infill and legend notes. A click on the (i) shows it and never folds the section. Lines that say what is happening
+  or what is selected ("Select a viewport on the sheet.", the grid's spacing, statuses) stay where they were.
+- Every key, tool and click is as it was. No control was removed.
+
+**Files** (all under `02__Src__AppModules/51__System__LayoutEditor/` unless named)
+- New, ported from ValeVision 3D (the shared modules of this job, identical apart from banners, logs and the asset
+  folder): `40__Ui__Panels/Na__LayoutEditor__ToolIcons__.js` 0.0.5 (`Na__LeIcon`, every icon as a literal path),
+  `40__Ui__Panels/Na__LayoutEditor__ToolTip__.js` 0.0.2 (`Na__LeTip`),
+  `40__Ui__Panels/Na__LayoutEditor__Styles__ToolIcons__.css` 0.0.3 (the tab icons' rule too).
+- New: `01__AppAssets__TrueVision/UiIcons__MenuIcons__LayoutEditor/`, 61 icons `Icon__LayoutEditor__<Name>__.svg`.
+- Changed: `40__Ui__Panels/Na__LayoutEditor__Toolbar__.js` 1.24.1; `37__System__VectorTools/Na__LayoutEditor__Panel__VectorTools__.js`
+  1.1.1; `40__Ui__Panels/Na__LayoutEditor__PanelHost__.js` 1.6.1 (`Na__LePanels__SECTION_ICONS`,
+  `Na__LePanels__SectionInfo`); panels `Panel__DrawingGrid` 1.0.1, `Panel__Patterns` 1.1.1, `Panel__Layers` 1.3.1,
+  `Panel__SceneSync` 1.0.1, `Panel__Shapes` 1.9.1, `Panel__ViewportSettings` 1.12.1, `Panel__MarginNotes__Leaderless`
+  1.0.1, `Panel__MarginNotes__Regions` 1.0.1, `Panel__SheetImages` 1.1.1, `Panel__ScrapbookParametric` 1.8.1,
+  `Panel__FloorAreas` 1.2.2; `05__Core__ModeController/Na__LayoutEditor__TabStrip__.js` 2.0.1 (the tab icons);
+  `10__Core__SheetSurface/Na__LayoutEditor__Styles__Main__.css` (the snap caret's icon).
+- `62__Feature__AppInstallability/TrueVision__Pwa__ServiceWorker__Logic__.js` 1.22.1: the token is `2026-11-26-01`
+  (the panels import new exports from the panel host, so a warm client must not pair new with old), and the icons'
+  stylesheet is precached beside the Vector Tools one.
+
+**Service worker token:** `2026-11-26-01` (was `2026-11-18-01`).
+
+**IdeaSpace:** its next sync of the Layout Editor (never run by this job) would carry the three new modules, the
+icons the module names, and the changed Vector Tools panel, panel host, Shapes, Patterns and Scrapbook Parametric
+panels and the Main stylesheet (59 new files and 6 changed ones), and needs no new shim. The strip is not in its closure: IdeaSpace keeps its own toolbar.
+
+**Checked** on the MCP sandbox (port 8047, JW02 Sheet_002, authoring, 1920 x 1080, headless Edge): `tv3d_check`
+passes (its one known false fail only). The strip's controls read back with their icons and aria-labels, no `title`,
+no icon missing, the output group at the right-hand end; Select's, Snap's and Fillet's tips show name, key and
+instructions and none is left after the pointer goes; Trim armed lights its button and the hint line; every section
+header shows its icon before its words; the sections' (i)s sit in their header bars and a click on one leaves the fold
+alone; mounted read-only, the strip holds the same items in the same order as before. The key map files are byte for
+byte as they were. Nothing was saved, and the write guard stopped no request.
+
+**Not checked:** a real mouse (the tips were driven by pointer events), a phone or tablet, the real GPU, the Parametric
+Element's (i) with a tile picked, every other panel's (i) by hover.
+
+**Status:** uncommitted, waiting on Adam (NaWeb serves the live site).
+
+# ---------------------------------------------------------
+## TrueVision3D v2.189.8  -  26-Nov-2026
+### No Paragraphs of Notes in the Placed-Assets Panels: Their Instructions Are an (i) Tooltip
+
+Adam, 26-Nov-2026, after ValeVision 3D v2.99.3: "do the same with TrueVision same princple applies". The principle,
+in his words there: "no overwhelming notes in the UI, info is tghere  if you need it by hoveer over intuitivie
+tooltips", and of Entourage's Scale of the next one: "Remove this from entourage menu its not needed".
+
+**What was wrong**
+- The Entourage panel, the Vegetation panel's Assets, and its Brush and Line Tools each showed a standing paragraph of
+  instructions, and Entourage's Assets had a Scale of the next one slider nobody needed.
+
+**Now**
+- A small navy (i) at the right end of a row holds those instructions in a tooltip, shown after a 0.35 s hover or on
+  keyboard focus, opening leftwards inside the panel: Entourage and Vegetation Assets (end of the search row), the
+  Brush Tool (Paint and Erase row), the Line Tool (Draw New Path row; how to edit a path when one is selected).
+- A visible line only for what is happening now: a card armed, a plant being moved, a path being drawn.
+- Scale of the next one is gone from Entourage Assets (commented out with a note). A placed figure is still scaled in
+  In This Project; new figures drop at the saved `Entourage__Place__Scale`.
+- Furnishings and its Outdoor Furniture default are ValeVision's only: TrueVision has no Furnishings.
+
+**Files** (all under `02__Src__AppModules/`)
+- New: `22__System__SceneAssets/Na__SceneAssets__InfoTip__.js` 0.0.1-tv.1 (`Na__SceneInfo__Tip`,
+  `Na__SceneInfo__SetText`), ported from ValeVision 3D v2.99.3.
+- Changed: `22__System__SceneAssets/Na__SceneAssets__Styles__.css` 1.1.1-tv.1;
+  `28__System__Entourage/10__Ui__Panels/Na__Entourage__AssetBrowser__.js` 1.3.1-tv.1;
+  `24__System__Vegetation/10__Ui__Panels/Na__Vegetation__AssetBrowser__.js` 1.5.1-tv.1;
+  `24__System__Vegetation/20__System__Tools/Na__Vegetation__BushTool__.js` 1.5.1;
+  `24__System__Vegetation/20__System__Tools/Na__Vegetation__LinearTool__.js` 1.6.1.
+
+**Checked** on the MCP sandbox (port 8642, JW02, authoring): `tv3d_check` passes (its one known false fail only).
+Entourage: no slider, no paragraph, the (i) shows its text on a real pointer hover (screenshot). Vegetation Assets: no
+paragraph, the (i) in the search row. Brush Tool and Line Tool: the (i) shows its text on hover (screenshots); the
+Line Tool's drawing line shows only while drawing. `tv3d_writes`: nothing written.
+
+**Not checked:** the Vegetation Assets tooltip on hover in TrueVision (the same CSS, proved in ValeVision 3D); the Line
+Tool's (i) with a path selected; a phone; the real GPU.
+
+**Status:** uncommitted, waiting on Adam (NaWeb serves the live site).
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.189.7  -  20-Nov-2026
 ### A PDF Prints Text in a Host's Own Typefaces
 

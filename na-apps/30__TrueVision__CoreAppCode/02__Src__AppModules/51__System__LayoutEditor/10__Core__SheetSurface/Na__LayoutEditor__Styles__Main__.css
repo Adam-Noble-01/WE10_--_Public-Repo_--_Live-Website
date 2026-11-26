@@ -561,6 +561,22 @@ body.na-le-dragging * {
     white-space                        : nowrap;
 }
 
+/* THE SNAP CARET AS AN ICON (26-Nov-2026, TrueVision3D v2.189.9). The */
+/* strip's buttons are icons (Na__LayoutEditor__Styles__ToolIcons__.css */
+/* squares them to 28 px); the caret stays narrow and shows the small   */
+/* SnapOptions chevron in place of the one it drew itself. Three        */
+/* classes, so these win whichever sheet loads last.                   */
+.na-le-toolbar__btn.na-le-toolbar__btn--caret.na-le-icon-button {
+    width                              : 18px;
+}
+.na-le-toolbar__btn.na-le-toolbar__btn--caret.na-le-icon-button::before {
+    content                            : none;
+}
+.na-le-toolbar__btn--caret.na-le-icon-button .na-le-icon {
+    width                              : 12px;
+    height                             : 12px;
+}
+
 /* endregion ------------------------------------------------------- */
 
 

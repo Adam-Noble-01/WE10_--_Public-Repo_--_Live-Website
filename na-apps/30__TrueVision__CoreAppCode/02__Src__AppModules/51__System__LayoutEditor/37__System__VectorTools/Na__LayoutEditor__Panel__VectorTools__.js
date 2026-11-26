@@ -26,6 +26,10 @@
 //   up is lit, exactly as its toolbar button is, and every button's tooltip is
 //   its whole instruction, key included - so the panel itself carries no
 //   paragraphs (the Vectors panel took its own out for the same reason).
+// - EVERY TOOL IS AN ICON (26-Nov-2026): the strip's icons and its one hover tip
+//   (Na__LayoutEditor__ToolIcons__.js, Na__LayoutEditor__ToolTip__.js, both in
+//   40__Ui__Panels), the tool's word its aria-label and the tip's name. Adam:
+//   "removing text based tooling replacing with svg icons and hover over tooltips".
 // - ONE LINE SAYS WHAT THE TOOL WANTS NEXT ("Arc: click where it ends."). It
 //   comes from the tool (Na__LeVec__GetHint) and changes as the clicks land.
 // - ONLY THE SETTINGS THAT MATTER NOW ARE SHOWN: the count of sides for Circle
@@ -52,6 +56,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Nov-2026 - Version 1.1.1 (TrueVision3D v2.189.9)
+// - ICONS IN PLACE OF WORDS. The Draw, Edit and Boolean rows are rows of 28 px icon
+//   buttons (Line, Rectangle, Circle, Arc; Trim, Extend, Join, Split, Offset,
+//   Fillet, Chamfer; Union, Subtract, BooleanTrim, Intersect, BooleanSplit,
+//   OuterShell), lit as before. The words they showed are their aria-labels and
+//   the names in their tips; their old tooltips give the tips' keys and
+//   instructions, re-read on every refresh as the words were. The subheads stay.
+//   Adam, 26-Nov-2026: "Upgrade UI ... removing text based tooling replacing with
+//   svg icons and hover over tooltips".
+//
 // 22-Sep-2026 - Version 1.1.0
 // - Under the Edit row, a rule and a Boolean section: Union, Subtract, Trim,
 //   Intersect, Split and Outer Shell, lit as every other tool is, their whole
@@ -109,6 +123,8 @@
     import { Na__LeVecCfg__Label, Na__LeVecCfg__Ready } from './Na__LayoutEditor__VectorTools__Setup__.js';
     import { Na__LeVecCurve__KIND_CIRCLE, Na__LeVecCurve__CirclePoints, Na__LeVecCurve__ArcPoints, Na__LeVecCurve__Describe } from './Na__LayoutEditor__VectorTools__Curves__.js';
     import { Na__LeVecSize__WholeSides, Na__LeVecSize__ArcSides } from './Na__LayoutEditor__VectorTools__OffsetTool__.js';
+    import { Na__LeIcon__Put } from '../40__Ui__Panels/Na__LayoutEditor__ToolIcons__.js';                         // <-- Each tool is an icon
+    import { Na__LeTip__Set, Na__LeTip__FromTitle } from '../40__Ui__Panels/Na__LayoutEditor__ToolTip__.js';     // <-- ... named in its hover tip
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -121,17 +137,18 @@
     // MODULE CONSTANTS | The Section, and the Tools in the Order They Are Shown
     // ------------------------------------------------------------
     // 'draw' and 'rectangle' are the sheet tools' own names for the two drawing
-    // tools the editor already had; they sit beside Circle and Arc here.
+    // tools the editor already had; they sit beside Circle and Arc here. Each
+    // entry: tool id, label key, the word if the config has none, the icon.
     // ------------------------------------------------------------
     const Na__LePanelVec__ID   = 'vector-tools';
-    const Na__LePanelVec__DRAW = [ [ 'draw', 'ToolDraw', 'Line' ], [ 'rectangle', 'ToolRectangle', 'Rectangle' ], [ Na__LeVec__TOOL_CIRCLE, 'ToolCircle', 'Circle' ], [ Na__LeVec__TOOL_ARC, 'ToolArc', 'Arc' ] ];
-    const Na__LePanelVec__EDIT = [ [ Na__LeVec__TOOL_TRIM, 'ToolTrim', 'Trim' ], [ Na__LeVec__TOOL_EXTEND, 'ToolExtend', 'Extend' ], [ Na__LeVec__TOOL_JOIN, 'ToolJoin', 'Join' ], [ Na__LeVec__TOOL_SPLIT, 'ToolSplit', 'Split' ],
-                                   [ Na__LeVec__TOOL_OFFSET, 'ToolOffset', 'Offset' ], [ Na__LeVec__TOOL_FILLET, 'ToolFillet', 'Fillet' ], [ Na__LeVec__TOOL_CHAMFER, 'ToolChamfer', 'Chamfer' ] ];
+    const Na__LePanelVec__DRAW = [ [ 'draw', 'ToolDraw', 'Line', 'Line' ], [ 'rectangle', 'ToolRectangle', 'Rectangle', 'Rectangle' ], [ Na__LeVec__TOOL_CIRCLE, 'ToolCircle', 'Circle', 'Circle' ], [ Na__LeVec__TOOL_ARC, 'ToolArc', 'Arc', 'Arc' ] ];
+    const Na__LePanelVec__EDIT = [ [ Na__LeVec__TOOL_TRIM, 'ToolTrim', 'Trim', 'Trim' ], [ Na__LeVec__TOOL_EXTEND, 'ToolExtend', 'Extend', 'Extend' ], [ Na__LeVec__TOOL_JOIN, 'ToolJoin', 'Join', 'Join' ], [ Na__LeVec__TOOL_SPLIT, 'ToolSplit', 'Split', 'Split' ],
+                                   [ Na__LeVec__TOOL_OFFSET, 'ToolOffset', 'Offset', 'Offset' ], [ Na__LeVec__TOOL_FILLET, 'ToolFillet', 'Fillet', 'Fillet' ], [ Na__LeVec__TOOL_CHAMFER, 'ToolChamfer', 'Chamfer', 'Chamfer' ] ];
     // THE BOOLEAN TOOLS, in the order Adam named them ("union, subtract,
     // trim etc") and then SketchUp's other three. Trim and Split here are the
     // shape tools, under their own heading, as they are in SketchUp.
-    const Na__LePanelVec__BOOLEAN = [ [ Na__LeVec__TOOL_UNION, 'ToolUnion', 'Union' ], [ Na__LeVec__TOOL_SUBTRACT, 'ToolSubtract', 'Subtract' ], [ Na__LeVec__TOOL_BOOL_TRIM, 'ToolBoolTrim', 'Trim' ],
-                                      [ Na__LeVec__TOOL_INTERSECT, 'ToolIntersect', 'Intersect' ], [ Na__LeVec__TOOL_BOOL_SPLIT, 'ToolBoolSplit', 'Split' ], [ Na__LeVec__TOOL_OUTER_SHELL, 'ToolOuterShell', 'Outer Shell' ] ];
+    const Na__LePanelVec__BOOLEAN = [ [ Na__LeVec__TOOL_UNION, 'ToolUnion', 'Union', 'Union' ], [ Na__LeVec__TOOL_SUBTRACT, 'ToolSubtract', 'Subtract', 'Subtract' ], [ Na__LeVec__TOOL_BOOL_TRIM, 'ToolBoolTrim', 'Trim', 'BooleanTrim' ],
+                                      [ Na__LeVec__TOOL_INTERSECT, 'ToolIntersect', 'Intersect', 'Intersect' ], [ Na__LeVec__TOOL_BOOL_SPLIT, 'ToolBoolSplit', 'Split', 'BooleanSplit' ], [ Na__LeVec__TOOL_OUTER_SHELL, 'ToolOuterShell', 'Outer Shell', 'OuterShell' ] ];
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | Wired Once a Session
@@ -162,12 +179,28 @@
             button.setAttribute('data-na-control', 'vec-tool');
             button.setAttribute('data-na-role', entry[0]);
             button.setAttribute('data-na-label', entry[1]);
-            button.textContent = Na__LeVecCfg__Label(entry[1], entry[2]);
-            button.title       = Na__LeVecCfg__Label(entry[1] + 'Title', entry[2]);
+            button.setAttribute('data-na-word', entry[2]);                       // <-- The word if the config has none: read again on every refresh
+            const word = Na__LeVecCfg__Label(entry[1], entry[2]);
+            Na__LeIcon__Put(button, entry[3], word);
+            Na__LePanelVec__Words(button, word, Na__LeVecCfg__Label(entry[1] + 'Title', word));
             if (!Na__LePanels__IsEditable()) button.disabled = true;
             row.appendChild(button);
         });
         body.appendChild(row);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Tool Button's Name and Tip (Its Old Word and Tooltip)
+    // ------------------------------------------------------------
+    // Runs on every refresh, so it writes only what changed.
+    // ------------------------------------------------------------
+    function Na__LePanelVec__Words(button, word, title) {
+        const source = word + '\n' + (title || '');                              // <-- As ValeVision's twin: nothing is rewritten while the words are the same
+        if (button.getAttribute('data-na-tip-source') === source) return;
+        button.setAttribute('data-na-tip-source', source);
+        button.setAttribute('aria-label', word);
+        Na__LeTip__Set(button, Na__LeTip__FromTitle(word, title || word));
     }
     // ------------------------------------------------------------
 
@@ -285,12 +318,12 @@
             const active = button.getAttribute('data-na-role') === tool;
             button.classList.toggle('na-le-btn--active', active);
             button.setAttribute('aria-pressed', String(active));
-            // THE WORDS ARE RE-READ: the config can land after the section is built.
+            // THE WORDS ARE RE-READ: the config can land after the section is
+            // built. They go to the tip and the aria-label, never into the
+            // button, which would wipe its icon.
             const key   = button.getAttribute('data-na-label');
-            const words = Na__LeVecCfg__Label(key, button.textContent);
-            const title = Na__LeVecCfg__Label(key + 'Title', button.title);
-            if (button.textContent !== words) button.textContent = words;
-            if (button.title !== title) button.title = title;
+            const words = Na__LeVecCfg__Label(key, button.getAttribute('data-na-word') || button.getAttribute('aria-label') || '');
+            Na__LePanelVec__Words(button, words, Na__LeVecCfg__Label(key + 'Title', words));
         });
 
         const hint = find('vec-hint');

@@ -53,6 +53,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Nov-2026 - Version 1.3.1-tv.1 (TrueVision3D v2.189.8, with ValeVision3D v2.99.3's 1.3.1)
+// - The instruction note is gone: the same words are the tooltip of an (i) (Adam, 26-Nov-2026:
+//   "do the same with TrueVision same princple applies", after ValeVision 3D v2.99.3: "no
+//   overwhelming notes in the UI"; ../../22__System__SceneAssets/Na__SceneAssets__InfoTip__.js).
+//   The line shows only while a clicked card is armed.
+// - Scale of the next one is taken out of Assets, commented out with a note.
+//
 // 15-Nov-2026 - Version 1.3.0-tv.1 (TrueVision3D v2.185.0)
 // - Ported from ValeVision 3D without the Changes section (PORT NOTE).
 //
@@ -99,6 +106,7 @@
         Na__SceneChanges__Draw
     } from '../../22__System__SceneAssets/Na__SceneAssets__ChangesPanel__.js';
     import { Na__SceneHub__Create } from '../../22__System__SceneAssets/Na__SceneAssets__Hub__.js';
+    import { Na__SceneInfo__Tip } from '../../22__System__SceneAssets/Na__SceneAssets__InfoTip__.js';
     import {
         Na__EntRun__GetSceneData,
         Na__EntRun__GetContext,
@@ -213,14 +221,23 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Say What the Model Will Do
+    // MODULE CONSTANTS | How to Use the Panel, Said by the (i) Beside the Search
+    // ------------------------------------------------------------
+    const Na__EntCards__HOW_TO = 'Drag a card onto the model, or click a card then click the model. Drag a person to move them, and right-click to replace or delete.';
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Say What the Model Will Do, Only While a Card Is Armed
+    // ------------------------------------------------------------
+    // The standing instructions are the (i)'s tooltip (Adam, 26-Nov-2026: "no overwhelming notes in
+    // the UI"); the line shows only while a clicked card waits for the model.
     // ------------------------------------------------------------
     function Na__EntCards__WriteHint() {
         const hint = Na__EntCards__State.hintEl;
         if (!hint) return;
-        hint.textContent = Na__EntTool__ArmedId()
-            ? 'Click the model to drop one. Escape or the card again to stop.'
-            : 'Drag a card onto the model, or click a card then click the model. Drag a person to move them, and right-click to replace or delete.';
+        const armed = !!Na__EntTool__ArmedId();
+        hint.textContent = armed ? 'Click the model to drop one. Escape or the card again to stop.' : '';
+        hint.hidden = !armed;
     }
     // ------------------------------------------------------------
 
@@ -354,6 +371,8 @@
             state.chipsOpen = !state.chipsOpen;
             Na__EntCards__DrawCards();
         }, 'Filter by keyword'));
+        finding.appendChild(Na__SceneInfo__Tip(Na__EntCards__HOW_TO, 'How to place people'));
+        finding.classList.add('na-scene-info-row');
         holder.appendChild(finding);
 
         if (state.chipsOpen) {
@@ -372,16 +391,20 @@
             holder.appendChild(chips);
         }
 
-        holder.appendChild(Na__EntShell__ScaleSlider({
-            label   : 'Scale of the next one',
-            value   : Na__EntCards__PlaceBlock().Entourage__Place__Scale,
-            title   : 'The next figure dropped from a card: 0.90 is a tenth smaller in every way',
-            onInput : (value) => {
-                Na__EntShell__BeforeChange('place-scale');
-                Na__EntCards__PlaceBlock().Entourage__Place__Scale = value;
-                Na__EntShell__MarkChanged();
-            }
-        }).row);
+        // SCALE OF THE NEXT ONE | Taken out of Assets (Adam, 26-Nov-2026, on ValeVision 3D: "Remove this
+        // from entourage menu its not needed", then "do the same with TrueVision"). A figure is still
+        // scaled once placed, in In This Project. The saved Entourage__Place__Scale still applies to
+        // new figures. To restore, uncomment this block.
+        // holder.appendChild(Na__EntShell__ScaleSlider({
+        //     label   : 'Scale of the next one',
+        //     value   : Na__EntCards__PlaceBlock().Entourage__Place__Scale,
+        //     title   : 'The next figure dropped from a card: 0.90 is a tenth smaller in every way',
+        //     onInput : (value) => {
+        //         Na__EntShell__BeforeChange('place-scale');
+        //         Na__EntCards__PlaceBlock().Entourage__Place__Scale = value;
+        //         Na__EntShell__MarkChanged();
+        //     }
+        // }).row);
 
         state.hintEl = Na__EntShell__El('p', 'na-veg-panel__hint');
         holder.appendChild(state.hintEl);

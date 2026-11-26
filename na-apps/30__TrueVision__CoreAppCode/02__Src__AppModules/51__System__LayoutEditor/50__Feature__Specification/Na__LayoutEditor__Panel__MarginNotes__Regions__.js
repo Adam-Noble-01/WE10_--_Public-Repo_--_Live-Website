@@ -50,6 +50,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Nov-2026 - Version 1.0.1 (TrueVision3D v2.189.9)
+// - THE INTRO IS IN THE MARGIN NOTES (i) on the section header bar (Na__LePanels__SectionInfo),
+//   not a paragraph under the rule; the drawing line, the status and a region's own help stay.
+//   Adam, 26-Nov-2026: "Aim reduce overwheling cluttler of Layout Editor", and his rule of the
+//   same day: no overwhelming notes in the UI, the information in hover tooltips.
+//
 // 22-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -77,7 +83,8 @@
         Na__LePanels__Row,
         Na__LePanels__Input,
         Na__LePanels__Button,
-        Na__LePanels__Note
+        Na__LePanels__Note,
+        Na__LePanels__SectionInfo
     } from '../40__Ui__Panels/Na__LayoutEditor__PanelHost__.js';
     // ------------------------------------------------------------
 
@@ -197,7 +204,7 @@
         const rule = document.createElement('hr');
         rule.className = 'na-le-rule';
         section.appendChild(rule);
-        section.appendChild(Na__LePanels__Note(L('RegionsIntro', 'Draw a region on the sheet for the notes the margin cannot fit, or for the groups picked for it. A group ticked in a region leaves the margin.')));
+        Na__LePanels__SectionInfo(body, 'regions-intro', L('RegionsIntro', 'Draw a region on the sheet for the notes the margin cannot fit, or for the groups picked for it. A group ticked in a region leaves the margin.'));
         const list = document.createElement('div');
         list.className = 'na-le-regions__list';
         list.setAttribute('data-na-block', 'region-list');

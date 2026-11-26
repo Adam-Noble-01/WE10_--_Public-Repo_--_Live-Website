@@ -7,8 +7,8 @@
 // MODULE     : PresentationMode - Dev Menu Scene Group Editor
 // AUTHOR     : Adam Noble - Noble Architecture
 // PURPOSE    : Localhost-only editor for the per-project scene group set, shown
-//              as a collapsible section at the top of the Presentation Scenes
-//              panel in the Dev Tools menu
+//              as a collapsible section below the scene list of the
+//              Presentation Scenes panel
 // CREATED    : 31-Aug-2026
 //
 // DESCRIPTION:
@@ -22,6 +22,10 @@
 // - Switching a group off, or deleting it, while scenes still sit in it warns
 //   and moves those scenes to the first enabled group rather than letting them
 //   vanish. At least one group must always stay enabled.
+// - Both questions are the Dev menu's own dialog (since 1.0.1), opened in the
+//   document the section is drawn in: the Presentation Scenes panel's window
+//   when it has one. window.confirm would ask in the main page, on the other
+//   screen, with the window that asked frozen behind it.
 //
 // WHY IT SIGNALS RATHER THAN SAVES:
 // - Groups and scenes live in the SAME project JSON block, so a save must
@@ -34,11 +38,18 @@
 //
 // INTEGRATION:
 // - Rendered by Na__PresentationMode__DevMenu__SceneEditor.js into a container
-//   it creates at the top of #naPmDevEditorPanel.
+//   it places below the scene list in #naPmDevEditorPanel.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 26-Nov-2026 - Version 1.0.1 (TrueVision3D v2.189.10)
+// - Its two prompts (switch a group off, delete a group) are the Dev menu
+//   dialog opened in the panel's own document, so they appear in the
+//   Presentation Scenes panel's window when it has one. SetGroupEnabled and
+//   DeleteGroup are async and their row handlers await them. ValeVision3D's
+//   group editor took the same form in its 1.0.1.
+//
 // 31-Aug-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -68,6 +79,12 @@
     import {
         Na__PresentationMode__ProjectJson__GetActiveConfig
     } from './Na__PresentationMode__ProjectJson__SceneData.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Confirm Dialog (the Dev menu's, so it opens where the panel is)
+    // @delegate: ./Na__PresentationMode__DevMenu__Modal__.js
+    // ------------------------------------------------------------
+    import { Na__PresentationMode__DevMenu__Confirm } from './Na__PresentationMode__DevMenu__Modal__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -107,6 +124,7 @@
     // ------------------------------------------------------------
     let Na__PmGroupDev__IsSectionOpen = false;   // <-- Collapsed by default; survives panel rebuilds
     let Na__PmGroupDev__ShowToast     = null;    // <-- Toast helper, shared from the scene editor
+    let Na__PmGroupDev__Container     = null;    // <-- Where the section was drawn: its document is where a prompt opens
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -231,10 +249,10 @@
 
     // FUNCTION | Enable or Disable a Group
     // ------------------------------------------------------------
-    // Returns false when the change was refused or cancelled, so the caller can
-    // put the checkbox back where it was.
+    // Resolves false when the change was refused or cancelled, so the caller
+    // can put the checkbox back where it was.
     // ------------------------------------------------------------
-    function Na__PmGroupDev__SetGroupEnabled(config, group, enabled) {
+    async function Na__PmGroupDev__SetGroupEnabled(config, group, enabled) {
         const labels  = Na__PresentationMode__SceneGroups__GetDevMenuLabels();
         const groupId = group[Na__PmGroupDev__GROUP_ID_KEY];
 
@@ -264,7 +282,14 @@
                 count    : sceneCount,
                 fallback : fallback ? fallback[Na__PmGroupDev__GROUP_NAME_KEY] : ''
             });
-            if (!window.confirm(message)) return false;                      // <-- Author backed out
+            const proceed = await Na__PresentationMode__DevMenu__Confirm({
+                title         : 'Switch Group Off?',
+                message       : message,
+                confirmLabel  : 'Switch Off',
+                isDestructive : false,
+                hostDocument  : Na__PmGroupDev__HostDocument()
+            });
+            if (!proceed) return false;                                      // <-- Author backed out
 
             Na__PmGroupDev__ReassignScenes(config, groupId, fallbackId);     // <-- Move them before the group goes dark
         }
@@ -275,9 +300,20 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Document a Prompt Opens In
+    // ------------------------------------------------------------
+    // Read when asked, not when drawn: the section can move into the
+    // Presentation Scenes panel's own window after it was built.
+    // ------------------------------------------------------------
+    function Na__PmGroupDev__HostDocument() {
+        return (Na__PmGroupDev__Container && Na__PmGroupDev__Container.ownerDocument) || document;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Delete a Group Entirely
     // ------------------------------------------------------------
-    function Na__PmGroupDev__DeleteGroup(config, group) {
+    async function Na__PmGroupDev__DeleteGroup(config, group) {
         const labels  = Na__PresentationMode__SceneGroups__GetDevMenuLabels();
         const groups  = config[Na__PmGroupDev__GROUPS_KEY] || [];
         const groupId = group[Na__PmGroupDev__GROUP_ID_KEY];
@@ -314,7 +350,14 @@
                 group : group[Na__PmGroupDev__GROUP_NAME_KEY]
             });
 
-        if (!window.confirm(message)) return false;
+        const proceed = await Na__PresentationMode__DevMenu__Confirm({
+            title         : 'Delete Group?',
+            message       : message,
+            confirmLabel  : 'Delete',
+            isDestructive : true,
+            hostDocument  : Na__PmGroupDev__HostDocument()
+        });
+        if (!proceed) return false;
 
         if (sceneCount > 0 && fallback) {
             Na__PmGroupDev__ReassignScenes(config, groupId, fallback[Na__PmGroupDev__GROUP_ID_KEY]);
@@ -387,8 +430,8 @@
         enabledBox.className = 'na-pm-dev__checkbox';
         enabledBox.checked   = group[Na__PmGroupDev__GROUP_ENABLED_KEY] !== false;
         enabledBox.title     = 'Switch this group on or off for this project';
-        enabledBox.addEventListener('change', () => {
-            const applied = Na__PmGroupDev__SetGroupEnabled(config, group, enabledBox.checked);
+        enabledBox.addEventListener('change', async () => {
+            const applied = await Na__PmGroupDev__SetGroupEnabled(config, group, enabledBox.checked);
             if (!applied) {
                 enabledBox.checked = !enabledBox.checked;                    // <-- Refused or cancelled; put it back
                 return;
@@ -447,8 +490,8 @@
         deleteBtn.className   = 'na-pm-dev__reorder-btn na-pm-dev__reorder-btn--danger';
         deleteBtn.textContent = '✕';
         deleteBtn.title       = 'Delete this group';
-        deleteBtn.addEventListener('click', () => {
-            if (Na__PmGroupDev__DeleteGroup(config, group)) onMutated();
+        deleteBtn.addEventListener('click', async () => {
+            if (await Na__PmGroupDev__DeleteGroup(config, group)) onMutated();
         });
         row.appendChild(deleteBtn);
 
@@ -465,12 +508,13 @@
 
     // FUNCTION | Render the Collapsible Scene Groups Section
     // ------------------------------------------------------------
-    // Called by the scene editor with a container it owns at the top of the
-    // Presentation Scenes panel.
+    // Called by the scene editor with a container it owns below the scene
+    // list of the Presentation Scenes panel.
     // ------------------------------------------------------------
     function Na__PresentationMode__DevMenu__RenderGroupEditor(container, showToast) {
         if (!container) return;
         if (showToast) Na__PmGroupDev__ShowToast = showToast;
+        Na__PmGroupDev__Container = container;
 
         container.innerHTML = '';
         if (!Na__PresentationMode__SceneGroups__IsEnabled()) return;         // <-- Config missing; feature inert
