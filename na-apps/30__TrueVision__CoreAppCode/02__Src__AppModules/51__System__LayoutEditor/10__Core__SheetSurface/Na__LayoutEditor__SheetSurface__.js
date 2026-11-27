@@ -47,6 +47,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 27-Nov-2026 - Version 1.14.1 (TrueVision3D v2.189.12)
+// - The markup layers are built with hideAnnotationId, the text item whose field is open
+//   (MarkupBridge TypingAnnotation): its field draws its letters, so they are not painted
+//   twice while it is typed. Nothing else changes; with no field open it is null.
+//
 // 15-Nov-2026 - Version 1.14.0 (TrueVision v2.186.1)
 // - A change to the project's plants or people ('na-placed-assets-changed', from their doors)
 //   fills the open sheet's frames again: they now load after the model, so a sheet can fill
@@ -210,7 +215,7 @@
         Na__LeChrome__BuildViewportFrame,
         Na__LeChrome__ToSvgMarkup
     } from './Na__LayoutEditor__SheetChrome__.js';
-    import { Na__LeMarkup__BuildLayerPrimitives, Na__LeMarkup__BuildHighlightPrimitives } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
+    import { Na__LeMarkup__BuildLayerPrimitives, Na__LeMarkup__BuildHighlightPrimitives, Na__LeMarkup__TypingAnnotation } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
     import {
         Na__LePaint__STEP_VIEWPORT,
         Na__LePaint__STEP_SHEET,
@@ -887,7 +892,7 @@
         if (!sheet || !Na__LeSurface__Layout || !Na__LeSurface__Paper || !Na__LeSurface__Stack) return;
         if (rebuildChrome || !Na__LeSurface__Chrome || Na__LeSurface__Chrome.sheetId !== sheet.Sheet__Id) Na__LeSurface__BuildChrome(sheet);
         const chrome  = Na__LeSurface__Chrome;
-        const options = { showBrokenHalos : true };                              // <-- The editor only: a PDF or an SVG export never opts in
+        const options = { showBrokenHalos : true, hideAnnotationId : Na__LeMarkup__TypingAnnotation() };   // <-- The editor only: a PDF or an SVG export never opts in (a text being typed is drawn by its field)
         const CHROME  = Na__LeSurface__CLASS_CHROME, MARKUP = Na__LeSurface__CLASS_MARKUP;
 
         const runs = [];                                                         // <-- { frameId } or { className, primitives }, back to front

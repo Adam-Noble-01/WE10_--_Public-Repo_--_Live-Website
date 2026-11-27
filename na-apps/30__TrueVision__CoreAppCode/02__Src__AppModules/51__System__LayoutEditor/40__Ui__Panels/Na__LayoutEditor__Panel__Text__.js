@@ -32,6 +32,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 27-Nov-2026 - Version 1.4.1 (TrueVision3D v2.189.12)
+// - Align offers Fill Block (justify) after Right: every line spread to the
+//   width of the widest.
+//
 // 17-Sep-2026 - Version 1.4.0
 // - Several selected: the panel reads the first text item and writes all of
 //   them. Only the style traits travel, so the words stay where they are.
@@ -131,7 +135,7 @@
         body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('TextSize', 'Size mm'), Na__LePanels__Input('number', 'text-size', { min : setup.minSizeMm, max : setup.maxSizeMm, step : setup.sizeStepMm })));
         body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('TextWeight', 'Weight'), Na__LePanels__Select('text-weight', setup.allowedWeights.map((w) => ({ value : w, label : w === 300 ? 'Light' : (w >= 600 ? 'Semi-bold' : 'Regular') })))));
         body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('TextColour', 'Colour'), Na__LePanels__Input('color', 'text-colour')));
-        body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('TextAlign', 'Align'), Na__LePanels__Select('text-align', [ { value : 'left', label : 'Left' }, { value : 'center', label : 'Centre' }, { value : 'right', label : 'Right' } ])));
+        body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('TextAlign', 'Align'), Na__LePanels__Select('text-align', [ { value : 'left', label : 'Left' }, { value : 'center', label : 'Centre' }, { value : 'right', label : 'Right' }, { value : 'justify', label : 'Fill Block' } ])));   // <-- Fill Block: every line spread to the widest (v2.189.12)
         body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('TextRotation', 'Rotation deg'), Na__LePanels__Input('number', 'text-rotation', { min : -180, max : 180, step : 1 })));
         body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('TextLeader', 'Leader'), Na__LePanels__Input('checkbox', 'text-leader')));
         if (Na__LePanels__IsEditable()) {

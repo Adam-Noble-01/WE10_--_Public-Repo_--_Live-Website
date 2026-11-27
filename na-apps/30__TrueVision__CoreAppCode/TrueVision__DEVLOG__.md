@@ -2,6 +2,68 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.189.12  -  27-Nov-2026
+### A Text Item Is Typed On Its Own Letters, and Fill Block
+
+Adam, 27-Nov-2026, of editing text boxes in IdeaSpace (which draws them with this Layout Editor): "test editing the
+textboxes, see my images, they such they arent the right say and feel "Jumpy"", then "Add text justifacation 1. Left
+2. Centre 3. Right 4. Fill Block" and "Add multiline text with shift+enter".
+
+**What was wrong**
+- Opening a text item's field moved its words. The field's top was the box's top, so the first baseline landed about a
+  quarter of the size low (1.07 mm at 4 mm) and a few millimetres right, inside a box six sizes wider than the words,
+  with a 1 px frame that the zoom drew 7 px thick. The painted letters sat under it.
+- No alignment filled a block: Left, Centre and Right only.
+- Shift+Enter already started a new line in a text item's field; nothing about the field changed that.
+
+**Now**
+- **The field sits on the painted letters** (TextTool `OpenOnLetters`, used by `BeginEdit`): no frame, no fill, the same
+  face, size, weight, colour and letter and line spacing, its first baseline on the record's anchor and its width the
+  longest line plus caret room, set out from the alignment point (growing right from Left, both ways from Centre, left
+  from Right). The item's painted letters stand aside while it is open (MarkupBridge `SetTypingAnnotation`; the sheet
+  surface passes `hideAnnotationId`), so nothing moves when typing starts or ends. A turned item's field is turned
+  about the anchor. Enter and Ctrl+Enter commit, Shift+Enter is a new line, Escape cancels, a blur commits.
+- **Laid out large and shrunk onto the paper.** Laid out at paper size, a browser rounded the 15.36 px line height to
+  15 px and placed a transformed box on whole pixels, which the zoom turned into a 3 px drift a line and a 3 px jump.
+  The field is laid out with 240 px lines, its left and top on whole pixels and the fraction in its transform, and
+  shrunk about the anchor. It has room below its last line and never keeps a scroll: the letters hang 16 px below a
+  240 px line box, and the field scrolled up by that as the caret reached the last line.
+- **Fill Block** (`Annotation__Align` `'justify'`): every line, the last too, set from the anchor and spread to the
+  width of the widest, the extra shared between its word spaces (MarkupBridge `AnnotationFill`, measured in the face the
+  screen draws). The screen writes it as `word-spacing` and holds each spread line, and the widest, to the block with
+  `textLength`; the PDF prints a spread line word by word by its own widths (SheetChrome `PdfFillLine`). A line with
+  no space stays as it is. The open field shows it spread (`text-align: justify`, `text-align-last: justify`). The
+  normaliser keeps `'justify'`; the Text panel's Align offers Fill Block after Right. `AnnotationBox` already boxes it
+  as Left, so the selection, the hit and the leader follow.
+- Leaders, bubbles and a dimension's value keep `OpenField` exactly as it was.
+
+**Changed**
+- `51__System__LayoutEditor/35__System__DrawingTools/Na__LayoutEditor__TextTool__.js` 1.5.0 -> 1.5.1: `OpenOnLetters`,
+  `FitOnLetters`, `BaselinePx`, `LinePx`; `BeginEdit` uses it; Commit and Cancel paint the letters again.
+- `.../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js` 1.21.0 -> 1.21.1: `AnnotationFill`, `SetTypingAnnotation`,
+  `TypingAnnotation`; `PushAnnotation` spreads Fill Block; `PushLayer` leaves out `options.hideAnnotationId`.
+- `.../10__Core__SheetSurface/Na__LayoutEditor__SheetChrome__.js` 1.15.1 -> 1.15.2: `PushText` carries
+  `JustifyWidthMm`, `WordSpacingMm` and `JustifyBlockText`; the SVG painter's `word-spacing` and `textLength`;
+  `PdfFillLine`.
+- `.../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js` 1.14.0 -> 1.14.1: the markup is built with
+  `hideAnnotationId`.
+- `.../07__Core__SheetData/Na__LayoutEditor__SheetRecords__.js` 1.43.0 -> 1.43.1: `'justify'` kept.
+- `.../40__Ui__Panels/Na__LayoutEditor__Panel__Text__.js` 1.4.0 -> 1.4.1: Fill Block in Align.
+- `.../10__Core__SheetSurface/Na__LayoutEditor__Styles__Main__Paper__.css`: `.na-le-text-editor--on-letters`.
+- `62__Feature__AppInstallability/TrueVision__Pwa__ServiceWorker__Logic__.js` 1.22.3 -> 1.22.4: token 2026-11-27-02,
+  because the text tool and the sheet surface import new exports from the markup bridge.
+
+**Checked:** `Na__Verify__Exports__` PASS; `Na__Verify__ModuleGraph__` only its known false FAIL (a string in the
+scene editor's dev menu). Synced into IdeaSpace v0.0.53 and tested there in headless Edge on a sandbox board: the open
+field against the painted letters, pixel for pixel (best shift 0, 0) for a single line at 40 px per mm, three lines,
+Centre and a 30 degree Fill Block; a fourth and fifth line typed with Shift+Enter and committed with nothing moving;
+Left, Centre, Right and Fill Block switched with the words held within 0.05 mm; in jsPDF, the spread line ending on
+1677.332 mm exactly where the widest line ends. IdeaSpace's text formatting shell test 56/56.
+
+**Not checked:** TrueVision itself in a browser (its localhost on 8090 holds real projects, so no text was edited
+there; the same modules ran in IdeaSpace); a phone or tablet; Firefox; a PDF opened and looked at by eye.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.189.11  -  27-Nov-2026
 ### The Layout Editor Opens With Every Panel Section Folded, and Either Whole Side Panel Folds Away
 

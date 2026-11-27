@@ -45,6 +45,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 27-Nov-2026 - Version 1.15.2 (TrueVision3D v2.189.12)
+// - Fill Block runs. PushText carries JustifyWidthMm, WordSpacingMm and
+//   JustifyBlockText when set (MarkupBridge AnnotationFill). The SVG painter
+//   writes the spacing as word-spacing and holds the line to the block with
+//   textLength (a browser lays SVG text out at the screen's size, so a fixed
+//   spacing ended 2.5 px long at one zoom and true at another); the PDF
+//   painter prints the line word by word (PdfFillLine), spread by its own
+//   widths to the widest line's.
+//   Every other run paints exactly as before.
+//
 // 20-Nov-2026 - Version 1.15.1 (TrueVision3D v2.189.7)
 // - The PDF painter hands a text run's FontFamily to PdfFonts.SetFont, so a
 //   run in a face the host registered prints in that face, not Open Sans.
@@ -516,15 +526,28 @@
 
     // FUNCTION | Push a Text Run at an Absolute Baseline
     // ------------------------------------------------------------
-    // spec: { X, BaselineY, Text, FontMm, Weight, Colour, Align, RotateDeg, FontFamily, TrackingMm }
+    // spec: { X, BaselineY, Text, FontMm, Weight, Colour, Align, RotateDeg, FontFamily, TrackingMm,
+    //         JustifyWidthMm, WordSpacingMm, JustifyBlockText }
+    // The last three are a Fill Block line (MarkupBridge AnnotationFill): set
+    // from X and spread to JustifyWidthMm, WordSpacingMm more at every word
+    // space (0 for the widest line), both measured as the screen draws;
+    // JustifyBlockText is the widest line's words, which the PDF measures for
+    // itself. Carried only when JustifyWidthMm is set, so every other run is
+    // exactly as before.
     // ------------------------------------------------------------
     function Na__LeChrome__PushText(list, spec) {
         const value = String(spec.Text === undefined || spec.Text === null ? '' : spec.Text);
         if (value === '') return;
-        list.push({ Kind : Na__LeChrome__KIND_TEXT, X : spec.X, BaselineY : spec.BaselineY, Text : value,
+        const run = { Kind : Na__LeChrome__KIND_TEXT, X : spec.X, BaselineY : spec.BaselineY, Text : value,
                     FontMm : spec.FontMm, Weight : spec.Weight || 'normal', Colour : spec.Colour,
                     Align : spec.Align || 'left', RotateDeg : spec.RotateDeg || 0, FontFamily : spec.FontFamily || null,
-                    TrackingMm : (typeof spec.TrackingMm === 'number' && spec.TrackingMm > 0) ? spec.TrackingMm : 0 });
+                    TrackingMm : (typeof spec.TrackingMm === 'number' && spec.TrackingMm > 0) ? spec.TrackingMm : 0 };
+        if (spec.JustifyWidthMm > 0) {
+            run.JustifyWidthMm = spec.JustifyWidthMm;
+            run.WordSpacingMm  = spec.WordSpacingMm > 0 ? spec.WordSpacingMm : 0;
+            if (typeof spec.JustifyBlockText === 'string' && spec.JustifyBlockText !== '') run.JustifyBlockText = spec.JustifyBlockText;
+        }
+        list.push(run);
     }
     // ------------------------------------------------------------
 
@@ -838,9 +861,11 @@
             const weight = (primitive.Weight === 'bold') ? 700 : (typeof primitive.Weight === 'number' ? primitive.Weight : 400);
             const rotate = primitive.RotateDeg ? ' transform="rotate(' + R(primitive.RotateDeg) + ' ' + R(primitive.X) + ' ' + R(primitive.BaselineY) + ')"' : '';
             const track  = primitive.TrackingMm ? ' letter-spacing="' + R(primitive.TrackingMm) + '"' : '';
+            const words  = (primitive.WordSpacingMm > 0 ? ' word-spacing="' + R(primitive.WordSpacingMm) + '"' : '')   // <-- Fill Block: the extra at every word space,
+                         + (primitive.JustifyWidthMm > 0 ? ' textLength="' + R(primitive.JustifyWidthMm) + '" lengthAdjust="spacing"' : '');   // <-- and the line held to the block: a browser lays SVG text out at the screen's size, so its widths move with the zoom
             return '<text x="' + R(primitive.X) + '" y="' + R(primitive.BaselineY) + '" font-family="' + Na__LeChrome__Escape(primitive.FontFamily || style.fontFamily) +
                    '" font-size="' + R(primitive.FontMm) + '" font-weight="' + weight + '" fill="' + primitive.Colour + '" text-anchor="' + anchor + '"' +
-                   track + rotate + ' xml:space="preserve">' + Na__LeChrome__Escape(primitive.Text) + '</text>';
+                   track + words + rotate + ' xml:space="preserve">' + Na__LeChrome__Escape(primitive.Text) + '</text>';
         }
         if (primitive.Kind === Na__LeChrome__KIND_IMAGE) {
             return '<image x="' + R(primitive.X) + '" y="' + R(primitive.Y) + '" width="' + R(primitive.WidthMm) + '" height="' + R(primitive.HeightMm) +
@@ -945,6 +970,35 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Print a Fill Block Line Word by Word, Spread to Its Block
+    // ------------------------------------------------------------
+    // jsPDF has no word spacing of its own, so each word is printed where the
+    // spread puts it, along the run's own baseline (turned or not). The block
+    // is the widest line measured by the PDF's own widths (JustifyBlockText),
+    // so the spread line ends under the end of the widest as it prints;
+    // without it, JustifyWidthMm. Spaces at the end of the line are left off,
+    // as the screen leaves them unmeasured.
+    // ------------------------------------------------------------
+    function Na__LeChrome__PdfFillLine(doc, primitive, options) {
+        const ink     = String(primitive.Text).replace(/[  ]+$/, '');
+        const pieces  = ink.split(/([  ])/).filter((piece) => piece !== '');
+        const gaps    = pieces.filter((piece) => piece === ' ' || piece === ' ').length;
+        const natural = Na__LeChrome__PdfRunWidth(doc, ink, options.charSpace);
+        const block   = typeof primitive.JustifyBlockText === 'string' ? Na__LeChrome__PdfRunWidth(doc, primitive.JustifyBlockText, options.charSpace) : primitive.JustifyWidthMm;
+        const extra   = gaps > 0 ? Math.max(0, (block - natural) / gaps) : 0;
+        const a       = (primitive.RotateDeg || 0) * (Math.PI / 180), cos = Math.cos(a), sin = Math.sin(a);
+        const each    = Object.assign({}, options, { align : 'left' });
+        let along = 0;
+        pieces.forEach((piece) => {
+            const width = Na__LeChrome__PdfRunWidth(doc, piece, options.charSpace);
+            if (piece === ' ' || piece === ' ') { along += width + extra; return; }
+            doc.text(piece, primitive.X + (along * cos), primitive.BaselineY + (along * sin), each);
+            along += width;
+        });
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Draw One Primitive Into jsPDF
     // ------------------------------------------------------------
     function Na__LeChrome__ToPdf(doc, primitive, style) {
@@ -1016,6 +1070,7 @@
                     options.align = 'left';
                 }
             }
+            if (primitive.JustifyWidthMm > 0) { Na__LeChrome__PdfFillLine(doc, primitive, options); return; }   // <-- Fill Block: word by word, spread by the PDF's own widths
             doc.text(primitive.Text, x, y, options);
             return;
         }

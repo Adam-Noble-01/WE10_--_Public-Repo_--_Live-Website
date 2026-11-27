@@ -40,6 +40,20 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 27-Nov-2026 - Version 1.21.1 (TrueVision3D v2.189.12)
+// - FILL BLOCK. Annotation__Align 'justify' sets every line from the anchor,
+//   as left does, and spreads each one (the last too) to the width of the
+//   widest, the extra shared between its word spaces (AnnotationFill),
+//   measured in the face the screen draws. The text primitive carries
+//   JustifyWidthMm, WordSpacingMm and JustifyBlockText; SheetChrome paints
+//   them on the screen and in the PDF. AnnotationBox already boxes it as
+//   left, so the selection, the hit and the leader follow.
+// - SetTypingAnnotation and TypingAnnotation: the item whose field is open
+//   (the text tool's OpenOnLetters). PushLayer leaves it out when the caller
+//   passes options.hideAnnotationId, which only the interactive surface
+//   does, so the field's letters are the only ones on screen while typing.
+//   A PDF, an SVG export and a preview draw it as ever.
+//
 // 20-Nov-2026 - Version 1.21.0 (TrueVision3D v2.189.6)
 // - A sheet annotation may carry its own typeface, line spacing and letter
 //   spacing: Annotation__FontFamily (a CSS font stack), Annotation__LineSpacing
@@ -287,6 +301,14 @@
     const Na__LeMarkup__GHOST_STROKE_MM     = 0.2;    // <-- The undrawn part of a selected dimension's shortened extension line
     const Na__LeMarkup__GHOST_DASH_MM       = 0.8;
     const Na__LeMarkup__GHOST_MIN_MM        = 0.01;   // <-- A hidden part shorter than this is no hidden part
+    const Na__LeMarkup__FILL_MIN_MM         = 0.001;  // <-- A line this near the block's width is already full: no spread
+    const Na__LeMarkup__WORD_GAPS           = /[  ]/g;
+    const Na__LeMarkup__TRAILING_GAPS       = /[  ]+$/;
+    // ------------------------------------------------------------
+
+    // MODULE VARIABLES | The Text Item Being Typed
+    // ------------------------------------------------------------
+    let Na__LeMarkup__TypingId = null;   // <-- Its field draws its letters; the interactive surface leaves its own copy out (SetTypingAnnotation)
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -420,6 +442,54 @@
     // ------------------------------------------------------------
     function Na__LeMarkup__AnnotationLines(text) {
         return String(text === undefined || text === null ? '' : text).split(/\r?\n/);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Text Item Being Typed In Its Field (null: none)
+    // ------------------------------------------------------------
+    // The text tool names the item whose field is open, so the interactive
+    // surface leaves the item's painted letters out while the field draws
+    // them (SheetSurface passes hideAnnotationId). A PDF, an SVG export and a
+    // preview never ask, so they always draw it.
+    // ------------------------------------------------------------
+    function Na__LeMarkup__SetTypingAnnotation(id) { Na__LeMarkup__TypingId = (typeof id === 'string' && id !== '') ? id : null; }
+    function Na__LeMarkup__TypingAnnotation()      { return Na__LeMarkup__TypingId; }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Fill Block: How Far Each Line of a Sheet Annotation Is Spread
+    // ------------------------------------------------------------
+    // Annotation__Align 'justify' spreads every line, the last one too, to the
+    // width of the widest, the extra shared equally between its word spaces,
+    // as a browser's justify-all does. Returns one entry per line: null for a
+    // line that stays as it is (one with no space to widen), else { widthMm,
+    // wordMm, blockText }: the block's width, the extra per space (0 for the
+    // widest itself) and the widest line's words. The widest is held to the
+    // block too, so every edge of the block is one edge at any zoom (the
+    // painter pins each to widthMm). Spaces at the end of a line are neither
+    // measured nor widened.
+    // MEASURED IN THE FACE THE SCREEN DRAWS (the sheet's own when the item
+    // names none), by the browser, so a spread line ends exactly under the
+    // end of the widest: jsPDF's widths of the same face differ by kerning,
+    // which left a spread line half a millimetre long at 4 mm. The PDF works
+    // its own spread from blockText (SheetChrome PdfFillLine).
+    // ------------------------------------------------------------
+    function Na__LeMarkup__AnnotationFill(item, lines) {
+        const fontMm = item.Annotation__SizeMm;
+        const family = Na__LeMarkup__AnnotationFamily(item) || Na__LeCfg__GetTextSetup().fontFamily;
+        const track  = Na__LeMarkup__AnnotationTrackingMm(item);
+        const inks   = lines.map((line) => line.replace(Na__LeMarkup__TRAILING_GAPS, ''));
+        const widths = inks.map((ink) => Na__LeChrome__MeasureTextMm(ink, fontMm, item.Annotation__FontWeight, track, family));
+        let widest = 0;
+        widths.forEach((w, i) => { if (w > widths[widest]) widest = i; });
+        const block = widths.length ? widths[widest] : 0;
+        return inks.map((ink, i) => {
+            const gaps = (ink.match(Na__LeMarkup__WORD_GAPS) || []).length;
+            const room = block - widths[i];
+            if (i === widest) return block > 0 ? { widthMm : block, wordMm : 0, blockText : inks[widest] } : null;   // <-- Its own width: the edge the others are spread to
+            return (gaps > 0 && room > Na__LeMarkup__FILL_MIN_MM) ? { widthMm : block, wordMm : room / gaps, blockText : inks[widest] } : null;
+        });
     }
     // ------------------------------------------------------------
 
@@ -780,11 +850,15 @@
         const lineMm = Na__LeMarkup__AnnotationLineMm(fontMm, item);
         const family = Na__LeMarkup__AnnotationFamily(item) || textSetup.fontFamily;
         const track  = Na__LeMarkup__AnnotationTrackingMm(item);
-        Na__LeMarkup__AnnotationLines(item.Annotation__Text).forEach((line, i) => {
+        const lines  = Na__LeMarkup__AnnotationLines(item.Annotation__Text);
+        const fill   = item.Annotation__Align === 'justify' ? Na__LeMarkup__AnnotationFill(item, lines) : null;   // <-- Fill Block: each line set from the left and spread
+        lines.forEach((line, i) => {
             const at = Na__LeMarkup__AnnotationFromLocal(item, item.Annotation__PosXMm, item.Annotation__PosYMm + (i * lineMm));
+            const spread = fill ? fill[i] : null;
             Na__LeChrome__PushText(list, {
                 X : at.x, BaselineY : at.y, Text : line, FontMm : fontMm,
-                Weight : item.Annotation__FontWeight, Colour : item.Annotation__Colour, Align : item.Annotation__Align, RotateDeg : deg, FontFamily : family, TrackingMm : track
+                Weight : item.Annotation__FontWeight, Colour : item.Annotation__Colour, Align : fill ? 'left' : item.Annotation__Align, RotateDeg : deg, FontFamily : family, TrackingMm : track,
+                JustifyWidthMm : spread ? spread.widthMm : 0, WordSpacingMm : spread ? spread.wordMm : 0, JustifyBlockText : spread ? spread.blockText : null
             });
         });
     }
@@ -864,7 +938,9 @@
             Na__LeShapeGeo__Push(list, shape);
             Na__LeAreaPaint__Push(list, sheet, shape);                           // <-- A measured room's name and figure, worked out live so they follow a dragged corner
         });
+        const typing = options && typeof options.hideAnnotationId === 'string' ? options.hideAnnotationId : null;   // <-- The interactive surface only: its field is drawing these letters
         sheet.Sheet__Annotations.forEach((item) => {
+            if (typing !== null && item.Annotation__Id === typing) return;
             if (on(item.Annotation__LayerId) && take('annotation', item.Annotation__Id)) Na__LeMarkup__PushAnnotation(list, item, textSetup);
         });
         sheet.Sheet__Dimensions.forEach((dim) => {
@@ -1089,6 +1165,9 @@
         Na__LeMarkup__AnnotationFromLocal,
         Na__LeMarkup__AnnotationHit,
         Na__LeMarkup__AnnotationRotateGrip,
+        Na__LeMarkup__AnnotationFill,
+        Na__LeMarkup__SetTypingAnnotation,
+        Na__LeMarkup__TypingAnnotation,
         Na__LeMarkup__LeaderBounds,
         Na__LeMarkup__DimensionValueMm,
         Na__LeMarkup__FormatDimension,

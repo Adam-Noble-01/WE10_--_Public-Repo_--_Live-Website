@@ -34,6 +34,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 27-Nov-2026 - Version 1.22.4
+// - Token BUMPED to 2026-11-27-02 for v2.189.12 (a text item is typed on its own letters,
+//   and Fill Block). The text tool and the sheet surface import two new exports from the
+//   markup bridge: a warm client pairing a new text tool with an old cached markup bridge
+//   would fail the import, and the Layout Editor with it.
+//
 // 27-Nov-2026 - Version 1.22.3
 // - Token BUMPED to 2026-11-27-01 for v2.189.11 (the Layout Editor's sections open folded
 //   and either whole side panel folds away). The toolbar imports three new exports from
@@ -837,7 +843,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-11-27-01';                                                        // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-11-27-02';                                                        // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

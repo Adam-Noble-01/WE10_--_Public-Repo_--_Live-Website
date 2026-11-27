@@ -404,6 +404,21 @@ body.na-le-vector-hold:not(.na-le-viewer--active) .na-le-frame--2d {
     white-space                        : pre;
 }
 
+/* A sheet text's own field (TextTool OpenOnLetters): laid on the painted  */
+/* letters, which stand aside while it is open. No frame, no fill and no   */
+/* padding, so its first baseline and its left edge are the item's own and */
+/* nothing moves when typing starts or ends.                               */
+
+.na-le-text-editor--on-letters {
+    box-sizing                         : content-box;
+    padding                            : 0;
+    border                             : 0;
+    background                         : transparent;
+    outline                            : none;
+    box-shadow                         : none;
+    overflow                           : hidden;
+}
+
 /* endregion ------------------------------------------------------- */
 
 

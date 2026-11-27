@@ -33,6 +33,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 27-Nov-2026 - Version 1.43.1 (TrueVision3D v2.189.12)
+// - NormaliseAnnotation keeps Annotation__Align 'justify' (Fill Block: every
+//   line spread to the width of the widest). Left, centre and right are as
+//   before; anything else is still left.
+//
 // 20-Nov-2026 - Version 1.43.0 (TrueVision3D v2.189.6)
 // - NormaliseAnnotation keeps a text item's own Annotation__FontFamily (a
 //   non-empty font stack), Annotation__LineSpacing and Annotation__TrackingMm
@@ -1174,7 +1179,7 @@
         item.Annotation__SizeMm  = Na__LeRec__Num(item.Annotation__SizeMm, setup.defaultSizeMm);
         item.Annotation__FontWeight = Na__LeRec__Num(item.Annotation__FontWeight, setup.defaultWeight);
         if (typeof item.Annotation__Colour !== 'string') item.Annotation__Colour = setup.defaultColour;
-        if ([ 'left', 'center', 'right' ].indexOf(item.Annotation__Align) === -1) item.Annotation__Align = 'left';
+        if ([ 'left', 'center', 'right', 'justify' ].indexOf(item.Annotation__Align) === -1) item.Annotation__Align = 'left';   // <-- justify: Fill Block, every line spread to the widest (v2.189.12)
         if (item.Annotation__LeaderXMm === undefined) item.Annotation__LeaderXMm = null;
         if (item.Annotation__LeaderYMm === undefined) item.Annotation__LeaderYMm = null;
         const family = item.Annotation__FontFamily;                                   // <-- The three below are stored only when set, so an unstyled record saves as before
