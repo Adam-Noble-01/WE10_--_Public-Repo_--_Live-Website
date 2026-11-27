@@ -41,6 +41,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 27-Nov-2026 - Version 0.0.6 (TrueVision3D v2.189.11)
+// - PanelLeft and PanelRight join the table: the toggles at the two ends of
+//   the tool strip that fold a whole column away (gen_panels.py in the
+//   icon set's generator). 63 names, as ValeVision's twin.
+//
 // 26-Nov-2026 - Version 0.0.5 (TrueVision3D v2.189.9)
 // - The top tabs' five icons join the table (Model3d, Drawings,
 //   Specification, DocumentRegister, DesignStatements; DROP 5, contract
@@ -145,7 +150,10 @@
         Drawings               : new URL('../../../01__AppAssets__TrueVision/UiIcons__MenuIcons__LayoutEditor/Icon__LayoutEditor__Drawings__.svg', import.meta.url),
         Specification          : new URL('../../../01__AppAssets__TrueVision/UiIcons__MenuIcons__LayoutEditor/Icon__LayoutEditor__Specification__.svg', import.meta.url),
         DocumentRegister       : new URL('../../../01__AppAssets__TrueVision/UiIcons__MenuIcons__LayoutEditor/Icon__LayoutEditor__DocumentRegister__.svg', import.meta.url),
-        DesignStatements       : new URL('../../../01__AppAssets__TrueVision/UiIcons__MenuIcons__LayoutEditor/Icon__LayoutEditor__DesignStatements__.svg', import.meta.url)
+        DesignStatements       : new URL('../../../01__AppAssets__TrueVision/UiIcons__MenuIcons__LayoutEditor/Icon__LayoutEditor__DesignStatements__.svg', import.meta.url),
+        // THE WHOLE-PANEL FOLDS (27-Nov-2026): the window with its left or right column ruled off, at each end of the strip.
+        PanelLeft              : new URL('../../../01__AppAssets__TrueVision/UiIcons__MenuIcons__LayoutEditor/Icon__LayoutEditor__PanelLeft__.svg', import.meta.url),
+        PanelRight             : new URL('../../../01__AppAssets__TrueVision/UiIcons__MenuIcons__LayoutEditor/Icon__LayoutEditor__PanelRight__.svg', import.meta.url)
     };
     const Na__LeIcon__STYLES_URL   = new URL('./Na__LayoutEditor__Styles__ToolIcons__.css', import.meta.url);
     // ------------------------------------------------------------

@@ -50,6 +50,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 27-Nov-2026 - Version 1.3.1 (TrueVision3D v2.189.11)
+// - The endpoint fold is held for the page's life only and opens shut on
+//   every visit, never written to localStorage, as the panel host's sections
+//   (its 1.6.2). Adam, 27-Nov-2026: "do not remeber folding / unfolding
+//   between app sessions".
+//
 // 19-Oct-2026 - Version 1.3.0 (TrueVision v2.179.0)
 // - Leader line: a switch under Type that takes the line and the endpoint
 //   away (Leader__HideLine), for a selected leader, several, or new ones.
@@ -112,10 +118,10 @@
 // REGION | Section
 // -----------------------------------------------------------------------------
 
-    // MODULE CONSTANTS | Section Id and the Endpoint Fold's Memory
+    // MODULE CONSTANTS | Section Id, and the Endpoint Fold (held for the page's life only)
     // ------------------------------------------------------------
     const Na__LePanelLeaders__ID       = 'leaders';
-    const Na__LePanelLeaders__FOLD_KEY = 'na-layouteditor-panel:fold-leader-endpoint';   // <-- The panel host's prefix, so it sits with the other fold states
+    let   Na__LePanelLeaders__FoldIsOpen = false;                               // <-- Shut on every visit, as the panel host's own folds are since its 1.6.2
     // ------------------------------------------------------------
 
 
@@ -172,13 +178,17 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Remember and Recall Whether the Endpoint Fold Is Open
+    // HELPER FUNCTION | Hold and Read Whether the Endpoint Fold Is Open
+    // ------------------------------------------------------------
+    // For the page's life only, never in storage: a fold is not remembered
+    // from one visit to the next. Adam, 27-Nov-2026: "do not remeber folding
+    // / unfolding between app sessions".
     // ------------------------------------------------------------
     function Na__LePanelLeaders__FoldOpen() {
-        try { return window.localStorage.getItem(Na__LePanelLeaders__FOLD_KEY) === '1'; } catch (e) { return false; }
+        return Na__LePanelLeaders__FoldIsOpen;
     }
     function Na__LePanelLeaders__RememberFold(open) {
-        try { window.localStorage.setItem(Na__LePanelLeaders__FOLD_KEY, open ? '1' : '0'); } catch (e) { /* storage unavailable */ }
+        Na__LePanelLeaders__FoldIsOpen = open === true;
     }
     // ------------------------------------------------------------
 

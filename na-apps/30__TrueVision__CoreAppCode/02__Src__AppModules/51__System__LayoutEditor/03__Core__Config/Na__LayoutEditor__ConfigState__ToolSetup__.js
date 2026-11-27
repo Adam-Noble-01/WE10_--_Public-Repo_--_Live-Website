@@ -263,7 +263,7 @@
             textColour         : Na__LeCfg__Val('Leader', 'TextColour', '#172b3a'),
             lineColour         : Na__LeCfg__Val('Leader', 'LineColour', '#172b3a'),
             linePt             : Na__LeCfg__Num('Leader', 'LinePt', 0.35),
-            lineStyle          : Na__LeCfg__Choice('Leader', 'LineStyle', [ 'solid', 'dashed' ], 'dashed'),
+            lineStyle          : Na__LeCfg__Choice('Leader', 'LineStyle', [ 'solid', 'dashed', 'dotted' ], 'dashed'),
             dashMm             : Math.max(0.1, Na__LeCfg__Num('Leader', 'DashMm', 0.8)),
             lineOpacity        : Na__LeCfg__Unit('Leader', 'LineOpacity', 1),
             transparentOpacity : Na__LeCfg__Unit('Leader', 'TransparentOpacity', 0.5),

@@ -34,6 +34,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 27-Nov-2026 - Version 1.22.3
+// - Token BUMPED to 2026-11-27-01 for v2.189.11 (the Layout Editor's sections open folded
+//   and either whole side panel folds away). The toolbar imports three new exports from
+//   the panel host and the mode controller a new one from the navigation module: a warm
+//   client pairing a new toolbar with an old cached panel host would fail the import, and
+//   the Layout Editor with it.
+//
 // 26-Nov-2026 - Version 1.22.2
 // - Token BUMPED to 2026-11-26-02 for v2.189.10 (the Presentation Scenes panel of its own
 //   and the Nav Mode fix). The carousel imports a new export from the scene data
@@ -830,7 +837,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-11-26-02';                                                        // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-11-27-01';                                                        // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

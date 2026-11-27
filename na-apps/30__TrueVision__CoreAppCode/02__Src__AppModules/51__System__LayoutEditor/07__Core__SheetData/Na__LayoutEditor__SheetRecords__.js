@@ -460,7 +460,7 @@
     const Na__LeRec__STYLE_KEYS  = [ 'baseImage', 'projectedLinework', 'profileLinework', 'glassOpaque', 'whitecard', 'hiddenLines', 'enhanceWhitecard', 'contextLayer', 'depthFog', 'vegetation', 'entourage' ];
     const Na__LeRec__ID_PAD      = 3;
     const Na__LeRec__LEADER_TYPES       = [ 'text', 'bubble' ];             // <-- A note with a leader, or a specification bubble
-    const Na__LeRec__LEADER_LINE_STYLES = [ 'solid', 'dashed' ];
+    const Na__LeRec__LEADER_LINE_STYLES = [ 'solid', 'dashed', 'dotted' ];
     const Na__LeRec__GROUP_KINDS        = [ 'viewport', 'shape', 'annotation', 'leader', 'dimension', 'group' ];   // <-- What a group may hold: anything on a sheet, nested groups included (Na__LeGroup__KINDS)
     const Na__LeRec__DRAWING_ARCHITECTURAL = 'architectural';                   // <-- A sheet with no Sheet__DrawingType
     const Na__LeRec__DRAWING_SITEPLAN      = 'siteplan';                        // <-- The only drawing type ever stored
@@ -1313,6 +1313,21 @@
         if (typeof item.Leader__LineColour !== 'string') item.Leader__LineColour = setup.lineColour;
         item.Leader__LinePt = Math.max(0, Na__LeRec__Num(item.Leader__LinePt, setup.linePt));
         if (Na__LeRec__LEADER_LINE_STYLES.indexOf(item.Leader__LineStyle) === -1) item.Leader__LineStyle = setup.lineStyle;
+        // PEN AND SKETCH | Kept only when they are a real choice, so a leader
+        // from before them stays without the keys. Sketchiness is 0 (straight)
+        // to 1 (the loosest wobble).
+        if ('Leader__PenType' in item && [ 'Digital', 'Technical', 'Sketchy' ].indexOf(item.Leader__PenType) === -1) delete item.Leader__PenType;
+        if ('Leader__Sketchiness' in item) {
+            const amount = Number(item.Leader__Sketchiness);
+            if (!Number.isFinite(amount)) delete item.Leader__Sketchiness;
+            else item.Leader__Sketchiness = Math.max(0, Math.min(1, Math.round(amount * 100) / 100));
+        }
+        if ('Leader__EndpointKind' in item && [ 'circle', 'dot', 'open-arrow', 'closed-arrow', 'none' ].indexOf(item.Leader__EndpointKind) === -1) delete item.Leader__EndpointKind;
+        if ('Leader__TextBoxExtendMm' in item) {
+            const extend = Number(item.Leader__TextBoxExtendMm);
+            if (!Number.isFinite(extend)) delete item.Leader__TextBoxExtendMm;
+            else item.Leader__TextBoxExtendMm = Math.max(-2, Math.min(8, Math.round(extend * 100) / 100));
+        }
         item.Leader__LineOpacity = Na__LeRec__Unit(item.Leader__LineOpacity, setup.lineOpacity);
         if (typeof item.Leader__EndpointFilled !== 'boolean') item.Leader__EndpointFilled = setup.endpointFilled;
         item.Leader__EndpointPt     = Math.max(0, Na__LeRec__Num(item.Leader__EndpointPt, setup.endpointPt));

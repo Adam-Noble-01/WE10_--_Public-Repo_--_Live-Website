@@ -39,6 +39,18 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 27-Nov-2026 - Version 1.24.2 (TrueVision3D v2.189.11)
+// - LEFT PANEL AND RIGHT PANEL ARE THE STRIP'S TWO ENDS: the first button folds the left
+//   column away and the last the right one, each beside the column it folds, so the drawing
+//   can have the whole width (both away for a review or a mark-up). Lit while its column is on
+//   show, whoever folded it (Na__LePanels__COLUMN_EVENT); its icon is the set's PanelLeft or
+//   PanelRight and its tip the PanelLeftToggleTitle or PanelRightToggleTitle label. For
+//   everyone who has the columns, as Download PDF is. The same buttons as ValeVision's twin,
+//   made the same day. Adam, 27-Nov-2026: "Add the ability to be able to fold the enire left
+//   or right menus out so users can if make the drawing workspace the full size if required as
+//   only 1 menu is used sometimes or during revierw and markup sessions none may be used
+//   sometimes."
+//
 // 26-Nov-2026 - Version 1.24.1 (TrueVision3D v2.189.9)
 // - ICONS AND HOVER TIPS IN PLACE OF WORDS. Every tool, toggle and action on the strip shows
 //   its icon (the contract's name, 01__AppAssets__TrueVision/UiIcons__MenuIcons__LayoutEditor)
@@ -244,6 +256,7 @@
     import { Na__LeImgCfg__Label } from '../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Setup__.js';
     import { Na__LeIcon__Put, Na__LeIcon__Make } from './Na__LayoutEditor__ToolIcons__.js';                       // <-- Every button on the strip is an icon
     import { Na__LeTip__Set, Na__LeTip__Hide, Na__LeTip__FromTitle } from './Na__LayoutEditor__ToolTip__.js';   // <-- ... and its words are its hover tip
+    import { Na__LePanels__COLUMN_EVENT, Na__LePanels__IsColumnFolded, Na__LePanels__ToggleColumn } from './Na__LayoutEditor__PanelHost__.js';   // <-- The two end toggles: a whole column folded away
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -430,6 +443,18 @@
         if (save) { save.classList.toggle('na-le-toolbar__btn--attention', Na__LeModel__IsDirty() || Na__LeSpec__IsDirty()); save.disabled = Na__LeToolbar__Busy; }
         const pdf = Na__LeToolbar__Root.querySelector('[data-na-toolbar="pdf"]');
         if (pdf) pdf.disabled = Na__LeToolbar__Busy || !sheet;
+        // THE TWO END TOGGLES | Lit while their column is on show, whoever
+        // folded it; the words re-read, as the other toggles' are.
+        // ------------------------------------
+        [ [ 'panel-left',  'left',  'PanelLeftToggle',  'Left Panel',  'PanelLeftToggleTitle',  'Show or hide the left panel: Document Preferences and the Specification. Hidden, the drawing has its width.' ],
+          [ 'panel-right', 'right', 'PanelRightToggle', 'Right Panel', 'PanelRightToggleTitle', 'Show or hide the right panel: the Properties of what is selected, and the Scrapbook. Hidden, the drawing has its width.' ] ].forEach((entry) => {
+            const button = Na__LeToolbar__Root.querySelector('[data-na-toolbar="' + entry[0] + '"]');
+            if (!button) return;
+            const shown = !Na__LePanels__IsColumnFolded(entry[1]);
+            button.classList.toggle('na-le-toolbar__btn--active', shown);
+            button.setAttribute('aria-pressed', String(shown));
+            Na__LeToolbar__Words(button, Na__LeCfg__GetLabel(entry[2], entry[3]), Na__LeCfg__GetLabel(entry[4], entry[5]));
+        });
     }
     // ------------------------------------------------------------
 
@@ -483,6 +508,15 @@
         Na__LeToolbar__ShowToast = (options && options.showToast) || null;
         const root = document.createElement('div');
         root.className = 'na-le-toolbar na-le-toolbar--icons';
+
+        // LEFT PANEL | The first thing on the strip, beside the column it
+        // folds, for everyone who has the columns: lit while the column is on
+        // show, and pressed it folds the column away so the drawing has its
+        // width. Its twin is the strip's last button. Adam, 27-Nov-2026: "Add
+        // the ability to be able to fold the enire left or right menus out".
+        // ------------------------------------
+        root.appendChild(Na__LeToolbar__Button(Na__LeCfg__GetLabel('PanelLeftToggle', 'Left Panel'), 'panel-left', Na__LeCfg__GetLabel('PanelLeftToggleTitle', 'Show or hide the left panel: Document Preferences and the Specification. Hidden, the drawing has its width.'), () => Na__LePanels__ToggleColumn('left'), 'PanelLeft'));
+        root.appendChild(Na__LeToolbar__Gap());
 
         const name = document.createElement('span');
         name.className = 'na-le-toolbar__name';
@@ -652,6 +686,12 @@
         }, 'Share');
         root.appendChild(share);
 
+        // RIGHT PANEL | The last thing on the strip, beside the column it
+        // folds: the Left Panel toggle's twin.
+        // ------------------------------------
+        root.appendChild(Na__LeToolbar__Gap());
+        root.appendChild(Na__LeToolbar__Button(Na__LeCfg__GetLabel('PanelRightToggle', 'Right Panel'), 'panel-right', Na__LeCfg__GetLabel('PanelRightToggleTitle', 'Show or hide the right panel: the Properties of what is selected, and the Scrapbook. Hidden, the drawing has its width.'), () => Na__LePanels__ToggleColumn('right'), 'PanelRight'));
+
         container.appendChild(root);
         Na__LeToolbar__Root = root;
         Na__LeToolbar__Listeners = () => Na__LeToolbar__Sync();
@@ -659,6 +699,7 @@
         window.addEventListener(Na__LeOrtho__CHANGED_EVENT, Na__LeToolbar__Listeners);     // <-- F8 lights the Ortho button, whoever switched it
         window.addEventListener(Na__LeAxes__CHANGED_EVENT, Na__LeToolbar__Listeners);      // <-- F9 lights the Axes button, whoever switched it
         window.addEventListener(Na__LeVectorQ__CHANGED_EVENT, Na__LeToolbar__Listeners);   // <-- The Vector control reads the level, whoever set it
+        window.addEventListener(Na__LePanels__COLUMN_EVENT, Na__LeToolbar__Listeners);     // <-- A column folded or back: its end toggle follows
         Na__LeToolbar__Sync();
         return true;
     }
@@ -676,6 +717,7 @@
         if (Na__LeToolbar__Listeners) window.removeEventListener(Na__LeOrtho__CHANGED_EVENT, Na__LeToolbar__Listeners);
         if (Na__LeToolbar__Listeners) window.removeEventListener(Na__LeAxes__CHANGED_EVENT, Na__LeToolbar__Listeners);
         if (Na__LeToolbar__Listeners) window.removeEventListener(Na__LeVectorQ__CHANGED_EVENT, Na__LeToolbar__Listeners);
+        if (Na__LeToolbar__Listeners) window.removeEventListener(Na__LePanels__COLUMN_EVENT, Na__LeToolbar__Listeners);
         if (Na__LeToolbar__Root && Na__LeToolbar__Root.parentNode) Na__LeToolbar__Root.parentNode.removeChild(Na__LeToolbar__Root);
         Na__LeToolbar__Root = Na__LeToolbar__Listeners = null;
     }

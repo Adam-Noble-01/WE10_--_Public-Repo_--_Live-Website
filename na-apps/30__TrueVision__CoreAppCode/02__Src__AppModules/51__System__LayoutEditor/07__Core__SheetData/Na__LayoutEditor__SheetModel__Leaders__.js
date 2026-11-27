@@ -148,13 +148,17 @@
             Leader__LinePt         : opts.linePt,
             Leader__LineStyle      : opts.lineStyle,
             Leader__LineOpacity    : opts.lineOpacity,
+            Leader__PenType        : opts.penType,
+            Leader__Sketchiness    : opts.sketchiness,
+            Leader__EndpointKind   : opts.endpointKind,
             Leader__EndpointFilled : opts.endpointFilled,
             Leader__EndpointPt     : opts.endpointPt,
             Leader__EndpointSizeMm : opts.endpointSizeMm,
             Leader__BubbleSizeMm   : opts.bubbleSizeMm,
             Leader__BubbleEdgePt   : opts.bubbleEdgePt,
             Leader__FillColour     : opts.fillColour === undefined ? undefined : ((typeof opts.fillColour === 'string') ? opts.fillColour : null),   // <-- Left out: the default fill; null: no fill
-            Leader__FillOpacity    : opts.fillOpacity
+            Leader__FillOpacity    : opts.fillOpacity,
+            Leader__TextBoxExtendMm : opts.textBoxExtendMm
         }, Na__LeModel__DefaultLayerId(sheet, 'annotation'));
         if (typeof opts.specNoteId === 'string' && opts.specNoteId.trim()) item.Leader__SpecNoteId = opts.specNoteId.trim();   // <-- A bubble placed already linked to a specification note
         if (opts.hideLine === true) item.Leader__HideLine = true;              // <-- The bubble or note on its own; stored only as true

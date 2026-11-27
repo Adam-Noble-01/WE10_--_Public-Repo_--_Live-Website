@@ -295,6 +295,34 @@ body.na-le-dragging * {
     height                             : 100%;
 }
 
+/* A WHOLE COLUMN FOLDED AWAY (the panel host's 1.6.2, the strip's two end
+   toggles): its grid track goes to nothing, so the stage takes the width,
+   and its panel is not drawn. The column stays in the grid, so the stage
+   keeps its own track, and the width it had stays in its custom property
+   for its return. Never remembered: every visit opens with both shown. */
+
+.na-le-shell.na-le-shell--left-folded {
+    grid-template-columns              : 0 minmax(0, 1fr) var(--Vale_LayoutRightPanelWidth);
+}
+
+.na-le-shell.na-le-shell--right-folded {
+    grid-template-columns              : var(--Vale_LayoutLeftPanelWidth) minmax(0, 1fr) 0;
+}
+
+.na-le-shell.na-le-shell--left-folded.na-le-shell--right-folded {
+    grid-template-columns              : 0 minmax(0, 1fr) 0;
+}
+
+.na-le-shell--left-folded  > .na-le-column--left,
+.na-le-shell--right-folded > .na-le-column--right {
+    overflow                           : hidden;
+}
+
+.na-le-shell--left-folded  > .na-le-column--left  > .na-le-panel,
+.na-le-shell--right-folded > .na-le-column--right > .na-le-panel {
+    display                            : none;
+}
+
 .na-le-column {
     position                           : relative;
     min-width                          : 0;

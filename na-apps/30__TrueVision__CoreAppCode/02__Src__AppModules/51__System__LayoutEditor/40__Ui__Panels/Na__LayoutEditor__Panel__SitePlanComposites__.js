@@ -42,6 +42,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 27-Nov-2026 - Version 1.0.1 (TrueVision3D v2.189.11)
+// - WHETHER THE SECTION SHOWS IS DECIDED ON EVERY MODEL CHANGE, not only in
+//   its refresh. A folded section gets no refresh, and since the panel host's
+//   1.6.2 every section opens folded, so a section hidden at registration and
+//   shown only by its refresh would never have come up on a site plan sheet.
+//   The same answer as the Scrapbook's Sync: a class, no rebuild.
+//
 // 20-Sep-2026 - Version 1.0.0
 // - Initial implementation for TASK 06.
 //
@@ -56,6 +63,7 @@
     // ------------------------------------------------------------
     import { Na__LeCfg__GetLabel } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import {
+        Na__LeModel__CHANGED_EVENT,
         Na__LeModel__GetActiveSheet,
         Na__LeModel__GetSelectedViewport,
         Na__LeModel__IsSitePlanSheet,
@@ -94,8 +102,9 @@
 
     // MODULE VARIABLES | What the Rows Were Last Built From
     // ------------------------------------------------------------
-    let Na__LePanelSpComp__BuiltKey = null;
-    let Na__LePanelSpComp__IdSeed   = 0;
+    let Na__LePanelSpComp__BuiltKey  = null;
+    let Na__LePanelSpComp__IdSeed    = 0;
+    let Na__LePanelSpComp__Listening = false;                                  // <-- The model listener goes up once, however often the columns are built
     // ------------------------------------------------------------
 
 
@@ -158,12 +167,22 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Off a Site Plan Sheet the Section Is Not There at All
+    // ------------------------------------------------------------
+    // Asked on every model change as well as by the refresh, because a folded
+    // section gets no refresh and every section opens folded.
+    // ------------------------------------------------------------
+    function Na__LePanelSpComp__SyncShown() {
+        const sheet = Na__LeModel__GetActiveSheet();
+        Na__LePanels__SetSectionVisible(Na__LePanelSpComp__ID, !!sheet && Na__LeModel__IsSitePlanSheet(sheet));
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Reflect the Selected Viewport
     // ------------------------------------------------------------
     function Na__LePanelSpComp__Refresh(body) {
-        // OFF A SITE PLAN SHEET THE SECTION IS NOT THERE AT ALL.
-        const sheet = Na__LeModel__GetActiveSheet();
-        Na__LePanels__SetSectionVisible(Na__LePanelSpComp__ID, !!sheet && Na__LeModel__IsSitePlanSheet(sheet));
+        Na__LePanelSpComp__SyncShown();
 
         const viewport = Na__LePanelSpComp__Selected();
         const decks    = Na__LeSpComp__GetDecks();
@@ -219,6 +238,10 @@
             refresh : Na__LePanelSpComp__Refresh
         });
         Na__LePanels__SetSectionVisible(Na__LePanelSpComp__ID, false);            // <-- Hidden until a site plan sheet is announced
+        if (!Na__LePanelSpComp__Listening) {
+            Na__LePanelSpComp__Listening = true;
+            window.addEventListener(Na__LeModel__CHANGED_EVENT, Na__LePanelSpComp__SyncShown);   // <-- The announcement: a folded section is never refreshed
+        }
         return entry;
     }
     // ------------------------------------------------------------

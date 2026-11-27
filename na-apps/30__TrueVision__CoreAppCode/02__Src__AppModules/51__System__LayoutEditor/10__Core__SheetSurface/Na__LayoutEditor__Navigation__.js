@@ -46,6 +46,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 27-Nov-2026 - Version 1.3.1 (TrueVision3D v2.189.11)
+// - Na__LeNav__HoldCentre(change): the paper point at the middle of the view
+//   stays there while change() resizes the stage, so a whole panel column
+//   folded away or brought back (the panel host's 1.6.2) widens or narrows
+//   the view about its middle instead of pushing the sheet sideways.
+//
 // 21-Sep-2026 - Version 1.3.0
 // - The zoom ceiling follows the authoring gate. Adam: "I can't get close
 //   enough into things... make an exception for the local host version";
@@ -173,6 +179,33 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | Keep the Paper Point at the Middle of the View There While the Stage Changes Size
+    // ------------------------------------------------------------
+    // change : a function that resizes the stage (a whole panel column folded
+    // away or brought back). The paper sits a whole stage in from every edge
+    // of its room (the surface's ApplyZoom), so a wider stage would otherwise
+    // push it sideways with the scroll unchanged. The paper millimetre at the
+    // middle of the view is read before, the room laid out again at the same
+    // zoom after, and the scroll set so that millimetre is at the middle
+    // again: ZoomAbout's sum with the stage's middle as the point.
+    // ------------------------------------------------------------
+    function Na__LeNav__HoldCentre(change) {
+        const els = Na__LeSurface__GetElements();
+        if (!els.stage || !els.paper || !els.scaler) { change(); return; }
+        const zoom  = Na__LeSurface__GetZoom();
+        const ppm   = Na__LeSurface__GetPixelsPerMm();
+        const stage = els.stage.getBoundingClientRect();
+        const paper = els.paper.getBoundingClientRect();
+        const mmX   = (stage.left + (els.stage.clientWidth  / 2) - paper.left) / (ppm * zoom);
+        const mmY   = (stage.top  + (els.stage.clientHeight / 2) - paper.top)  / (ppm * zoom);
+        change();
+        Na__LeSurface__SetZoom(zoom);                                            // <-- The same zoom: the room and the paper's place in it follow the new stage
+        els.stage.scrollLeft = els.scaler.offsetLeft + (mmX * ppm * zoom) - (els.stage.clientWidth  / 2);
+        els.stage.scrollTop  = els.scaler.offsetTop  + (mmY * ppm * zoom) - (els.stage.clientHeight / 2);
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -208,7 +241,8 @@
         Na__LeNav__ZoomAbout,
         Na__LeNav__ZoomTo,
         Na__LeNav__Fit,
-        Na__LeNav__PanBy
+        Na__LeNav__PanBy,
+        Na__LeNav__HoldCentre
     };
     // ------------------------------------------------------------
 

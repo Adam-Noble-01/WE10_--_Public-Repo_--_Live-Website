@@ -47,6 +47,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 27-Nov-2026 - Version 1.35.1 (TrueVision3D v2.189.11)
+// - The panel host is handed holdView (Na__LeNav__HoldCentre), so a whole
+//   column folded away or brought back from the tool strip's end toggles
+//   keeps the paper point at the middle of the view where it was.
+//
 // 16-Nov-2026 - Version 1.35.0 (TrueVision3D v2.187.0)
 // - A phone or tablet turned round (upright to sideways or back) fits the
 //   open sheet to the new screen; a window dragged to a new size still keeps
@@ -334,7 +339,7 @@
         Na__LeModel__GetViewports
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSurface__Mount, Na__LeSurface__SetSheet, Na__LeSurface__Refresh, Na__LeSurface__SetZoom, Na__LeSurface__GetZoom } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
-    import { Na__LeNav__Fit } from '../10__Core__SheetSurface/Na__LayoutEditor__Navigation__.js';
+    import { Na__LeNav__Fit, Na__LeNav__HoldCentre } from '../10__Core__SheetSurface/Na__LayoutEditor__Navigation__.js';
     import { Na__LePc__STEP_SHEET_EVENT, Na__LePc__Attach, Na__LePc__Detach, Na__LePc__TakeKeyboard } from '../10__Core__SheetSurface/Na__LayoutEditor__Controls__Pc__.js';
     import { Na__LeTouch__Attach, Na__LeTouch__Detach } from '../10__Core__SheetSurface/Na__LayoutEditor__Controls__TouchScreen__.js';
     import { Na__LeTools__DEFAULTS_EVENT, Na__LeTools__Attach, Na__LeTools__Detach } from '../30__System__SheetTools/Na__LayoutEditor__SheetTools__.js';
@@ -533,7 +538,7 @@
             Na__LeSpecEd__Mount(host, { editable : false, showToast : toast });   // <-- Read view only; the viewer sets it on every show
             return;
         }
-        Na__LePanels__Mount({ left : host.querySelector('.na-le-column--left'), right : host.querySelector('.na-le-column--right'), editable : editable, showToast : toast });
+        Na__LePanels__Mount({ left : host.querySelector('.na-le-column--left'), right : host.querySelector('.na-le-column--right'), editable : editable, showToast : toast, holdView : Na__LeNav__HoldCentre });   // <-- holdView: a whole column folded keeps the view's middle where it was
         // LEFT COLUMN | Two tabs, as the right column has: the document's own
         // preferences, and the project specification as bubbles to drag in.
         // Everything the column held before the tabs is on the first.

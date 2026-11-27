@@ -14,9 +14,18 @@
 //   build function (runs once) and a refresh function (runs on every model
 //   change while the section is open). Sections fold from their header;
 //   a grip at the foot of each body drags its height; a grip on each
-//   column's inner edge drags the column width. Widths and fold state are
-//   remembered in localStorage and the widths are published as CSS custom
-//   properties (D32).
+//   column's inner edge drags the column width. The widths are remembered
+//   in localStorage and published as CSS custom properties (D32).
+// - EVERY SECTION OPENS FOLDED, and no fold is remembered from one visit to
+//   the next: a fold lasts as long as the page. Adam, 27-Nov-2026: "the Init
+//   behaviour is to tidily have them all nested when the app is first loaded
+//   and the layout editor initilises. do not remeber folding / unfolding
+//   between app sessions, only remnber users preference for each menus
+//   width".
+// - A WHOLE COLUMN FOLDS AWAY (SetColumnFolded, ToggleColumn), so the stage
+//   takes its width: the toggles are at the two ends of the tool strip
+//   (Na__LayoutEditor__Toolbar__.js). Not remembered either: every visit
+//   opens with both columns on show.
 // - Controls are declared, not wired: an element with data-na-control
 //   names a handler registered here, and the column listens once for the
 //   event type that handler asked for.
@@ -37,11 +46,34 @@
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
 // - Parity        : verbatim
 // - Divergences   : Console prefix, header and folder numbers; column tabs (1.4.0), TrueVision first on 19-Sep-2026.
+//                   1.6.2 (folded at start, no remembered folds, whole-column folds) was made in both
+//                   apps the same day, 27-Nov-2026, ValeVision3D's twin first.
 // - Back-port     : n/a (this IS the back-port)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 27-Nov-2026 - Version 1.6.2 (TrueVision3D v2.189.11)
+// - EVERY SECTION OPENS FOLDED, whatever it was last time: RegisterSection no longer reads a
+//   remembered fold or spec.defaultOpen, and SetFolded and the Advanced fold no longer write
+//   one. A fold is held by the section itself, so it lasts while the page does (leaving for the
+//   3D Model tab and coming back keeps it) and a reload opens everything folded again. Mount
+//   clears the fold-* and advanced-* keys earlier versions left in localStorage. The widths are
+//   remembered as before; the section heights and the tab last on show are left as they were.
+//   Adam, 27-Nov-2026: "do not remeber folding / unfolding between app sessions, only remnber
+//   users preference for each menus width".
+// - A SELECTION STILL OPENS ITS SECTION (FocusSection, unchanged), so what is being edited is
+//   on show the moment something is picked.
+// - WHOLE-COLUMN FOLDS. SetColumnFolded(side, folded), ToggleColumn(side) and
+//   IsColumnFolded(side): a folded column's grid track goes to 0, so the stage has its width,
+//   and COLUMN_EVENT says so to the tool strip's two toggles. Refresh passes a folded column's
+//   sections by and unfolding catches them up, as a tab coming up does; a window resize is sent
+//   so the stage-sized overlays re-measure, and the context's holdView (the mode controller's
+//   Na__LeNav__HoldCentre) keeps the view's middle. Every visit opens with both columns on show. Adam,
+//   27-Nov-2026: "Add the ability to be able to fold the enire left or right menus out so users
+//   can if make the drawing workspace the full size".
+// - The same code as ValeVision3D's twin, made the same day.
+//
 // 26-Nov-2026 - Version 1.6.1 (TrueVision3D v2.189.9)
 // - EVERY SECTION HEADER HAS ITS ICON: triangle, a 16 px icon, then the words, which stay.
 //   Adam, 26-Nov-2026: "Add icons to each of these too for easy identifcation but these have
@@ -179,6 +211,13 @@
     const Na__LePanels__VAR_LEFT     = '--Vale_LayoutLeftPanelWidth';
     const Na__LePanels__VAR_RIGHT    = '--Vale_LayoutRightPanelWidth';
     const Na__LePanels__MIN_BODY_PX  = 60;
+    const Na__LePanels__FORGOTTEN    = Object.freeze([ 'fold-', 'advanced-' ]);   // <-- Kept by earlier versions from one visit to the next; nothing reads them now
+    // ------------------------------------------------------------
+
+    // MODULE CONSTANTS | Whole-Column Folds
+    // ------------------------------------------------------------
+    const Na__LePanels__COLUMN_EVENT  = 'na-le-panel-column-changed';         // <-- detail: { side, folded }
+    const Na__LePanels__SHELL_FOLDED  = Object.freeze({ left : 'na-le-shell--left-folded', right : 'na-le-shell--right-folded' });
     // ------------------------------------------------------------
 
     // MODULE CONSTANTS | The Padlock Between a Linked Pair (both shackles drawn; the stylesheet shows one)
@@ -199,6 +238,8 @@
     const Na__LePanels__Tabs     = { left : [], right : [] };        // <-- side -> [{ id, title, button }], in the order registered
     const Na__LePanels__TabStrip = { left : null, right : null };
     const Na__LePanels__TabUp    = { left : null, right : null };    // <-- side -> the id of the tab on show
+    const Na__LePanels__Folded   = { left : false, right : false };  // <-- side -> the whole column folded away (never remembered)
+    let   Na__LePanels__Shell    = null;                             // <-- The grid both columns and the stage sit in
     let   Na__LePanels__Editable = false;
     let   Na__LePanels__Context  = null;
     // ------------------------------------------------------------
@@ -217,6 +258,26 @@
     }
     function Na__LePanels__Recall(key, fallback) {
         try { const v = window.localStorage.getItem(Na__LePanels__STORE_PREFIX + key); return v === null ? fallback : v; } catch (e) { return fallback; }
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Clear the Folds Earlier Versions Remembered Between Visits
+    // ------------------------------------------------------------
+    // fold-<section>, fold-leader-endpoint, fold-region-<sheet>:<region> and
+    // advanced-<section>. Nothing reads them since 1.6.2; cleared so they do
+    // not sit in the browser for ever.
+    // ------------------------------------------------------------
+    function Na__LePanels__ForgetFolds() {
+        try {
+            const store = window.localStorage;
+            const stale = [];
+            for (let i = 0; i < store.length; i += 1) {
+                const key = store.key(i);
+                if (key && Na__LePanels__FORGOTTEN.some((part) => key.indexOf(Na__LePanels__STORE_PREFIX + part) === 0)) stale.push(key);
+            }
+            stale.forEach((key) => store.removeItem(key));
+        } catch (e) { /* storage unavailable */ }
     }
     // ------------------------------------------------------------
 
@@ -285,13 +346,17 @@
 
     // FUNCTION | Build Both Columns Inside Their Hosts
     // ------------------------------------------------------------
-    // context: { left, right, editable, ...anything the panels want }
+    // context: { left, right, editable, holdView, ...anything the panels want }
+    // holdView(change): runs change, a column fold, keeping the view's middle
+    // where it was; left out, the fold simply happens.
     // ------------------------------------------------------------
     function Na__LePanels__Mount(context) {
         if (!context || !context.left || !context.right) return false;
         Na__LePanels__Unmount();
+        Na__LePanels__ForgetFolds();
         Na__LePanels__Context  = context;
         Na__LePanels__Editable = !!context.editable;
+        Na__LePanels__Shell    = context.left.parentNode || null;              // <-- .na-le-shell: its grid tracks are what a column fold sets
         const setup = Na__LeCfg__GetPanelSetup();
         [ 'left', 'right' ].forEach((side) => {
             const column = document.createElement('div');
@@ -309,6 +374,7 @@
             Na__LePanels__BindDelegation(column);
             Na__LePanels__SetWidth(side, parseFloat(Na__LePanels__Recall('width-' + side, side === 'left' ? setup.leftWidthPx : setup.rightWidthPx)));
         });
+        Na__LePanels__ApplyColumnFolds();                                       // <-- Both on show: a column fold is never carried into a new mount
         return true;
     }
     // ------------------------------------------------------------
@@ -324,9 +390,56 @@
         });
         Na__LePanels__Sections.clear();
         Na__LePanels__Handlers.clear();
-        [ 'left', 'right' ].forEach((side) => { Na__LePanels__Tabs[side] = []; Na__LePanels__TabStrip[side] = null; Na__LePanels__TabUp[side] = null; });
+        [ 'left', 'right' ].forEach((side) => { Na__LePanels__Tabs[side] = []; Na__LePanels__TabStrip[side] = null; Na__LePanels__TabUp[side] = null; Na__LePanels__Folded[side] = false; });
+        if (Na__LePanels__Shell) Object.keys(Na__LePanels__SHELL_FOLDED).forEach((side) => Na__LePanels__Shell.classList.remove(Na__LePanels__SHELL_FOLDED[side]));
+        Na__LePanels__Shell   = null;
         Na__LePanels__Context = null;
     }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Put the Shell's Classes in Step With the Column Folds
+    // ------------------------------------------------------------
+    function Na__LePanels__ApplyColumnFolds() {
+        [ 'left', 'right' ].forEach((side) => {
+            const folded = Na__LePanels__Folded[side] === true;
+            if (Na__LePanels__Shell) Na__LePanels__Shell.classList.toggle(Na__LePanels__SHELL_FOLDED[side], folded);
+            const column = Na__LePanels__Columns[side];
+            if (column) column.setAttribute('aria-hidden', String(folded));
+        });
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Fold a Whole Column Away, or Bring It Back
+    // ------------------------------------------------------------
+    // The column's grid track goes to nothing, so the stage takes the width;
+    // the width it had is kept and comes back with it. Its sections keep
+    // their own folds. While it is away its sections are not refreshed, and
+    // coming back refreshes the ones that are open, as a tab coming up does.
+    // A window resize is sent, as the tab strip sends one when the editor
+    // shows, so the stage-sized overlays (the grid, the axes, the margin
+    // grips, the Measurements box) and the zoom re-measure.
+    // The context's holdView runs the fold itself, so the paper point at the
+    // middle of the view is still there after it.
+    // Returns true only when the column changed.
+    // ------------------------------------------------------------
+    function Na__LePanels__SetColumnFolded(side, folded) {
+        if (side !== 'left' && side !== 'right') return false;
+        const now = folded === true;
+        if (Na__LePanels__Folded[side] === now) return false;
+        Na__LePanels__Folded[side] = now;
+        const column = Na__LePanels__Columns[side];
+        if (now && column && column.contains(document.activeElement)) document.activeElement.blur();   // <-- No focus left in a column nobody can see
+        const hold = (Na__LePanels__Context && typeof Na__LePanels__Context.holdView === 'function') ? Na__LePanels__Context.holdView : (change) => change();
+        hold(Na__LePanels__ApplyColumnFolds);                                   // <-- The paper point at the middle of the view stays there (the mode controller hands in Na__LeNav__HoldCentre)
+        if (!now) Na__LePanels__Sections.forEach((entry, id) => { if (entry.side === side) Na__LePanels__Refresh(id); });
+        window.dispatchEvent(new Event('resize'));
+        window.dispatchEvent(new CustomEvent(Na__LePanels__COLUMN_EVENT, { detail : { side : side, folded : now } }));
+        return true;
+    }
+    function Na__LePanels__ToggleColumn(side) { return Na__LePanels__SetColumnFolded(side, !Na__LePanels__IsColumnFolded(side)); }
+    function Na__LePanels__IsColumnFolded(side) { return Na__LePanels__Folded[side] === true; }
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -459,9 +572,13 @@
 
     // FUNCTION | Add a Foldable Section to a Column
     // ------------------------------------------------------------
-    // spec: { id, title, build(body, context), refresh(body, context), defaultOpen, tab }
+    // spec: { id, title, build(body, context), refresh(body, context), tab }
     // tab names the column tab the section belongs to; left out, it belongs to
     // the column's first.
+    // EVERY SECTION STARTS FOLDED (1.6.2): a spec's defaultOpen is no longer
+    // read, and no remembered fold either. A section that decides whether it
+    // shows at all must decide it outside its refresh, which a folded section
+    // does not get (as Scrapbook and Site Plan Render Composites do).
     // ------------------------------------------------------------
     function Na__LePanels__RegisterSection(side, spec) {
         const column = Na__LePanels__Columns[side];
@@ -494,7 +611,7 @@
         root.appendChild(grip);
         column.querySelector('.na-le-panel__scroll').appendChild(root);
 
-        const folded = Na__LePanels__Recall('fold-' + spec.id, spec.defaultOpen === false ? '1' : '0') === '1';
+        const folded = true;                                                    // <-- Tidy on every first open (Adam, 27-Nov-2026); a selection opens what it needs
         root.classList.toggle('is-folded', folded);
         header.setAttribute('aria-expanded', String(!folded));
         header.addEventListener('click', () => {
@@ -525,6 +642,7 @@
             if (sectionId && id !== sectionId) return;
             if (entry.root.classList.contains('is-folded')) return;
             if (entry.root.classList.contains('is-off-tab')) return;             // <-- Not on show: bringing its tab up refreshes it
+            if (Na__LePanels__Folded[entry.side]) return;                       // <-- Its whole column is folded away: unfolding it refreshes it
             if (typeof entry.spec.refresh === 'function') entry.spec.refresh(entry.body, Na__LePanels__Context);
         });
     }
@@ -534,8 +652,10 @@
     // FUNCTION | Fold or Unfold One Section From Code
     // ------------------------------------------------------------
     // The same path the header click takes, so a section folded by hand and
-    // one folded by a selection are remembered the same way and cannot get out
-    // of step. Returns true only when something actually changed.
+    // one folded by a selection cannot get out of step. The fold is the
+    // section's class and nothing else: it lasts while the page does and is
+    // never written to storage (1.6.2). Returns true only when something
+    // actually changed.
     // ------------------------------------------------------------
     function Na__LePanels__SetFolded(sectionId, folded) {
         const entry = Na__LePanels__Sections.get(sectionId);
@@ -544,8 +664,7 @@
         if (entry.root.classList.contains('is-folded') === now) return false;
         entry.root.classList.toggle('is-folded', now);
         entry.header.setAttribute('aria-expanded', String(!now));
-        Na__LePanels__Remember('fold-' + sectionId, now ? '1' : '0');
-        if (!now && !entry.root.classList.contains('is-off-tab') && typeof entry.spec.refresh === 'function') entry.spec.refresh(entry.body, Na__LePanels__Context);
+        if (!now) Na__LePanels__Refresh(sectionId);                             // <-- Refresh's own checks: not off its tab, its column not folded away
         return true;
     }
     // ------------------------------------------------------------
@@ -655,8 +774,9 @@
     // this reveals belong INSIDE the rows they modify, not in a separate list a
     // person has to match back up by name.
     //
-    // Remembered per section like the fold itself, so someone curating a sheet
-    // does not have to reopen it on every selection.
+    // Held per section like the fold itself, so someone curating a sheet does
+    // not have to reopen it on every selection; and, like the fold, it starts
+    // shut on every visit and is never written to storage (1.6.2).
     // ------------------------------------------------------------
     function Na__LePanels__AdvancedToggle(body, sectionId, label) {
         const root   = body.closest('.na-le-section');
@@ -666,15 +786,13 @@
         button.innerHTML = '<span class="na-le-adv-toggle__chevron" aria-hidden="true"></span><span class="na-le-adv-toggle__label"></span>';
         button.querySelector('.na-le-adv-toggle__label').textContent = label || 'Advanced';
 
-        const open = Na__LePanels__Recall('advanced-' + sectionId, '0') === '1';
-        if (root) root.classList.toggle('is-advanced', open);
-        button.setAttribute('aria-expanded', String(open));
+        if (root) root.classList.remove('is-advanced');
+        button.setAttribute('aria-expanded', 'false');
 
         button.addEventListener('click', () => {
             const now = !(root && root.classList.contains('is-advanced'));
             if (root) root.classList.toggle('is-advanced', now);
             button.setAttribute('aria-expanded', String(now));
-            Na__LePanels__Remember('advanced-' + sectionId, now ? '1' : '0');
             Na__LePanels__Refresh(sectionId);                                     // <-- The controls it reveals may need filling
         });
 
@@ -941,9 +1059,13 @@
     // MODULE EXPORTS | Layout Editor Panel Host API
     // ------------------------------------------------------------
     export {
+        Na__LePanels__COLUMN_EVENT,
         Na__LePanels__Mount,
         Na__LePanels__Unmount,
         Na__LePanels__SetWidth,
+        Na__LePanels__SetColumnFolded,
+        Na__LePanels__ToggleColumn,
+        Na__LePanels__IsColumnFolded,
         Na__LePanels__RegisterTab,
         Na__LePanels__SetActiveTab,
         Na__LePanels__GetActiveTab,

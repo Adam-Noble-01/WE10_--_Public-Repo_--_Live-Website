@@ -50,6 +50,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 27-Nov-2026 - Version 1.0.2 (TrueVision3D v2.189.11)
+// - A region's fold is held for the page's life only and opens shut on every
+//   visit, never written to localStorage, as the panel host's sections (its
+//   1.6.2). Adam, 27-Nov-2026: "do not remeber folding / unfolding between
+//   app sessions".
+//
 // 26-Nov-2026 - Version 1.0.1 (TrueVision3D v2.189.9)
 // - THE INTRO IS IN THE MARGIN NOTES (i) on the section header bar (Na__LePanels__SectionInfo),
 //   not a paragraph under the rule; the drawing line, the status and a region's own help stay.
@@ -95,10 +101,10 @@
 // REGION | Module Constants and State
 // -----------------------------------------------------------------------------
 
-    // MODULE CONSTANTS | The Section It Lives In, and Where a Fold Remembers Being Open
+    // MODULE CONSTANTS | The Section It Lives In, and the Folds Open on This Page
     // ------------------------------------------------------------
     const Na__LePanelRegions__SECTION  = 'margin';
-    const Na__LePanelRegions__FOLD_KEY = 'na-layouteditor-panel:fold-region-';   // <-- The panel host's prefix, so it sits with the other fold states; the sheet and the region follow
+    const Na__LePanelRegions__OpenFolds = new Set();                            // <-- '<sheet>:<region>' of each fold opened; held for the page's life only
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | The Shape the Folds Were Last Built For, and Whether the Listeners Are Up
@@ -116,14 +122,20 @@
 
     // HELPER FUNCTION | Remember and Recall Whether a Region's Fold Is Open
     // ------------------------------------------------------------
+    // For the page's life only, never in storage: every region opens folded
+    // on each visit, as the panel host's sections do since its 1.6.2. Adam,
+    // 27-Nov-2026: "do not remeber folding / unfolding between app sessions".
+    // ------------------------------------------------------------
     function Na__LePanelRegions__FoldKey(sheetId, regionId) {
-        return Na__LePanelRegions__FOLD_KEY + sheetId + ':' + regionId;
+        return sheetId + ':' + regionId;
     }
     function Na__LePanelRegions__IsOpen(sheetId, regionId) {
-        try { return window.localStorage.getItem(Na__LePanelRegions__FoldKey(sheetId, regionId)) === '1'; } catch (e) { return false; }
+        return Na__LePanelRegions__OpenFolds.has(Na__LePanelRegions__FoldKey(sheetId, regionId));
     }
     function Na__LePanelRegions__SetOpen(sheetId, regionId, open) {
-        try { window.localStorage.setItem(Na__LePanelRegions__FoldKey(sheetId, regionId), open ? '1' : '0'); } catch (e) { /* storage unavailable */ }
+        const key = Na__LePanelRegions__FoldKey(sheetId, regionId);
+        if (open) Na__LePanelRegions__OpenFolds.add(key);
+        else Na__LePanelRegions__OpenFolds.delete(key);
     }
     // ------------------------------------------------------------
 

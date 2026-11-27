@@ -277,7 +277,7 @@
     },
 
     "LayoutEditor__Panels__Config": {
-        "LayoutEditor__Panels__Description": "The two side columns (Layers on the left; Viewport, Text, Dimensions and Styles on the right). Widths are seeded from here on first use and then remembered for the session.",
+        "LayoutEditor__Panels__Description": "The two side columns beside the stage. Every section opens folded on each visit and a fold lasts only while the page is open (Adam, 27-Nov-2026); a selection opens the section that edits it. Widths are seeded from here on first use and then remembered in the browser from visit to visit. Either whole column folds away from the toggle at its end of the tool strip, so the drawing has the width; that is not remembered either.",
         "LayoutEditor__Panels__FocusNote": "AccordionSections are the sections that behave as one group. FocusSectionOnSelect: selecting something on the sheet, or picking a style with the eyedropper, opens that kind's section and folds the rest of the group, so what is on show is always what is being edited - a room opens Floor Areas, a site plan viewport opens Patterns, and any other viewport folds the whole group, its own section not being in it. Nothing selected leaves the folds as they are. Several can still be opened by hand to compare them; the next selection tidies them away again. CollapseOthersOnOpen goes further and folds the others the moment one is opened by hand.",
         "LayoutEditor__Panels__AccordionSections": [ "text", "dimensions", "shapes", "images", "leaders", "floor-areas", "patterns" ],
         "LayoutEditor__Panels__FocusSectionOnSelect": true,
@@ -693,6 +693,10 @@
         "LayoutEditor__Labels__ViewerPageDown": "Page down",
         "LayoutEditor__Labels__ViewerPageDownTitle": "The page after this one",
         "LayoutEditor__Labels__DownloadPdf": "Download PDF",
+        "LayoutEditor__Labels__PanelLeftToggle": "Left Panel",
+        "LayoutEditor__Labels__PanelLeftToggleTitle": "Show or hide the left panel: Document Preferences and the Specification. Hidden, the drawing has its width.",
+        "LayoutEditor__Labels__PanelRightToggle": "Right Panel",
+        "LayoutEditor__Labels__PanelRightToggleTitle": "Show or hide the right panel: the Properties of what is selected, and the Scrapbook. Hidden, the drawing has its width.",
         "LayoutEditor__Labels__AddViewport": "Add Viewport",
         "LayoutEditor__Labels__AddText": "Add Text",
         "LayoutEditor__Labels__AddDimension": "Add Dimension",

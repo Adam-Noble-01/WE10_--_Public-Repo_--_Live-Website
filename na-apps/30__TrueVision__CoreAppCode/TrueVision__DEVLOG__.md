@@ -2,6 +2,72 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.189.11  -  27-Nov-2026
+### The Layout Editor Opens With Every Panel Section Folded, and Either Whole Side Panel Folds Away
+
+Adam, 27-Nov-2026, of both apps' Layout Editors: "Currently when loading ALL sections in left menu and ALL sections of
+Right Menu are shown unfolded, which is overwhelming for users, the Init behaviour is to tidily have them all nested
+when the app is first loaded and the layout editor initilises. do not remeber folding / unfolding between app
+sessions, only remnber users preference for each menus width" and "NEW UI Feature - Add the ability to be able to
+fold the enire left or right menus out so users can if make the drawing workspace the full size if required as only 1
+menu is used sometimes or during revierw and markup sessions none may be used sometimes."
+
+**What was wrong**
+- Every section of both side columns opened unfolded, so the editor opened as two walls of controls.
+- Each fold was written to the browser (`na-layouteditor-panel:fold-<section>`, `advanced-<section>`, the Leaders
+  endpoint fold, each margin-note region's fold) and came back on the next visit.
+- Nothing could put a side column away: the drawing always had the width between the two.
+
+**Now**
+- **Every section opens folded,** on every visit. A selection still opens the section that edits it, as before. A
+  fold lasts while the page does: leaving for the 3D Model tab and coming back keeps it, a reload opens everything
+  folded again. The Advanced folds, the Leaders endpoint fold and the margin-note region folds work the same way.
+- **Nothing about folding is remembered between visits.** The old fold keys are cleared from the browser when the
+  editor opens. The two column widths are remembered as before.
+- **Either whole side panel folds away.** The strip above the sheet starts with a Left Panel toggle and ends with a
+  Right Panel toggle, each beside the column it folds (icons PanelLeft and PanelRight, with hover tips). Lit while
+  the column is on show; pressed, the column goes and the drawing takes its width; pressed again, it comes back at
+  the width it had, with its sections as they were. Both away gives the sheet the whole window for a review or a
+  mark-up. The paper point at the middle of the view stays there as the view widens or narrows. Not remembered
+  either: every visit opens with both columns on show.
+- Site Plan Render Composites decides whether it shows on every model change, not only when it refreshes: a folded
+  section is never refreshed, so it would otherwise never have come up on a site plan sheet.
+
+**Changed**
+- `51__System__LayoutEditor/40__Ui__Panels/Na__LayoutEditor__PanelHost__.js` 1.6.1 -> 1.6.2: sections start folded,
+  no fold or Advanced fold written to storage, `ForgetFolds` on mount; `SetColumnFolded`, `ToggleColumn`,
+  `IsColumnFolded` and `COLUMN_EVENT`; `Refresh` passes a folded column by and unfolding catches it up; the
+  context's `holdView` runs the fold.
+- `.../40__Ui__Panels/Na__LayoutEditor__Toolbar__.js` 1.24.1 -> 1.24.2: the two end toggles.
+- `.../40__Ui__Panels/Na__LayoutEditor__ToolIcons__.js` 0.0.5 -> 0.0.6: PanelLeft and PanelRight (63 names); the two
+  SVGs in `01__AppAssets__TrueVision/UiIcons__MenuIcons__LayoutEditor/`.
+- `.../10__Core__SheetSurface/Na__LayoutEditor__Navigation__.js` 1.3.0 -> 1.3.1: `Na__LeNav__HoldCentre(change)`.
+- `.../05__Core__ModeController/Na__LayoutEditor__ModeController__.js` 1.35.0 -> 1.35.1: hands `holdView` to the
+  panel host.
+- `.../10__Core__SheetSurface/Na__LayoutEditor__Styles__Main__.css`: the shell's folded grid tracks.
+- `.../40__Ui__Panels/Na__LayoutEditor__Panel__Leaders__.js` 1.3.0 -> 1.3.1,
+  `.../50__Feature__Specification/Na__LayoutEditor__Panel__MarginNotes__Regions__.js` 1.0.1 -> 1.0.2: their folds
+  held in page memory only.
+- `.../40__Ui__Panels/Na__LayoutEditor__Panel__SitePlanComposites__.js` 1.0.0 -> 1.0.1: `SyncShown` on every model
+  change.
+- `.../03__Core__Config/Na__LayoutEditor__AppConfig__.json`: the four PanelLeftToggle and PanelRightToggle labels;
+  the Panels description says what is and is not remembered.
+- `62__Feature__AppInstallability/TrueVision__Pwa__ServiceWorker__Logic__.js` 1.22.2 -> 1.22.3: token 2026-11-27-01,
+  because the toolbar and the mode controller import new exports (a warm client with an old cached panel host would
+  fail the import).
+- ValeVision3D v2.99.13 made the same change the same day; the code is word for word the same in both apps.
+
+**Checked:** `tv3d_check`: 13 changed files clean, Na__Verify__Exports__ PASS, Na__Verify__ModuleGraph__ only its
+known false FAIL. On the MCP sandbox (port 8097, JW02, authoring on, writes guarded: none reached R2), with an old
+`fold-sheet` open, an `advanced-text` and a 333 px left width seeded first: all 17 visible sections opened folded,
+the old keys were gone, the left column was 333 px; the strip's first button is Left Panel and its last Right Panel.
+Left away then both away: the stage went 1050 to 1300 to 1600 px, the paper millimetre at the middle of the view
+(421, 297) unchanged, both toggles unlit; both back, and only the two width keys in storage.
+
+**Not checked:** a phone or tablet; the column width grip dragged while the other column is folded; a site plan
+sheet.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.189.10  -  26-Nov-2026
 ### Presentation Scenes Has a Panel of Its Own That Can Pop Out Onto Another Screen, and a Scene's Navigation Mode Saves the Moment It Is Set
 

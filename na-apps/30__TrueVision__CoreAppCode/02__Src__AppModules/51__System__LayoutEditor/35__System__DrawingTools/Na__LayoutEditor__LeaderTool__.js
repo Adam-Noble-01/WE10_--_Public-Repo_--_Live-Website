@@ -155,10 +155,12 @@
             type : d.type, text : start.text, specNoteId : start.specNoteId,
             textSizeMm : d.textSizeMm, fontWeight : d.fontWeight, textColour : d.textColour,
             lineColour : d.lineColour, linePt : d.linePt, lineStyle : d.lineStyle, lineOpacity : d.lineOpacity,
-            endpointFilled : d.endpointFilled, endpointPt : d.endpointPt, endpointSizeMm : d.endpointSizeMm,
+            penType : d.penType, sketchiness : d.sketchiness,
+            endpointKind : d.endpointKind, endpointFilled : d.endpointFilled, endpointPt : d.endpointPt, endpointSizeMm : d.endpointSizeMm,
             bubbleSizeMm : d.bubbleSizeMm, bubbleEdgePt : d.bubbleEdgePt,
             fillColour : (typeof d.filled === 'boolean') ? (d.filled ? d.fillColour : null) : undefined,
             fillOpacity : d.fillOpacity,
+            textBoxExtendMm : d.textBoxExtendMm,
             hideLine : d.hideLine === true,
             silent : true                                                     // <-- Announced once, when the head lands
         };

@@ -125,6 +125,7 @@
     const Na__LeLeadGeo__TYPE_BUBBLE       = 'bubble';
     const Na__LeLeadGeo__LINE_SOLID        = 'solid';
     const Na__LeLeadGeo__LINE_DASHED       = 'dashed';
+    const Na__LeLeadGeo__LINE_DOTTED       = 'dotted';
     const Na__LeLeadGeo__ATTACH_FIRST_LINE = 'first-line';
     const Na__LeLeadGeo__ATTACH_MIDDLE     = 'middle';
     // ------------------------------------------------------------
@@ -386,12 +387,34 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | The Endpoint Circle's Radius (0 when it is switched off, or the line is)
+    // FUNCTION | The End at the Point: a ring, a dot, an arrow, or nothing
+    // ------------------------------------------------------------
+    // A leader from before the choice has no kind. A filled end is the dot;
+    // a size and no fill is the ring; anything else is no end.
+    // ------------------------------------------------------------
+    function Na__LeLeadGeo__EndpointKind(leader) {
+        const kind = leader && leader.Leader__EndpointKind;
+        if (kind === 'circle' || kind === 'dot' || kind === 'open-arrow' || kind === 'closed-arrow' || kind === 'none') return kind;
+        if (leader && leader.Leader__EndpointFilled === true) return 'dot';
+        const size = leader && Number(leader.Leader__EndpointSizeMm);
+        return (Number.isFinite(size) && size > 0) ? 'circle' : 'none';
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | How Far the Line Stops Short of the Point (0 when the end is off)
+    // ------------------------------------------------------------
+    // A ring or a dot is met at its edge, so this is the radius. An arrow is
+    // met at its base, so this is the arrow's length. None lets the line
+    // reach the point.
     // ------------------------------------------------------------
     function Na__LeLeadGeo__EndpointRadius(leader) {
         if (!Na__LeLeadGeo__IsLineShown(leader)) return 0;
+        const kind = Na__LeLeadGeo__EndpointKind(leader);
+        if (kind === 'none') return 0;
         const size = leader.Leader__EndpointSizeMm;
-        return (Number.isFinite(size) && size > 0) ? size / 2 : 0;
+        if (!(Number.isFinite(size) && size > 0)) return 0;
+        return (kind === 'open-arrow' || kind === 'closed-arrow') ? size : size / 2;
     }
     // ------------------------------------------------------------
 
@@ -447,12 +470,15 @@
         const edgeX   = ax + (side * setup.textGapMm);
         const left    = side > 0 ? edgeX : edgeX - widthMm;
         const top     = first - cap;
-        const pad     = setup.textPaddingMm;
+        const custom  = Number(leader.Leader__TextBoxExtendMm);
+        const pad     = Number.isFinite(custom) ? custom : setup.textPaddingMm;
+        const boxW    = Math.max(0.4, widthMm + (pad * 2));
+        const boxH    = Math.max(0.4, blockMm + (pad * 2));
         return {
             type    : Na__LeLeadGeo__TYPE_TEXT, side : side, attach : { x : ax, y : ay },
             fontMm  : fontMm, weight : weight, align : side > 0 ? 'left' : 'right',
             lines   : lines.map((text, i) => ({ text : text, x : edgeX, baselineY : first + (i * lineMm) })),
-            box     : { X : left - pad, Y : top - pad, WidthMm : widthMm + (pad * 2), HeightMm : blockMm + (pad * 2) },
+            box     : { X : left + ((widthMm - boxW) / 2), Y : top + ((blockMm - boxH) / 2), WidthMm : boxW, HeightMm : boxH },
             textBox : { X : left, Y : top, WidthMm : widthMm, HeightMm : blockMm },
             centre  : null, radius : 0
         };
@@ -489,6 +515,19 @@
             points.push([ x, y ]);
         };
 
+        // TECHNICAL | Straight runs and sharp corners, the pen's own habit: the
+        // stub and the landing, with no curve between them.
+        if (leader.Leader__PenType === 'Technical') {
+            const straight = [];
+            const put = (x, y) => {
+                const last = straight[straight.length - 1];
+                if (last && Math.abs(last[0] - x) < Na__LeLeadGeo__EPSILON && Math.abs(last[1] - y) < Na__LeLeadGeo__EPSILON) return;
+                straight.push([ x, y ]);
+            };
+            put(p0.x, p0.y); put(a.x, a.y); put(b.x, b.y); put(p3.x, p3.y);
+            return straight;
+        }
+
         // THE SAMPLE COUNT follows the curve's length, estimated as the mean of
         // its chord and its control polygon, which brackets a cubic's length.
         const chord   = Math.hypot(b.x - a.x, b.y - a.y);
@@ -503,6 +542,66 @@
         }
         add(p3.x, p3.y);
         return points;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | How Far a Leader's Line Wanders (0 straight, 1 loosest)
+    // ------------------------------------------------------------
+    // A number already stored is that choice, including 0. A Sketchy pen from
+    // before the control existed still wanders. Anything else stays straight.
+    // ------------------------------------------------------------
+    function Na__LeLeadGeo__SketchAmount(leader) {
+        const stored = Number(leader.Leader__Sketchiness);
+        if (Number.isFinite(stored)) return Math.max(0, Math.min(1, stored));
+        return leader.Leader__PenType === 'Sketchy' ? 0.55 : 0;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Same Path, Wobbled, Running a Little Past Each End
+    // ------------------------------------------------------------
+    // The ends of the laid-out path stay the anchors of the wobble, then each
+    // end is pushed on by a short overshoot. The same leader id always wobbles
+    // the same way, so a redraw does not shimmer.
+    // ------------------------------------------------------------
+    function Na__LeLeadGeo__SketchPath(path, amount, seedText) {
+        if (!(amount > 0.02) || !path || path.length < 2) return path;
+        let seed = 17;
+        const text = String(seedText || 'L');
+        for (let i = 0; i < text.length; i += 1) seed = (seed * 33 + text.charCodeAt(i)) % 997;
+        const amp = 0.2 + amount * 1.15;
+        const out = [];
+        const push = (x, y) => {
+            const last = out[out.length - 1];
+            if (last && Math.hypot(last[0] - x, last[1] - y) < 0.05) return;
+            out.push([ x, y ]);
+        };
+        for (let i = 0; i < path.length - 1; i += 1) {
+            const a = path[i], b = path[i + 1];
+            const dx = b[0] - a[0], dy = b[1] - a[1];
+            const len = Math.hypot(dx, dy) || 1;
+            const nx = -dy / len, ny = dx / len;
+            const steps = Math.max(1, Math.round(len / 3));
+            for (let s = 0; s < steps; s += 1) {
+                const t = s / steps;
+                const wave = Math.sin(seed + i * 1.7 + t * 8.2) * Math.sin(Math.PI * t);
+                push(a[0] + dx * t + nx * amp * wave, a[1] + dy * t + ny * amp * wave);
+            }
+        }
+        const end = path[path.length - 1];
+        push(end[0], end[1]);
+        const extra = 0.35 + amount * 1.4;
+        const grow = (from, to) => {
+            const dx = to[0] - from[0], dy = to[1] - from[1];
+            const len = Math.hypot(dx, dy) || 1;
+            return [ to[0] + (dx / len) * extra, to[1] + (dy / len) * extra ];
+        };
+        if (out.length >= 2) {
+            out[0] = grow(out[1], out[0]);
+            out[out.length - 1] = grow(out[out.length - 2], out[out.length - 1]);
+        }
+        return out;
     }
     // ------------------------------------------------------------
 
@@ -534,6 +633,36 @@
 // REGION | Primitives, Bounds and Hit Testing
 // -----------------------------------------------------------------------------
 
+    // FUNCTION | The Mark at the Point the Leader Indicates
+    // ------------------------------------------------------------
+    function Na__LeLeadGeo__PushEndpoint(list, leader, tip, side, ink, inkA) {
+        const kind = Na__LeLeadGeo__EndpointKind(leader);
+        const size = Number(leader.Leader__EndpointSizeMm);
+        if (kind === 'none' || !(size > 0) || !tip) return;
+        if (kind === 'circle' || kind === 'dot') {
+            const ring = Na__LeLeadGeo__Circle(tip.x, tip.y, size / 2);
+            if (kind === 'dot') Na__LeChrome__PushPolyline(list, ring, null, 0, ink, true, null, { fillOpacity : inkA });
+            else {
+                const ringMm = Na__LeLeadGeo__StrokeMm(leader.Leader__EndpointPt);
+                if (ringMm > 0) Na__LeChrome__PushPolyline(list, ring, ink, ringMm, null, true, null, { strokeOpacity : inkA });
+            }
+            return;
+        }
+        const way = side < 0 ? -1 : 1;
+        const spread = size * 0.42;
+        const point = [ tip.x, tip.y ];
+        const left  = [ tip.x + (way * size), tip.y - spread ];
+        const right = [ tip.x + (way * size), tip.y + spread ];
+        if (kind === 'closed-arrow') {
+            Na__LeChrome__PushPolyline(list, [ point, left, right ], null, 0, ink, true, null, { fillOpacity : inkA });
+            return;
+        }
+        const stroke = Na__LeLeadGeo__StrokeMm(leader.Leader__EndpointPt);
+        if (stroke > 0) Na__LeChrome__PushPolyline(list, [ left, point, right ], ink, stroke, null, false, null, { strokeOpacity : inkA });
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Push a Leader as Primitives: Fill, Line, Endpoint, Bubble Edge, Halo, Text
     // ------------------------------------------------------------
     // Every stroke - the line, the endpoint and the bubble edge - takes the
@@ -561,23 +690,20 @@
             else if (Na__LeLeadGeo__HasText(head)) Na__LeChrome__PushPolyline(list, Na__LeLeadGeo__BoxPoints(head.box), null, 0, leader.Leader__FillColour, true, null, { fillOpacity : fillA });
         }
 
-        // LINE | Solid or dashed
+        // LINE | Solid, dashed or dotted. Sketchiness above none wobbles it and
+        // runs a little past each end; none leaves the path as it was laid out.
         const lineMm = Na__LeLeadGeo__StrokeMm(leader.Leader__LinePt);
         if (lineMm > 0 && layout.path.length > 1) {
-            const dashMm = leader.Leader__LineStyle === Na__LeLeadGeo__LINE_DASHED ? setup.dashMm : 0;
-            Na__LeChrome__PushPolyline(list, layout.path, ink, lineMm, null, false, null, { dashMm : dashMm, strokeOpacity : inkA });
+            const drawn = Na__LeLeadGeo__SketchPath(layout.path, Na__LeLeadGeo__SketchAmount(leader), leader.Leader__Id);
+            const extra = { strokeOpacity : inkA };
+            if (leader.Leader__LineStyle === Na__LeLeadGeo__LINE_DASHED) extra.dashMm = setup.dashMm;
+            else if (leader.Leader__LineStyle === Na__LeLeadGeo__LINE_DOTTED) extra.dashArray = [ Math.max(0.3, lineMm), Math.max(0.9, lineMm * 2.4) ];
+            Na__LeChrome__PushPolyline(list, drawn, ink, lineMm, null, false, null, extra);
         }
 
-        // ENDPOINT | A solid dot, or a ring at its own weight
-        if (layout.tipRadius > 0) {
-            const ring = Na__LeLeadGeo__Circle(layout.tip.x, layout.tip.y, layout.tipRadius);
-            if (leader.Leader__EndpointFilled === true) {
-                Na__LeChrome__PushPolyline(list, ring, null, 0, ink, true, null, { fillOpacity : inkA });
-            } else {
-                const ringMm = Na__LeLeadGeo__StrokeMm(leader.Leader__EndpointPt);
-                if (ringMm > 0) Na__LeChrome__PushPolyline(list, ring, ink, ringMm, null, true, null, { strokeOpacity : inkA });
-            }
-        }
+        // END | A ring, a solid dot, an open or closed arrow, or nothing. The
+        // arrow points at the marked point and opens back toward the note.
+        Na__LeLeadGeo__PushEndpoint(list, leader, layout.tip, head.side, ink, inkA);
 
         // BUBBLE EDGE | Over the fill; a weight of 0 leaves the fill on its own
         if (bubble) {
